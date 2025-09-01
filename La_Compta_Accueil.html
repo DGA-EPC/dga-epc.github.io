@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La compta, c'est ma joie</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .header {
+            background-color: #8A2BE2; /* Violet */
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        
+        .rubrique {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 250px;
+            min-height: 100px;
+            transition: transform 0.3s ease;
+            text-align: center;
+        }
+        
+        .rubrique:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .rubrique a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            display: block;
+            height: 100%;
+        }
+        
+        .rubrique h2 {
+            margin-top: 0;
+            color: #8A2BE2;
+        }
+        
+        .vide {
+            background-color: #f0f0f0;
+            border: 2px dashed #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>La compta, c'est ma joie</h1>
+        <h2>par Daniel Gauthier, EPC Fribourg</h2>
+    </div>
+    
+    <div class="container">
+        <div class="rubrique">
+            <a href="https://dga-epc.github.io/La_Compta_Bilan.html" target="_blank">
+                <h2>Établir un bilan</h2>
+            </a>
+        </div>
+     
+        <div class="rubrique">
+            <a href="https://dga-epc.github.io/La_Compta_Cest_ma_joie.html" target="_blank">
+                <h2>Journaliser</h2>
+            </a>
+        </div>
+        
+        <!-- Cadres vides pour les ajouts futurs -->
+        <div class="rubrique vide">
+            <h2>-</h2>
+        </div>
+
+        </div>
+    </div>
+</body>
+</html>
