@@ -9,8 +9,21 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #f5f5f5;
+            background-color: #c0c0c0;
             color: #333;
+        }
+		.header {
+            background-color: #8A2BE2; /* Violet */
+            color: white;
+			width: 60%; /* Réduction de la largeur */
+			max-width: 1000px; /* Réduction de la largeur maximale */
+            padding: 0px 20px;
+			margin: 0 auto 30px auto; /* Centrage horizontal */
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+			border-top: 12px solid #24f400;
+			border-bottom: 8px solid #24f400;
         }
         .container {
             max-width: 1000px;
@@ -23,6 +36,11 @@
         h1 {
             text-align: center;
             color: #2c3e50;
+        }
+        h2 {
+            text-align: center;
+            color: #FFFFFF;
+			font-size: 32px;
         }
         .level-selector {
             display: flex;
@@ -39,16 +57,35 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s;
+			transition: background-color 0.3s;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+		.simple {
+            border-top: 5px solid #24f400;
+		}	
+        .court {
+            border-top: 5px solid #3fffff;
+		}
+		.long1 {
+            border-top: 5px solid #ffb43f;
+		}
+		.long2 {
+            border-top: 5px solid #de222a;
+		}
         .level-btn:hover {
             background-color: #2980b9;
+			transform: translateY(-2px);
+			box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
         .quit-btn {
             background-color: #e74c3c;
+			border-top: 5px solid #666666;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         .quit-btn:hover {
             background-color: #c0392b;
+			transform: translateY(-2px);
+			box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
         .game-container {
             display: none;
@@ -137,22 +174,34 @@
             cursor: pointer;
         }
         .solution-btn {
-            background-color: #2ecc71;
+            background-color: #50de52;
             color: white;
+        }
+        .solution-btn:hover {
+            background-color: #20a621;
+            transform: translateY(-2px);
         }
         .submit-btn {
             background-color: #3498db;
             color: white;
         }
+        .submit-btn:hover {
+            background-color: #1b5c87;
+            transform: translateY(-2px);
+        }		
         .menu-btn {
             background-color: #95a5a6;
             color: white;
+        }
+		.menu-btn:hover {
+            background-color: #515455;
+            transform: translateY(-2px);
         }
         .quote {
             text-align: center;
             margin-top: 30px;
             font-style: italic;
-            color: #7f8c8d;
+            color: #6a1e6e;
         }
         .feedback {
             text-align: center;
@@ -166,19 +215,22 @@
         .incorrect-text {
             color: #e74c3c;
         }
+		
+		
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Le schéma des prix</h1>
-        
-        <div class="level-selector" id="levelSelector">
-            <button class="level-btn" data-level="simple">Schéma simple</button>
-            <button class="level-btn" data-level="court">Schéma court</button>
-            <button class="level-btn" data-level="long-aide">Schéma long avec aide</button>
-            <button class="level-btn" data-level="long-sans-aide">Schéma long sans aide</button>
-            <button class="level-btn quit-btn" id="quitBtn">Quitter</button>
+    <div class="header">
+	        <h2>Le schéma des prix</h2>
         </div>
+		
+	<div class="container">    
+        <div class="level-selector" id="levelSelector">
+            <button class="level-btn simple" data-level="simple">Schéma simple</button>
+            <button class="level-btn court" data-level="court">Schéma court</button>
+            <button class="level-btn long1" data-level="long-aide">Schéma long avec aide</button>
+            <button class="level-btn long2" data-level="long-sans-aide">Schéma long sans aide</button>
+    </div>
         
         <div class="game-container" id="gameContainer">
             <div class="game-area">
@@ -194,7 +246,6 @@
                 <button class="control-btn menu-btn" id="menuBtn">Menu</button>
             </div>
         </div>
-        
         <div class="quote">
             "La compta, c'est ma joie", DG, EPC Fribourg
         </div>
