@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>"La compte, c'est ma joie!</title>
+    <title>La comptabilité, c'est ma joie!</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,17 +15,22 @@
         .header {
             background-color: #8A2BE2; /* Violet */
             color: white;
-            padding: 20px;
+            width: 60%; /* Réduction de la largeur */
+            max-width: 1000px; /* Réduction de la largeur maximale */
+            padding: 0px 20px;
+            margin: 0 auto 30px auto; /* Centrage horizontal */
             border-radius: 10px;
             margin-bottom: 20px;
             text-align: center;
-			border-top: 12px solid #4caf50;
-			border-bottom: 8px solid #4caf50;
+            border-top: 12px solid #4caf50;
+            border-bottom: 8px solid #4caf50;
         }
         
         .container {
             display: flex;
             flex-wrap: wrap;
+			max-width: 1000px;
+			margin: 0 auto 30px auto;
             gap: 20px;
             justify-content: center;
         }
@@ -39,13 +44,16 @@
             min-height: 60px;
             transition: transform 0.3s ease;
             text-align: center;
-			border-top: 8px solid #ff7801;
-			border-bottom: 8px solid #ff7801;	
+            border-top: 8px solid #ff7801;
+            border-bottom: 8px solid #ff7801;
+            /* Ajout pour centrer le contenu verticalement */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-		
         
         .rubrique:hover {
-			background-color: #b0f6b4;
+            background-color: #b0f6b4;
             transform: translateY(-5px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
@@ -56,11 +64,19 @@
             font-weight: bold;
             display: block;
             height: 100%;
+            width: 100%;
+            /* Ajout pour centrer le contenu */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .rubrique h2 {
-            margin-top: 0;
+            margin: 0; /* Suppression de la marge par défaut */
             color: #8A2BE2;
+            /* Ajustement pour un meilleur centrage */
+            padding: 0;
+            line-height: 1.2;
         }
         
         .vide {
@@ -92,13 +108,19 @@
             </a>
         </div>
         
-        <!-- Cadres vides pour les ajouts futurs -->
         <div class="rubrique">
-			<a href="https://dga-epc.github.io/La_Compta_Resultat.html" target="_blank">
+            <a href="https://dga-epc.github.io/La_Compta_Resultat.html" target="_blank">
                 <h2>Établir un compte de résultat</h2>
+            </a>
         </div>
 
+       
+        <div class="rubrique">
+            <a href="https://dga-epc.github.io/La_Compta_Prix.html" target="_blank">
+                <h2>Le schéma des prix</h2>
+            </a>
         </div>
+		
     </div>
 </body>
 </html>
