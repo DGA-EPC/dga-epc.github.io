@@ -12,7 +12,7 @@
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f9f9f9;
+            background-color: #000000;
         }
 		h1 {
 			color: white;
@@ -25,7 +25,7 @@
 			
 		}
         h2 {
-            color: #4b0082;
+            color: #2acfd6;
 			text-align: center;
         }
         .container {
@@ -105,7 +105,7 @@
             text-align: center;
             font-style: italic;
             margin-top: 30px;
-            color: #7f8c8d;
+            color: #FFFFFF;
         }
         .hidden {
             display: none;
@@ -121,7 +121,6 @@
 </head>
 <body>
     <h1>Les Écritures Comptables</h1>
-    <h2>Principales écritures pour les apprentis employés de commerce CFC avec option maturité.</h2>
     
     <!-- Page d'accueil avec sélection des niveaux et thèmes -->
     <div id="home-page" class="container">
@@ -219,6 +218,7 @@
             { niveau: "A", nom: "Dettes AFC", classe: 2 },
 			{ niveau: "T3", nom: "Dettes AVS", classe: 2 },
 			{ niveau: "T3", nom: "Dettes LPP", classe: 2 },
+			{ niveau: "T3", nom: "Dettes Caisse ALFA", classe: 2 },
             { niveau: "D", nom: "Dette bancaire", classe: 2 },
             { niveau: "A", nom: "Dette hypothécaire", classe: 2 },
             { niveau: "T4", nom: "Passifs transitoires", classe: 2 },
@@ -629,6 +629,30 @@
                 niveau: "T2"
             },
             { 
+                description: "Amortissement direct des machines.", 
+                debit: "Amortissements", 
+                credit: "Machines et appareils",
+                niveau: "T2"
+            },
+            { 
+                description: "Amortissement indirect du mobilier.", 
+                debit: "Amortissements", 
+                credit: "FAC sur mobilier et installation",
+                niveau: "T2"
+            },
+            { 
+                description: "Amortissement direct de l'immeuble commercial.", 
+                debit: "Amortissements", 
+                credit: "Immeubles",
+                niveau: "T2"
+            },
+            { 
+                description: "Amortissement de la dette bancaire par poste.", 
+                debit: "Dette bancaire", 
+                credit: "Poste",
+                niveau: "T2"
+            },
+            { 
                 description: "Comptabilisation des cotisations patronale à l'AVS", 
                 debit: "Charges sociales", 
                 credit: "Dettes AVS",
@@ -638,6 +662,48 @@
                 description: "Nous payons par banque le montant dû à la caisse de compensation.", 
                 debit: "Dettes AVS", 
                 credit: "Banque",
+                niveau: "T3"
+            },
+            { 
+                description: "Versement en espèces d'une avance de salaires à un employé.", 
+                debit: "Salaires", 
+                credit: "Caisse",
+                niveau: "T3"
+            },
+            { 
+                description: "Nous payons par poste le montant dû à la caisse de retraite.", 
+                debit: "Dettes LPP", 
+                credit: "Poste",
+                niveau: "T3"
+            },
+            { 
+                description: "Nous recevons à la banque un retour des allocations familiales (solde en notre faveur).", 
+                debit: "Banque", 
+                credit: "Dettes Caisse ALFA",
+                niveau: "T3"
+            },
+            { 
+                description: "Nous versons par virement postal le solde dû aux allocations familiales.", 
+                debit: "Dettes Caisse ALFA", 
+                credit: "Poste",
+                niveau: "T3"
+            },
+            { 
+                description: "Comptabiliser la cotisation AVS du patron.", 
+                debit: "Privé", 
+                credit: "Dettes AVS",
+                niveau: "T3"
+            },
+            { 
+                description: "Les APG remboursent par poste le salaire que nous avons versé à notre employé au service militaire.", 
+                debit: "Poste", 
+                credit: "Salaires",
+                niveau: "T3"
+            },
+            { 
+                description: "Comptabiliser la cotisation aux allocations familiales.", 
+                debit: "Charges sociales", 
+                credit: "Dettes Caisse ALFA",
                 niveau: "T3"
             },
             { 
@@ -653,10 +719,124 @@
                 niveau: "T4"
             },
             { 
+                description: "La facture du garagiste pour l'entretien du véhicule ne nous parviendra que l'an prochain. Nous l'estimons à CHF 1'400.-. En tenir compte.", 
+                debit: "Frais de véhicules", 
+                credit: "Passifs transitoires",
+                niveau: "T4"
+            },
+            { 
+                description: "Nous avons déjà payé par banque l'assurance RC de janvier à juin de l'an prochain. En tenir compte.", 
+                debit: "Actifs transitoires", 
+                credit: "Assurances",
+                niveau: "T4"
+            },
+            { 
+                description: "Les primes de salaires pour cette année seront décomptées en janvier. En tenir compte.", 
+                debit: "Salaires", 
+                credit: "Passifs transitoires",
+                niveau: "T4"
+            },
+            { 
+                description: "Intérêts courus sur un prêt accordé.", 
+                debit: "Actifs transitoires", 
+                credit: "Produits financiers",
+                niveau: "T4"
+            },
+            { 
+                description: "Intérêts courus sur un crédit bancaire.", 
+                debit: "Charges financières", 
+                credit: "Passifs transitoires",
+                niveau: "T4"
+            },
+            { 
+                description: "Nous estimons à CHF 8'000.- les ristournes que nous accorderons nos fournisseurs.", 
+                debit: "Actifs transitoires", 
+                credit: "Déductions obtenues",
+                niveau: "T4"
+            },
+            { 
+                description: "Le dernier décompte d'électricité s'arrête à fin novembre. Tenir compte d'une estimation de CHF 800.- pour décembre. Le prochain décompte sera établi en février.", 
+                debit: "Electricité", 
+                credit: "Passifs transitoires",
+                niveau: "T4"
+            },
+            { 
                 description: "Nous payons par banque l'assurance bâtiment de notre immeuble locatif.", 
                 debit: "Charges d'immeuble", 
                 credit: "Banque",
                 niveau: "T5"
+            },
+            { 
+                description: "Nous payons par banque les intérêts hypothécaire sur notre immeuble locatif.", 
+                debit: "Charges d'immeuble", 
+                credit: "Banque",
+                niveau: "T5"
+            },
+            { 
+                description: "Nous payons par poste les frais de réparation du chauffage de notre immeuble locatif.", 
+                debit: "Charges d'immeuble", 
+                credit: "Poste",
+                niveau: "T5"
+            },
+            { 
+                description: "Nous payons par banque une facture comptabilisée pour l'entretien de notre immeuble locatif.", 
+                debit: "Autres dettes", 
+                credit: "Banque",
+                niveau: "T5"
+            },
+            { 
+                description: "Nous payons par banque l'amortissement de la dette hypothécaire.", 
+                debit: "Dette hypothécaire", 
+                credit: "Banque",
+                niveau: "T5"
+            },
+            { 
+                description: "Avis de crédit de la banque concernant les loyers encaissés sur notre immeuble.", 
+                debit: "Banque", 
+                credit: "Produits d'immeuble",
+                niveau: "T5"
+            },
+            { 
+                description: "Nous payons par poste le loyer trimestriel d'un entrepôt.", 
+                debit: "Loyers", 
+                credit: "Poste",
+                niveau: "T5"
+            },
+            { 
+                description: "Nous payons par poste le salaire du concierge de notre immeuble commercial.", 
+                debit: "Salaires", 
+                credit: "Poste",
+                niveau: "T5"
+            },
+            { 
+                description: "Nous payons par poste le salaire du concierge de notre immeuble locatif.", 
+                debit: "Charges d'immeuble", 
+                credit: "Poste",
+                niveau: "T5"
+            },
+            { 
+                description: "A la clôture des comptes, il reste un stock de mazout de CHF 1'200.- dans notre immeuble locatif.", 
+                debit: "Actifs transitoires", 
+                credit: "Charges d'immeuble",
+                niveau: "T5"
+            },
+            { 
+                description: "Nous payons en espèce les frais de notaires pour l'achat de notre nouvel immeuble.", 
+                debit: "Immeubles", 
+                credit: "Caisse",
+                niveau: "T5"
+            },
+            { 
+                description: "Nous achetons par banque des actions IBM.", 
+                debit: "Titres", 
+                credit: "Banque",
+                niveau: "T6"
+            },
+            { 
+                description: "Nous vendons par banque des actions Glenporc.", 
+                debit: "Banque", 
+                credit: "Titres",
+                niveau: "T6"
             }
 			
         ];
