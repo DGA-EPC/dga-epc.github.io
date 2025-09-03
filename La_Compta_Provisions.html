@@ -511,7 +511,7 @@
             newRow.innerHTML = `
                         <td>
                             <select class="debit-account">
-                                <option value="">Sélectionner un compte</option>
+                                <option value=""></option>
                                 <optgroup label="ACTIF">
                                     <option value="Caisse">Caisse</option>
                                     <option value="Poste">Poste</option>
@@ -544,7 +544,7 @@
                         </td>
                         <td>
                             <select class="credit-account">
-                                <option value="">Sélectionner un compte</option>
+                                <option value=""></option>
                                 <optgroup label="ACTIF">
                                     <option value="Caisse">Caisse</option>
                                     <option value="Poste">Poste</option>
@@ -575,8 +575,8 @@
                                 </optgroup>
                             </select>
                         </td>
-                <td><input type="number" class="debit-amount" min="0" step="0.01" style="text-align: right;"></td>
-                <td><input type="number" class="credit-amount" min="0" step="0.01" style="text-align: right;"></td>
+                <td><input type="number" class="debit-amount" min="0" step="100" style="text-align: right;"></td>
+                <td><input type="number" class="credit-amount" min="0" step="100" style="text-align: right;"></td>
             `;
             
             tbody.appendChild(newRow);
@@ -723,30 +723,37 @@
         }
 
         // Afficher la solution correcte
-        function showSolution(solution) {
-            const tbody = solutionTable.querySelector('tbody');
-            tbody.innerHTML = '';
-            
-            solution.forEach(entry => {
-                const row = document.createElement('tr');
-                
-                row.innerHTML = `
-                    <td>${entry.debit || ''}</td>
-                    <td>${entry.credit || ''}</td>
-                    <td style="text-align: right;">${entry.debit ? formatAmount(entry.amount) : ''}</td>
-                    <td style="text-align: right;">${entry.credit ? formatAmount(entry.amount) : ''}</td>
-                `;
-                
-                tbody.appendChild(row);
-            });
-            
-            solutionTable.style.display = 'table';
-        }
+		function showSolution(solution) {
+			const tbody = solutionTable.querySelector('tbody');
+			tbody.innerHTML = '';
+    
+			solution.forEach(entry => {
+				const row = document.createElement('tr');
+        
+				row.innerHTML = `
+					<td>${entry.debit || ''}</td>
+					<td>${entry.credit || ''}</td>
+					<td style="text-align: right;">${entry.debit ? formatAmount(entry.amount) : ''}</td>
+					<td style="text-align: right;">${entry.credit ? formatAmount(entry.amount) : ''}</td>
+				`;
+        
+				tbody.appendChild(row);
+			});
+    
+			solutionTable.style.display = 'table';
+		}
 
-        // Formater le montant
-        function formatAmount(amount) {
-            return amount.toLocaleString('fr-CH', { minimumFractionDigits: 2 });
-        }
+// Formater le montant avec apostrophe
+function formatAmount(amount) {
+    const num = typeof amount === 'number' ? amount : parseFloat(amount);
+    const parts = num.toFixed(2).split('.');
+    let integerPart = parts[0];
+    const decimalPart = parts[1];
+    
+    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+    
+    return `${integerPart}.${decimalPart}`;
+}
 
         // Passer à l'écriture suivante
         function nextEntry() {
