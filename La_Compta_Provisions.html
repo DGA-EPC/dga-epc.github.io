@@ -46,6 +46,10 @@
             color: #fedbff;
             margin-top: 0;
         }
+        h3 {
+            color: #000000;
+            margin-top: 0;
+        }
         .stats {
             display: flex;
             justify-content: space-between;
@@ -199,6 +203,7 @@
 									<option value="Banque">Banque</option>
 									<option value="Créances clients">Créances clients</option>
 									<option value="Créances douteuses">Créances douteuses</option>
+									<option value="Ducroire">Ducroire</option>
                                     <option value="Stock de marchandises">Stock de marchandises</option>
                                     </optgroup>
                                 <optgroup label="PASSIF">
@@ -231,10 +236,12 @@
 									<option value="Banque">Banque</option>
 									<option value="Créances clients">Créances clients</option>
 									<option value="Créances douteuses">Créances douteuses</option>
+									<option value="Ducroire">Ducroire</option>
                                     <option value="Stock de marchandises">Stock de marchandises</option>
                                     </optgroup>
                                 <optgroup label="PASSIF">
                                     <option value="Dettes fournisseurs">Dettes fournisseurs</option>
+									
 									<option value="Capital">Capital</option>
                                 </optgroup>
                                 <optgroup label="MARCHANDISES">
@@ -286,8 +293,8 @@
         </table>
 
         <div id="completion-message" class="completion-message">
-            <h2>Félicitations ! Vous avez terminé toutes les écritures.</h2>
-            <p>A vous de juger de votre score : <span id="final-score">0</span></p>
+            <h3>Félicitations ! Vous avez terminé toutes les écritures.</h3>
+            <p>A vous de juger votre score : <span id="final-score">0</span></p>
 			<h3>N'oubliez pas : "Je fais de la compta et c'est ma joie"</h3>
 
 
@@ -301,7 +308,7 @@
             {
                 description: "Nous entamons une poursuite contre un client qui nous doit CHF 1'200.- en avançant en espèces les frais de CHF 80.-",
                 solution: [
-                    { debit: "Créances clients", credit: "Caisse", amount: 80 },
+                    { debit: "Créances clients", credit: "Caisse", amount: 80 }
                 ]
             },
             {
@@ -310,6 +317,86 @@
                     { debit: "Poste", credit: "", amount: 800 },
 					{ debit: "Pertes sur créances", credit: "", amount: 1200 },
                     { debit: "", credit: "Créances clients", amount: 2000 }
+                 ]
+            },
+            {
+                description: "Nous entamons une poursuite contre un client qui nous doit CHF 2'800.- en payant par poste les frais de CHF 140.-. Nous transférons ensuite la facture dans le compte approprié",
+                solution: [
+                    { debit: "Créances clients", credit: "Poste", amount: 140 },
+                    { debit: "Créances douteuses", credit: "Créances clients", amount: 2940 }
+                 ]
+            },
+            {
+                description: "Contre toute attente, nous récupérons CHF 400.- sur une poursuite achevée cette année. Le montant est versé à la banque",
+                solution: [
+                    { debit: "Banque", credit: "Pertes sur créances", amount: 400 }
+                 ]
+            },
+		   {
+                description: "Contre toute attente, nous récupérons CHF 800.- sur une poursuite achevée il y a 3 ans. Le montant est versé à la poste",
+                solution: [
+                    { debit: "Poste", credit: "Produits exceptionnels", amount: 800 }
+                 ]
+            },
+            {
+                description: "Les poursuites ayant abouti, nous recevons à la poste un montant de CHF 1'470.- pour une créance de CHF 1'400.-. La différence représente les intérêts moratoires.",
+                solution: [
+                    { debit: "Poste", credit: "", amount: 1470 },
+                    { debit: "", credit: "Créances clients", amount: 1400 },
+					{ debit: "", credit: "Produits financiers", amount: 70 }
+                 ]
+            },
+            {
+                description: "Nous recevons un ADB des poursuites. Le montant total de la créance douteuse est perdu, soit CHF 600.-. Après avoir enregistré la perte, nous utilisons la provision pour l'amortir.",
+                solution: [
+                    { debit: "Pertes sur créances", credit: "", amount: 600 },
+                    { debit: "", credit: "Créances douteuses", amount: 600 },
+					{ debit: "Ducroire", credit: "", amount: 600 },
+					{ debit: "", credit: "Pertes sur créances", amount: 600 }
+                 ]
+            },
+            {
+                description: "En fin d'exercice, nous créons une provision sur nos clients de CHF 2'400.-.",
+                solution: [
+                    { debit: "Pertes sur créances", credit: "Ducroire", amount: 2400 }
+                 ]
+            },
+            {
+                description: "Ajustement de la provision Ducroire pour qu'elle corresponde au 5% des clients. Solde des clients : CHF 40'000.- Solde de Ducroire avant ajustement : CHF 2'300.-.",
+                solution: [
+					{ debit: "Ducroire", credit: "Pertes sur créances", amount: 300 }
+                 ]
+            },
+            {
+                description: "Ajustement de la provision Ducroire pour qu'elle corresponde au 5% des clients. Solde des clients : CHF 20'000.- Solde de Ducroire avant ajustement : CHF 400.-.",
+                solution: [
+					{ debit: "Pertes sur créances", credit: "Ducroire", amount: 600 }
+                 ]
+            },
+            {
+                description: "Nous envoyons un 3è rappel à un client douteux et lui facturons CHF 40.- de frais administratif, ainsi que CHF 28.- d'intérêts moratoires.",
+                solution: [
+					{ debit: "Créances douteuses", credit: "", amount: 68 },
+					{ debit: "", credit: "Frais d'administration", amount: 40 },
+					{ debit: "", credit: "Produits financiers", amount: 28 },
+                 ]
+            },
+            {
+                description: "Nous vendons des ADB d'une valeur de CHF 10'000.- à une entreprise de recouvrement qui nous verse par banque la somme de CHF 4'500.-. Tous ces ADB ont plus de 2 ans.",
+                solution: [
+					{ debit: "Banque", credit: "Produits exceptionnels", amount: 4500 }
+                 ]
+            },
+            {
+                description: "En fin d'exercice, nous augmentons la provision sur créances de CHF 700.-",
+                solution: [
+					{ debit: "Pertes sur créances", credit: "Ducroire", amount: 700 }
+                 ]
+            },
+            {
+                description: "Par précaution, nous transférons une facture d'un client insolvable à l'heure actuelle dans le compte approprié, CHF 900.-",
+                solution: [
+					{ debit: "Créances douteuses", credit: "Créances clients", amount: 900 }
                  ]
             }
             // Ajouter d'autres écritures ici par la suite
@@ -431,6 +518,7 @@
 									<option value="Banque">Banque</option>
 									<option value="Créances clients">Créances clients</option>
 									<option value="Créances douteuses">Créances douteuses</option>
+									<option value="Ducroire">Ducroire</option>
                                     <option value="Stock de marchandises">Stock de marchandises</option>
                                     </optgroup>
                                 <optgroup label="PASSIF">
@@ -463,6 +551,7 @@
 									<option value="Banque">Banque</option>
 									<option value="Créances clients">Créances clients</option>
 									<option value="Créances douteuses">Créances douteuses</option>
+									<option value="Ducroire">Ducroire</option>
                                     <option value="Stock de marchandises">Stock de marchandises</option>
                                     </optgroup>
                                 <optgroup label="PASSIF">
