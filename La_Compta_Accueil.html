@@ -3,152 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>La comptabilité, c'est ma joie!</title>
+    <title>Je fais de la compta et c'est ma joie</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #000000;
+            background: #000000;
         }
         
         .header {
-            background-color: #8A2BE2; /* Violet */
+            background-color: #6a0dad; /* Violet foncé */
             color: white;
-            width: 60%; /* Réduction de la largeur */
-            max-width: 1000px; /* Réduction de la largeur maximale */
-            padding: 0px 20px;
-            margin: 0 auto 30px auto; /* Centrage horizontal */
-            border-radius: 12px;
-            margin-bottom: 20px;
+            padding: 15px;
             text-align: center;
-            border-top: 12px solid #00f4f4;
-            border-bottom: 8px solid #00f4f4;
+            border-top: 5px solid #51FF46; /* Bord haut vert */
+            border-bottom: 5px solid #FDCF00; /* Bord bas orange */
+            margin-bottom: 25px;
+            position: relative;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(106, 13, 173, 0.4);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header h2 {
+            margin: 5px 0 0;
+            font-size: 18px;
+            font-weight: normal;
+			font-style: italic;
+        }
+
+        .emoji-left, .emoji-right {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 30px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .emoji-left {
+            left: 20px;
+        }
+        
+        .emoji-right {
+            right: 20px;
         }
         
         .container {
             display: flex;
             flex-wrap: wrap;
-			max-width: 1000px;
-			margin: 0 auto 30px auto;
+            justify-content: space-around;
             gap: 20px;
-            justify-content: center;
+            margin-bottom: 30px;
+	   }
+        
+        .section {
+            border-radius: 16px;
+			background: linear-gradient(180deg, #e6f7ff 0%, #105477 100%);
+			border-top: 5px solid #105477;
+			border-bottom: 5px solid #a7d7ef;
+            padding: 20px;
+            width: 45%;
+            min-width: 300px;
         }
+
+		.section:nth-child(2) {
+			background: linear-gradient(180deg,  #fff0e6 0%, #f37e31 100%);
+			border-top: 5px solid #f37e31;
+			border-bottom: 5px solid #f9d9c4;
+		}		
+        
+        .section h3 {
+            color: #ffffff;
+            text-align: center;
+            padding: 10px;
+            margin: 5px 0 15px;
+            border-radius: 8px;
+            background-color: #0b4360;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+	
+		.section:nth-child(2) h3 {
+			background-color: #b94a00; /* Rose pastel pour le deuxième titre */
+		}
         
         .rubrique {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            width: 250px;
-            min-height: 60px;
-            transition: transform 0.3s ease;
+            margin: 12px 0;
             text-align: center;
-            border-top: 8px solid #ff7801;
-            border-bottom: 8px solid #ff7801;
-            /* Ajout pour centrer le contenu verticalement */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .rubrique:hover {
-            background-color: #b0f6b4;
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
         
         .rubrique a {
             text-decoration: none;
             color: #333;
-            font-weight: bold;
             display: block;
-            height: 100%;
-            width: 100%;
-            /* Ajout pour centrer le contenu */
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 12px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #f8f9fc 0%, #eef2f8 100%);
+            border: 2px solid #d8e1f0;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+        
+        .rubrique a:hover {
+            background: linear-gradient(135deg, #6a0dad 0%, #8a2be2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(106, 13, 173, 0.3);
         }
         
         .rubrique h2 {
-            margin: 0; /* Suppression de la marge par défaut */
-            color: #8A2BE2;
-            /* Ajustement pour un meilleur centrage */
-            padding: 0;
-            line-height: 1.2;
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
         }
-        .h3 {
+        
+        .footer {
             text-align: center;
-            justify-content: center;
-			color: #FFFFFF;
-        }        
-        .vide {
-            background-color: #f0f0f0;
-            border: 2px dashed #ccc;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #888;
+            padding: 15px;
+            font-style: italic;
+            color: #555;
+            margin-top: 15px;
+            background-color: #fff8e1;
+            border-radius: 8px;
+            border-left: 5px solid #FFA500;
+            border-right: 5px solid #4CAF50;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .section {
+                width: 100%;
+            }
+            
+            .header h1 {
+                font-size: 22px;
+                padding: 0 40px;
+            }
+            
+            .emoji-left, .emoji-right {
+                font-size: 24px;
+            }
+        }
+        
+        .decoration {
+            text-align: center;
+            margin: 15px 0;
+            color: #FDCF00;
+            font-size: 24px;
         }
     </style>
 </head>
 <body>
     <div class="header">
+        <span class="emoji-left">😊</span>
         <h1>"Je fais de la compta et c'est ma joie!"</h1>
-        <h2>par Daniel Gauthier, EPC Fribourg</h2>
+        <h2>Daniel Gauthier, EPC-Fribourg</h2>
+        <span class="emoji-right">😊</span>
     </div>
     
+
+    
     <div class="container">
-        <div class="rubrique">
-            <a href="https://dga-epc.github.io/La_Compta_Nature.html" target="_blank">
-                <h2>La base : La nature des comptes</h2>
-				</a>
-        </div>
-		<div class="rubrique">
-            <a href="https://dga-epc.github.io/La_Compta_Bilan.html" target="_blank">
-                <h2>Établir un bilan</h2>
-            </a>
-        </div>
-     
-        <div class="rubrique">
-            <a href="https://dga-epc.github.io/La_Compta_Resultat2.html" target="_blank">
-                <h2>Établir un compte de résultat à 2 degrés<br>(1ère année)</h2>
-            </a>
-        </div>
+        <div class="section">
+            <h3>Ce que vous dev(ri)ez maîtriser en fin de 1ère année</h3>
+            
+            <div class="rubrique">
+                <a href="https://dga-epc.github.io/La_Compta_Nature.html" target="_blank">
+                    <h2>Connaître la nature des comptes (La base)</h2>
+                </a>
+            </div>
 
-        <div class="rubrique">
-            <a href="https://dga-epc.github.io/La_Compta_Resultat.html" target="_blank">
-                <h2>Établir un compte de résultat à 3 degrés<br>(2ème année)</h2>
-            </a>
-        </div>
+            <div class="rubrique">
+                <a href="https://dga-epc.github.io/La_Compta_Bilan.html" target="_blank">
+                    <h2>Établir un bilan</h2>
+                </a>
+            </div>
+           
+            <div class="rubrique">
+                <a href="https://dga-epc.github.io/La_Compta_Journal.html" target="_blank">
+                    <h2>Journaliser les écritures simples</h2>
+                </a>
+            </div>
+            
+            <div class="rubrique">
+                <a href="https://dga-epc.github.io/La_Compta_Marchandises.html" target="_blank">
+                    <h2>Journaliser les écritures multiples (marchandises et autres)</h2>
+                </a>
+            </div>
 
-        <div class="rubrique">
-            <a href="https://dga-epc.github.io/La_Compta_CAN.html" target="_blank">
-                <h2>Calcul du CAN, PRAMV et cie</h2>
-            </a>
-        </div>
-		
-		
-        <div class="rubrique">
-            <a href="https://dga-epc.github.io/La_Compta_Journal.html" target="_blank">
-                <h2>Journaliser les écritures simples</h2>
-            </a>
-        </div>
-     
-        <div class="rubrique">
-            <a href="https://dga-epc.github.io/La_Compta_Chapitres.html" target="_blank">
-                <h2>Journaliser<br>(par thèmes)</h2>
-				
-            </a>
-        </div>
+            <div class="rubrique">
+                <a href="https://dga-epc.github.io/La_Compta_Resultat2.html" target="_blank">
+                    <h2>Établir un compte de résultat à 2 degrés</h2>
+                </a>
+            </div>
 
-        <div class="rubrique">
-            <a href="https://dga-epc.github.io/La_Compta_Prix.html" target="_blank">
-                <h2>Le schéma des prix</h2>
-            </a>
-        </div>
-	
+            <div class="rubrique">
+                <a href="https://dga-epc.github.io/La_Compta_CAN.html" target="_blank">
+                    <h2>Calculer le CAN, le PRAMV et cie</h2>
+                </a>
+            </div>
 
+            <div class="rubrique">
+                <a href="https://dga-epc.github.io/La_Compta_Prix.html" target="_blank">
+                    <h2>Etablir le schéma des prix</h2>
+                </a>
+            </div>            
+
+        </div>
+        
+        <div class="section">
+            <h3>Ce que vous dev(ri)ez maîtriser en fin de 2è année</h3>
+            
+            <div class="rubrique">
+                <a href="https://dga-epc.github.io/La_Compta_Resultat.html" target="_blank">
+                    <h2>Établir un compte de résultat à 3 degrés</h2>
+                </a>
+            </div>
+            
+            <div class="rubrique">
+                <a href="https://dga-epc.github.io/La_Compta_Chapitres.html" target="_blank">
+                    <h2>Journaliser<br>(Salaires, amortissements, transitoires, etc.)</h2>
+                </a>
+            </div>
+
+
+        </div>
+    </div>
+
+    <div class="decoration">
+        <i class="fas fa-book-open"></i>
+        <i class="fas fa-calculator"></i>
+        <i class="fas fa-chart-line"></i>
+    </div>   
+
+    
+    <div class="footer">
+        « Celui qui veut faire quelque chose trouve un moyen, celui qui ne veut rien faire trouve des excuses ! » Proverbe arabe
+    </div>
+    
+    <div class="decoration">
+        <i class="fas fa-graduation-cap"></i>
+        <i class="fas fa-coins"></i>
+        <i class="fas fa-award"></i>
+    </div>
 </body>
 </html>
