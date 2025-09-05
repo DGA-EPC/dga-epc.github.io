@@ -52,7 +52,8 @@
             margin-top: 10px;
         }
         button:hover {
-            background-color: #2980b9;
+            background-color: #133852;
+			transform: translateY(-4px);
         }
         button:disabled {
             background-color: #95a5a6;
@@ -126,7 +127,10 @@
     <div id="home-page" class="container">
         <div class="level-section">
             <h3>Sélectionnez le ou les niveau(x) :</h3>
-            <label class="level-option"><input type="checkbox" id="level-base" value="D"> Base</label>
+            <label class="level-option"><input type="checkbox" id="theme1" value="T1"> Débutant (uniquement Actif et Passif)</label>
+			<br>
+			<label class="level-option"><input type="checkbox" id="level-base" value="D"> Base (Premiers pas avec les charges et produits)</label>
+			<br>
             <label class="level-option"><input type="checkbox" id="level-advanced" value="A"> Avancé</label>
         </div>
      
@@ -187,35 +191,21 @@
             { niveau: "D", nom: "Poste", classe: 1 },
             { niveau: "D", nom: "Banque", classe: 1 },
             { niveau: "D", nom: "Créances clients", classe: 1 },
-			{ niveau: "T1", nom: "Créances douteuses", classe: 1 },
-            { niveau: "T1", nom: "Ducroire", classe: 2 },
             { niveau: "A", nom: "Autres créances", classe: 1 },
             { niveau: "A", nom: "Créances AFC", classe: 1 },
-			{ niveau: "T6", nom: "Titres", classe: 1 },
             { niveau: "D", nom: "Stock de marchandises", classe: 1 },
-            { niveau: "T4", nom: "Actifs transitoires", classe: 1 },
             { niveau: "D", nom: "Machines et appareils", classe: 1 },
             { niveau: "D", nom: "Mobilier et installation", classe: 1 },
-			{ niveau: "T2", nom: "FAC sur mobilier et installation", classe: 2 },
             { niveau: "D", nom: "Informatique", classe: 1 },
-			{ niveau: "T2", nom: "FAC sur informatique", classe: 2 },
             { niveau: "D", nom: "Véhicules", classe: 1 },
-            { niveau: "T2", nom: "FAC sur véhicules", classe: 2 },
             { niveau: "D", nom: "Instruments et outillage", classe: 1 },
             { niveau: "D", nom: "Immeubles", classe: 1 },
-            { niveau: "T2", nom: "FAC sur immeubles", classe: 2 },
             { niveau: "D", nom: "============PASSIFS===============", classe: 2 },
             { niveau: "D", nom: "Dettes fournisseurs", classe: 2 },
             { niveau: "D", nom: "Autres dettes", classe: 2 },
             { niveau: "A", nom: "Dettes AFC", classe: 2 },
-			{ niveau: "T3", nom: "Dettes AVS", classe: 2 },
-			{ niveau: "T3", nom: "Dettes LPP", classe: 2 },
-			{ niveau: "T3", nom: "Dettes Caisse ALFA", classe: 2 },
             { niveau: "D", nom: "Dette bancaire", classe: 2 },
             { niveau: "A", nom: "Dette hypothécaire", classe: 2 },
-            { niveau: "T4", nom: "Passifs transitoires", classe: 2 },
-            { niveau: "T1", nom: "Provision pour litiges", classe: 2 },
-            { niveau: "T1", nom: "Autres provisions", classe: 2 },
 			{ niveau: "D", nom: "Capital", classe: 2 },
             { niveau: "D", nom: "Privé", classe: 2 },
             { niveau: "D", nom: "==========MARCHANDISES============", classe: 4 },
@@ -224,12 +214,10 @@
             { niveau: "A", nom: "Déductions obtenues", classe: 4 },
             { niveau: "A", nom: "Variation de stock", classe: 4 },
             { niveau: "A", nom: "Déductions accordées", classe: 3 },
-            { niveau: "T1", nom: "Pertes sur créances", classe: 3 },
             { niveau: "D", nom: "Achats de marchandises", classe: 3 },
             { niveau: "A", nom: "Frais d'achat", classe: 3 },
             { niveau: "D", nom: "=====CH. ET PRD D'EXPLOITATION====", classe: 3 },
             { niveau: "D", nom: "Salaires", classe: 3 },
-            { niveau: "T3", nom: "Charges sociales", classe: 3 },
             { niveau: "D", nom: "Loyers", classe: 3 },
             { niveau: "D", nom: "Entretien et réparation", classe: 3 },
             { niveau: "D", nom: "Frais de véhicules", classe: 3 },
@@ -244,10 +232,6 @@
             { niveau: "D", nom: "Charges financières", classe: 3 },
             { niveau: "D", nom: "Produits financiers", classe: 4 },
             { niveau: "A", nom: "===CH. ET PRD HORS EXPLOITATION===", classe: 3 },
-            { niveau: "A", nom: "Charges d'immeuble", classe: 3 },
-            { niveau: "T5", nom: "Produits d'immeuble", classe: 4 },
-            { niveau: "T6", nom: "Produits des titres", classe: 4 },
-            { niveau: "T6", nom: "Charges des titres", classe: 3 },
             { niveau: "A", nom: "Produits exceptionnels", classe: 3 },
             { niveau: "A", nom: "Charges exceptionnelles", classe: 3 }
         ];
@@ -519,317 +503,96 @@
                 niveau: "A"
             },
             { 
-                description: "La facture d'un client mis en poursuite est définitivement perdue. Nous l'amortissons totalement.", 
-                debit: "Pertes sur créances", 
-                credit: "Créances clients",
+                description: "Nous achetons un bureau à crédit.", 
+                debit: "Mobilier et installation", 
+                credit: "Autres dettes",
                 niveau: "T1"
             },
             { 
-                description: "Par prudence, nous créons une provision car nous risquons de perdre un procès en cours.", 
-                debit: "Charges exceptionnelles", 
-                credit: "Provision pour litiges",
-                niveau: "T1"
-            },
-            { 
-                description: "Nous avançons en espèces CHF 120.- pour les frais de poursuite entammée contre notre client.", 
-                debit: "Créances clients", 
+                description: "Nous payons en espèces une facture d'électricité.", 
+                debit: "Autres dettes", 
                 credit: "Caisse",
                 niveau: "T1"
             },
             { 
-                description: "La poursuite entammée contre notre client aboutie à la perte totale de la créance. Nous utilisons directement la provision pour amortir la perte.", 
-                debit: "Ducroire", 
-                credit: "Créances clients",
-                niveau: "T1"
-            },
-            { 
-                description: "Nous facturons à notre client des intérêts moratoires de 5% sur la facture impayée.", 
-                debit: "Créances clients", 
-                credit: "Produits financiers",
-                niveau: "T1"
-            },
-            { 
-                description: "Miraculeusement, nous récupérons CHF 1'200.- sur une poursuite achevée cette année. Le montant est versé à la poste.", 
+                description: "Nous vendons un ordinateur portable. Le montant est versé à la poste.", 
                 debit: "Poste", 
-                credit: "Pertes sur créances",
+                credit: "Informatique",
                 niveau: "T1"
             },
             { 
-                description: "Nous recevons par poste CHF 1'230.- d'un client à risque contre lequel une poursuite avait été commencée.", 
-                debit: "Poste", 
-                credit: "Créances douteuses",
-                niveau: "T1"
-            },
-            { 
-                description: "Nous récupérons CHF 800.- d'une poursuite achevée il y a 3 ans. Le montant est versé à la banque.", 
+                description: "Un client paie par virement bancaire une facture concernant une vente de marchandises.", 
                 debit: "Banque", 
-                credit: "Produits exceptionnels",
-                niveau: "T1"
-            },
-            { 
-                description: "Après 3 rappels, nous transférons la facture d'un client dans le compte approprié.", 
-                debit: "Créances douteuses", 
                 credit: "Créances clients",
                 niveau: "T1"
             },
             { 
-                description: "Utilisez la provision pour annuler la perte enregistrée à la réception d'un ADB contre un client.", 
-                debit: "Ducroire", 
-                credit: "Pertes sur créances",
-                niveau: "T1"
-            },
-            { 
-                description: "Nous envoyons un 2è rappel à un client et lui facturons CHF 20.- pour les frais occasionnés.", 
-                debit: "Créances client", 
-                credit: "Frais d'administration",
-                niveau: "T1"
-            },
-            { 
-                description: "Le solde de Ducroire au 31.12 est de 100.-. Portez la provision à 5% des clients qui se montent à 10'000.-.", 
-                debit: "Pertes sur créances", 
-                credit: "Ducroire",
-                niveau: "T1"
-            },
-            { 
-                description: "Comptabilisez une diminution de la provision sur clients.", 
-                debit: "Ducroire", 
-                credit: "Pertes sur créances",
-                niveau: "T1"
-            },
-            { 
-                description: "Comptabilisez une augmenation de la provision sur clients.", 
-                debit: "Pertes sur créances", 
-                credit: "Ducroire",
-                niveau: "T1"
-            },
-            { 
-                description: "En vue des gros travaux d'entretien des machines, nous créons une provision CHF 10'000.-.", 
-                debit: "Entretien et réparation", 
-                credit: "Autres provisions",
-                niveau: "T1"
-            },
-            { 
-                description: "Amortissement de la dette hypothécaire par banque.", 
-                debit: "Dette hypothécaire", 
-                credit: "Banque",
-                niveau: "T2"
-            },
-            { 
-                description: "Amortissement indirect de l'immeuble locatif.", 
-                debit: "Charges d'immeuble", 
-                credit: "FAC sur immeubles",
-                niveau: "T2"
-            },
-            { 
-                description: "Amortissement direct des machines.", 
-                debit: "Amortissements", 
-                credit: "Machines et appareils",
-                niveau: "T2"
-            },
-            { 
-                description: "Amortissement indirect du mobilier.", 
-                debit: "Amortissements", 
-                credit: "FAC sur mobilier et installation",
-                niveau: "T2"
-            },
-            { 
-                description: "Amortissement direct de l'immeuble commercial.", 
-                debit: "Amortissements", 
-                credit: "Immeubles",
-                niveau: "T2"
-            },
-            { 
-                description: "Amortissement de la dette bancaire par poste.", 
+                description: "Amortissement de la dette bancaire par virement postal.", 
                 debit: "Dette bancaire", 
                 credit: "Poste",
-                niveau: "T2"
+                niveau: "T1"
             },
             { 
-                description: "Comptabilisation des cotisations patronale à l'AVS", 
-                debit: "Charges sociales", 
-                credit: "Dettes AVS",
-                niveau: "T3"
-            },
-            { 
-                description: "Nous payons par banque le montant dû à la caisse de compensation.", 
-                debit: "Dettes AVS", 
-                credit: "Banque",
-                niveau: "T3"
-            },
-            { 
-                description: "Versement en espèces d'une avance de salaires à un employé.", 
-                debit: "Salaires", 
-                credit: "Caisse",
-                niveau: "T3"
-            },
-            { 
-                description: "Nous payons par poste le montant dû à la caisse de retraite.", 
-                debit: "Dettes LPP", 
-                credit: "Poste",
-                niveau: "T3"
-            },
-            { 
-                description: "Nous recevons à la banque un retour des allocations familiales (solde en notre faveur).", 
+                description: "Le propriétaire verse CHF 100'000.- à la banque pour augmenter son apport personnel.", 
                 debit: "Banque", 
-                credit: "Dettes Caisse ALFA",
-                niveau: "T3"
+                credit: "Capital",
+                niveau: "T1"
             },
             { 
-                description: "Nous versons par virement postal le solde dû aux allocations familiales.", 
-                debit: "Dettes Caisse ALFA", 
-                credit: "Poste",
-                niveau: "T3"
-            },
-            { 
-                description: "Comptabiliser la cotisation AVS du patron.", 
-                debit: "Privé", 
-                credit: "Dettes AVS",
-                niveau: "T3"
-            },
-            { 
-                description: "Les APG remboursent par poste le salaire que nous avons versé à notre employé au service militaire.", 
+                description: "A la fin de la journée, nous versons la recette encaissée sur le compte postal.", 
                 debit: "Poste", 
-                credit: "Salaires",
-                niveau: "T3"
-            },
-            { 
-                description: "Comptabiliser la cotisation aux allocations familiales.", 
-                debit: "Charges sociales", 
-                credit: "Dettes Caisse ALFA",
-                niveau: "T3"
-            },
-            { 
-                description: "Nous avons payé le loyer pour l'année prochaine. En tenir compte à la clôture.", 
-                debit: "Actifs transitoires", 
-                credit: "Loyers",
-                niveau: "T4"
-            },
-            { 
-                description: "Nous accorderons pour CHF 12'000 de ristourne à nos clients. Le décompte sera établi le prochain exercice.", 
-                debit: "Déductions accordées", 
-                credit: "Passifs transitoires",
-                niveau: "T4"
-            },
-            { 
-                description: "La facture du garagiste pour l'entretien du véhicule ne nous parviendra que l'an prochain. Nous l'estimons à CHF 1'400.-. En tenir compte.", 
-                debit: "Frais de véhicules", 
-                credit: "Passifs transitoires",
-                niveau: "T4"
-            },
-            { 
-                description: "Nous avons déjà payé par banque l'assurance RC de janvier à juin de l'an prochain. En tenir compte.", 
-                debit: "Actifs transitoires", 
-                credit: "Assurances",
-                niveau: "T4"
-            },
-            { 
-                description: "Les primes de salaires pour cette année seront décomptées en janvier. En tenir compte.", 
-                debit: "Salaires", 
-                credit: "Passifs transitoires",
-                niveau: "T4"
-            },
-            { 
-                description: "Intérêts courus sur un prêt accordé.", 
-                debit: "Actifs transitoires", 
-                credit: "Produits financiers",
-                niveau: "T4"
-            },
-            { 
-                description: "Intérêts courus sur un crédit bancaire.", 
-                debit: "Charges financières", 
-                credit: "Passifs transitoires",
-                niveau: "T4"
-            },
-            { 
-                description: "Nous estimons à CHF 8'000.- les ristournes que nous accorderons nos fournisseurs.", 
-                debit: "Actifs transitoires", 
-                credit: "Déductions obtenues",
-                niveau: "T4"
-            },
-            { 
-                description: "Le dernier décompte d'électricité s'arrête à fin novembre. Tenir compte d'une estimation de CHF 800.- pour décembre. Le prochain décompte sera établi en février.", 
-                debit: "Electricité", 
-                credit: "Passifs transitoires",
-                niveau: "T4"
-            },
-            { 
-                description: "Nous payons par banque l'assurance bâtiment de notre immeuble locatif.", 
-                debit: "Charges d'immeuble", 
-                credit: "Banque",
-                niveau: "T5"
-            },
-            { 
-                description: "Nous payons par banque les intérêts hypothécaire sur notre immeuble locatif.", 
-                debit: "Charges d'immeuble", 
-                credit: "Banque",
-                niveau: "T5"
-            },
-            { 
-                description: "Nous payons par poste les frais de réparation du chauffage de notre immeuble locatif.", 
-                debit: "Charges d'immeuble", 
-                credit: "Poste",
-                niveau: "T5"
-            },
-            { 
-                description: "Nous payons par banque une facture comptabilisée pour l'entretien de notre immeuble locatif.", 
-                debit: "Autres dettes", 
-                credit: "Banque",
-                niveau: "T5"
-            },
-            { 
-                description: "Nous payons par banque l'amortissement de la dette hypothécaire.", 
-                debit: "Dette hypothécaire", 
-                credit: "Banque",
-                niveau: "T5"
-            },
-            { 
-                description: "Avis de crédit de la banque concernant les loyers encaissés sur notre immeuble.", 
-                debit: "Banque", 
-                credit: "Produits d'immeuble",
-                niveau: "T5"
-            },
-            { 
-                description: "Nous payons par poste le loyer trimestriel d'un entrepôt.", 
-                debit: "Loyers", 
-                credit: "Poste",
-                niveau: "T5"
-            },
-            { 
-                description: "Nous payons par poste le salaire du concierge de notre immeuble commercial.", 
-                debit: "Salaires", 
-                credit: "Poste",
-                niveau: "T5"
-            },
-            { 
-                description: "Nous payons par poste le salaire du concierge de notre immeuble locatif.", 
-                debit: "Charges d'immeuble", 
-                credit: "Poste",
-                niveau: "T5"
-            },
-            { 
-                description: "A la clôture des comptes, il reste un stock de mazout de CHF 1'200.- dans notre immeuble locatif.", 
-                debit: "Actifs transitoires", 
-                credit: "Charges d'immeuble",
-                niveau: "T5"
-            },
-            { 
-                description: "Nous payons en espèce les frais de notaires pour l'achat de notre nouvel immeuble.", 
-                debit: "Immeubles", 
                 credit: "Caisse",
-                niveau: "T5"
+                niveau: "T1"
             },
             { 
-                description: "Nous achetons par banque des actions IBM.", 
-                debit: "Titres", 
+                description: "Nous achetons une nouvelle camionette de livraison que nous payons par virement bancaire.", 
+                debit: "Véhicules", 
                 credit: "Banque",
-                niveau: "T6"
+                niveau: "T1"
             },
             { 
-                description: "Nous vendons par banque des actions Glenporc.", 
-                debit: "Banque", 
-                credit: "Titres",
-                niveau: "T6"
+                description: "Nous vendons une machine à crédit.", 
+                debit: "Créances clients", 
+                credit: "Machines et appareils",
+                niveau: "T1"
+            },
+            { 
+                description: "En créant sont entreprise, le propriétaire amène un immeuble d'une valeur de CHF 200'000.-.", 
+                debit: "Immeubles", 
+                credit: "Capital",
+                niveau: "T1"
+            },
+            { 
+                description: "Nous payons par poste la facture d'un fournisseur.", 
+                debit: "Dettes fournisseurs", 
+                credit: "Poste",
+                niveau: "T1"
+            },
+            { 
+                description: "Nous obtenons un rabais sur une facture concernant un gros achat de matériel informatique.", 
+                debit: "Dettes fournisseurs", 
+                credit: "Informatique",
+                niveau: "T1"
+            },
+            { 
+                description: "Nous achetons une nouvelle imprimante à crédit.", 
+                debit: "Informatique", 
+                credit: "Autres dettes",
+                niveau: "T1"
+            },
+            { 
+                description: "Nous achetons un nouveau véhicule que nous payons grâce à un crédit de la banque.", 
+                debit: "Véhicules", 
+                credit: "Dette bancaire",
+                niveau: "T1"
+            },
+            { 
+                description: "Nous avons facturé par erreur un achat d'appareil à crédit à un client. Nous annulons l'opération (extourne).", 
+                debit: "Machines et appareils", 
+                credit: "Créances clients",
+                niveau: "T1"
             }
+
 			
         ];
 
