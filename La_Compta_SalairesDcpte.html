@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Décompte de Salaire</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: black;
+        }
+        .header {
+            background-color: #6a0dad;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+			border-top: 10px solid #24f400;
+			
+        }
+        .salary-container {
+            background-color: white;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+			border-bottom: 6px solid #14E1E3;
+        }
+        .salary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .salary-table th, .salary-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .salary-table th {
+            background-color: #F5D0F7;
+        }
+        .deduction {
+            color: #000000;
+        }
+        .input-field {
+            width: 100px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: right;
+        }
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+		.btn:disabled {
+			background-color: #cccccc;
+			color: #666666;
+			cursor: not-allowed;
+		}
+        .btn-submit {
+            background-color: #5cb85c;
+            color: white;
+        }
+        .btn-solution {
+            background-color: #f0ad4e;
+            color: white;
+        }
+        .btn-new {
+            background-color: #337ab7;
+            color: white;
+        }
+        .btn-submit:hover {
+            background-color: #2B572B;
+			transform: translateY(-4px);
+        }
+        .btn-solution:hover {
+            background-color: #82511B;
+			transform: translateY(-4px);
+        }
+        .btn-new:hover {
+            background-color: #0E2033;
+			transform: translateY(-4px);
+        }		
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-style: italic;
+            color: #6a0dad;
+        }
+        .error {
+            color: #d9534f;
+            display: none;
+            margin-left: 10px;
+        }
+        .correct {
+            color: #5cb85c;
+        }
+        .info-card {
+            background-color: #e7f4ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .toggle-info {
+            color: #f0f0f0;
+            cursor: pointer;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+		
+		
+		.salary-table td:nth-child(2) {
+			text-align: right;
+			font-variant-numeric: tabular-nums;
+		}
+
+		.salary-table td:nth-child(2)::before {
+			content: "CHF ";
+			float: left;
+		}
+
+		.input-field {
+			text-align: right;
+			font-variant-numeric: tabular-nums;
+		}		
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Décompte de Salaire</h1>
+    </div>
+    
+    <div class="toggle-info" onclick="toggleInfo()">ℹ️ Afficher/Masquer les informations de calcul</div>
+    
+    <div class="info-card" id="infoCard">
+        <h3>Informations de calcul (valables en 2025)</h3>
+        <ul>
+            <li><strong>Les allocations familiales</strong> sont exonérées de cotisations sociales</li>
+            <li><strong>Salaire coordonné</strong> = Salaire AVS - déduction de coordination (2'205.-)</li>
+            <li>Salaire coordonné minimum : 315.-</li>
+            <li>Salaire coordonné maximum : 7'560.-</li>
+            <li><strong>AVS/AI/APG</strong> : 5.3% sur le salaire AVS</li>
+			<li><strong>AC</strong> : 1.1% sur le salaire AVS (Max. 12'350.-/mois</li>
+            <li><strong>LAA-AANP</strong> : 1.2% sur le salaire AVS</li>
+            <li><strong>LPP</strong> : x% sur le salaire coordonné (le pourcentage varie selon le fonds de pension)</li>
+        </ul>
+    </div>
+    
+    <div class="salary-container">
+        <table class="salary-table">
+            <tr>
+                <th>Description</th>
+                <th>Montant (CHF)</th>
+                <th>Status</th>
+            </tr>
+            <tr>
+                <td>Salaire brut</td>
+                <td id="salaireBrut"></td>
+                <td></td>
+            </tr>
+            <tr id="heuresSupplRow" style="display: none;">
+                <td>+ Heures supplémentaires</td>
+                <td id="heuresSuppl"></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>+ Allocations familiales</td>
+                <td id="allocFamiliales"></td>
+                <td></td>
+            </tr>
+            <tr id="allocPatronalesRow" style="display: none;">
+                <td>+ Allocations patronales</td>
+                <td id="allocPatronales"></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="3"><strong>Déductions :</strong></td>
+            </tr>
+            <tr>
+                <td class="deduction">- AVS/AI/APG : 5.3%</td>
+                <td>
+                    <input type="number" step="0.05" class="input-field" id="avsInput" oninput="checkFormCompletion()">
+                </td>
+                <td><span class="error" id="avsError"></span></td>
+            </tr>
+            <tr>
+                <td class="deduction">- AC : 1.1%</td>
+                <td>
+                    <input type="number" step="0.05" class="input-field" id="acInput" oninput="checkFormCompletion()">
+                </td>
+                <td><span class="error" id="acError"></span></td>
+            </tr>
+            <tr>
+                <td class="deduction">- LPP : <span id="lppPercent"></span>%</td>
+                <td>
+                    <input type="number" step="0.05" class="input-field" id="lppInput" oninput="checkFormCompletion()">
+                </td>
+                <td><span class="error" id="lppError"></span></td>
+            </tr>
+            <tr>
+                <td class="deduction">- LAA-AANP : 1.2%</td>
+                <td>
+                    <input type="number" step="0.05" class="input-field" id="laaInput" oninput="checkFormCompletion()">
+                </td>
+                <td><span class="error" id="laaError"></span></td>
+            </tr>
+            <tr id="retenuOpRow" style="display: none;">
+                <td class="deduction">- Retenu OP</td>
+                <td id="retenuOp"></td>
+                <td></td>
+            </tr>
+            <tr id="avanceSalaireRow" style="display: none;">
+                <td class="deduction">- Avance de salaire</td>
+                <td id="avanceSalaire"></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><strong>Salaire net versé</strong></td>
+                <td>
+                    <input type="number" step="0.05" class="input-field" id="salaireNetInput" oninput="checkFormCompletion()">
+                </td>
+                <td><span class="error" id="netError"></span></td>
+            </tr>
+        </table>
+        
+        <button class="btn btn-submit" id="submitBtn" onclick="checkCalculations()" disabled>Soumettre</button>
+        <button class="btn btn-solution" onclick="showSolution()">Solution</button>
+        <button class="btn btn-new" onclick="generateNewSalary()">Nouveau décompte</button>
+    </div>
+    
+    <div class="footer">
+        <p>Je fais de la compta et c'est ma joie, DG, EPC Fribourg</p>
+    </div>
+
+    <script>
+
+		// Ajouter cette fonction pour vérifier si tous les champs sont remplis
+		function checkFormCompletion() {
+			const avsValue = document.getElementById('avsInput').value;
+			const acValue = document.getElementById('acInput').value;
+			const lppValue = document.getElementById('lppInput').value;
+			const laaValue = document.getElementById('laaInput').value;
+			const netValue = document.getElementById('salaireNetInput').value;
+    
+			const allFilled = avsValue !== '' && acValue !== '' && lppValue !== '' && laaValue !== '' && netValue !== '';
+			document.getElementById('submitBtn').disabled = !allFilled;
+		}
+
+        // Variables globales pour stocker les valeurs calculées
+        let salaireBrut, heuresSuppl, allocFamiliales, allocPatronales, retenuOp, avanceSalaire;
+        let salaireAVS, salaireCoordonne, deductionCoordination = 2205;
+        let avsDeduction, acDeduction, lppPercent, lppDeduction, laaDeduction, salaireNet;
+        
+        // Générer un nouveau décompte au chargement de la page
+        window.onload = generateNewSalary;
+        
+        function generateNewSalary() {
+            // Réinitialiser les erreurs
+            document.querySelectorAll('.error').forEach(el => {
+                el.style.display = 'none';
+                el.innerHTML = '';
+            });
+      
+			// Désactiver le bouton Soumettre
+			document.getElementById('submitBtn').disabled = true;
+			
+            // Réinitialiser les champs de saisie
+            document.getElementById('avsInput').value = '';
+			document.getElementById('acInput').value = '';
+            document.getElementById('lppInput').value = '';
+            document.getElementById('laaInput').value = '';
+            document.getElementById('salaireNetInput').value = '';
+            
+            // Générer des valeurs aléatoires
+            salaireBrut = generateRandomAmount(1600, 18000, 100);
+            allocFamiliales = generateRandomAmount(200, 800, 20);
+            
+            // Déterminer aléatoirement quels éléments optionnels afficher
+            const showHeuresSuppl = Math.random() > 0.5;
+            const showAllocPatronales = Math.random() > 0.5;
+            const showRetenuOp = Math.random() > 0.5;
+            const showAvanceSalaire = Math.random() > 0.5;
+            
+            // Générer les valeurs pour les éléments optionnels
+            heuresSuppl = showHeuresSuppl ? generateRandomAmount(100, 1000, 50) : 0;
+            allocPatronales = showAllocPatronales ? generateRandomAmount(100, 800, 100) : 0;
+            
+            // Pour retenuOp et avanceSalaire, maximum 10% du salaire brut
+            const maxDeduction = salaireBrut * 0.1;
+            retenuOp = showRetenuOp ? generateRandomAmount(100, maxDeduction, 200) : 0;
+            avanceSalaire = showAvanceSalaire ? generateRandomAmount(500, maxDeduction, 200) : 0;
+            
+            // Afficher ou masquer les lignes optionnelles
+            document.getElementById('heuresSupplRow').style.display = showHeuresSuppl ? 'table-row' : 'none';
+            document.getElementById('allocPatronalesRow').style.display = showAllocPatronales ? 'table-row' : 'none';
+            document.getElementById('retenuOpRow').style.display = showRetenuOp ? 'table-row' : 'none';
+            document.getElementById('avanceSalaireRow').style.display = showAvanceSalaire ? 'table-row' : 'none';
+            
+            // Afficher les valeurs fixes
+            document.getElementById('salaireBrut').textContent = formatCurrency(salaireBrut);
+            document.getElementById('heuresSuppl').textContent = showHeuresSuppl ? formatCurrency(heuresSuppl) : '';
+            document.getElementById('allocFamiliales').textContent = formatCurrency(allocFamiliales);
+            document.getElementById('allocPatronales').textContent = showAllocPatronales ? formatCurrency(allocPatronales) : '';
+            document.getElementById('retenuOp').textContent = showRetenuOp ? formatCurrency(retenuOp) : '';
+            document.getElementById('avanceSalaire').textContent = showAvanceSalaire ? formatCurrency(avanceSalaire) : '';
+            
+            // Calculer les valeurs nécessaires pour les déductions
+            salaireAVS = roundToFiveCents(salaireBrut + heuresSuppl + allocPatronales);
+			salaireAC = roundToFiveCents(salaireBrut + heuresSuppl + allocPatronales);
+            salaireCoordonne = roundToFiveCents(salaireAVS - deductionCoordination);
+            
+            // Limiter le salaire coordonné aux valeurs min/max
+            salaireCoordonne = Math.max(315, Math.min(7560, salaireCoordonne));
+			
+			// Limiter le salaire AC au max
+            salaireAC = Math.max(0, Math.min(12350, salaireAC));
+            
+            // Générer un pourcentage LPP aléatoire entre 5% et 10%
+            lppPercent = Math.floor(Math.random() * 6) + 5; // 5-10%
+            document.getElementById('lppPercent').textContent = lppPercent;
+            
+            // Calculer les déductions correctes (pour vérification)
+            avsDeduction = roundToFiveCents(salaireAVS * 0.053);
+			acDeduction = roundToFiveCents(salaireAC * 0.011);
+            lppDeduction = roundToFiveCents(salaireCoordonne * lppPercent / 100);
+            laaDeduction = roundToFiveCents(salaireAVS * 0.012);
+            
+            // Calculer le salaire net
+            const totalAdditions = salaireBrut + heuresSuppl + allocFamiliales + allocPatronales;
+            const totalDeductions = avsDeduction + acDeduction + lppDeduction + laaDeduction + retenuOp + avanceSalaire;
+            salaireNet = roundToFiveCents(totalAdditions - totalDeductions);
+
+		}
+        
+        function checkCalculations() {
+            let allCorrect = true;
+            
+            // Récupérer les valeurs saisies par l'utilisateur
+            const userAVS = parseFloat(document.getElementById('avsInput').value) || 0;
+			const userAC = parseFloat(document.getElementById('acInput').value) || 0;
+            const userLPP = parseFloat(document.getElementById('lppInput').value) || 0;
+            const userLAA = parseFloat(document.getElementById('laaInput').value) || 0;
+            const userNet = parseFloat(document.getElementById('salaireNetInput').value) || 0;
+            
+            // Vérifier AVS
+            if (Math.abs(userAVS - avsDeduction) > 0.05) {
+                document.getElementById('avsError').innerHTML = '✗ Solution: ' + formatCurrency(avsDeduction) + ' (5.3% s/' + formatCurrency(salaireAVS) + ')';
+                document.getElementById('avsError').style.display = 'inline';
+                allCorrect = false;
+            } else {
+                document.getElementById('avsError').innerHTML = '✓ Correct';
+                document.getElementById('avsError').style.display = 'inline';
+                document.getElementById('avsError').classList.add('correct');
+            }
+
+            // Vérifier AC
+            if (Math.abs(userAC - acDeduction) > 0.05) {
+                document.getElementById('acError').innerHTML = '✗ Solution: ' + formatCurrency(acDeduction) + ' (1.1% s/' + formatCurrency(salaireAVS) + ' (max 12\'350!)';
+                document.getElementById('acError').style.display = 'inline';
+                allCorrect = false;
+            } else {
+                document.getElementById('acError').innerHTML = '✓ Correct';
+                document.getElementById('acError').style.display = 'inline';
+                document.getElementById('acError').classList.add('correct');
+            }			
+            
+            // Vérifier LPP
+            if (Math.abs(userLPP - lppDeduction) > 0.05) {
+                document.getElementById('lppError').innerHTML = '✗ Solution: ' + formatCurrency(lppDeduction) + ' (' + lppPercent + '% s/' + formatCurrency(salaireCoordonne) + ')';
+                document.getElementById('lppError').style.display = 'inline';
+                allCorrect = false;
+            } else {
+                document.getElementById('lppError').innerHTML = '✓ Correct';
+                document.getElementById('lppError').style.display = 'inline';
+                document.getElementById('lppError').classList.add('correct');
+            }
+            
+            // Vérifier LAA
+            if (Math.abs(userLAA - laaDeduction) > 0.05) {
+                document.getElementById('laaError').innerHTML = '✗ Solution: ' + formatCurrency(laaDeduction) + ' (1.2% s/' + formatCurrency(salaireAVS) + ')';
+                document.getElementById('laaError').style.display = 'inline';
+                allCorrect = false;
+            } else {
+                document.getElementById('laaError').innerHTML = '✓ Correct';
+                document.getElementById('laaError').style.display = 'inline';
+                document.getElementById('laaError').classList.add('correct');
+            }
+            
+            // Vérifier le salaire net
+            if (Math.abs(userNet - salaireNet) > 0.05) {
+                document.getElementById('netError').innerHTML = '✗ Solution: ' + formatCurrency(salaireNet);
+                document.getElementById('netError').style.display = 'inline';
+                allCorrect = false;
+            } else {
+                document.getElementById('netError').innerHTML = '✓ Correct';
+                document.getElementById('netError').style.display = 'inline';
+                document.getElementById('netError').classList.add('correct');
+            }
+            
+            if (allCorrect) {
+                alert('Félicitations! Tous vos calculs sont corrects.');
+            }
+        }
+        
+        function showSolution() {
+            // Remplir automatiquement tous les champs avec les valeurs correctes
+            document.getElementById('avsInput').value = avsDeduction;
+			document.getElementById('acInput').value = acDeduction;
+            document.getElementById('lppInput').value = lppDeduction;
+            document.getElementById('laaInput').value = laaDeduction;
+            document.getElementById('salaireNetInput').value = salaireNet;
+            
+            // Afficher toutes les explications
+            checkCalculations();
+        }
+        
+        function toggleInfo() {
+            const infoCard = document.getElementById('infoCard');
+            infoCard.style.display = infoCard.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // Fonction utilitaire pour générer un montant aléatoire
+        function generateRandomAmount(min, max, step) {
+            const range = (max - min) / step;
+            return min + Math.round(Math.random() * range) * step;
+        }
+        
+        // Fonction utilitaire pour arrondir à 0.05 près
+        function roundToFiveCents(value) {
+            return Math.round(value * 20) / 20;
+        }
+        
+		// Fonction utilitaire pour formater les montants en francs suisses
+			function formatCurrency(amount) {
+		// Format avec apostrophe comme séparateur de milliers et deux décimales
+			const parts = amount.toFixed(2).split('.');
+			let integerPart = parts[0];
+			const decimalPart = parts[1];
+    
+		// Ajouter les séparateurs de milliers
+			integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+    
+			return `${integerPart}.${decimalPart}`;
+		}
+    
+	 
+	
+	</script>
+</body>
+</html>
