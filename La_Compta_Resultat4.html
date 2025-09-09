@@ -48,7 +48,7 @@
             padding: 10px;
             margin: 0 5px;
             background-color: #f9f9f9;
-            min-height: 180px;
+            min-height: 120px;
         }
         .compte-zone h3 {
             margin-top: 0;
@@ -65,7 +65,7 @@
             margin: 15px 0;
         }
         .compte-items {
-            min-height: 150px;
+            min-height: 50px;
         }
         .items-container {
             flex: 1;
@@ -81,17 +81,17 @@
         .compte-item {
             padding: 6px 12px;
             margin: 2px 0;
-            background-color: #3498db;
-            color: white;
+            background-color: #ABFFE5;
+            color: black;
             border-radius: 4px;
             cursor: move;
             user-select: none;
         }
         .compte-item.spb {
-            background-color: #34BFDB;
+            background-color: #98E3B9;
         }
         .compte-item.san {
-            background-color: #34DBD5;
+            background-color: #83C993;
         }
         .buttons {
             display: flex;
@@ -146,8 +146,8 @@
     </style>
 </head>
 <body>
-    <h1>Le Compte de Résultat à 2 degrés</h1>
-    <h2>Déplacer les comptes au bon emplacement pour reconstituer le compte de Résultat à 2 degrés</h2>
+    <h1>Le Compte de Résultat à 4 degrés</h1>
+    <h2>Déplacer les comptes au bon emplacement pour reconstituer le compte de Résultat à 4 degrés</h2>
     
     <div class="container">
         <div class="compte-container">
@@ -174,6 +174,25 @@
             
             <div class="compte-separator"></div>
             
+            <div class="compte-row">
+                <div class="compte-zone" id="zone5">
+                    <div class="compte-items" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                </div>
+                <div class="compte-zone" id="zone6">
+                    <div class="compte-items" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                </div>
+            </div>
+			
+			<div class="compte-separator"></div>
+			
+            <div class="compte-row">
+                <div class="compte-zone" id="zone7">
+                    <div class="compte-items" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                </div>
+                <div class="compte-zone" id="zone8">
+                    <div class="compte-items" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                </div>
+            </div>			
         </div>
         
         <div class="items-container">
@@ -213,13 +232,28 @@
                 {id: "item15", text: "ACE", type: "normal"},
                 {id: "item16", text: "Amortissements", type: "normal"},
                 {id: "item17", text: "Charges financières", type: "normal"},
-                {id: "item18", text: "BN (Bénéfice net d'exploitation)", type: "spb"}
+                {id: "item18", text: "Bénéfice net d'exploitation (spb)", type: "spb"}
             ],
             zone4: [
                 {id: "item19", text: "Bénéfice brut", type: "san"},
                 {id: "item20", text: "Produits financiers", type: "normal"}
             ],
-
+            zone5: [
+                {id: "item21", text: "Charges d'immeuble", type: "normal"},
+                {id: "item22", text: "BN d'entreprise (spb)", type: "spb"}
+            ],
+            zone6: [
+                {id: "item23", text: "BN d'exploitation", type: "san"},
+                {id: "item24", text: "Produits d'immeuble", type: "normal"}
+            ],
+            zone7: [
+                {id: "item25", text: "Charges exceptionnelles", type: "normal"},
+                {id: "item26", text: "BN d'exercice", type: "spb"}
+            ],
+            zone8: [
+                {id: "item27", text: "BN d'entreprise", type: "san"},
+                {id: "item28", text: "Produits exceptionnels", type: "normal"}
+            ]
         };
 
         // Éléments à mélanger
