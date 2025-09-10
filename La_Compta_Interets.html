@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcul des Intérêts</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: black;
+        }
+        .header {
+            text-align: center;
+            padding: 15px;
+            border-top: 5px solid #1EFF00;
+            border-bottom: 5px solid #FF9000;
+            background-color: #4A148C;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: white;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .problem-container {
+            background-color: #F3E5F5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .input-container {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            padding: 8px;
+            border: 1px solid #CCC;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #7B1FA2;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-right: 10px;
+        }		
+        button:hover {
+            background-color: #6A1B9A;
+			transform: translateY(-4px);
+        }
+    button.generate {
+        background-color: #F7C745; /* Vert */
+    }
+    button.generate:hover {
+        background-color: #FFC200; /* Vert */
+    }
+    button.check {
+        background-color: #61b865; /* Bleu */
+    }
+    button.check:hover {
+        background-color: #00b50d; /* Bleu */
+    }
+    button.reponse {
+        background-color: #5eabcc; /* Orange */
+    }
+    button.reponse:hover {
+        background-color: #0088c2; /* Orange */
+    }	
+    button.quit {
+        background-color: #ff4747; /* Rouge */
+    }
+	button.quit:hover {
+        background-color: #ff0000; /* Rouge */
+    }
+
+
+	.solution {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #E8F5E9;
+            border-radius: 8px;
+        }
+        .variable {
+            font-weight: bold;
+            color: #7B1FA2;
+        }
+        .formula {
+            font-style: italic;
+            margin: 10px 0;
+        }
+        .tax-note {
+            color: #D32F2F;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .success {
+            color: #388E3C;
+            font-weight: bold;
+        }
+        .error {
+            color: #D32F2F;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Le calcul des intérêts</h1>
+    </div>
+
+    <div class="container">
+        <div class="problem-container">
+            <h2>Problème</h2>
+            <p id="problem-text">Cliquez sur "Générer un problème" pour commencer.</p>
+        </div>
+
+        <div class="input-container">
+            <label for="answer">Votre réponse:</label>
+            <input type="number" id="answer" step="0.01" placeholder="Entrez votre réponse">
+        </div>
+
+        <button class="generate" onclick="generateProblem()">Générer un problème</button-new>
+        <button class="check"  onclick="checkAnswer()">Vérifier la réponse</button>
+        <button class="reponse" onclick="showSolution()">Voir la solution</button>
+		<button class="quit" onclick="window.close()">Quitter</button>
+        
+		<div id="result-message"></div>
+
+        <div id="solution" class="solution">
+            <h3>Solution détaillée</h3>
+            <div id="solution-steps"></div>
+        </div>
+    </div>
+
+    <script>
+	
+	function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+}
+
+
+        let currentProblem = {};
+        let expectedAnswer = 0;
+
+        function generateProblem() {
+            // Masquer les résultats précédents
+            document.getElementById('result-message').innerHTML = '';
+            document.getElementById('solution').style.display = 'none';
+            document.getElementById('answer').value = '';
+            
+            // Générer des valeurs aléatoires
+			const minCapital = 1000;
+			const maxCapital = 100000;
+			const capitalStep = 100;
+			// Nombre de tranches possibles
+			const numSteps = Math.floor((maxCapital - minCapital) / capitalStep);
+			// Choisir une tranche aléatoire
+			const randomStep = Math.floor(Math.random() * (numSteps + 1));
+			// Calculer le capital correspondant
+			const capital = minCapital + randomStep * capitalStep;
+
+			const minRate = 1.5;
+			const maxRate = 8;
+			const step = 0.25;
+			const randomSteps = Math.floor(Math.random() * ((maxRate - minRate) / step + 1));
+			const rate = (minRate + randomSteps * step).toFixed(2);
+			
+            const days = Math.floor(Math.random() * 360) + 1; // Entre 1 et 360 jours
+            
+            // Déterminer quelle variable sera à trouver (c, t, i ou n)
+            const variables = ['c', 't', 'i', 'n'];
+            const unknownVariable = variables[Math.floor(Math.random() * variables.length)];
+            
+            // Calculer l'intérêt brut
+            const rawInterest = capital * rate * days / 36000;
+const roundedInterest = Math.round(rawInterest * 20) / 20; // Arrondi à 0.05 près
+const interest = roundedInterest.toFixed(2);
+            
+            // Stocker le problème actuel
+            currentProblem = {
+                capital,
+                rate,
+                days,
+                interest,
+                unknownVariable
+            };
+            
+            // Générer le texte du problème
+            let problemText = '';
+            
+            switch(unknownVariable) {
+                case 'c':
+                    problemText = `Un capital placé à un taux de ${rate}% pendant ${days} jours a généré des intérêts de CHF ${formatNumber(interest)}. Quel était le montant du capital initial?`;
+                    expectedAnswer = capital;
+                    break;
+                case 't':
+                    problemText = `Un capital de CHF ${formatNumber(capital)} placé pendant ${days} jours a généré des intérêts de CHF ${interest}. Quel était le taux d'intérêt?`;
+                    expectedAnswer = rate;
+                    break;
+                case 'i':
+                    problemText = `Un capital de CHF ${formatNumber(capital)} est placé à un taux de ${rate}% pendant ${days} jours. Calculez les intérêts générés.`;
+                    expectedAnswer = parseFloat(interest);
+                    break;
+                case 'n':
+                    problemText = `Un capital de CHF ${formatNumber(capital)} placé à un taux de ${rate}% a généré des intérêts de CHF ${formatNumber(interest)}. Quelle était la durée du placement en jours?`;
+                    expectedAnswer = days;
+                    break;
+            }
+            
+            // Ajouter la note sur l'impôt si nécessaire
+            if (unknownVariable === 'i' && interest > 200) {
+                problemText += "<br><span class='tax-note'>Note: Les intérêts dépassent 200 CHF, pensez à déduire l'impôt anticipé de 35%.</span>";
+            }
+            
+            document.getElementById('problem-text').innerHTML = problemText;
+        }
+        
+        function checkAnswer() {
+            const userAnswer = parseFloat(document.getElementById('answer').value);
+            
+            if (isNaN(userAnswer)) {
+                document.getElementById('result-message').innerHTML = '<span class="error">Veuillez entrer une réponse valide.</span>';
+                return;
+            }
+            
+            // Tolérance pour les calculs à virgule flottante
+            const tolerance = 0.1;
+            const isCorrect = Math.abs(userAnswer - expectedAnswer) < tolerance;
+            
+            if (isCorrect) {
+                document.getElementById('result-message').innerHTML = '<span class="success">Correct! Félicitations.</span>';
+            } else {
+                document.getElementById('result-message').innerHTML = `<span class="error">Incorrect. La réponse attendue était ${expectedAnswer}.</span>`;
+            }
+        }
+        
+        function showSolution() {
+            const solutionDiv = document.getElementById('solution');
+            const solutionSteps = document.getElementById('solution-steps');
+            
+            solutionSteps.innerHTML = '';
+            
+            // Afficher les variables connues
+            let html = '<p><strong>Variables connues:</strong></p><ul>';
+            
+            if (currentProblem.unknownVariable !== 'c') {
+                html += `<li>c = CHF ${formatNumber(currentProblem.capital)}</li>`;
+            }
+            if (currentProblem.unknownVariable !== 't') {
+                html += `<li>t = ${currentProblem.rate}%</li>`;
+            }
+            if (currentProblem.unknownVariable !== 'i') {
+                html += `<li>i = CHF ${formatNumber(currentProblem.interest)}</li>`;
+            }
+            if (currentProblem.unknownVariable !== 'n') {
+                html += `<li>n = ${currentProblem.days} jours</li>`;
+            }
+            
+            html += '</ul>';
+            
+            // Afficher la formule générale
+            html += `<p class="formula">Formule générale: i = c × t × n / 36000</p>`;
+            
+            // Afficher la formule réarrangée selon la variable inconnue
+            switch(currentProblem.unknownVariable) {
+                case 'c':
+                    html += `<p>Formule réarrangée pour trouver c: c = i × 36000 / (t × n)</p>`;
+                    html += `<p>Calcul: c = ${currentProblem.interest} × 36000 / (${currentProblem.rate} × ${currentProblem.days})</p>`;
+                    html += `<p>c = ${(currentProblem.interest * 36000).toFixed(2)} / ${(currentProblem.rate * currentProblem.days).toFixed(2)}</p>`;
+                    html += `<p>c = ${currentProblem.capital.toFixed(2)} CHF</p>`;
+                    break;
+                case 't':
+                    html += `<p>Formule réarrangée pour trouver t: t = i × 36000 / (c × n)</p>`;
+                    html += `<p>Calcul: t = ${currentProblem.interest} × 36000 / (${currentProblem.capital} × ${currentProblem.days})</p>`;
+                    html += `<p>t = ${(currentProblem.interest * 36000).toFixed(2)} / ${(currentProblem.capital * currentProblem.days).toFixed(2)}</p>`;
+                    html += `<p>t = ${currentProblem.rate}%</p>`;
+                    break;
+                case 'i':
+                    html += `<p>Calcul direct: i = ${currentProblem.capital} × ${currentProblem.rate} × ${currentProblem.days} / 36000</p>`;
+                    html += `<p>i = ${(currentProblem.capital * currentProblem.rate * currentProblem.days).toFixed(2)} / 36000</p>`;
+                    
+                    let grossInterest = currentProblem.interest;
+                    html += `<p>i = ${grossInterest} CHF (intérêt brut)</p>`;
+                    
+                    // Vérifier si l'impôt s'applique
+                    if (grossInterest > 200) {
+                        html += `<p class="tax-note">Les intérêts dépassent 200 CHF, donc l'impôt anticipé de 35% s'applique sur la partie excédentaire.</p>`;
+                        const taxableAmount = (grossInterest - 200).toFixed(2);
+                        const tax = (taxableAmount * 0.35).toFixed(2);
+                        const netInterest = (grossInterest - tax).toFixed(2);
+                        
+                        html += `<p>Montant imposable: ${grossInterest} - 200 = ${taxableAmount} CHF</p>`;
+                        html += `<p>Impôt: ${taxableAmount} × 0.35 = ${tax} CHF</p>`;
+                        html += `<p>Intérêt net: ${grossInterest} - ${tax} = ${netInterest} CHF</p>`;
+                    }
+                    break;
+                case 'n':
+                    html += `<p>Formule réarrangée pour trouver n: n = i × 36000 / (c × t)</p>`;
+                    html += `<p>Calcul: n = ${currentProblem.interest} × 36000 / (${currentProblem.capital} × ${currentProblem.rate})</p>`;
+                    html += `<p>n = ${(currentProblem.interest * 36000).toFixed(2)} / ${(currentProblem.capital * currentProblem.rate).toFixed(2)}</p>`;
+                    html += `<p>n = ${currentProblem.days} jours</p>`;
+                    break;
+            }
+            
+            solutionSteps.innerHTML = html;
+            solutionDiv.style.display = 'block';
+        }
+        
+        // Générer un problème au chargement de la page
+        window.onload = generateProblem;
+    </script>
+
+<div style="text-align: center; margin-top: 30px; font-style: italic; color: #7B1FA2; padding: 10px;">
+    "Je fais de la compta et c'est ma joie!"
+</div>
+	
+</body>
+</html>
