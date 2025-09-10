@@ -118,6 +118,22 @@
         margin: 20px auto;
 		}
 
+        .close-button {
+            background-color: #7b1fa2;
+            margin: 20px auto;
+			color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+        
+        .close-button:hover {
+            background-color: #6a1b9a;
+            transform: scale(1.05);
+        }
+		
     </style>
 </head>
 <body>
@@ -136,7 +152,9 @@
      
       
         <button id="start-exercise">Commencer l'exercice</button>
-		
+		        <div class="button-container">
+            <button class="close-button" onclick="window.close()">Fermer</button>
+        </div>
     </div>
     
     <!-- Page d'exercice -->

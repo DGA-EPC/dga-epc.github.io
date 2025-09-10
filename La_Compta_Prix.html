@@ -83,8 +83,8 @@
 			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         .quit-btn:hover {
-            background-color: #c0392b;
-			transform: translateY(-2px);
+            background-color: #ff0000;
+			transform: scale(1.2);
 			box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
         .game-container {
@@ -230,8 +230,9 @@
             <button class="level-btn court" data-level="court">Schéma court</button>
             <button class="level-btn long1" data-level="long-aide">Schéma long avec aide</button>
             <button class="level-btn long2" data-level="long-sans-aide">Schéma long sans aide</button>
-			<button class="level-btn quit-btn" id="quitBtn">Quitter</button>
+			<button onclick="window.close()" class="level-btn quit-btn">Quitter</button>
     </div>
+	
         
         <div class="game-container" id="gameContainer">
             <div class="game-area">
@@ -344,6 +345,8 @@
                     alert('Alors ferme l\'onglet! LOL!');
                 }
             });
+			
+	
 
             solutionBtn.addEventListener('click', showSolution);
             submitBtn.addEventListener('click', checkSolution);
