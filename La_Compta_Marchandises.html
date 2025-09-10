@@ -169,12 +169,15 @@
             margin-top: 20px;
             display: none;
         }
-        .entry-description {
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: #e8f4fc;
-            border-left: 4px solid #3498db;
-        }
+		.entry-description {
+			margin-bottom: 20px;
+			padding: 10px;
+			background-color: #e8f4fc;
+			border-left: 4px solid #3498db;
+			white-space: pre-wrap; /* Ajouter cette ligne */
+			font-family: 'Courier New', monospace; /* Police à chasse fixe */
+			line-height: 1.2;
+		}
         .completion-message {
             text-align: center;
             padding: 30px;
@@ -348,7 +351,7 @@
                 ]
             },
 			{
-                description: "Nous recevons un avis de débit de la banque concernant notre empprunt : Amortissement de la dette, CHF 5'000.-. Intérêts annuels : CHF 240.-.",
+                description: "Nous recevons un avis de débit de la banque concernant notre emprunt :\nAmortissement de la dette\tCHF 5'000.-\nIntérêts annuels\t\tCHF   240.-",
                 solution: [
                     { debit: "Dette bancaire", credit: "", amount: 5000  },
 					{ debit: "Charges financières", credit: "", amount: 240 },
@@ -364,7 +367,7 @@
                 ]
             },
 			{
-                description: "Comptabilisation des ventes de la semaines : Encaissées en espèces, CHF 500.-. Facturées, CHF 1'000.-. Total : CHF 1'500.-",
+                description: "Comptabilisation des ventes de la semaines :\nEncaissées en espèces :\tCHF   500.-\nFacturées :\t\tCHF 1'000.-\nTotal :\t\t\tCHF 1'500.-",
                 solution: [
                     { debit: "Caisse", credit: "", amount: 500 },
 					{ debit: "Créances clients", credit: "", amount: 1000 },
@@ -392,7 +395,7 @@
                 ]
             },
 			{
-                description: "Paiement du mois par virement bancaire : Salaires, CHF 5'000.-. Loyer : CHF 2'200.-. Facture d'électricité, CHF 1'000.-. Total CHF 8'200.-.",
+                description: "Paiement du mois par virement bancaire :\nSalaires\t\tCHF 5'000.-\nLoyer\t\t\tCHF 2'200.-\nFacture d'électricité\tCHF 1'000.-\nTotal\t\t\tCHF 8'200.-",
                 solution: [
                     { debit: "Salaires", credit: "", amount: 5000 },
 					{ debit: "Loyers", credit: "", amount: 2200 },
@@ -430,7 +433,7 @@
                 ]
             },
 			{
-                description: "Nous payons par banque : L'assurance ménage du patron, CHF 200.-, une campagne de promotion, CHF 500.-, une facture d'un fournisseur CHF 400.-. Total 1'100.-.",
+                description: "Nous payons par banque :\nL'assurance ménage du patron\tCHF   200.-\nune campagne de promotion\tCHF   500.-\nune facture d'un fournisseur\tCHF   400.-\nTotal\t\t\t\tCHF 1'100.-",
                 solution: [
                     { debit: "Privé", credit: "", amount: 200 },
 					{ debit: "Publicité", credit: "", amount: 500 },

@@ -163,12 +163,15 @@
             margin-top: 20px;
             display: none;
         }
-        .entry-description {
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: #e8f4fc;
-            border-left: 4px solid #3498db;
-        }
+		.entry-description {
+			margin-bottom: 20px;
+			padding: 10px;
+			background-color: #e8f4fc;
+			border-left: 4px solid #3498db;
+			white-space: pre-wrap; /* Ajouter cette ligne */
+			font-family: 'Courier New', monospace; /* Police à chasse fixe */
+			line-height: 1.2;
+		}
         .completion-message {
             text-align: center;
             padding: 30px;
@@ -238,6 +241,7 @@
                                     <option value="Salaires">Salaires</option>
 									<option value="Charges sociales">Charges sociales</option>
                                     <option value="Loyers">Loyers</option>
+									<option value="Assurances">Assurances</option>
 									<option value="Electricité">Electricité</option>
 									<option value="Frais de véhicules">Frais de véhicules</option>
 									<option value="Frais d'administration">Frais d'administration</option>
@@ -276,6 +280,7 @@
                                     <option value="Salaires">Salaires</option>
 									<option value="Charges sociales">Charges sociales</option>
                                     <option value="Loyers">Loyers</option>
+									<option value="Assurances">Assurances</option>
 									<option value="Electricité">Electricité</option>
 									<option value="Frais de véhicules">Frais de véhicules</option>
 									<option value="Frais d'administration">Frais d'administration</option>
@@ -347,7 +352,7 @@
                 ]
             },
 			{
-                description: "Versement par banque du salaire de l'employée. Brut : 2'000. Déductions : AVS 150, LPP 200, LAA-AANP 60, Net : 1'590",
+                description: "Versement par banque du salaire de l'employée.\nSalaire brut :\t2'000.-\nDéductions :\n- AVS\t\t  150.-\n- LPP\t\t  200.-\n- LAA-AANP\t   60.-\nSalaire net :\t1'590.-",
                 solution: [
                     { debit: "Salaires", credit: "", amount: 2000 },
 					{ debit: "", credit: "Dettes AVS", amount: 150 },
@@ -363,7 +368,7 @@
                 ]
             },
 			{
-                description: "Comptabilisation de la part patronale à l'AVS CHF 800, à la LPP CHF 1'200, à la caisse ALFA CHF 500. Total : 2'500.-",
+                description: "Comptabilisation de la part patronale aux assurances sociales :\nAVS\t\t\tCHF   800.-\nLPP\t\t\tCHF 1'200.-\nCaisse ALFA\t\tCHF   500.-\nTotal :\t\t\tCHF 2'500.-",
                 solution: [
                     { debit: "Charges sociales", credit: "", amount: 2500 },
 					{ debit: "", credit: "Dettes AVS", amount: 800 },
@@ -378,7 +383,7 @@
                 ]
             },
 			{
-                description: "Versement par banque du salaire du mois. Brut : 4'000. Allocations familiales : 250. Déductions : AVS 400, LPP 600, LAA-AANP 120, Net : à calculer.",
+                description: "Versement par banque du salaire du mois.\nSalaire brut :\t\t4'000.-\nAllocations familiales\t  250.-\nDéductions :\n- AVS\t\t\t  400.-\n- LPP\t\t\t  600.-\n- LAA-AANP\t\t  120.-\nSalaire net :\t\tà calculer",
                 solution: [
                     { debit: "Salaires", credit: "", amount: 4000 },
 					{ debit: "Dettes caisse ALFA", credit: "", amount: 250 },
@@ -386,6 +391,43 @@
 					{ debit: "", credit: "Dettes LPP", amount: 600 },
 					{ debit: "", credit: "Banque", amount: 3130 },
 					{ debit: "", credit: "Charges sociales", amount: 120 }
+                ]
+            },
+			{
+                description: "Versement par banque du salaire du mois de Fernand, notre chef mécano.\nSalaire brut :\t\t9'300.-\nAllocations familiales\t  480.-\nDéductions :\n- AVS/AI/APG\t\t  490.-\n- AC\t\t\t  100.-\n- LPP\t\t\t  700.-\n- LAA-AANP\t\t  110.-\n- Avance de salaire\t1'200.-\nSalaire net :\t\t7'180.-",
+                solution: [
+                    { debit: "Salaires", credit: "", amount: 9300 },
+					{ debit: "Dettes caisse ALFA", credit: "", amount: 480 },
+					{ debit: "", credit: "Dettes AVS", amount: 590 },
+					{ debit: "", credit: "Dettes LPP", amount: 700 },
+					{ debit: "", credit: "Charges sociales", amount: 110 },
+					{ debit: "", credit: "Avances de salaires", amount: 1200 },
+					{ debit: "", credit: "Banque", amount: 7180 },
+					
+                ]
+            },
+			{
+                description: "Comptabiliser une cotisation volontaire à une caisse de pension du patron, CHF 8'000.-.",
+                solution: [
+					{ debit: "Privé", credit: "Dettes LPP", amount: 8000 }
+                ]
+            },
+			{
+                description: "Les APG nous rembourse par poste le salaire de CHF 4'200.- que nous avions versé à notre employé au service militaire.",
+                solution: [
+					{ debit: "Poste", credit: "Salaires", amount: 4200 }
+                ]
+            },
+			{
+                description: "Nous payons par banque la facture de l'assurance accident pour l'année, CHF 6'000.-.",
+                solution: [
+					{ debit: "Autres dettes", credit: "Banque", amount: 6000 }
+                ]
+            },
+			{
+                description: "Nous payons par banque l'assurance RC de l'entreprise, CHF 4'000.-.",
+                solution: [
+					{ debit: "Assurances", credit: "Banque", amount: 4000 }
                 ]
             }
 	
@@ -541,6 +583,7 @@
                                     <option value="Salaires">Salaires</option>
 									<option value="Charges sociales">Charges sociales</option>
                                     <option value="Loyers">Loyers</option>
+									<option value="Assurances">Assurances</option>
 									<option value="Electricité">Electricité</option>
 									<option value="Frais de véhicules">Frais de véhicules</option>
 									<option value="Frais d'administration">Frais d'administration</option>
@@ -579,6 +622,7 @@
                                     <option value="Salaires">Salaires</option>
 									<option value="Charges sociales">Charges sociales</option>
                                     <option value="Loyers">Loyers</option>
+									<option value="Assurances">Assurances</option>
 									<option value="Electricité">Electricité</option>
 									<option value="Frais de véhicules">Frais de véhicules</option>
 									<option value="Frais d'administration">Frais d'administration</option>
