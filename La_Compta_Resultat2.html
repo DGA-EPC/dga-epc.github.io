@@ -107,11 +107,11 @@
             font-weight: bold;
         }
         #submitBtn {
-            background-color: #2ecc71;
+            background-color: #61B865;
             color: white;
         }
 		#submitBtn:hover {
-            background-color: #11572c;
+            background-color: #00B50D;
             color: white;
         }
         #submitBtn:disabled {
@@ -119,21 +119,29 @@
             cursor: not-allowed;
         }
         #solutionBtn {
-            background-color: #3498db;
+            background-color: #5EABCC;
             color: white;
         }
 		#solutionBtn:hover {
-            background-color: #164d72;
+            background-color: #0088C2;
             color: white;
         }
         #resetBtn {
-            background-color: #e74c3c;
+            background-color: #FFBF47;
             color: white;
         }
 		 #resetBtn:hover {
-            background-color: #9e1b12;
+            background-color: #FFA500;
             color: white;
         }
+        #quitter-btn {
+            background-color: #ff8585;
+            color: white;
+        }
+        #quitter-btn:hover {
+            background-color: #ff0000;
+            transform: translateY(-2px);
+        }			
         .dragging {
             opacity: 0.5;
         }
@@ -183,9 +191,10 @@
     </div>
     
     <div class="buttons">
-        <button id="submitBtn" disabled>Soumettre</button>
-        <button id="solutionBtn">Solution</button>
-        <button id="resetBtn">Recommencer</button>
+        <button id="submitBtn" disabled>Valider</button>
+        <button id="resetBtn">Nouvel exercice</button>
+		<button id="solutionBtn">Afficher la solution</button>
+		<button id="quitter-btn" onclick="window.close()">Quitter</button>
     </div>
 
     <script>

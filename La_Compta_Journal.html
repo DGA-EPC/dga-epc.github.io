@@ -59,6 +59,14 @@
             background-color: #95a5a6;
             cursor: not-allowed;
         }
+        #quitter-btn {
+            background-color: #ff8585;
+            color: white;
+        }
+        #quitter-btn:hover {
+            background-color: #ff0000;
+            transform: translateY(-2px);
+        }		
         select {
             width: 100%;
             padding: 8px;
@@ -194,6 +202,7 @@
             <div id="final-score"></div>
             <div id="final-comment"></div>
             <button id="restart-exercise">Recommencer</button>
+			<button id="quitter-btn" onclick="window.close()">Quitter</button>
         </div>
     </div>
     

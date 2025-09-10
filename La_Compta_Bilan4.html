@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Le Bilan Comptable</title>
+    <title>Le Bilan</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -16,7 +16,7 @@
         header {
             text-align: center;
             margin-bottom: 10px;
-            padding: 20px;
+            padding: 10px;
             background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%);
             color: white;
             border-radius: 8px;
@@ -26,7 +26,7 @@
         }
         h1 {
             margin: 0;
-            font-size: 2.0rem;
+            font-size: 1.8rem;
         }
         h2 {
             margin: 10px 0 0;
@@ -34,6 +34,10 @@
             font-size: 1.1rem;
             color: #ecf0f1;
         }
+        h3 {
+            margin: 0;
+            font-size: 1.2rem;		
+		}		
         .container {
             display: flex;
             gap: 20px;
@@ -132,7 +136,7 @@
             margin: 30px 0;
         }
         button {
-            padding: 12px 25px;
+            padding: 8px 15px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
@@ -142,11 +146,11 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.15);
         }
         #submit-btn {
-            background-color: #27ae60;
+            background-color: #61b865;
             color: white;
         }
         #submit-btn:hover:not(:disabled) {
-            background-color: #219653;
+            background-color: #00b50d;
             transform: translateY(-2px);
         }
         #submit-btn:disabled {
@@ -155,27 +159,34 @@
             transform: none;
         }
         #reset-btn {
-            background-color: #e74c3c;
+            background-color: #ffbf47;
             color: white;
         }
         #reset-btn:hover {
-            background-color: #c0392b;
+            background-color: #ffa500;
             transform: translateY(-2px);
         }
         #solution-btn {
-            background-color: #f39c12;
+            background-color: #5eabcc;
             color: white;
         }
         #solution-btn:hover {
-            background-color: #d35400;
+            background-color: #0088c2;
+            transform: translateY(-2px);
+        }
+        #quitter-btn {
+            background-color: #ff8585;
+            color: white;
+        }
+        #quitter-btn:hover {
+            background-color: #ff0000;
             transform: translateY(-2px);
         }
         footer {
             text-align: center;
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #2c3e50;
-            color: #ecf0f1;
+            margin-top: 10px;
+            padding: 2px;
+            color: #FFB0FF;
             border-radius: 8px;
             font-style: italic;
         }
@@ -252,13 +263,14 @@
     </div>
 
     <div class="controls">
-        <button id="submit-btn" disabled>Soumettre</button>
-        <button id="reset-btn">Recommencer</button>
-        <button id="solution-btn">Voir la solution</button>
+        <button id="submit-btn" disabled>Valider</button>
+        <button id="reset-btn">Nouvel exercice</button>
+        <button id="solution-btn">Afficher la solution</button>
+		<button id="quitter-btn" onclick="window.close()">Quitter</button>
     </div>
 
     <footer>
-        <p>"La compta, c'est ma joie", DG, EPC Fribourg</p>
+        <p>"Je fais de la compta et c'est ma joie", DG, EPC Fribourg</p>
     </footer>
 
     <script>

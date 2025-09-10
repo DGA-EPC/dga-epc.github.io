@@ -66,29 +66,40 @@
 			cursor: not-allowed;
 		}
         .btn-submit {
-            background-color: #5cb85c;
-            color: white;
-        }
-        .btn-solution {
-            background-color: #f0ad4e;
-            color: white;
-        }
-        .btn-new {
-            background-color: #337ab7;
+            background-color: #61b865;
             color: white;
         }
         .btn-submit:hover {
-            background-color: #2B572B;
+            background-color: #00b50d;
 			transform: translateY(-4px);
+        }
+        .btn-solution {
+            background-color: #5eabcc;
+            color: white;
         }
         .btn-solution:hover {
-            background-color: #82511B;
+            background-color: #0088c2;
 			transform: translateY(-4px);
         }
+        .btn-new {
+            background-color: #ffbf47;
+            color: white;
+        }
         .btn-new:hover {
-            background-color: #0E2033;
+            background-color: #ffa500;
 			transform: translateY(-4px);
         }		
+		.btn-close {
+            background-color: #ff4747;
+			color: white;
+        }
+        .btn-close:hover {
+            background-color: #ff0000;
+            transform: translateY(-4px);
+        }		
+
+
+
         .footer {
             text-align: center;
             margin-top: 30px;
@@ -132,6 +143,9 @@
 			text-align: right;
 			font-variant-numeric: tabular-nums;
 		}		
+		
+
+		
     </style>
 </head>
 <body>
@@ -232,9 +246,13 @@
             </tr>
         </table>
         
-        <button class="btn btn-submit" id="submitBtn" onclick="checkCalculations()" disabled>Soumettre</button>
-        <button class="btn btn-solution" onclick="showSolution()">Solution</button>
-        <button class="btn btn-new" onclick="generateNewSalary()">Nouveau décompte</button>
+        <button class="btn btn-submit" id="submitBtn" onclick="checkCalculations()" disabled>Valider</button>
+        <button class="btn btn-new" onclick="generateNewSalary()">Nouvel exercice</button>
+		<button class="btn btn-solution" onclick="showSolution()">Afficher la solution</button>
+		<button class="btn btn-close" onclick="window.close()">Quitter</button>
+        </div>
+    </div>
+		
     </div>
     
     <div class="footer">

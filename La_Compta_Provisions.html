@@ -115,17 +115,29 @@
             font-weight: bold;
         }
         #validate-btn {
-            background-color: #2ecc71;
+            background-color: #61b865;
             color: white;
         }
+        #validate-btn:hover {
+            background-color: #00b50d;
+            transform: translateY(-2px);
+        }		
         #next-btn {
-            background-color: #3498db;
+            background-color: #ffbf47;
             color: white;
+        }
+		#next-btn:hover {
+            background-color: #ffa500;
+            transform: translateY(-2px);
         }
         #add-line-btn {
-            background-color: #f39c12;
-            color: white;
+            background-color: #B3EFFF;
+            color: black;
         }
+        #add-line-btn:hover {
+            background-color: #0DDEFF;
+            transform: translateY(-2px);
+        }	
         #restart-btn {
             background-color: #9b59b6;
             color: white;
@@ -274,10 +286,10 @@
             <button id="add-line-btn" type="button">Ajouter une ligne</button>
             <div>
                 <button id="validate-btn" type="button">Valider</button>
-                <button id="next-btn" type="button" disabled>Suite</button>
+                <button id="next-btn" type="button" disabled>Ecriture suivante</button>
             </div>
         </div>
-
+		
         <div id="feedback" class="feedback"></div>
 
         <table id="solution-table" class="solution-table">
@@ -303,7 +315,7 @@
         <button id="restart-btn" type="button">Recommencer</button>
     </div>
 
-
+		
     <script>
         // Données des écritures comptables
         let accountingEntries = [

@@ -30,7 +30,7 @@
             border-radius: 12px;
             margin-bottom: 30px;
             text-align: center;
-			border-top: 8px solid #ffff00;
+			border-top: 8px solid #44F527;
 			border-bottom: 4px solid #ffff00;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
@@ -51,7 +51,11 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 20px;
             width: 100%;
+			background-color: #4a148c;
+			padding: 20px;
             max-width: 800px;
+			border-radius: 12px;
+			border-bottom: 4px solid #27E4F5;
         }
         
         .niveau {
@@ -98,21 +102,23 @@
         .btn-quitter {
             margin-top: 40px;
             padding: 12px 30px;
-            background-color: #4a148c;
+            background-color: #ff4747;
             color: white;
             border: none;
-            border-radius: 30px;
+            border-radius: 12px;
             cursor: pointer;
             font-size: 16px;
             font-weight: bold;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-left: 2px solid #ff4747;
+			border-right: 2px solid #ff4747;
         }
         
         .btn-quitter:hover {
-            background-color: #6a1b9a;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+            background-color: #ff0000;
+            transform: translateY(-4px);
+            border-left: 2px solid #ffffff;
+			border-right: 2px solid #ffffff;
         }
         
         @media (max-width: 600px) {
@@ -150,16 +156,8 @@
         </div>
     </div>
     
-    <button class="btn-quitter" onclick="quitter()">Quitter</button>
+    <button class="btn-quitter" onclick="window.close()">Quitter</button>
     
-    <script>
-        function quitter() {
-            if (confirm("Voulez-vous vraiment quitter ?")) {
-                window.close(); // Fonctionne pour les fenêtres ouvertes par JavaScript
-                // Alternative pour les navigateurs modernes
-                window.location.href = "about:blank";
-            }
-        }
-    </script>
+
 </body>
 </html>
