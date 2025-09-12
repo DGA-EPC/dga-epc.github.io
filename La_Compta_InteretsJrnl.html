@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Journalisation - Exercice de Comptabilité</title>
+    <title>Journalisation - Les intérêts</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -39,7 +39,7 @@
 		}
         h1 {
             color: #FFFFFF;
-            margin-top: 0;
+            margin-top: 0px;
 			margin-bottom: 5px;
         }
         h2 {
@@ -55,7 +55,7 @@
 		 h4 {
             color: #ffffff;
             margin-top: 0px;
-			margin-bottom: 10px;
+			margin-bottom: 0px;
         }
         .stats {
             display: flex;
@@ -118,7 +118,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
-        }
+		}
         #validate-btn {
             background-color: #61b865;
             color: white;
@@ -156,7 +156,7 @@
         #quit-btn:hover {
             background-color: #ff0000;
             transform: translateY(-2px);
-        }			
+        }		
         .feedback {
             margin-top: 20px;
             padding: 15px;
@@ -199,8 +199,7 @@
 <body>
     <header>
         <h2>Journalisation avec écritures multiples</h2>
-		<h1>La TVA</h1>
-		<h4>Comptabilisation au net au taux normal (8.1%)</h4>
+		<h1>Les intérêts</h1>
     </header>
 
 
@@ -237,13 +236,12 @@
 									<option value="IP sur marchandises">IP sur marchandises</option>
 									<option value="IP sur inv. et ACE">IP sur inv. et ACE</option>
 									<option value="Stock de marchandises">Stock de marchandises</option>
-									<option value="Machines">Machines</option>
 									<option value="Véhicules">Véhicules</option>
                                     </optgroup>
                                 <optgroup label="PASSIF">
                                     <option value="Dettes fournisseurs">Dettes fournisseurs</option>
 									<option value="Autres dettes">Autres dettes</option>
-									<option value="Dettes AFC">Dettes AFC</option>
+									<option value="Dette bancaire">Dette bancaire</option>
 									<option value="TVA due">TVA due</option>
 									<option value="Capital">Capital</option>
                                 </optgroup>
@@ -262,6 +260,7 @@
 									<option value="Frais d'administration">Frais d'administration</option>
 									<option value="ACE">ACE</option>
 									<option value="Produits financiers">Produits financiers</option>
+									<option value="Charges financières">Charges financières</option>
                                 </optgroup>
                             </select>
                         </td>
@@ -277,13 +276,12 @@
 									<option value="IP sur marchandises">IP sur marchandises</option>
 									<option value="IP sur inv. et ACE">IP sur inv. et ACE</option>
 									<option value="Stock de marchandises">Stock de marchandises</option>
-									<option value="Machines">Machines</option>
 									<option value="Véhicules">Véhicules</option>
                                     </optgroup>
                                 <optgroup label="PASSIF">
                                     <option value="Dettes fournisseurs">Dettes fournisseurs</option>
 									<option value="Autres dettes">Autres dettes</option>
-									<option value="Dettes AFC">Dettes AFC</option>
+									<option value="Dette bancaire">Dette bancaire</option>
 									<option value="TVA due">TVA due</option>
 									<option value="Capital">Capital</option>
                                 </optgroup>
@@ -302,6 +300,7 @@
 									<option value="Frais d'administration">Frais d'administration</option>
 									<option value="ACE">ACE</option>
 									<option value="Produits financiers">Produits financiers</option>
+									<option value="Charges financières">Charges financières</option>
                                 </optgroup>
                             </select>
                         </td>
@@ -340,7 +339,7 @@
         <div id="completion-message" class="completion-message">
             <h3>Félicitations ! Vous avez terminé toutes les écritures.</h3>
             <p>A vous de juger votre score : <span id="final-score">0</span></p>
-			<h3>N'oubliez pas : "Je fais de la compta et c'est ma joie"</h3>
+			<h3>N'oubliez pas : "Je fais de la compta et c'est ma joie!"</h3>
 
 
         <button id="restart-btn" type="button">Recommencer</button>
@@ -351,116 +350,64 @@
         // Données des écritures comptables
         let accountingEntries = [
             {
-                description: "Comptabilisation d'une facture de CHF 1'810.- TTC pour un achat de marchandises.",
+                description: "Nous recevons un avis de débit de la banque :\nAmortissement de la dette\tCHF 5'000.-\nIntérêts annuels\t\tCHF   750.-\nTotal\t\t\t\tCHF 5'750.-",
                 solution: [
-                    { debit: "Achats de marchandises", credit: "", amount: 1000 },
-					{ debit: "IP sur marchandises", credit: "", amount: 810 },
-					{ debit: "", credit: "Dettes fournisseurs", amount: 1810 }
+                    { debit: "Dette bancaire", credit: "", amount: 5000 },
+					{ debit: "Charges financières", credit: "", amount: 750 },
+					{ debit: "", credit: "Banque", amount: 5750  }
                 ]
             },
 			{
-                description: "Nous vendons à crédit des marchandises pour CHF 5'000.-, TVA non comprise.",
+                description: "Avis de crédit de la banque pour les intérêts annuels sur notre c/c (Compte courant):\n\Intérêts bruts\tCHF 40.-\nImpôt anticipé\tCHF 14.-\nIntérêts nets\tCHF 26.-",
                 solution: [
-                    { debit: "Créances clients", credit: "", amount: 5405 },
-					{ debit: "", credit: "Ventes de marchandises", amount: 5000  },
-					{ debit: "", credit: "TVA due", amount: 405 }
+                    { debit: "Banque", credit: "", amount: 26 },
+					{ debit: "Créances AFC", credit: "", amount: 14 },
+					{ debit: "", credit: "Produits financiers", amount: 40 }
                 ]
             },
 			{
-                description: "Vous pouvez le faire : Nous achetons un nouveau véhicule CHF 25'000.- (HT). Le vendeur nous reprend l'ancien pour CHF 5'000.- (HT). Nous payons CHF 10'000.- en espèces et recevons une facture à 30 jours pour le solde.",
+                description: "Nous avons accordé un prêt à une entreprise partenaire. Celle-ci nous verse par poste l'intérêt annuel, CHF 400.-",
                 solution: [
-                    { debit: "Véhicules", credit: "", amount: 25000 },
-					{ debit: "", credit: "Véhicules", amount: 5000  },
-					{ debit: "", credit: "TVA due", amount: 405 },
-					{ debit: "IP sur inv. et ACE", credit: "", amount: 2025 },
-					{ debit: "", credit: "Autres dettes", amount: 11620 },
-					{ debit: "", credit: "Caisse", amount: 10000 }
+					{ debit: "Poste", credit: "Produits financiers", amount: 400 }
                 ]
             },
 			{
-                description: "Nous payons par banque une facture comptabilisée de CHF 1'780.- TTC pour un achat de marchandises.",
+                description: "Nous payons par banque les intérêts annuels sur notre emprunt bancaire, CHF 800.-.",
                 solution: [
-                    { debit: "Dettes fournisseurs", credit: "Banque", amount: 1780 }
+					{ debit: "Charges financières", credit: "Banque", amount: 800 }
                 ]
             },
 			{
-                description: "Nous payons poste une facture d'un fournisseur, CHF 2'162.- en déduisant 5% d'escompte.",
+                description: "Nous remboursons par poste le solde de notre crédit bancaire, CHF 2'000.-, ainsi que les intérêts, CHF 120.-.",
                 solution: [
-                    { debit: "Dettes fournisseurs", credit: "", amount: 2162 },
-					{ debit: "", credit: "Poste", amount: 2053.9  },
-					{ debit: "", credit: "Déductions obtenues", amount: 100  },
-					{ debit: "", credit: "IP sur marchandises", amount: 8.1  }
+                    { debit: "Dette bancaire", credit: "", amount: 2000 },
+					{ debit: "Charges financières", credit: "", amount:  120 },
+					{ debit: "", credit: "Poste", amount:  2120 }
                 ]
             },
 			{
-                description: "Un client nous rapporte de la marchandise en retour. Nous le remboursons en espèces CHF 756.70. Il n'y a pas de facture ouverte.",
+                description: "Nous recevons un avis de crédit de la banque pour des intérêts reçus d'un placement étranger sans impôt anticipé, CHF 600.-.",
                 solution: [
-                    { debit: "Ventes de marchandises", credit: "", amount: 700 },
-					{ debit: "TVA due", credit: "", amount: 56.7  },
-					{ debit: "", credit: "Caisse", amount: 767.6  }
+					{ debit: "Banque", credit: "Produits financiers", amount: 600 }
                 ]
             },
 			{
-                description: "A la fin du trimestre, nous transférons les soldes des impôts préalables dans le compte TVA due : IP sur marchandises, CHF 1'800.-. IP sur investissements, CHF 750.-",
+                description: "Nous recevons sur notre compte postal les intérêts annuels de 6% sur un placement de CHF 5'000.-. Tenir compte de l'impôt anticipé.",
                 solution: [
-                    { debit: "TVA due", credit: "", amount: 2550 },
-					{ debit: "", credit: "IP sur marchandises", amount: 1800 },
-					{ debit: "", credit: "IP sur inv. et ACE", amount: 750 }
+                    { debit: "Poste", credit: "", amount: 195 },
+					{ debit: "Créances AFC", credit: "", amount: 105  },
+					{ debit: "", credit: "Produits financiers", amount: 300 }
                 ]
             },
 			{
-                description: "Nous recevons à la poste le paiement d'un client pour une vente à crédit, CHF 820.- TVA comprise.",
+                description: "Un client verse à la poste le montant dû pour une facture de CHF 3'000.-, en ajoutant 5% d'intérêts pour 60 jours de retard.",
                 solution: [
-					{ debit: "Poste", credit: "Créances clients", amount: 820 }
-                ]
-            },
-			{
-                description: "Notre fournisseur nous accorde un rabais de 10% sur notre facture de CHF 7'567.- TTC, à cause d'une qualité inférieure de la marchandise.",
-                solution: [
-                    { debit: "Dettes fournisseurs", credit: "", amount: 756.7 },
-					{ debit: "", credit: "Déductions obtenues", amount: 700 },
-					{ debit: "", credit: "IP sur marchandises", amount: 56.7  }
-                ]
-            },
-			{
-                description: "Paiement par banque de l'électricité du trimestre, CHF 648.60 TTC.",
-                solution: [
-                    { debit: "", credit: "Banque", amount: 648.6 },
-					{ debit: "Electricité", credit: "", amount: 600 },
-					{ debit: "IP sur inv. et ACE", credit: "", amount: 48.6 }
-                ]
-            },
-			{
-                description: "Paiement par poste du montant de TVA due pour le trimestre passé, CHF 300.-.",
-                solution: [
-                    { debit: "TVA due", credit: "Poste", amount: 300 }
-                ]
-            },
-			{
-                description: "Achat d'une machine à crédit, CHF 2'000.- TVA non comprise.",
-                solution: [
-                    { debit: "Machines", credit: "", amount: 2000 },
-					{ debit: "IP sur inv. et ACE", credit: "", amount: 162 },
-					{ debit: "", credit: "Autres dettes", amount: 2162 }
-                ]
-            },
-			{
-                description: "Vente au comptant de la semaine, CHF 5'405.-.",
-                solution: [
-                    { debit: "Caisse", credit: "", amount: 5405 },
-					{ debit: "", credit: "Ventes de marchandises", amount: 5000 },
-					{ debit: "", credit: "TVA due", amount:  405 }
-                ]
-            },
-			{
-                description: "Prélèvement de marchandises par le patron pour des besoins personnels, CHF 600.- HT.",
-                solution: [
-                    { debit: "Privé", credit: "", amount: 648.6 },
-					{ debit: "", credit: "Prestations propres", amount: 600 },
-					{ debit: "", credit: "IP sur marchandises", amount: 48.6 }
+                    { debit: "Poste", credit: "", amount: 3025  },
+					{ debit: "", credit: "Produits financiers", amount: 25 },
+					{ debit: "", credit: "Créances clients", amount:  3000 }
                 ]
             }
-
+	
             /* Ajouter d'autres écritures ici par la suite
 			,
 			{
@@ -471,6 +418,8 @@
                 ]
             }
 			*/
+			
+			
 			
         ];
 
@@ -593,13 +542,12 @@
 									<option value="IP sur marchandises">IP sur marchandises</option>
 									<option value="IP sur inv. et ACE">IP sur inv. et ACE</option>
 									<option value="Stock de marchandises">Stock de marchandises</option>
-									<option value="Machines">Machines</option>
 									<option value="Véhicules">Véhicules</option>
                                     </optgroup>
                                 <optgroup label="PASSIF">
                                     <option value="Dettes fournisseurs">Dettes fournisseurs</option>
 									<option value="Autres dettes">Autres dettes</option>
-									<option value="Dettes AFC">Dettes AFC</option>
+									<option value="Dette bancaire">Dette bancaire</option>
 									<option value="TVA due">TVA due</option>
 									<option value="Capital">Capital</option>
                                 </optgroup>
@@ -618,6 +566,7 @@
 									<option value="Frais d'administration">Frais d'administration</option>
 									<option value="ACE">ACE</option>
 									<option value="Produits financiers">Produits financiers</option>
+									<option value="Charges financières">Charges financières</option>
                                 </optgroup>
                             </select>
                         </td>
@@ -633,13 +582,12 @@
 									<option value="IP sur marchandises">IP sur marchandises</option>
 									<option value="IP sur inv. et ACE">IP sur inv. et ACE</option>
 									<option value="Stock de marchandises">Stock de marchandises</option>
-									<option value="Machines">Machines</option>
 									<option value="Véhicules">Véhicules</option>
                                     </optgroup>
                                 <optgroup label="PASSIF">
                                     <option value="Dettes fournisseurs">Dettes fournisseurs</option>
 									<option value="Autres dettes">Autres dettes</option>
-									<option value="Dettes AFC">Dettes AFC</option>
+									<option value="Dette bancaire">Dette bancaire</option>
 									<option value="TVA due">TVA due</option>
 									<option value="Capital">Capital</option>
                                 </optgroup>
@@ -658,6 +606,7 @@
 									<option value="Frais d'administration">Frais d'administration</option>
 									<option value="ACE">ACE</option>
 									<option value="Produits financiers">Produits financiers</option>
+									<option value="Charges financières">Charges financières</option>
                                 </optgroup>
                             </select>
                         </td>
