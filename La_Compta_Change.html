@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convertisseur de Devises - Exercices</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: black; 
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .header {
+            background-color: #6a0dad; /* Violet foncé */
+            color: white;
+            padding: 15px 10px 0px;
+            text-align: center;
+            border-top: 5px solid #51FF46; /* Bord haut vert */
+            border-bottom: 5px solid #FDCF00; /* Bord bas orange */
+            margin-bottom: 5px;
+            position: relative;
+            border-radius: 8px;
+			max-width: 900px;
+			margin: 0px auto;
+            box-shadow: 0 4px 12px rgba(106, 13, 173, 0.4);
+        }        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-top: 0;
+        }
+        
+        .exchange-rates {
+            margin: 20px auto;
+            padding: 15px;
+			max-width: 900px;
+            background-color: #3c3c54;
+            border-radius: 8px;
+        }
+        
+        .rates-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        
+        .rates-table th, .rates-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        
+        .rates-table th {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        .problem-container {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+			max-width: 900px;
+            margin: 20px auto;
+        }
+        
+        .problem-text {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .input-container {
+            margin: 15px 0;
+        }
+        
+        input {
+            padding: 8px;
+            border-radius: 4px;
+            border: none;
+            width: 200px;
+        }
+        
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .validate-btn {
+            background-color: #61b865;
+            color: white;
+        }
+        .validate-btn:hover {
+			background-color: #00b50d;
+			transform: translateY(-2px);
+        }
+        
+        .new-btn {
+            background-color: #ffbf57;
+            color: white;
+        }
+        .new-btn:hover {
+			background-color: #ffa500;
+			transform: translateY(-2px);
+        }		
+        
+        .solution-btn {
+            background-color: #5eabcc;
+            color: white;
+        }
+        .solution-btn:hover {
+			background-color: #0088c2;
+			transform: translateY(-2px);
+        }		
+        
+        .quit-btn {
+            background-color: #ff4747;
+            color: white;
+        }
+        .quit-btn:hover {
+			background-color: #ff0000;
+			transform: translateY(-2px);
+        }		
+		
+
+		.reset-btn {
+			background-color: #D181E3;
+			color: white;
+		}		
+        .reset-btn:hover {
+			background-color: #9C27B0;
+			transform: translateY(-2px);
+        }		
+        
+        .result {
+            margin-top: 15px;
+            font-weight: bold;
+            min-height: 24px;
+        }
+        
+        .solution-details {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-style: italic;
+			color: #ffb5fb;
+        }
+    </style>
+</head>
+<body>
+
+
+    <div class="header">
+        <h1>Les changes</h1>
+	</div>
+    
+		
+        <div class="exchange-rates">
+            
+            <table class="rates-table">
+                <thead>
+                    <tr>
+                        <th>Devises</th>
+                        <th>Devises - Achat</th>
+                        <th>Devises - Vente</th>
+                        <th>Billets - Achat</th>
+                        <th>Billets - Vente</th>
+                    </tr>
+                </thead>
+                <tbody id="rates-body">
+                    <!-- Les taux de change seront insérés ici -->
+                </tbody>
+            </table>
+        </div>
+
+
+        <div class="problem-container">
+            <div class="problem-text" id="problem-text">
+                <!-- Le problème sera généré ici -->
+            </div>
+            
+            <div class="input-container">
+                <input type="number" step="0.05" id="user-answer" placeholder="Votre réponse en CHF">
+                <button class="validate-btn" onclick="validateAnswer()">Valider</button>
+            </div>
+            
+            <div>
+                <button class="new-btn" onclick="generateNewProblem()">Nouvel exercice</button>
+                <button class="solution-btn" onclick="showSolution()">Afficher la solution</button>
+				<button class="reset-btn" onclick="resetRates()">Nouveaux cours</button>
+                <button class="quit-btn" onclick="window.close()">Quitter</button>
+            </div>
+            
+            <div class="result" id="result"></div>
+            <div class="solution-details" id="solution-details"></div>
+        </div>
+        
+
+
+        <div class="footer">
+            <p>"Je fais de la compta et c'est ma joie!" - DG, EPC Fribourg</p>
+        </div>
+    <script>
+        // Données des devises
+        const currencies = [
+            { code: 'USD', decimals: 4, multiplier: 1 },
+            { code: 'AUD', decimals: 4, multiplier: 1 },
+            { code: 'EUR', decimals: 4, multiplier: 1 },
+            { code: 'GBP', decimals: 4, multiplier: 1 },
+            { code: 'DKK', decimals: 2, multiplier: 100 },
+            { code: 'NOK', decimals: 2, multiplier: 100 },
+            { code: 'SEK', decimals: 2, multiplier: 100 },
+            { code: 'JPY', decimals: 2, multiplier: 100 }
+        ];
+		
+// Messages de félicitations pour les bonnes réponses
+const congratulations = [
+    "Excellent! Continuez sur cette lancée!",
+    "Parfait! Votre calcul est exact!",
+    "Bravo! Conversion réussie avec brio!",
+    "Correct! Envie de poursuivre ?",
+    "Félicitations! Calcul précis et rapide!",
+	"Génial! Encore un pour la route ?"
+];
+
+		
+
+// Fonction pour générer des taux de change aléatoires réalistes
+function generateRealisticRates() {
+    const baseRates = {
+        USD: { base: 0.90, spread: 0.04 },
+        AUD: { base: 0.59, spread: 0.05 },
+        EUR: { base: 1.07, spread: 0.04 },
+        GBP: { base: 1.25, spread: 0.04 },
+        DKK: { base: 0.144, spread: 0.004 },
+        NOK: { base: 0.086, spread: 0.004 },
+        SEK: { base: 0.091, spread: 0.004 },
+        JPY: { base: 0.0081, spread: 0.0004 }
+    };
+
+    const rates = {};
+    
+    for (const [currency, data] of Object.entries(baseRates)) {
+        // Générer un taux de base légèrement aléatoire autour de la valeur de base
+        const randomFactor = 1 + (Math.random() * 0.1 - 0.05); // ±5%
+        const base = data.base * randomFactor;
+        const spread = data.spread;
+        
+        // Déterminer les taux selon les règles:
+        // - deviseAchat < deviseVente
+        // - billetAchat < deviseAchat (la banque achète les billets moins cher)
+        // - deviseVente < billetVente (la banque vend les billets plus cher)
+        const deviseAchat = base - spread/2;
+        const deviseVente = base + spread/2;
+        const billetAchat = deviseAchat - spread/4;
+        const billetVente = deviseVente + spread/4;
+        
+        rates[currency] = {
+            deviseAchat: parseFloat(deviseAchat.toFixed(4)),
+            deviseVente: parseFloat(deviseVente.toFixed(4)),
+            billetAchat: parseFloat(billetAchat.toFixed(4)),
+            billetVente: parseFloat(billetVente.toFixed(4))
+        };
+    }
+    
+		return rates;
+	}
+
+	// Générer les taux de change une fois au chargement
+	const exchangeRates = generateRealisticRates();	
+	
+	
+	// Réinitialiser les taux
+function resetRates() {
+    if (confirm("Voulez-vous générer de nouveaux taux de change? Les exercices en cours utiliseront les nouveaux taux.")) {
+        Object.assign(exchangeRates, generateRealisticRates());
+        displayExchangeRates();
+        generateNewProblem();
+    }
+}
+	
+        let currentProblem = {};
+        let correctAnswer = 0;
+        let usedRate = 0;
+        let rateType = "";
+        let formula = "";
+
+// Initialisation
+window.onload = function() {
+    // Vérifier si des taux sont déjà stockés en session
+    const storedRates = sessionStorage.getItem('exchangeRates');
+    
+    if (storedRates) {
+        // Utiliser les taux existants
+        Object.assign(exchangeRates, JSON.parse(storedRates));
+    } else {
+        // Générer de nouveaux taux
+        Object.assign(exchangeRates, generateRealisticRates());
+    }
+    
+    displayExchangeRates();
+    generateNewProblem();
+};
+
+
+	// Afficher les taux de change
+		function displayExchangeRates() {
+			const ratesBody = document.getElementById('rates-body');
+			ratesBody.innerHTML = '';
+    
+			currencies.forEach(currency => {
+				const rate = exchangeRates[currency.code];
+				const multiplier = currency.multiplier;
+				const decimals = currency.decimals;
+        
+				const row = document.createElement('tr');
+        
+			row.innerHTML = `
+				<td>${currency.code}</td>
+				<td>${(rate.deviseAchat * multiplier).toFixed(decimals)}</td>
+				<td>${(rate.deviseVente * multiplier).toFixed(decimals)}</td>
+				<td>${(rate.billetAchat * multiplier).toFixed(decimals)}</td>
+				<td>${(rate.billetVente * multiplier).toFixed(decimals)}</td>
+        `;
+        
+			ratesBody.appendChild(row);
+		});
+    
+		// Stocker les taux dans le stockage de session pour persistance
+			sessionStorage.setItem('exchangeRates', JSON.stringify(exchangeRates));
+}
+
+	// Générer un nouveau problème
+		function generateNewProblem() {
+			document.getElementById('result').textContent = '';
+			document.getElementById('user-answer').value = '';
+			document.getElementById('solution-details').textContent = '';
+    
+    // Choisir aléatoirement le type de problème (touriste ou entreprise)
+    const isTourist = Math.random() > 0.5;
+    
+    // Choisir aléatoirement le sens de conversion (CHF -> devise ou devise -> CHF)
+    const isChfToForeign = Math.random() > 0.5;
+    
+    // Choisir une devise aléatoire
+    const currency = currencies[Math.floor(Math.random() * currencies.length)];
+    const rateData = exchangeRates[currency.code];
+    
+    // Générer un montant arrondi à la centaine
+    let amount;
+    if (isTourist) {
+        amount = Math.round(Math.random() * 100 + 1) * 100; // 100 à 10'100
+    } else {
+        amount = Math.round(Math.random() * 1000 + 1) * 100; // 100 à 100'100
+    }
+    
+    // Déterminer la direction de la conversion
+    const isBuying = Math.random() > 0.5;
+    
+    // Créer le problème et calculer la réponse
+    let problemText = '';
+    let answerIsChf = true;
+    
+    if (isTourist) {
+        if (isChfToForeign) {
+            // Touriste achète des devises avec CHF (utilise cours vente billets)
+            if (isBuying) {
+                problemText = `Un touriste suisse remet CHF ${amount.toLocaleString('fr-CH')} pour acheter des ${currency.code}. Combien reçoit-il de ${currency.code} ?`;
+                usedRate = rateData.billetVente;
+                rateType = "vente de billets";
+                correctAnswer = calculateConversion(amount, 1/usedRate, currency);
+                formula = `${amount} ÷ ${usedRate} = ${correctAnswer}`;
+                answerIsChf = false;
+            } else {
+                problemText = `Un touriste suisse vend ${currency.code} ${amount.toLocaleString('fr-CH')} à une banque. Combien reçoit-il de CHF ?`;
+                usedRate = rateData.billetAchat;
+                rateType = "achat de billets";
+                correctAnswer = calculateConversion(amount, usedRate, currency);
+                formula = `${amount} × ${usedRate} = ${correctAnswer}`;
+            }
+        } else {
+            // Touriste vend des devises pour recevoir CHF (utilise cours achat billets)
+            if (isBuying) {
+                problemText = `Un touriste étranger donne ${currency.code} ${amount.toLocaleString('fr-CH')} au guichet d'une banque suisse. Combien reçoit-il de CHF ?`;
+                usedRate = rateData.billetVente;
+                rateType = "vente de billets";
+                correctAnswer = calculateConversion(amount, usedRate, currency);
+                formula = `${amount} × ${usedRate} = ${correctAnswer}`;
+            } else {
+                problemText = `Un touriste suisse change CHF ${amount.toLocaleString('fr-CH')} contre des ${currency.code}. Combien reçoit-il de ${currency.code} ?`;
+                usedRate = rateData.billetAchat;
+                rateType = "achat de billets";
+                correctAnswer = calculateConversion(amount, 1/usedRate, currency);
+                formula = `${amount} ÷ ${usedRate} = ${correctAnswer}`;
+                answerIsChf = false;
+            }
+        }
+    } else {
+        if (isChfToForeign) {
+            // Entreprise effectue une opération en devises
+            if (isBuying) {
+                // Entreprise achète des devises avec CHF (utilise cours vente devises)
+                problemText = `Une entreprise suisse a reçu un avis de débit de CHF ${amount.toLocaleString('fr-CH')} pour payer une facture en ${currency.code}. A combien de ${currency.code} se montait la facture?`;
+                usedRate = rateData.deviseVente;
+                rateType = "vente de devises";
+                correctAnswer = calculateConversion(amount, 1/usedRate, currency);
+                formula = `${amount} ÷ ${usedRate} = ${correctAnswer}`;
+                answerIsChf = false;
+            } else {
+                // Entreprise vend des devises pour recevoir CHF (utilise cours achat devises)
+                problemText = `Une entreprise suisse reçoit de son client ${currency.code} ${amount.toLocaleString('fr-CH')} sur son compte bancaire. Combien reçoit-elle de CHF ?`;
+                usedRate = rateData.deviseAchat;
+                rateType = "achat de devises";
+                correctAnswer = calculateConversion(amount, usedRate, currency);
+                formula = `${amount} × ${usedRate} = ${correctAnswer}`;
+            }
+        } else {
+            // Problèmes de recherche de cours
+            if (isBuying) {
+                // Entreprise achète des devises (utilise cours vente devises)
+                const chfAmount = calculateConversion(amount, rateData.deviseVente, currency);
+                usedRate = rateData.deviseVente;
+                rateType = "vente de devises";
+                correctAnswer = chfAmount / amount;
+                formula = `${chfAmount} ÷ ${amount} = ${correctAnswer.toFixed(4)}`;
+                problemText = `Une entreprise suisse a payé une facture de ${currency.code} ${amount.toLocaleString('fr-CH')} qu'elle a payé CHF ${chfAmount.toLocaleString('fr-CH')}. Quel était le cours pratiqué ?`;
+            } else {
+                // Entreprise vend des devises (utilise cours achat devises)
+                problemText = `Une entreprise suisse reçoit de son client étranger ${currency.code} ${amount.toLocaleString('fr-CH')}. Quel est le montant en CHF crédité sur sont compte ?`;
+                usedRate = rateData.deviseAchat;
+                rateType = "achat de devises";
+                correctAnswer = calculateConversion(amount, usedRate, currency);
+                formula = `${amount} × ${usedRate} = ${correctAnswer}`;
+            }
+        }
+    }
+    
+    // Stocker le problème actuel
+    currentProblem = {
+        text: problemText,
+        isTourist: isTourist,
+        isBuying: isBuying,
+        currency: currency.code,
+        amount: amount,
+        isRateQuestion: isBuying && !isTourist && !isChfToForeign, // C'est une question de recherche de cours
+        rateType: rateType,
+        formula: formula,
+        usedRate: usedRate,
+        answerIsChf: answerIsChf
+    };
+    
+    // Afficher le problème
+    document.getElementById('problem-text').textContent = currentProblem.text;
+    
+    // Ajuster le placeholder selon le type de question
+    if (currentProblem.isRateQuestion) {
+        document.getElementById('user-answer').placeholder = "Votre réponse (cours)";
+    } else if (currentProblem.answerIsChf) {
+        document.getElementById('user-answer').placeholder = "Votre réponse en CHF";
+    } else {
+        document.getElementById('user-answer').placeholder = `Votre réponse en ${currentProblem.currency}`;
+    }
+}
+ 
+
+        // Calculer la conversion
+        function calculateConversion(amount, rate, currency) {
+            const currencyData = currencies.find(c => c.code === currency);
+            const converted = amount * rate;
+            
+            // Arrondir à 0.05 près
+            return Math.round(converted * 20) / 20;
+        }
+
+// Valider la réponse
+function validateAnswer() {
+    const userAnswer = parseFloat(document.getElementById('user-answer').value);
+    const resultElement = document.getElementById('result');
+    
+    if (isNaN(userAnswer)) {
+        resultElement.textContent = "Veuillez entrer un nombre valide.";
+        resultElement.style.color = "red";
+        return;
+    }
+    
+    // Pour les questions de cours, on compare avec une marge d'erreur
+    if (currentProblem.isRateQuestion) {
+        const difference = Math.abs(userAnswer - correctAnswer);
+        if (difference < 0.001) {
+            // Choisir un message de félicitations aléatoire
+            const randomMessage = congratulations[Math.floor(Math.random() * congratulations.length)];
+            resultElement.textContent = randomMessage;
+            resultElement.style.color = "green";
+        } else {
+            resultElement.textContent = `Incorrect. La réponse était ${correctAnswer.toFixed(4)}.`;
+            resultElement.style.color = "red";
+        }
+    } else {
+        // Pour les conversions normales
+        if (userAnswer === correctAnswer) {
+            // Choisir un message de félicitations aléatoire
+            const randomMessage = congratulations[Math.floor(Math.random() * congratulations.length)];
+            resultElement.textContent = randomMessage;
+            resultElement.style.color = "green";
+        } else {
+            const currency = currentProblem.answerIsChf ? "CHF" : currentProblem.currency;
+            resultElement.textContent = `Incorrect. La réponse était ${correctAnswer.toLocaleString('fr-CH')} ${currency}.`;
+            resultElement.style.color = "red";
+        }
+    }
+}
+
+// Afficher la solution
+function showSolution() {
+    const resultElement = document.getElementById('result');
+    const solutionDetails = document.getElementById('solution-details');
+    
+    if (currentProblem.isRateQuestion) {
+        resultElement.textContent = `Solution: Le cours pratiqué était ${correctAnswer.toFixed(4)}.`;
+        solutionDetails.innerHTML = `
+            <strong>Détails du calcul:</strong><br>
+            Type de cours utilisé: ${currentProblem.rateType}<br>
+            Formule: ${currentProblem.formula}
+        `;
+    } else {
+        const currency = currentProblem.answerIsChf ? "CHF" : currentProblem.currency;
+        resultElement.textContent = `Solution: ${correctAnswer.toLocaleString('fr-CH')} ${currency}.`;
+        solutionDetails.innerHTML = `
+            <strong>Détails du calcul:</strong><br>
+            Type de cours utilisé: ${currentProblem.rateType} (${currentProblem.usedRate})<br>
+            Formule: ${currentProblem.formula}
+        `;
+    }
+    resultElement.style.color = "yellow";
+}
+
+    </script>
+</body>
+</html>
