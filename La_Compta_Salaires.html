@@ -143,6 +143,14 @@
             background-color: #0DDEFF;
             transform: translateY(-2px);
         }	
+        #quit-btn {
+            background-color: #ff4747;
+            color: white;
+        }
+        #quit-btn:hover {
+            background-color: #ff0000;
+            transform: translateY(-2px);
+        }			
         .feedback {
             margin-top: 20px;
             padding: 15px;
@@ -301,6 +309,7 @@
             <div>
                 <button id="validate-btn" type="button">Valider</button>
                 <button id="next-btn" type="button" disabled>Ecriture suivante</button>
+			    <button id="quit-btn" onclick="window.close()">Quitter</button>
             </div>
         </div>
 
