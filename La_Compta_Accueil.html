@@ -269,7 +269,9 @@
                     <div class="chapter no-link">23 Amortissements</div>
                     <div class="chapter no-link">24 Transitoires</div>
                     <div class="chapter has-subchapters" onclick="openSalaireModal()">25 Salaires</div>
-					<div class="chapter no-link">35 Clôture raison individuelle</div>
+					                    <div class="chapter">
+                        <a href="https://dga-epc.github.io/La_Compta_ClotureRI.html" target="_blank">35 Clôture raison individuelle</a>
+                    </div>
                     <div class="chapter no-link">36 Clôture des SA</div>
                     <div class="chapter no-link">54 Titres</div>
                     <div class="chapter no-link">55 Immeubles</div>
@@ -283,7 +285,7 @@
                     <div class="chapter no-link">37 Principe d'évaluation et réserves latentes</div>
                     <div class="chapter no-link">44 Seuil de rentabilité et marge contributive</div>
                     <div class="chapter no-link">51 Analyse de bilan et du résultat</div>
-                    <div class="chapter no-link">56 Compte de résultat à 3/4 degrés</div>
+					<div class="chapter has-subchapters" onclick="openResultatModal()">56 Compte de résultat à 3/4 degrés</div>
                     <div class="chapter no-link">57 Tableau des flux de trésorerie</div>
                     <div class="chapter no-link">59 Comptabilité analytique d'exploitation</div>
                 </div>
@@ -320,6 +322,11 @@
                         3. Schéma des prix
                     </a>
                 </li>
+                <li class="subchapter">
+                    <a href="https://dga-epc.github.io/La_Compta_Resultat2.html"  target="_blank">
+                        4. Etablir un Compte de résultat à 2 degrés
+                    </a>
+                </li>				
             </ul>
         </div>
     </div>
@@ -371,29 +378,64 @@
         </div>		
     </div>	
 
+    <div id="subResultatModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">56 Comptes de résultat - Parties</h3>
+                <button class="close-modal" onclick="closeResultatModal()">&times;</button>
+            </div>
+            <ul class="subchapters">
+                <li class="subchapter">
+                    <a href="https://dga-epc.github.io/La_Compta_Resultat2.html"  target="_blank">
+                        1. Etablir un Compte de résultat à 2 degrés (Révision)
+                    </a>
+                </li>
+                <li class="subchapter">
+                    <a href="https://dga-epc.github.io/La_Compta_Resultat3.html"  target="_blank">
+                        2. Etablir un compte de résultat à 3 degrés
+                    </a>
+                </li>
+                <li class="subchapter">
+                    <a href="https://dga-epc.github.io/La_Compta_Resultat4.html"  target="_blank">
+                        3. Etablir un compte de résultat à 4 degrés
+                    </a>
+                </li>
+            </ul>
+        </div>		
+    </div>	
+	
     <script>
         function openModal() {
             document.getElementById('subchapterModal').style.display = 'flex';
         }
-        
         function closeModal() {
             document.getElementById('subchapterModal').style.display = 'none';
         }
+
         
         function openSalaireModal() {
             document.getElementById('subSalaireModal').style.display = 'flex';
         }
-
         function closeSalaireModal() {
             document.getElementById('subSalaireModal').style.display = 'none';
         }
+
+
         function openInteretModal() {
             document.getElementById('subInteretModal').style.display = 'flex';
         }
-
         function closeInteretModal() {
             document.getElementById('subInteretModal').style.display = 'none';
-        }		
+        }	
+
+
+        function openResultatModal() {
+            document.getElementById('subResultatModal').style.display = 'flex';
+        }
+
+        function closeResultatModal() {
+            document.getElementById('subResultatModal').style.display = 'none';
+        }			
         
         // Fermer n'importe quelle modale en cliquant à l'extérieur
         document.addEventListener('click', function(event) {

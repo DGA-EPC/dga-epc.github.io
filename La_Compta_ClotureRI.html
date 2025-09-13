@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clôture des comptes - Raison Individuelle</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #000000;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background-color: #8A2BE2; /* Violet foncé */
+            color: white;
+            padding: 20px;
+            text-align: center;
+			border-radius: 6px;
+			max-width: 1000px;
+			margin: 0px auto;
+            border-top: 5px solid #FFD700; /* Jaune */
+            border-bottom: 5px solid #1010f5; /* Rouge */
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .content {
+            padding: 20px;
+			background-color: #30002b;
+        }
+        
+        .exercise-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+        }
+        
+        .exercise-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #8A2BE2;
+        }
+        
+        .exercise-data {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+        }
+        
+        .response-area {
+            margin: 20px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+        }
+        
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        #validate-btn {
+            background-color: #61b865;
+            color: white;
+        }
+        
+        #validate-btn:hover {
+            background-color: #00b50d;
+			transform: translateY(-2px);
+        }
+        
+        #new-exercise-btn {
+            background-color: #ffbf47;
+            color: white;
+        }
+        
+        #new-exercise-btn:hover {
+            background-color: #ffa500;
+			transform: translateY(-2px);
+        }
+        
+        #solution-btn {
+            background-color: #5eabcc;
+            color: white;
+        }
+        
+        #solution-btn:hover {
+            background-color: #0088c2;
+			transform: translateY(-2px);
+        }
+        
+        .quit-btn {
+            background-color: #ff4747;
+            color: white;
+        }
+        
+        .quit-btn:hover {
+            background-color: #ff0000;
+			transform: translateY(-2px);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .feedback {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .correct {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border: 1px solid #d6e9c6;
+        }
+        
+        .incorrect {
+            background-color: #f2dede;
+            color: #a94442;
+            border: 1px solid #ebccd1;
+        }
+        
+        .solution {
+            background-color: #e6f7ff;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #2196F3;
+            margin-top: 15px;
+        }
+        
+        /* Styles pour le tableau du modèle 2 */
+        .t-account-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        .t-account-table th, 
+        .t-account-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        
+        .t-account-table th {
+            background-color: #f2f2f2;
+        }
+        
+        .account-column {
+            width: 20%;
+        }
+        
+        .debit-credit-container {
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .debit-section, .credit-section {
+            width: 45%;
+        }
+        
+        .debit-section input, .credit-section input {
+            width: 90%;
+            padding: 6px;
+            text-align: center;
+        }
+        
+        /* Supprimer les flèches des input number */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+		
+		.footer {
+            text-align: center;
+            font-style: italic;
+            margin-top: 30px;
+            color: #ffb5fb;
+    </style>
+</head>
+<body>
+        <header>
+            <h1>Clôture des comptes d'une raison individuelle</h1>
+        </header>
+		<div>
+		<br>
+		</div>
+		
+    <div class="container">
+
+        
+        <div class="content">
+            <div class="exercise-container">
+                <div class="exercise-title" id="exercise-type">Type d'exercice</div>
+                <div class="exercise-data" id="exercise-data">Donnée de l'exercice</div>
+                
+                <div id="model1-response" class="response-area hidden">
+                    <table>
+                        <tr>
+                            <th>Compte débité</th>
+                            <th>Compte crédité</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                <select id="debit-account">
+                                    <option value="">Sélectionner un compte</option>
+                                    <option value="Caisse">Caisse</option>
+                                    <option value="Banque">Banque</option>
+									<option value="Stock">Stock de marchandises</option>
+                                    <option value="Privé">Privé</option>
+                                    <option value="Capital">Capital</option>
+                                    <option value="Prestations propres">Prestations propres</option>
+                                    <option value="Salaires">Salaires</option>
+                                    <option value="Charges financières">Charges financières</option>
+									<option value="Produits financiers">Produits financiers</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="credit-account">
+                                    <option value="">Sélectionner un compte</option>
+                                    <option value="Caisse">Caisse</option>
+                                    <option value="Banque">Banque</option>
+									<option value="Stock">Stock de marchandises</option>
+                                    <option value="Privé">Privé</option>
+                                    <option value="Capital">Capital</option>
+                                    <option value="Prestations propres">Prestations propres</option>
+                                    <option value="Salaires">Salaires</option>
+                                    <option value="Charges financières">Charges financières</option>
+									<option value="Produits financiers">Produits financiers</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div id="model2-response" class="response-area hidden">
+                    <table class="t-account-table">
+                        <tr>
+                            <th class="account-column">Salaires</th>
+                            <th class="account-column">Charges financières</th>
+                            <th class="account-column">Privé</th>
+                            <th class="account-column">Capital</th>
+                            <th class="account-column">Compte de résultat</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="debit-credit-container">
+                                    <div class="debit-section">
+
+                                        <input type="number" id="salaires-debit" placeholder="" min="0" step="10">
+                                    </div>
+                                    <div class="credit-section">
+
+                                        <input type="number" id="salaires-credit" placeholder="" min="0" step="10">
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="debit-credit-container">
+                                    <div class="debit-section">
+
+                                        <input type="number" id="charges-debit" placeholder="" min="0" step="10">
+                                    </div>
+                                    <div class="credit-section">
+
+                                        <input type="number" id="charges-credit" placeholder="" min="0" step="10">
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="debit-credit-container">
+                                    <div class="debit-section">
+
+                                        <input type="number" id="prive-debit" placeholder="" min="0" step="10">
+                                    </div>
+                                    <div class="credit-section">
+
+                                        <input type="number" id="prive-credit" placeholder="" min="0" step="10">
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="debit-credit-container">
+                                    <div class="debit-section">
+
+                                        <input type="number" id="capital-debit" placeholder="" min="0" step="10">
+                                    </div>
+                                    <div class="credit-section">
+
+                                        <input type="number" id="capital-credit" placeholder="" min="0" step="10">
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="debit-credit-container">
+                                    <div class="debit-section">
+
+                                        <input type="number" id="resultat-debit" placeholder="" min="0" step="10">
+                                    </div>
+                                    <div class="credit-section">
+
+                                        <input type="number" id="resultat-credit" placeholder="" min="0" step="10">
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div id="feedback" class="feedback hidden"></div>
+                
+                <div id="solution-container" class="solution hidden">
+                    <strong>Solution:</strong>
+                    <div id="solution-content"></div>
+                </div>
+            </div>
+            
+            <div class="buttons">
+                <button id="validate-btn">Valider</button>
+                <button id="new-exercise-btn">Nouvel exercice</button>
+                <button id="solution-btn">Afficher la solution</button>
+                <button class="quit-btn" onclick="window.close()">Quitter</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Données des exercices
+        const exercises = {
+            model1: [
+                {
+                    data: "Comptabiliser un salaire pour le patron",
+                    solution: { debit: "Salaires", credit: "Privé" }
+                },
+                {
+                    data: "Comptabiliser une augmentation de fortune",
+                    solution: { debit: "Privé", credit: "Capital" }
+                },
+                {
+                    data: "Comptabiliser une diminution de fortune",
+                    solution: { debit: "Capital", credit: "Privé" }
+                },
+                {
+                    data: "Tenir compte d'un intérêt sur les fonds investis",
+                    solution: { debit: "Charges financières", credit: "Privé" }
+                },
+                {
+                    data: "Comptabiliser un prélèvement de marchandises par le patron",
+                    solution: { debit: "Privé", credit: "Prestations propres" }
+                },
+                {
+                    data: "Comptabiliser un prélèvement d'espèces par le patron",
+                    solution: { debit: "Privé", credit: "Caisse" }
+                },
+                {
+                    data: "Le patron augmente sa participation dans l'entreprise par un versement bancaire",
+                    solution: { debit: "Banque", credit: "Capital" }
+                },
+                {
+                    data: "Le patron a prélevé à la banque pour une usage personnel",
+                    solution: { debit: "Privé", credit: "Banque" }
+                }
+            ],
+            model2: [
+                {
+                    data: "Inscrivez le salaire du patron",
+                    solution: { salaires: { debit: "amount" }, prive: { credit: "amount" } }
+                },
+                {
+                    data: "Inscrivez les intérêts sur les fonds investis",
+                    solution: { charges: { debit: "amount" }, prive: { credit: "amount" } }
+                },
+                {
+                    data: "Comptabiliser le bénéfice net",
+                    solution: { prive: { credit: "amount" }, resultat: { debit: "amount" } }
+                },
+                {
+                    data: "Comptabiliser une perte nette",
+                    solution: { prive: { debit: "amount" }, resultat: { credit: "amount" } }
+                },
+                {
+                    data: "Comptabiliser une diminution de fortune",
+                    solution: { prive: { credit: "amount" }, capital: { debit: "amount" } }
+                },
+                {
+                    data: "Comptabiliser une augmentation de fortune",
+                    solution: { prive: { debit: "amount" }, capital: { credit: "amount" } }
+                }
+            ]
+        };
+
+        // Variables globales
+        let currentModel = null;
+        let currentExercise = null;
+        let currentAmount = null;
+
+        // Éléments DOM
+        const exerciseTypeElement = document.getElementById('exercise-type');
+        const exerciseDataElement = document.getElementById('exercise-data');
+        const model1Response = document.getElementById('model1-response');
+        const model2Response = document.getElementById('model2-response');
+        const feedbackElement = document.getElementById('feedback');
+        const solutionContainer = document.getElementById('solution-container');
+        const solutionContent = document.getElementById('solution-content');
+        
+        const validateBtn = document.getElementById('validate-btn');
+        const newExerciseBtn = document.getElementById('new-exercise-btn');
+        const solutionBtn = document.getElementById('solution-btn');
+        const quitBtn = document.getElementById('quit-btn');
+
+        // Initialisation
+        function init() {
+            generateNewExercise();
+            
+            // Événements des boutons
+            validateBtn.addEventListener('click', validateAnswer);
+            newExerciseBtn.addEventListener('click', generateNewExercise);
+            solutionBtn.addEventListener('click', showSolution);
+            quitBtn.addEventListener('click', () => {
+                if (confirm("Êtes-vous sûr de vouloir quitter ?")) {
+                    window.close();
+                }
+            });
+        }
+
+        // Générer un nouvel exercice
+        function generateNewExercise() {
+            // Cacher les éléments de feedback et solution
+            feedbackElement.classList.add('hidden');
+            solutionContainer.classList.add('hidden');
+            
+            // Choisir aléatoirement le modèle (1 ou 2)
+            currentModel = Math.random() < 0.5 ? 'model1' : 'model2';
+            
+            // Choisir un exercice aléatoire dans le modèle sélectionné
+            const exercisesList = exercises[currentModel];
+            const randomIndex = Math.floor(Math.random() * exercisesList.length);
+            currentExercise = exercisesList[randomIndex];
+            
+            // Générer un montant aléatoire pour le modèle 2
+            if (currentModel === 'model2') {
+                currentAmount = Math.floor(Math.random() * 50) * 10 + 10; // Multiple de 10, max 500
+            }
+            
+            // Afficher l'exercice
+            displayExercise();
+        }
+
+        // Afficher l'exercice
+        function displayExercise() {
+            // Mettre à jour le titre et la donnée
+            exerciseTypeElement.textContent = `Tâche : ${currentModel === 'model1' ? 'Journalisez l\'écriture' : 'Inscrivez les montants dans les comptes'}`;
+            
+            let dataText = currentExercise.data;
+            if (currentModel === 'model2' && currentAmount !== null) {
+                dataText += ` ${currentAmount}.`;
+            } else {
+                dataText += ".";
+            }
+            exerciseDataElement.textContent = dataText;
+            
+            // Afficher la zone de réponse appropriée
+            if (currentModel === 'model1') {
+                model1Response.classList.remove('hidden');
+                model2Response.classList.add('hidden');
+                
+                // Réinitialiser les sélections
+                document.getElementById('debit-account').value = '';
+                document.getElementById('credit-account').value = '';
+            } else {
+                model1Response.classList.add('hidden');
+                model2Response.classList.remove('hidden');
+                
+                // Réinitialiser les champs de saisie
+                const inputs = model2Response.querySelectorAll('input');
+                inputs.forEach(input => input.value = '');
+            }
+        }
+
+        // Valider la réponse
+        function validateAnswer() {
+            let isCorrect = false;
+            
+            if (currentModel === 'model1') {
+                const selectedDebit = document.getElementById('debit-account').value;
+                const selectedCredit = document.getElementById('credit-account').value;
+                
+                isCorrect = (
+                    selectedDebit === currentExercise.solution.debit &&
+                    selectedCredit === currentExercise.solution.credit
+                );
+                
+                if (isCorrect) {
+                    showFeedback("Correct! L'écriture est bien comptabilisée.", true);
+                } else {
+                    showFeedback("Incorrect. Veuillez réessayer.", false);
+                }
+            } else {
+                // Pour le modèle 2, nous devons vérifier les valeurs saisies
+                const salairesDebit = parseInt(document.getElementById('salaires-debit').value) || 0;
+                const salairesCredit = parseInt(document.getElementById('salaires-credit').value) || 0;
+                const chargesDebit = parseInt(document.getElementById('charges-debit').value) || 0;
+                const chargesCredit = parseInt(document.getElementById('charges-credit').value) || 0;
+                const priveDebit = parseInt(document.getElementById('prive-debit').value) || 0;
+                const priveCredit = parseInt(document.getElementById('prive-credit').value) || 0;
+                const capitalDebit = parseInt(document.getElementById('capital-debit').value) || 0;
+                const capitalCredit = parseInt(document.getElementById('capital-credit').value) || 0;
+                const resultatDebit = parseInt(document.getElementById('resultat-debit').value) || 0;
+                const resultatCredit = parseInt(document.getElementById('resultat-credit').value) || 0;
+                
+                // Vérifier la solution en fonction du type d'exercice
+                const solution = currentExercise.solution;
+                isCorrect = true;
+                
+                // Vérifier chaque compte selon la solution attendue
+                if (solution.salaires) {
+                    if (solution.salaires.debit === "amount") {
+                        if (salairesDebit !== currentAmount || salairesCredit !== 0) isCorrect = false;
+                    } else if (solution.salaires.credit === "amount") {
+                        if (salairesCredit !== currentAmount || salairesDebit !== 0) isCorrect = false;
+                    }
+                } else {
+                    if (salairesDebit !== 0 || salairesCredit !== 0) isCorrect = false;
+                }
+                
+                if (solution.charges) {
+                    if (solution.charges.debit === "amount") {
+                        if (chargesDebit !== currentAmount || chargesCredit !== 0) isCorrect = false;
+                    } else if (solution.charges.credit === "amount") {
+                        if (chargesCredit !== currentAmount || chargesDebit !== 0) isCorrect = false;
+                    }
+                } else {
+                    if (chargesDebit !== 0 || chargesCredit !== 0) isCorrect = false;
+                }
+                
+                if (solution.prive) {
+                    if (solution.prive.debit === "amount") {
+                        if (priveDebit !== currentAmount || priveCredit !== 0) isCorrect = false;
+                    } else if (solution.prive.credit === "amount") {
+                        if (priveCredit !== currentAmount || priveDebit !== 0) isCorrect = false;
+                    }
+                } else {
+                    if (priveDebit !== 0 || priveCredit !== 0) isCorrect = false;
+                }
+                
+                if (solution.capital) {
+                    if (solution.capital.debit === "amount") {
+                        if (capitalDebit !== currentAmount || capitalCredit !== 0) isCorrect = false;
+                    } else if (solution.capital.credit === "amount") {
+                        if (capitalCredit !== currentAmount || capitalDebit !== 0) isCorrect = false;
+                    }
+                } else {
+                    if (capitalDebit !== 0 || capitalCredit !== 0) isCorrect = false;
+                }
+                
+                if (solution.resultat) {
+                    if (solution.resultat.debit === "amount") {
+                        if (resultatDebit !== currentAmount || resultatCredit !== 0) isCorrect = false;
+                    } else if (solution.resultat.credit === "amount") {
+                        if (resultatCredit !== currentAmount || resultatDebit !== 0) isCorrect = false;
+                    }
+                } else {
+                    if (resultatDebit !== 0 || resultatCredit !== 0) isCorrect = false;
+                }
+                
+                if (isCorrect) {
+                    showFeedback("Correct! Les comptes sont bien inscrits.", true);
+                } else {
+                    showFeedback("Incorrect. Veuillez réessayer.", false);
+                }
+            }
+        }
+
+        // Afficher le feedback
+        function showFeedback(message, isCorrect) {
+            feedbackElement.textContent = message;
+            feedbackElement.classList.remove('hidden', 'correct', 'incorrect');
+            feedbackElement.classList.add(isCorrect ? 'correct' : 'incorrect');
+        }
+
+        // Afficher la solution
+        function showSolution() {
+            if (currentModel === 'model1') {
+                solutionContent.innerHTML = `
+                    <table>
+                        <tr>
+                            <th>Compte débité</th>
+                            <th>Compte crédité</th>
+                        </tr>
+                        <tr>
+                            <td>${currentExercise.solution.debit}</td>
+                            <td>${currentExercise.solution.credit}</td>
+                        </tr>
+                    </table>
+                `;
+            } else {
+                let salairesDebit = 0, salairesCredit = 0;
+                let chargesDebit = 0, chargesCredit = 0;
+                let priveDebit = 0, priveCredit = 0;
+                let capitalDebit = 0, capitalCredit = 0;
+                let resultatDebit = 0, resultatCredit = 0;
+                
+                const solution = currentExercise.solution;
+                
+                if (solution.salaires) {
+                    if (solution.salaires.debit === "amount") salairesDebit = currentAmount;
+                    else if (solution.salaires.credit === "amount") salairesCredit = currentAmount;
+                }
+                
+                if (solution.charges) {
+                    if (solution.charges.debit === "amount") chargesDebit = currentAmount;
+                    else if (solution.charges.credit === "amount") chargesCredit = currentAmount;
+                }
+                
+                if (solution.prive) {
+                    if (solution.prive.debit === "amount") priveDebit = currentAmount;
+                    else if (solution.prive.credit === "amount") priveCredit = currentAmount;
+                }
+                
+                if (solution.capital) {
+                    if (solution.capital.debit === "amount") capitalDebit = currentAmount;
+                    else if (solution.capital.credit === "amount") capitalCredit = currentAmount;
+                }
+                
+                if (solution.resultat) {
+                    if (solution.resultat.debit === "amount") resultatDebit = currentAmount;
+                    else if (solution.resultat.credit === "amount") resultatCredit = currentAmount;
+                }
+                
+                solutionContent.innerHTML = `
+                    <table class="t-account-table">
+                        <tr>
+                            <th class="account-column">Salaires</th>
+                            <th class="account-column">Charges financières</th>
+                            <th class="account-column">Privé</th>
+                            <th class="account-column">Capital</th>
+                            <th class="account-column">Compte de résultat</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="debit-credit-container">
+                                    <div class="debit-section">
+                                        <div>Débit</div>
+                                        <div>${salairesDebit}</div>
+                                    </div>
+                                    <div class="credit-section">
+                                        <div>Crédit</div>
+                                        <div>${salairesCredit}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="debit-credit-container">
+                                    <div class="debit-section">
+                                        <div>Débit</div>
+                                        <div>${chargesDebit}</div>
+                                    </div>
+                                    <div class="credit-section">
+                                        <div>Crédit</div>
+                                        <div>${chargesCredit}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="debit-credit-container">
+                                    <div class="debit-section">
+                                        <div>Débit</div>
+                                        <div>${priveDebit}</div>
+                                    </div>
+                                    <div class="credit-section">
+                                        <div>Crédit</div>
+                                        <div>${priveCredit}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="debit-credit-container">
+                                    <div class="debit-section">
+                                        <div>Débit</div>
+                                        <div>${capitalDebit}</div>
+                                    </div>
+                                    <div class="credit-section">
+                                        <div>Crédit</div>
+                                        <div>${capitalCredit}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="debit-credit-container">
+                                    <div class="debit-section">
+                                        <div>Débit</div>
+                                        <div>${resultatDebit}</div>
+                                    </div>
+                                    <div class="credit-section">
+                                        <div>Crédit</div>
+                                        <div>${resultatCredit}</div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                `;
+            }
+            
+            solutionContainer.classList.remove('hidden');
+        }
+
+        // Démarrer l'application
+        window.onload = init;
+    </script>
+	
+	 <div class="footer">
+        "Je fais de la compta et c'est ma joie!" DG, EPC Fribourg
+    </div>
+</body>
+</html>
