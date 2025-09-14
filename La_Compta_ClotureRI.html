@@ -27,9 +27,9 @@
             color: white;
             padding: 20px;
             text-align: center;
-			border-radius: 6px;
-			max-width: 1000px;
-			margin: 0px auto;
+            border-radius: 6px;
+            max-width: 1060px;
+            margin: 0px auto;
             border-top: 5px solid #FFD700; /* Jaune */
             border-bottom: 5px solid #1010f5; /* Rouge */
         }
@@ -40,8 +40,8 @@
         }
         
         .content {
-            padding: 20px;
-			background-color: #30002b;
+            padding: 8px 20px;
+            background-color: #30002b;
         }
         
         .exercise-container {
@@ -114,7 +114,7 @@
         
         #validate-btn:hover {
             background-color: #00b50d;
-			transform: translateY(-2px);
+            transform: translateY(-2px);
         }
         
         #new-exercise-btn {
@@ -124,7 +124,7 @@
         
         #new-exercise-btn:hover {
             background-color: #ffa500;
-			transform: translateY(-2px);
+            transform: translateY(-2px);
         }
         
         #solution-btn {
@@ -134,7 +134,7 @@
         
         #solution-btn:hover {
             background-color: #0088c2;
-			transform: translateY(-2px);
+            transform: translateY(-2px);
         }
         
         .quit-btn {
@@ -144,7 +144,7 @@
         
         .quit-btn:hover {
             background-color: #ff0000;
-			transform: translateY(-2px);
+            transform: translateY(-2px);
         }
         
         .hidden {
@@ -225,25 +225,119 @@
         input[type="number"] {
             -moz-appearance: textfield;
         }
-		
-		.footer {
+        
+        /* Styles pour le modèle 3 */
+        .t-accounts-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .t-account {
+            width: 30%;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+        }
+        
+        .t-account-header {
+            text-align: center;
+            font-weight: bold;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            background-color: #f2f2f2;
+        }
+        
+        .t-account-content {
+            padding: 2px;
+        }
+        
+		.t-account-row {
+			display: flex;
+			 margin-bottom: 2px; /* Espacement réduit entre les lignes */
+			/* Supprimer cette ligne: border-bottom: 1px solid #eee; */
+		}
+
+		.t-account-debit {
+			width: 50%;
+			text-align: right;
+			padding: 1px 0px;
+			border-right: 1px solid #ddd;
+			font-size: 14px; /* Taille de police légèrement réduite */
+			/* Ajouter cette ligne pour garder seulement la bordure droite */
+		}
+
+		.t-account-credit {
+			width: 50%;
+			text-align: right;
+			padding: 1px 0px;
+			font-size: 14px; /* Taille de police légèrement réduite */
+			/* Pas de bordure ici */
+		}
+        
+		.t-account-input {
+			width: 80%;
+			text-align: right;
+			border: 1px solid #ddd;
+			padding: 1px 2px;
+			background-color: #f9f9f9;
+		    font-size: 13px; /* Taille de police réduite */
+			height: 20px; /* Hauteur fixe réduite */
+		}
+
+        .questions-container {
+            margin-top: 10px;
+        }
+        
+        .question {
+            margin-bottom: 8px;
+            padding: 4px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        
+        .radio-group {
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .radio-group label {
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .radio-group input[type="radio"] {
+            margin-right: 5px;
+        }
+        
+        .number-input {
+            width: 100px;
+            padding: 6px;
+            margin-right: 15px;
+            text-align: right;
+        }
+        
+        .footer {
             text-align: center;
             font-style: italic;
             margin-top: 30px;
             color: #ffb5fb;
+        }
     </style>
 </head>
 <body>
-        <header>
-            <h1>Clôture des comptes d'une raison individuelle</h1>
-        </header>
-		<div>
-		<br>
-		</div>
-		
+    <header>
+        <h1>Clôture des comptes d'une raison individuelle</h1>
+    </header>
+    <div>
+        <br>
+    </div>
+    
     <div class="container">
-
-        
         <div class="content">
             <div class="exercise-container">
                 <div class="exercise-title" id="exercise-type">Type d'exercice</div>
@@ -261,13 +355,13 @@
                                     <option value="">Sélectionner un compte</option>
                                     <option value="Caisse">Caisse</option>
                                     <option value="Banque">Banque</option>
-									<option value="Stock">Stock de marchandises</option>
+                                    <option value="Stock">Stock de marchandises</option>
                                     <option value="Privé">Privé</option>
                                     <option value="Capital">Capital</option>
                                     <option value="Prestations propres">Prestations propres</option>
                                     <option value="Salaires">Salaires</option>
                                     <option value="Charges financières">Charges financières</option>
-									<option value="Produits financiers">Produits financiers</option>
+                                    <option value="Produits financiers">Produits financiers</option>
                                 </select>
                             </td>
                             <td>
@@ -275,13 +369,13 @@
                                     <option value="">Sélectionner un compte</option>
                                     <option value="Caisse">Caisse</option>
                                     <option value="Banque">Banque</option>
-									<option value="Stock">Stock de marchandises</option>
+                                    <option value="Stock">Stock de marchandises</option>
                                     <option value="Privé">Privé</option>
                                     <option value="Capital">Capital</option>
                                     <option value="Prestations propres">Prestations propres</option>
                                     <option value="Salaires">Salaires</option>
                                     <option value="Charges financières">Charges financières</option>
-									<option value="Produits financiers">Produits financiers</option>
+                                    <option value="Produits financiers">Produits financiers</option>
                                 </select>
                             </td>
                         </tr>
@@ -301,11 +395,9 @@
                             <td>
                                 <div class="debit-credit-container">
                                     <div class="debit-section">
-
                                         <input type="number" id="salaires-debit" placeholder="" min="0" step="10">
                                     </div>
                                     <div class="credit-section">
-
                                         <input type="number" id="salaires-credit" placeholder="" min="0" step="10">
                                     </div>
                                 </div>
@@ -313,11 +405,9 @@
                             <td>
                                 <div class="debit-credit-container">
                                     <div class="debit-section">
-
                                         <input type="number" id="charges-debit" placeholder="" min="0" step="10">
                                     </div>
                                     <div class="credit-section">
-
                                         <input type="number" id="charges-credit" placeholder="" min="0" step="10">
                                     </div>
                                 </div>
@@ -325,11 +415,9 @@
                             <td>
                                 <div class="debit-credit-container">
                                     <div class="debit-section">
-
                                         <input type="number" id="prive-debit" placeholder="" min="0" step="10">
                                     </div>
                                     <div class="credit-section">
-
                                         <input type="number" id="prive-credit" placeholder="" min="0" step="10">
                                     </div>
                                 </div>
@@ -337,11 +425,9 @@
                             <td>
                                 <div class="debit-credit-container">
                                     <div class="debit-section">
-
                                         <input type="number" id="capital-debit" placeholder="" min="0" step="10">
                                     </div>
                                     <div class="credit-section">
-
                                         <input type="number" id="capital-credit" placeholder="" min="0" step="10">
                                     </div>
                                 </div>
@@ -349,17 +435,19 @@
                             <td>
                                 <div class="debit-credit-container">
                                     <div class="debit-section">
-
                                         <input type="number" id="resultat-debit" placeholder="" min="0" step="10">
                                     </div>
                                     <div class="credit-section">
-
                                         <input type="number" id="resultat-credit" placeholder="" min="0" step="10">
                                     </div>
                                 </div>
                             </td>
                         </tr>
                     </table>
+                </div>
+                
+                <div id="model3-response" class="response-area hidden">
+                    <!-- Contenu généré dynamiquement par JavaScript -->
                 </div>
                 
                 <div id="feedback" class="feedback hidden"></div>
@@ -441,6 +529,11 @@
                     data: "Comptabiliser une augmentation de fortune",
                     solution: { prive: { debit: "amount" }, capital: { credit: "amount" } }
                 }
+            ],
+            model3: [
+                {
+                    data: "Analyse des comptes - Déterminez le résultat net, la variation de fortune et le revenu global"
+                }
             ]
         };
 
@@ -454,6 +547,7 @@
         const exerciseDataElement = document.getElementById('exercise-data');
         const model1Response = document.getElementById('model1-response');
         const model2Response = document.getElementById('model2-response');
+        const model3Response = document.getElementById('model3-response');
         const feedbackElement = document.getElementById('feedback');
         const solutionContainer = document.getElementById('solution-container');
         const solutionContent = document.getElementById('solution-content');
@@ -461,7 +555,6 @@
         const validateBtn = document.getElementById('validate-btn');
         const newExerciseBtn = document.getElementById('new-exercise-btn');
         const solutionBtn = document.getElementById('solution-btn');
-        const quitBtn = document.getElementById('quit-btn');
 
         // Initialisation
         function init() {
@@ -471,11 +564,6 @@
             validateBtn.addEventListener('click', validateAnswer);
             newExerciseBtn.addEventListener('click', generateNewExercise);
             solutionBtn.addEventListener('click', showSolution);
-            quitBtn.addEventListener('click', () => {
-                if (confirm("Êtes-vous sûr de vouloir quitter ?")) {
-                    window.close();
-                }
-            });
         }
 
         // Générer un nouvel exercice
@@ -484,8 +572,15 @@
             feedbackElement.classList.add('hidden');
             solutionContainer.classList.add('hidden');
             
-            // Choisir aléatoirement le modèle (1 ou 2)
-            currentModel = Math.random() < 0.5 ? 'model1' : 'model2';
+            // Choisir aléatoirement le modèle (1, 2 ou 3)
+            const randomValue = Math.random();
+            if (randomValue < 0.33) {
+                currentModel = 'model1';
+            } else if (randomValue < 0.66) {
+                currentModel = 'model2';
+            } else {
+                currentModel = 'model3';
+            }
             
             // Choisir un exercice aléatoire dans le modèle sélectionné
             const exercisesList = exercises[currentModel];
@@ -504,7 +599,13 @@
         // Afficher l'exercice
         function displayExercise() {
             // Mettre à jour le titre et la donnée
-            exerciseTypeElement.textContent = `Tâche : ${currentModel === 'model1' ? 'Journalisez l\'écriture' : 'Inscrivez les montants dans les comptes'}`;
+            if (currentModel === 'model1') {
+                exerciseTypeElement.textContent = "Tâche : Journalisez l'écriture";
+            } else if (currentModel === 'model2') {
+                exerciseTypeElement.textContent = "Tâche : Inscrivez les montants dans les comptes";
+            } else {
+                exerciseTypeElement.textContent = "Tâche : Analyse des comptes";
+            }
             
             let dataText = currentExercise.data;
             if (currentModel === 'model2' && currentAmount !== null) {
@@ -515,21 +616,192 @@
             exerciseDataElement.textContent = dataText;
             
             // Afficher la zone de réponse appropriée
+            model1Response.classList.add('hidden');
+            model2Response.classList.add('hidden');
+            model3Response.classList.add('hidden');
+            
             if (currentModel === 'model1') {
                 model1Response.classList.remove('hidden');
-                model2Response.classList.add('hidden');
                 
                 // Réinitialiser les sélections
                 document.getElementById('debit-account').value = '';
                 document.getElementById('credit-account').value = '';
-            } else {
-                model1Response.classList.add('hidden');
+            } else if (currentModel === 'model2') {
                 model2Response.classList.remove('hidden');
                 
                 // Réinitialiser les champs de saisie
                 const inputs = model2Response.querySelectorAll('input');
                 inputs.forEach(input => input.value = '');
+            } else {
+                model3Response.classList.remove('hidden');
+                displayModel3Exercise();
             }
+        }
+
+        // Afficher l'exercice du modèle 3
+        function displayModel3Exercise() {
+            // Générer les montants aléatoires selon les règles spécifiées
+            const B = Math.floor(Math.random() * 500) + 100; // Montant pour crédit Privé (1)
+            const D = Math.floor(Math.random() * 500) + 100; // Montant pour crédit Privé (2)
+            const E = Math.floor(Math.random() * 500) + 100; // Montant pour débit Privé
+            const F = Math.floor(Math.random() * 500) + 100; // Montant pour crédit Capital
+            
+            // Déterminer G et H selon les règles (80% des cas H > G, écart de 55% à 80%)
+            let G, H;
+            if (Math.random() < 0.8) {
+                // H > G
+                G = Math.floor(Math.random() * 1000) + 100;
+                const ecart = 0.55 + Math.random() * 0.25; // Écart entre 55% et 80%
+                H = Math.floor(G * (1 + ecart));
+            } else {
+                // H <= G (20% des cas)
+                H = Math.floor(Math.random() * 1000) + 100;
+                const ecart = 0.1 + Math.random() * 0.4; // Écart plus petit
+                G = Math.floor(H * (1 + ecart));
+            }
+            
+            // Stocker les valeurs pour la validation
+            currentExercise.values = { B, D, E, F, G, H };
+            
+            // Afficher les comptes en T
+            model3Response.innerHTML = `
+                <div class="t-accounts-container">
+                    <div class="t-account">
+                        <div class="t-account-header">Salaires</div>
+                        <div class="t-account-content">
+                            <div class="t-account-row">
+                                <div class="t-account-debit">${B}</div>
+                                <div class="t-account-credit"></div>
+                            </div>
+                            <div class="t-account-row">
+                                <div class="t-account-debit"></div>
+                                <div class="t-account-credit"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="t-account">
+                        <div class="t-account-header">Charges financières</div>
+                        <div class="t-account-content">
+                            <div class="t-account-row">
+                                <div class="t-account-debit">${D}</div>
+                                <div class="t-account-credit"></div>
+                            </div>
+                            <div class="t-account-row">
+                                <div class="t-account-debit"></div>
+                                <div class="t-account-credit"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="t-account">
+                        <div class="t-account-header">Privé</div>
+                        <div class="t-account-content">
+                            <div class="t-account-row">
+                                <div class="t-account-debit">${E}</div>
+                                <div class="t-account-credit"></div>
+                            </div>
+                            <div class="t-account-row">
+                                <div class="t-account-debit"></div>
+                                <div class="t-account-credit">${B}</div>
+                            </div>
+                            <div class="t-account-row">
+                                <div class="t-account-debit"></div>
+                                <div class="t-account-credit">${D}</div>
+                            </div>
+                            <div class="t-account-row">
+                                <div class="t-account-debit"></div>
+                                <div class="t-account-credit"></div>
+                            </div>
+                            <div class="t-account-row">
+                                <div class="t-account-debit"></div>
+                                <div class="t-account-credit"></div>
+                            </div>
+							<div class="t-account-row">
+								<div class="t-account-debit"><input type="number" class="t-account-input" id="prive-debit-extra1"></div>
+								<div class="t-account-credit"><input type="number" class="t-account-input" id="prive-credit-extra1"></div>
+							</div>
+							<div class="t-account-row">
+								<div class="t-account-debit"><input type="number" class="t-account-input" id="prive-debit-extra2"></div>
+								<div class="t-account-credit"><input type="number" class="t-account-input" id="prive-credit-extra2"></div>
+							</div>						
+						</div>
+					</div>
+                    
+                    <div class="t-account">
+                        <div class="t-account-header">Capital</div>
+                        <div class="t-account-content">
+                            <div class="t-account-row">
+                                <div class="t-account-debit"></div>
+                                <div class="t-account-credit">${F}</div>
+                            </div>
+                            <div class="t-account-row">
+                                <div class="t-account-debit"></div>
+                                <div class="t-account-credit"></div>
+                            </div>
+                            <div class="t-account-row">
+                                <div class="t-account-debit"></div>
+                                <div class="t-account-credit"></div>
+							</div>
+							<div class="t-account-row">
+								<div class="t-account-debit"><input type="number" class="t-account-input" id="capital-debit-extra1"></div>
+								<div class="t-account-credit"><input type="number" class="t-account-input" id="capital-credit-extra1"></div>
+								</div>
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="t-account">
+                        <div class="t-account-header">Résultat</div>
+                        <div class="t-account-content">
+                            <div class="t-account-row">
+                                <div class="t-account-debit">${G}</div>
+                                <div class="t-account-credit">${H}</div>
+                            </div>
+                            <div class="t-account-row">
+                                <div class="t-account-debit"></div>
+                                <div class="t-account-credit"></div>
+                            </div>
+                            <div class="t-account-row">
+                                <div class="t-account-debit"></div>
+                                <div class="t-account-credit"></div>
+                            </div>
+							<div class="t-account-row">
+								<div class="t-account-debit"><input type="number" class="t-account-input" id="resultat-debit-extra1"></div>
+								<div class="t-account-credit"><input type="number" class="t-account-input" id="resultat-credit-extra1"></div>
+							</div>
+
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="questions-container">
+                    <div class="question">
+                        <strong>A) Quel est le résultat net ? Précisez BN ou PN.</strong>
+                        <div class="radio-group">
+                            <input type="number" id="resultat-net" class="number-input" placeholder="Montant">
+                            <label><input type="radio" name="resultat-type" value="BN"> BN</label>
+                            <label><input type="radio" name="resultat-type" value="PN"> PN (inscrivez le montant en - si PN)</label>
+                        </div>
+                    </div>
+                    
+                    <div class="question">
+                        <strong>B) Quelle est la variation de fortune ? Précisez AF ou DF.</strong>
+                        <div class="radio-group">
+                            <input type="number" id="variation-fortune" class="number-input" placeholder="Montant">
+                            <label><input type="radio" name="variation-type" value="AF"> AF</label>
+                            <label><input type="radio" name="variation-type" value="DF"> DF (inscrivez le montant en - si DF)</label>
+                        </div>
+                    </div>
+                    
+                    <div class="question">
+                        <strong>C) Quel est le revenu global du propriétaire ?</strong>
+                        <div class="radio-group">
+                            <input type="number" id="revenu-global" class="number-input" placeholder="Montant">
+                        </div>
+                    </div>
+                </div>
+            `;
         }
 
         // Valider la réponse
@@ -550,7 +822,7 @@
                 } else {
                     showFeedback("Incorrect. Veuillez réessayer.", false);
                 }
-            } else {
+            } else if (currentModel === 'model2') {
                 // Pour le modèle 2, nous devons vérifier les valeurs saisies
                 const salairesDebit = parseInt(document.getElementById('salaires-debit').value) || 0;
                 const salairesCredit = parseInt(document.getElementById('salaires-credit').value) || 0;
@@ -623,6 +895,40 @@
                 } else {
                     showFeedback("Incorrect. Veuillez réessayer.", false);
                 }
+            } else if (currentModel === 'model3') {
+                const RN = parseInt(document.getElementById('resultat-net').value) || 0;
+                const RNType = document.querySelector('input[name="resultat-type"]:checked')?.value;
+                const VF = parseInt(document.getElementById('variation-fortune').value) || 0;
+                const VFType = document.querySelector('input[name="variation-type"]:checked')?.value;
+                const RG = parseInt(document.getElementById('revenu-global').value) || 0;
+                
+                // Calculer les valeurs correctes
+                const { B, D, E, G, H } = currentExercise.values;
+                const RNCorrect = H - G;
+                const RNTypeCorrect = RNCorrect >= 0 ? "BN" : "PN";
+                
+                const VFCorrect = RNCorrect + B + D - E;
+                const VFTypeCorrect = VFCorrect >= 0 ? "AF" : "DF";
+                
+                const RGCorrect = B + D + RNCorrect;
+                
+                // Vérifier les réponses
+                const isRNCorrect = RN === RNCorrect;
+                const isRNTypeCorrect = RNType === RNTypeCorrect;
+                const isVFCorrect = VF === VFCorrect;
+                const isVFTypeCorrect = VFType === VFTypeCorrect;
+                const isRGCorrect = RG === RGCorrect;
+                
+                if (isRNCorrect && isRNTypeCorrect && isVFCorrect && isVFTypeCorrect && isRGCorrect) {
+                    showFeedback("Correct! Toutes les réponses sont exactes.", true);
+                } else {
+                    let errorMsg = "Incorrect. Erreurs dans: ";
+                    if (!isRNCorrect || !isRNTypeCorrect) errorMsg += "Résultat net, ";
+                    if (!isVFCorrect || !isVFTypeCorrect) errorMsg += "Variation de fortune, ";
+                    if (!isRGCorrect) errorMsg += "Revenu global, ";
+                    errorMsg = errorMsg.slice(0, -2); // Enlever la dernière virgule
+                    showFeedback(errorMsg, false);
+                }
             }
         }
 
@@ -648,7 +954,7 @@
                         </tr>
                     </table>
                 `;
-            } else {
+            } else if (currentModel === 'model2') {
                 let salairesDebit = 0, salairesCredit = 0;
                 let chargesDebit = 0, chargesCredit = 0;
                 let priveDebit = 0, priveCredit = 0;
@@ -757,8 +1063,37 @@
                 `;
             }
             
-            solutionContainer.classList.remove('hidden');
-        }
+        
+        
+		    else if (currentModel === 'model3') {
+				const { B, D, E, F, G, H } = currentExercise.values;
+				const RN = H - G;
+				const RNType = RN >= 0 ? "BN" : "PN";
+				const VF = RN + B + D - E;
+				const VFType = VF >= 0 ? "AF" : "DF";
+				const RG = B + D + RN;
+        
+				solutionContent.innerHTML = `
+					<div style="margin-bottom: 15px;">
+						<strong>A) Résultat net:</strong> ${RN} (${RNType})<br>
+						<em>Calcul: ${H} - ${G} = ${RN}</em>
+					</div>
+            
+					<div style="margin-bottom: 15px;">
+						<strong>B) Variation de fortune:</strong> ${VF} (${VFType})<br>
+						<em>Calcul: ${RN} + ${B} + ${D} - ${E} = ${VF}</em>
+					</div>
+            
+					<div style="margin-bottom: 15px;">
+						<strong>C) Revenu global:</strong> ${RG}<br>
+						<em>Calcul: ${B} + ${D} + ${RN} = ${RG}</em>
+					</div>
+				`;
+			}
+
+			solutionContainer.classList.remove('hidden');
+				
+		}
 
         // Démarrer l'application
         window.onload = init;
