@@ -228,10 +228,11 @@
         
         /* Styles pour le modèle 3 */
         .t-accounts-container {
+		
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         
         .t-account {
@@ -246,7 +247,7 @@
             text-align: center;
             font-weight: bold;
             padding: 8px;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #000;
             background-color: #f2f2f2;
         }
         
@@ -263,8 +264,7 @@
 		.t-account-debit {
 			width: 50%;
 			text-align: right;
-			padding: 1px 0px;
-			border-right: 1px solid #ddd;
+			border-right: 1px solid #000;
 			font-size: 14px; /* Taille de police légèrement réduite */
 			/* Ajouter cette ligne pour garder seulement la bordure droite */
 		}
@@ -272,7 +272,7 @@
 		.t-account-credit {
 			width: 50%;
 			text-align: right;
-			padding: 1px 0px;
+			padding: 1px;
 			font-size: 14px; /* Taille de police légèrement réduite */
 			/* Pas de bordure ici */
 		}
@@ -674,10 +674,22 @@
                                 <div class="t-account-credit"></div>
                             </div>
                             <div class="t-account-row">
-                                <div class="t-account-debit"></div>
+                                <div class="t-account-debit"><br></div>
+                                <div class="t-account-credit"> </div>
+                            </div>
+                            <div class="t-account-row">
+                                <div class="t-account-debit"><br></div>
+                                <div class="t-account-credit"> </div>
+                            </div>							
+							    <div class="t-account-row">
+                                <div class="t-account-debit"><br></div>
                                 <div class="t-account-credit"></div>
                             </div>
                         </div>
+                            <div class="t-account-row">
+                                <div class="t-account-debit"><br></div>
+                                <div class="t-account-credit"></div>
+							</div>  						
                     </div>
                     
                     <div class="t-account">
@@ -688,10 +700,22 @@
                                 <div class="t-account-credit"></div>
                             </div>
                             <div class="t-account-row">
-                                <div class="t-account-debit"></div>
+                                <div class="t-account-debit"><br></div>
                                 <div class="t-account-credit"></div>
                             </div>
                         </div>
+						<div class="t-account-row">
+                                <div class="t-account-debit"><br></div>
+                                <div class="t-account-credit"></div>
+                            </div>
+                            <div class="t-account-row">
+                                <div class="t-account-debit"><br></div>
+                                <div class="t-account-credit"></div>
+							</div>   
+                            <div class="t-account-row">
+                                <div class="t-account-debit"><br></div>
+                                <div class="t-account-credit"></div>
+							</div>  							
                     </div>
                     
                     <div class="t-account">
@@ -699,23 +723,11 @@
                         <div class="t-account-content">
                             <div class="t-account-row">
                                 <div class="t-account-debit">${E}</div>
-                                <div class="t-account-credit"></div>
-                            </div>
-                            <div class="t-account-row">
-                                <div class="t-account-debit"></div>
                                 <div class="t-account-credit">${B}</div>
                             </div>
                             <div class="t-account-row">
                                 <div class="t-account-debit"></div>
                                 <div class="t-account-credit">${D}</div>
-                            </div>
-                            <div class="t-account-row">
-                                <div class="t-account-debit"></div>
-                                <div class="t-account-credit"></div>
-                            </div>
-                            <div class="t-account-row">
-                                <div class="t-account-debit"></div>
-                                <div class="t-account-credit"></div>
                             </div>
 							<div class="t-account-row">
 								<div class="t-account-debit"><input type="number" class="t-account-input" id="prive-debit-extra1"></div>
@@ -735,19 +747,18 @@
                                 <div class="t-account-debit"></div>
                                 <div class="t-account-credit">${F}</div>
                             </div>
-                            <div class="t-account-row">
-                                <div class="t-account-debit"></div>
-                                <div class="t-account-credit"></div>
-                            </div>
-                            <div class="t-account-row">
-                                <div class="t-account-debit"></div>
-                                <div class="t-account-credit"></div>
-							</div>
 							<div class="t-account-row">
 								<div class="t-account-debit"><input type="number" class="t-account-input" id="capital-debit-extra1"></div>
 								<div class="t-account-credit"><input type="number" class="t-account-input" id="capital-credit-extra1"></div>
 								</div>
-                            
+                            <div class="t-account-row">
+                                <div class="t-account-debit"><br></div>
+                                <div class="t-account-credit"></div>
+                            </div>
+                            <div class="t-account-row">
+                                <div class="t-account-debit"><br></div>
+                                <div class="t-account-credit"></div>
+							</div>                            
                         </div>
                     </div>
                     
@@ -759,11 +770,11 @@
                                 <div class="t-account-credit">${H}</div>
                             </div>
                             <div class="t-account-row">
-                                <div class="t-account-debit"></div>
+                                <div class="t-account-debit"><br></div>
                                 <div class="t-account-credit"></div>
                             </div>
                             <div class="t-account-row">
-                                <div class="t-account-debit"></div>
+                                <div class="t-account-debit"><br></div>
                                 <div class="t-account-credit"></div>
                             </div>
 							<div class="t-account-row">
