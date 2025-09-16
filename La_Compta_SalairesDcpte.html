@@ -161,9 +161,9 @@
             <li><strong>Les allocations familiales</strong> sont exonérées de cotisations sociales</li>
             <li><strong>Salaire coordonné</strong> = Salaire AVS - déduction de coordination (2'205.-)</li>
             <li>Salaire coordonné minimum : 315.-</li>
-            <li>Salaire coordonné maximum : 7'560.-</li>
+            <li>Salaire coordonné maximum : 5'355.-</li>
             <li><strong>AVS/AI/APG</strong> : 5.3% sur le salaire AVS</li>
-			<li><strong>AC</strong> : 1.1% sur le salaire AVS (Max. 12'350.-/mois</li>
+			<li><strong>AC</strong> : 1.1% sur le salaire AVS (Max. 12'350.-/mois)</li>
             <li><strong>LAA-AANP</strong> : 1.2% sur le salaire AVS</li>
             <li><strong>LPP</strong> : x% sur le salaire coordonné (le pourcentage varie selon le fonds de pension)</li>
         </ul>
@@ -337,7 +337,7 @@
             salaireCoordonne = roundToFiveCents(salaireAVS - deductionCoordination);
             
             // Limiter le salaire coordonné aux valeurs min/max
-            salaireCoordonne = Math.max(315, Math.min(7560, salaireCoordonne));
+            salaireCoordonne = Math.max(315, Math.min(5355, salaireCoordonne));
 			
 			// Limiter le salaire AC au max
             salaireAC = Math.max(0, Math.min(12350, salaireAC));
