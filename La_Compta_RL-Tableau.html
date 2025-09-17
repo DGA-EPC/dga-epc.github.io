@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau des Réserves Latentes</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1400px; /* Augmentation de la largeur maximale */
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #404040;
+        }
+        .header {
+            background-color: #4b0082; /* Violet foncé */
+            color: white;
+            padding: 2px 0px 0px;
+            text-align: center;
+            border-top: 8px solid #32cd32; /* Vert */
+            border-bottom: 8px solid #ffd700; /* Jaune */
+            margin-bottom: 20px;
+            border-radius: 8px;
+			box-shadow: 6px 8px 12px rgba(0,0,0,1);
+        }
+        .container {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .text-info {
+            flex: 1;
+            background-color: white;
+            padding: 4px 6px 4px;
+            border-radius: 8px;
+            box-shadow: 6px 4px 8px rgba(0,0,0,1);
+        }
+        .h1 {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .h2 {
+            text-align: center;
+			padding: 20px 6px 4px;
+                margin-top: 2px;    /* Marge supérieure réduite */
+				margin-bottom: 2px; /* Marge inférieure réduite */
+				margin-left: 10px;  /* Conserve la marge latérale */
+				margin-right: 10px; /* Conserve la marge latérale */
+				margin-right: 10px; /* Conserve la marge latérale */
+        }		
+        .table-container {
+            flex: 2;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 6px 4px 8px rgba(0,0,0,1);
+            font-size: 1em; /* Réduction de la taille de police */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px; /* Réduction du padding */
+            text-align: center;
+        }
+        th {
+            background-color: #4b0082;
+            color: white;
+            font-size: 0.9em; /* Réduction de la taille de police */
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .input-cell {
+            width: 60px; /* Réduction de la largeur des cellules */
+            text-align: right;
+            padding: 4px; /* Réduction du padding */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9em; /* Réduction de la taille de police */
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        #validate-btn {
+            background-color: #61b865;
+            color: white;
+        }
+        #validate-btn:hover {
+            background-color: #00b50d;
+        }		
+		
+        #new-btn {
+            background-color: #ffbf47;
+            color: white;
+        }
+        #new-btn:hover {
+            background-color: #ffa500;
+        }		
+        #solution-btn {
+            background-color: #5eabcc;
+            color: white;
+        }
+        #solution-btn:hover {
+            background-color: #0088c2
+        }		
+        #quit-btn {
+            background-color: #ff4747;
+            color: white;
+        }
+        #quit-btn:hover {
+            background-color: #ff0000;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .calculation-section {
+            background-color: white;
+            padding: 2px 20px;
+            border-radius: 8px;
+            box-shadow: 6px 8px 12px rgba(0,0,0,1);
+            margin-top: 20px;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+        .info-box {
+            background-color: #ECD9FF;
+            border-left: 4px solid #ff0000;
+            padding: 4px 8px;
+            margin: 8px 6px;
+	     }
+        .answer-section {
+            background-color: white;
+            padding: 2px 20px;
+            border-radius: 8px;
+            box-shadow: 6px 8px 12px rgba(0,0,0,1);
+            margin-top: 20px;
+        }
+        .answer-input {
+            width: 120px;
+            text-align: center;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 0 10px;
+        }
+        .main-content {
+            display: flex;
+            flex-direction: column;
+        }
+        .table-answer-container {
+            display: flex;
+			flex-direction: column;
+            gap: 20px;
+        }
+        footer {
+            text-align: center;
+            padding: 15px;
+            font-style: italic;
+			color: #ffb5fb;
+        }		
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Le tableau des réserves latentes</h1>
+    </div>
+
+    <div class="container">
+        <div class="text-info" id="text-info">
+            <!-- Le texte avec les valeurs sera généré ici -->
+        </div>
+
+        <div class="main-content">
+            <div class="table-container">
+                <table id="accounting-table">
+                    <thead>
+                        <tr>
+                            <th>Compte</th>
+                            <th colspan="3">Bilan initial</th>
+                            <th colspan="3">Bilan final</th>
+                            <th>Variation</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th>Comptable</th>
+                            <th>Réelle</th>
+                            <th>RL</th>
+                            <th>Comptable</th>
+                            <th>Réelle</th>
+                            <th>RL</th>
+                            <th>RL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Ducroire</td>
+                            <td><input type="number" class="input-cell" id="B3"></td>
+                            <td><input type="number" class="input-cell" id="C3"></td>
+                            <td><input type="number" class="input-cell" id="D3"></td>
+                            <td><input type="number" class="input-cell" id="E3"></td>
+                            <td><input type="number" class="input-cell" id="F3"></td>
+                            <td><input type="number" class="input-cell" id="G3"></td>
+                            <td><input type="number" class="input-cell" id="H3"></td>
+                        </tr>
+                        <tr>
+                            <td>Titres</td>
+                            <td><input type="number" class="input-cell" id="B4"></td>
+                            <td><input type="number" class="input-cell" id="C4"></td>
+                            <td><input type="number" class="input-cell" id="D4"></td>
+                            <td><input type="number" class="input-cell" id="E4"></td>
+                            <td><input type="number" class="input-cell" id="F4"></td>
+                            <td><input type="number" class="input-cell" id="G4"></td>
+                            <td><input type="number" class="input-cell" id="H4"></td>
+                        </tr>
+                        <tr>
+                            <td>Stock de marchandises</td>
+                            <td><input type="number" class="input-cell" id="B5"></td>
+                            <td><input type="number" class="input-cell" id="C5"></td>
+                            <td><input type="number" class="input-cell" id="D5"></td>
+                            <td><input type="number" class="input-cell" id="E5"></td>
+                            <td><input type="number" class="input-cell" id="F5"></td>
+                            <td><input type="number" class="input-cell" id="G5"></td>
+                            <td><input type="number" class="input-cell" id="H5"></td>
+                        </tr>
+                        <tr>
+                            <td>Immobilisations</td>
+                            <td><input type="number" class="input-cell" id="B6"></td>
+                            <td><input type="number" class="input-cell" id="C6"></td>
+                            <td><input type="number" class="input-cell" id="D6"></td>
+                            <td><input type="number" class="input-cell" id="E6"></td>
+                            <td><input type="number" class="input-cell" id="F6"></td>
+                            <td><input type="number" class="input-cell" id="G6"></td>
+                            <td><input type="number" class="input-cell" id="H6"></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total</strong></td>
+                            <td><input type="number" class="input-cell" id="B7"></td>
+                            <td><input type="number" class="input-cell" id="C7"></td>
+                            <td><input type="number" class="input-cell" id="D7"></td>
+                            <td><input type="number" class="input-cell" id="E7"></td>
+                            <td><input type="number" class="input-cell" id="F7"></td>
+                            <td><input type="number" class="input-cell" id="G7"></td>
+                            <td><input type="number" class="input-cell" id="H7"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="answer-section" id="answer-section">
+                <!-- Les champs de réponse seront générés ici -->
+            </div>
+        </div>
+    </div>
+
+    <div class="calculation-section" id="calculation-section">
+        <!-- Les informations sur bénéfice et fonds propres seront générées ici -->
+    </div>
+
+    <div class="buttons">
+        <button id="validate-btn">Valider</button>
+        <button id="new-btn">Nouvel exercice</button>
+        <button id="solution-btn">Afficher la solution</button>
+        <button id="quit-btn">Quitter</button>
+    </div>
+
+<footer>
+	<br>
+        "Je fais de la compta et c'est ma joie!", DG, EPC-Fribourg
+    </footer>
+    <script>
+        // Variables globales
+        let currentValues = {};
+        let calculatedValues = {};
+        let selectedCalculation = '';
+        let publishedProfit = 0;
+        let publishedEquity = 0;
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTable();
+            generateNewExercise();
+            
+            // Événements des boutons
+            document.getElementById('validate-btn').addEventListener('click', validateAnswers);
+            document.getElementById('new-btn').addEventListener('click', generateNewExercise);
+            document.getElementById('solution-btn').addEventListener('click', showSolution);
+            document.getElementById('quit-btn').addEventListener('click', function() {
+                alert('Merci d\'avoir utilisé cet exercice de comptabilité !');
+            });
+        });
+
+        // Initialiser le tableau
+        function initializeTable() {
+            // Toutes les cellules sont désormais modifiables
+            const allCells = document.querySelectorAll('.input-cell');
+            allCells.forEach(cell => {
+                cell.style.backgroundColor = 'white';
+            });
+        }
+
+        // Générer un nouvel exercice
+        function generateNewExercise() {
+            resetTable();
+            generateRandomValues();
+            updateInfoText();
+            setupCalculation();
+            setupAnswerSection();
+        }
+
+        // Réinitialiser le tableau
+        function resetTable() {
+            // Réinitialiser toutes les cellules
+            const inputCells = document.querySelectorAll('.input-cell');
+            inputCells.forEach(cell => {
+                cell.value = '';
+                cell.style.backgroundColor = 'white';
+            });
+            
+            document.getElementById('calculation-section').innerHTML = '';
+            document.getElementById('answer-section').innerHTML = '';
+        }
+
+        // Générer des valeurs aléatoires
+        function generateRandomValues() {
+            // Réinitialiser les valeurs
+            currentValues = {};
+            calculatedValues = {};
+            
+            // Générer les valeurs pour Ducroire (négatives)
+            currentValues.B3 = -Math.floor(Math.random() * 50 + 1);
+            currentValues.C3 = Math.max(currentValues.B3, -Math.floor(Math.random() * 50 + 1) + 1 );
+            currentValues.E3 = -Math.floor(Math.random() * 50 + 1);
+            currentValues.F3 = Math.max(currentValues.E3, -Math.floor(Math.random() * 50 + 1) + 1);
+            
+            // Générer les valeurs pour Titres (1-200)
+            currentValues.B4 = Math.floor(Math.random() * 200 + 1);
+            currentValues.C4 = Math.max(currentValues.B4, Math.floor(Math.random() * 200 + 1));
+            currentValues.E4 = Math.floor(Math.random() * 200 + 1);
+            currentValues.F4 = Math.max(currentValues.E4, Math.floor(Math.random() * 200 + 1));
+            
+            // Générer les valeurs pour Stock (1-200)
+            currentValues.B5 = Math.floor(Math.random() * 200 + 1);
+            currentValues.C5 = Math.max(currentValues.B5, Math.floor(Math.random() * 200 + 1));
+            currentValues.E5 = Math.floor(Math.random() * 200 + 1);
+            currentValues.F5 = Math.max(currentValues.E5, Math.floor(Math.random() * 200 + 1));
+            
+            // Générer les valeurs pour Installations (1-200)
+            currentValues.B6 = Math.floor(Math.random() * 200 + 1);
+            currentValues.C6 = Math.max(currentValues.B6, Math.floor(Math.random() * 200 + 1));
+            currentValues.E6 = Math.floor(Math.random() * 200 + 1);
+            currentValues.F6 = Math.max(currentValues.E6, Math.floor(Math.random() * 200 + 1));
+            
+            // Calculer les valeurs dérivées
+            calculatedValues.D3 = currentValues.C3 - currentValues.B3;
+            calculatedValues.G3 = currentValues.F3 - currentValues.E3;
+            calculatedValues.H3 = calculatedValues.G3 - calculatedValues.D3;
+            
+            calculatedValues.D4 = currentValues.C4 - currentValues.B4;
+            calculatedValues.G4 = currentValues.F4 - currentValues.E4;
+            calculatedValues.H4 = calculatedValues.G4 - calculatedValues.D4;
+            
+            calculatedValues.D5 = currentValues.C5 - currentValues.B5;
+            calculatedValues.G5 = currentValues.F5 - currentValues.E5;
+            calculatedValues.H5 = calculatedValues.G5 - calculatedValues.D5;
+            
+            calculatedValues.D6 = currentValues.C6 - currentValues.B6;
+            calculatedValues.G6 = currentValues.F6 - currentValues.E6;
+            calculatedValues.H6 = calculatedValues.G6 - calculatedValues.D6;
+            
+            // Calculer les sommes
+            calculatedValues.B7 = currentValues.B3 + currentValues.B4 + currentValues.B5 + currentValues.B6;
+            calculatedValues.C7 = currentValues.C3 + currentValues.C4 + currentValues.C5 + currentValues.C6;
+            calculatedValues.D7 = calculatedValues.D3 + calculatedValues.D4 + calculatedValues.D5 + calculatedValues.D6;
+            calculatedValues.E7 = currentValues.E3 + currentValues.E4 + currentValues.E5 + currentValues.E6;
+            calculatedValues.F7 = currentValues.F3 + currentValues.F4 + currentValues.F5 + currentValues.F6;
+            calculatedValues.G7 = calculatedValues.G3 + calculatedValues.G4 + calculatedValues.G5 + calculatedValues.G6;
+            calculatedValues.H7 = calculatedValues.H3 + calculatedValues.H4 + calculatedValues.H5 + calculatedValues.H6;
+            
+            // Générer des valeurs aléatoires pour bénéfice et fonds propres
+            publishedProfit = Math.floor(Math.random() * 401) + 100; // Entre 100 et 500
+            publishedEquity = Math.floor(Math.random() * 4001) + 1000; // Entre 1000 et 5000
+            
+            // CORRECTION: Calculer les valeurs pour les bénéfices et fonds propres avec les bonnes formules
+            // Bénéfice publié = Bénéfice réel - variation des réserves latentes
+            // Fonds propres publiés = Fonds propres réels - total final des réserves latentes
+            
+            // Si on connaît le bénéfice réel, on calcule le bénéfice publié
+            calculatedValues.D12 = publishedProfit; // Bénéfice réel
+            calculatedValues.C12 = calculatedValues.H7; // Var RL total
+            calculatedValues.B12 = calculatedValues.D12 - calculatedValues.C12; // Bénéfice publié
+            
+            // Si on connaît les fonds propres réels, on calcule les fonds propres publiés
+            calculatedValues.D13 = publishedEquity; // Fonds propres réels
+            calculatedValues.C13 = calculatedValues.G7; // RL total final
+            calculatedValues.B13 = calculatedValues.D13 - calculatedValues.C13; // Fonds propres publiés
+            
+            // Calculs inversés pour l'autre scénario
+            calculatedValues.D9 = calculatedValues.B12; // Bénéfice publié (pour l'autre scénario)
+            calculatedValues.H7_calc = calculatedValues.H7; // Var RL total
+            calculatedValues.G7_calc = calculatedValues.G7; // RL total final
+            
+            calculatedValues.B10 = calculatedValues.B13; // Fonds propres publiés (pour l'autre scénario)
+            calculatedValues.C10 = calculatedValues.G7_calc; // RL total final
+            calculatedValues.D10 = calculatedValues.B10 + calculatedValues.C10; // Fonds propres réels
+        }
+
+        // Mettre à jour le texte d'information
+        function updateInfoText() {
+            const textInfo = document.getElementById('text-info');
+            let html = '';
+                        const random = Math.random();
+            selectedCalculation = random < 0.5 ? 'published' : 'real';
+            // Ducroire
+            html += `<p><strong>Ducroire</strong>: Le risque réel en début d'exercice est de ${Math.abs(currentValues.C3)}, alors que la provision était de ${Math.abs(currentValues.B3)}.<br>En fin d'année, la provision publiée atteint ${Math.abs(currentValues.E3)} alors que le risque est de ${Math.abs(currentValues.F3)}.</p>`;
+            
+            // Titres
+            html += `<p><strong>Titres</strong>: Les titres à la clôture étaient cotés à ${currentValues.F4}. Ils figure au bilan pour ${currentValues.E4}.<br>En début d'année, ils y figuraient pour ${currentValues.B4} et la réserve était alors de ${calculatedValues.D4}.</p>`;
+            
+            // Stock de marchandises
+            const stockVariation = currentValues.E5 - currentValues.B5;
+            const variationText = stockVariation >= 0 ? 'augmentation' : 'diminution';
+            html += `<p><strong>Stock de marchandises</strong>: Le stock au bilan en début d'année était de ${currentValues.B5}, compte tenu d'une réserve ${calculatedValues.D5}.<br>En fin d'année, on a enregistré une ${variationText} de stock au bilan de ${Math.abs(stockVariation)} et la valeur du stock au PRA atteint ${currentValues.F5}.</p>`;
+            
+            // Immobilisations
+            html += `<p><strong>Immobilisations</strong>: La réserve sur les immobilisations au début janvier était de ${calculatedValues.D6}, pour une valeur publiée de ${currentValues.B6}.<br>Les immobilisations figurent au bilan final pour ${currentValues.E6}, soit ${Math.abs(calculatedValues.G6)} de moins que leurs valeurs réelles.</p>`;
+
+			if (selectedCalculation === 'published') {
+			html += `<p>Le bénéfice <strong>réel</strong> pour l'exercice est de <strong>${publishedProfit}</strong>.<br>Les fonds propres <strong>réels</strong> au bilan final s'élèvent à <strong>${publishedEquity}</strong>.</p>`;
+			} else {
+            html += `<p>Le bénéfice <strong>publié</strong> pour l'exercice est de <strong>${calculatedValues.D9}</strong>.<br>Les fonds propres <strong>publiés</strong> en fin d'exercice s'élèvent à <strong>${calculatedValues.B10}</strong>.</p>`;
+			}
+			
+            textInfo.innerHTML = html;
+        }
+
+        // Configurer les informations sur bénéfice et fonds propres
+        function setupCalculation() {
+            const calculationSection = document.getElementById('calculation-section');
+            calculationSection.innerHTML = '';
+            
+
+        }
+
+        // Configurer la section de réponse
+        function setupAnswerSection() {
+            const answerSection = document.getElementById('answer-section');
+            answerSection.innerHTML = '';
+            
+            if (selectedCalculation === 'published') {
+                answerSection.innerHTML = `
+                    
+					<p>À partir du tableau des réserves latentes, calculez le montant du bénéfice et des fonds propres réels.</p>
+                    <div class="info-box">
+                        <p><strong>Bénéfice publié:</strong> <input type="number" class="answer-input" id="answer-published-profit" placeholder="Entrez votre réponse"></p>
+                        <p><strong>Fonds propres publiés:</strong> <input type="number" class="answer-input" id="answer-published-equity" placeholder="Entrez votre réponse"></p>
+                    </div>
+                `;
+            } else {
+                answerSection.innerHTML = `
+                    
+					<p>À partir du tableau des réserves latentes, calculez le montant du bénéfice et des fonds propres publiés.</p>
+                    <div class="info-box">
+                        <p><strong>Bénéfice réel:</strong> <input type="number" class="answer-input" id="answer-real-profit" placeholder="Entrez votre réponse"></p>
+                        <p><strong>Fonds propres réels:</strong> <input type="number" class="answer-input" id="answer-real-equity" placeholder="Entrez votre réponse"></p>
+                    </div>
+                `;
+            }
+        }
+
+        // Valider les réponses
+        function validateAnswers() {
+            // Valider le tableau
+            validateTable();
+            
+            // Valider les réponses aux questions
+            validateAnswersToQuestions();
+        }
+
+        // Valider le tableau
+        function validateTable() {
+            // Pour chaque cellule d'entrée, vérifier si la valeur est correcte
+            for (const [cellId, correctValue] of Object.entries(currentValues)) {
+                const inputElement = document.getElementById(cellId);
+                if (inputElement && inputElement.value !== '') {
+                    const userValue = parseInt(inputElement.value);
+                    if (userValue === correctValue) {
+                        inputElement.style.backgroundColor = '#ddffdd'; // Vert clair pour correct
+                    } else {
+                        inputElement.style.backgroundColor = '#ffdddd'; // Rouge clair pour incorrect
+                    }
+                }
+            }
+            
+            // Valider également les cellules calculées
+            const calculatedCells = {
+                'D3': calculatedValues.D3,
+                'G3': calculatedValues.G3,
+                'H3': calculatedValues.H3,
+                'D4': calculatedValues.D4,
+                'G4': calculatedValues.G4,
+                'H4': calculatedValues.H4,
+                'D5': calculatedValues.D5,
+                'G5': calculatedValues.G5,
+                'H5': calculatedValues.H5,
+                'D6': calculatedValues.D6,
+                'G6': calculatedValues.G6,
+                'H6': calculatedValues.H6,
+                'B7': calculatedValues.B7,
+                'C7': calculatedValues.C7,
+                'D7': calculatedValues.D7,
+                'E7': calculatedValues.E7,
+                'F7': calculatedValues.F7,
+                'G7': calculatedValues.G7,
+                'H7': calculatedValues.H7
+            };
+            
+            for (const [cellId, correctValue] of Object.entries(calculatedCells)) {
+                const inputElement = document.getElementById(cellId);
+                if (inputElement && inputElement.value !== '') {
+                    const userValue = parseInt(inputElement.value);
+                    if (userValue === correctValue) {
+                        inputElement.style.backgroundColor = '#ddffdd'; // Vert clair pour correct
+                    } else {
+                        inputElement.style.backgroundColor = '#ffdddd'; // Rouge clair pour incorrect
+                    }
+                }
+            }
+        }
+
+        // Valider les réponses aux questions
+        function validateAnswersToQuestions() {
+            if (selectedCalculation === 'published') {
+                const publishedProfitInput = document.getElementById('answer-published-profit');
+                const publishedEquityInput = document.getElementById('answer-published-equity');
+                
+                if (publishedProfitInput.value && parseInt(publishedProfitInput.value) === calculatedValues.B12) {
+                    publishedProfitInput.style.backgroundColor = '#ddffdd';
+                } else if (publishedProfitInput.value) {
+                    publishedProfitInput.style.backgroundColor = '#ffdddd';
+                }
+                
+                if (publishedEquityInput.value && parseInt(publishedEquityInput.value) === calculatedValues.B13) {
+                    publishedEquityInput.style.backgroundColor = '#ddffdd';
+                } else if (publishedEquityInput.value) {
+                    publishedEquityInput.style.backgroundColor = '#ffdddd';
+                }
+            } else {
+                const realProfitInput = document.getElementById('answer-real-profit');
+                const realEquityInput = document.getElementById('answer-real-equity');
+                
+                if (realProfitInput.value && parseInt(realProfitInput.value) === calculatedValues.D12) {
+                    realProfitInput.style.backgroundColor = '#ddffdd';
+                } else if (realProfitInput.value) {
+                    realProfitInput.style.backgroundColor = '#ffdddd';
+                }
+                
+                if (realEquityInput.value && parseInt(realEquityInput.value) === calculatedValues.D10) {
+                    realEquityInput.style.backgroundColor = '#ddffdd';
+                } else if (realEquityInput.value) {
+                    realEquityInput.style.backgroundColor = '#ffdddd';
+                }
+            }
+        }
+
+        // Afficher la solution
+        function showSolution() {
+            // Remplir toutes les cellules d'entrée avec les valeurs correctes
+            for (const [cellId, value] of Object.entries(currentValues)) {
+                const inputElement = document.getElementById(cellId);
+                if (inputElement) {
+                    inputElement.value = value;
+                    inputElement.style.backgroundColor = '#ddffdd';
+                }
+            }
+            
+            // Remplir les cellules calculées
+            const calculatedCells = {
+                'D3': calculatedValues.D3,
+                'G3': calculatedValues.G3,
+                'H3': calculatedValues.H3,
+                'D4': calculatedValues.D4,
+                'G4': calculatedValues.G4,
+                'H4': calculatedValues.H4,
+                'D5': calculatedValues.D5,
+                'G5': calculatedValues.G5,
+                'H5': calculatedValues.H5,
+                'D6': calculatedValues.D6,
+                'G6': calculatedValues.G6,
+                'H6': calculatedValues.H6,
+                'B7': calculatedValues.B7,
+                'C7': calculatedValues.C7,
+                'D7': calculatedValues.D7,
+                'E7': calculatedValues.E7,
+                'F7': calculatedValues.F7,
+                'G7': calculatedValues.G7,
+                'H7': calculatedValues.H7
+            };
+            
+            for (const [cellId, value] of Object.entries(calculatedCells)) {
+                const inputElement = document.getElementById(cellId);
+                if (inputElement) {
+                    inputElement.value = value;
+                    inputElement.style.backgroundColor = '#ddffdd';
+                }
+            }
+            
+            // Remplir les réponses aux questions
+            if (selectedCalculation === 'published') {
+                document.getElementById('answer-published-profit').value = calculatedValues.B12;
+                document.getElementById('answer-published-profit').style.backgroundColor = '#ddffdd';
+                document.getElementById('answer-published-equity').value = calculatedValues.B13;
+                document.getElementById('answer-published-equity').style.backgroundColor = '#ddffdd';
+                
+                // Afficher les solutions pour les calculs de bénéfice et fonds propres
+                const calculationSection = document.getElementById('calculation-section');
+                calculationSection.innerHTML += `
+                    <div class="info-box" style="margin-top: 20px; background-color: #e8f5e9;">
+                        <h3>Solution:</h3>
+                        <p>Bénéfice publié = Bénéfice réel - Variation des réserves latentes = ${publishedProfit} - ${calculatedValues.H7} = ${calculatedValues.B12}</p>
+                        <p>Fonds propres publiés = Fonds propres réels - Total final des réserves latentes = ${publishedEquity} - ${calculatedValues.G7} = ${calculatedValues.B13}</p>
+                    </div>
+                `;
+            } else {
+                document.getElementById('answer-real-profit').value = calculatedValues.D12;
+                document.getElementById('answer-real-profit').style.backgroundColor = '#ddffdd';
+                document.getElementById('answer-real-equity').value = calculatedValues.D10;
+                document.getElementById('answer-real-equity').style.backgroundColor = '#ddffdd';
+                
+                // Afficher les solutions pour les calculs de bénéfice et fonds propres
+                const calculationSection = document.getElementById('calculation-section');
+                calculationSection.innerHTML += `
+                    <div class="info-box" style="margin-top: 20px; background-color: #e8f5e9;">
+                        <h3>Solution:</h3>
+                        <p>Bénéfice réel = Bénéfice publié + Variation des réserves latentes = ${calculatedValues.D9} + ${calculatedValues.H7} = ${calculatedValues.D12}</p>
+                        <p>Fonds propres réels = Fonds propres publiés + Total final des réserves latentes = ${calculatedValues.B10} + ${calculatedValues.G7} = ${calculatedValues.D10}</p>
+                    </div>
+                `;
+            }
+
+        }
+		    
+
+    </script>
+</body>
+</html>

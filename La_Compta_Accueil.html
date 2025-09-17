@@ -280,7 +280,7 @@
                     <div class="chapter no-link">23 Amortissements</div>
                     <div class="chapter no-link">24 Transitoires</div>
                     <div class="chapter has-subchapters" onclick="openSalaireModal()">25 Salaires</div>
-					                    <div class="chapter">
+					<div class="chapter">
                         <a href="https://dga-epc.github.io/La_Compta_ClotureRI.html" target="_blank">35 Clôture raison individuelle</a>
                     </div>
                     <div class="chapter no-link">36 Clôture des SA</div>
@@ -293,9 +293,7 @@
             <div class="year-section">
                 <h2 class="year-title">3ème année</h2>
                 <div class="chapters">
-					<div class="chapter">
-                        <a href="https://dga-epc.github.io/La_Compta_RL-Journal.html" target="_blank">37 Règles d'évaluation et réserves latentes</a>
-                    </div>
+					<div class="chapter has-subchapters" onclick="openRLModal()">37 Règles d'évaluation et réserves latentes</div>
                     <div class="chapter no-link">44 Seuil de rentabilité et marge contributive</div>
                     <div class="chapter no-link">51 Analyse de bilan et du résultat</div>
 					<div class="chapter has-subchapters" onclick="openResultatModal()">56 Compte de résultat à 3/4 degrés</div>
@@ -421,6 +419,28 @@
             </ul>
         </div>		
     </div>	
+
+    <div id="subRLModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">37 Règles d'évaluation et réserves latentes - Parties</h3>
+                <button class="close-modal" onclick="closeRLModal()">&times;</button>
+            </div>
+            <ul class="subchapters">
+                <li class="subchapter">
+                    <a href="https://dga-epc.github.io/La_Compta_RL-Tableau.html"  target="_blank">
+                        1. Calcul des RL, du bénéfice et des fonds propres réels (Tableau)
+                    </a>
+                </li>
+                <li class="subchapter">
+                    <a href="https://dga-epc.github.io/La_Compta_RL-Journal.html"  target="_blank">
+                        2. Journalisation de création/dissolution de réserves latentes
+                    </a>
+                </li>
+			
+            </ul>
+        </div>		
+    </div>		
 	
     <script>
         function openModal() {
@@ -455,6 +475,14 @@
             document.getElementById('subResultatModal').style.display = 'none';
         }			
         
+        function openRLModal() {
+            document.getElementById('subRLModal').style.display = 'flex';
+        }
+
+        function closeRLModal() {
+            document.getElementById('subRLModal').style.display = 'none';
+        }
+		
         // Fermer n'importe quelle modale en cliquant à l'extérieur
         document.addEventListener('click', function(event) {
             const modals = document.querySelectorAll('.modal');
