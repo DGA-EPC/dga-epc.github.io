@@ -216,8 +216,6 @@
         .incorrect-text {
             color: #e74c3c;
         }
-		
-		
     </style>
 </head>
 <body>
@@ -231,8 +229,8 @@
             <button class="level-btn court" data-level="court">Schéma court</button>
             <button class="level-btn long1" data-level="long-aide">Schéma long avec aide</button>
             <button class="level-btn long2" data-level="long-sans-aide">Schéma long sans aide</button>
-			<button onclick="window.close()" class="level-btn quit-btn">Quitter</button>
-    </div>
+			<button id="quitBtn" class="level-btn quit-btn">Quitter</button>
+        </div>
 	
         
         <div class="game-container" id="gameContainer">
@@ -342,12 +340,9 @@
             // Écouteurs pour les autres boutons
             quitBtn.addEventListener('click', () => {
                 if (confirm('Voulez-vous vraiment quitter?')) {
-                    // Rediriger ou fermer selon l'environnement
                     alert('Alors ferme l\'onglet! LOL!');
                 }
             });
-			
-	
 
             solutionBtn.addEventListener('click', showSolution);
             submitBtn.addEventListener('click', checkSolution);
@@ -410,118 +405,120 @@
             });
         }
 
-// Créer les emplacements de solution
-function createSolutionSlots() {
-    solutionContainer.innerHTML = '';
-    solutionSlots = [];
-    
-    // Créer un emplacement pour chaque élément du schéma correct
-    currentSchema.correctOrder.forEach((item, index) => {
-        const slot = document.createElement('div');
-        slot.className = 'solution-slot';
-        slot.dataset.expected = item;
-        
-        // Gérer le drop
-        slot.addEventListener('dragover', (e) => {
-            e.preventDefault();
-        });
-        
-        slot.addEventListener('drop', (e) => {
-            e.preventDefault();
-            const data = e.dataTransfer.getData('text/plain');
+        // Créer les emplacements de solution
+        function createSolutionSlots() {
+            solutionContainer.innerHTML = '';
+            solutionSlots = [];
             
-            // Vérifier si l'emplacement est vide
-            if (!slot.hasChildNodes()) {
-                placeItem(slot, data);
-            }
-        });
-        
-        solutionContainer.appendChild(slot);
-        solutionSlots.push(slot);
-        
-        // Ajouter des séparateurs après chaque paire d'éléments (tous les 2 éléments)
-        // et ne pas ajouter après le dernier élément
-        if (index % 2 === 1 && index < currentSchema.correctOrder.length - 1) {
-            const separator = document.createElement('div');
-            separator.className = 'separator';
-            solutionContainer.appendChild(separator);
+            // Créer un emplacement pour chaque élément du schéma correct
+            currentSchema.correctOrder.forEach((item, index) => {
+                const slot = document.createElement('div');
+                slot.className = 'solution-slot';
+                slot.dataset.expected = item;
+                
+                // Gérer le drop
+                slot.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+                
+                slot.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const data = e.dataTransfer.getData('text/plain');
+                    
+                    // Vérifier si l'emplacement est vide
+                    if (!slot.hasChildNodes()) {
+                        placeItem(slot, data);
+                    }
+                });
+                
+                solutionContainer.appendChild(slot);
+                solutionSlots.push(slot);
+                
+                // Ajouter des séparateurs après chaque paire d'éléments (tous les 2 éléments)
+                // et ne pas ajouter après le dernier élément
+                if (index % 2 === 1 && index < currentSchema.correctOrder.length - 1) {
+                    const separator = document.createElement('div');
+                    separator.className = 'separator';
+                    solutionContainer.appendChild(separator);
+                }
+            });
+            
+            // Ajouter la double ligne tout en bas
+            const doubleSeparator = document.createElement('div');
+            doubleSeparator.className = 'double-separator';
+            solutionContainer.appendChild(doubleSeparator);
         }
-    });
-    
-    // Ajouter la double ligne tout en bas
-    const doubleSeparator = document.createElement('div');
-    doubleSeparator.className = 'double-separator';
-    solutionContainer.appendChild(doubleSeparator);
-}
-// Placer un élément dans un emplacement
-function placeItem(slot, itemText) {
-    // Créer un nouvel élément pour la solution
-    const itemEl = document.createElement('div');
-    itemEl.className = 'item';
-    itemEl.textContent = itemText;
-    itemEl.dataset.value = itemText; // Stocker la valeur
-    
-    // Rendre l'élément déplaçable
-    itemEl.draggable = true;
-    itemEl.addEventListener('dragstart', (e) => {
-        e.dataTransfer.setData('text/plain', itemText);
-        
-        // Après un court délai, supprimer l'élément de l'emplacement
-        setTimeout(() => {
-            slot.removeChild(itemEl);
-            slot.classList.remove('filled');
-            slot.classList.remove('incorrect');
+
+        // Placer un élément dans un emplacement
+        function placeItem(slot, itemText) {
+            // Créer un nouvel élément pour la solution
+            const itemEl = document.createElement('div');
+            itemEl.className = 'item';
+            itemEl.textContent = itemText;
+            itemEl.dataset.value = itemText; // Stocker la valeur
             
-            // Réajouter l'élément à la liste de gauche
-            addItemBackToList(itemText);
+            // Rendre l'élément déplaçable
+            itemEl.draggable = true;
+            itemEl.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', itemText);
+                
+                // Après un court délai, supprimer l'élément de l'emplacement
+                setTimeout(() => {
+                    slot.removeChild(itemEl);
+                    slot.classList.remove('filled');
+                    slot.classList.remove('incorrect');
+                    
+                    // Réajouter l'élément à la liste de gauche
+                    addItemBackToList(itemText);
+                    
+                    // Vérifier en temps réel si avec aide
+                    if (withHelp) {
+                        validateSolution();
+                    }
+                }, 0);
+            });
+            
+            // Ajouter l'élément à l'emplacement
+            slot.appendChild(itemEl);
+            slot.classList.add('filled');
+            
+            // Supprimer l'élément de la liste de gauche
+            removeItemFromList(itemText);
             
             // Vérifier en temps réel si avec aide
             if (withHelp) {
-                validateSolution();
+                if (itemText !== slot.dataset.expected) {
+                    slot.classList.add('incorrect');
+                } else {
+                    slot.classList.remove('incorrect');
+                }
             }
-        }, 0);
-    });
-    
-    // Ajouter l'élément à l'emplacement
-    slot.appendChild(itemEl);
-    slot.classList.add('filled');
-    
-    // Supprimer l'élément de la liste de gauche
-    removeItemFromList(itemText);
-    
-    // Vérifier en temps réel si avec aide
-    if (withHelp) {
-        if (itemText !== slot.dataset.expected) {
-            slot.classList.add('incorrect');
-        } else {
-            slot.classList.remove('incorrect');
         }
-    }
-}
 
-// Supprimer un élément de la liste de gauche
-function removeItemFromList(itemText) {
-    const items = itemsContainer.querySelectorAll('.item');
-    items.forEach(item => {
-        if (item.textContent === itemText) {
-            item.remove();
+        // Supprimer un élément de la liste de gauche
+        function removeItemFromList(itemText) {
+            const items = itemsContainer.querySelectorAll('.item');
+            items.forEach(item => {
+                if (item.textContent === itemText) {
+                    item.remove();
+                }
+            });
         }
-    });
-}
 
-// Rajouter un élément à la liste de gauche
-function addItemBackToList(itemText) {
-    const itemEl = document.createElement('div');
-    itemEl.className = 'item';
-    itemEl.textContent = itemText;
-    itemEl.draggable = true;
-    
-    itemEl.addEventListener('dragstart', (e) => {
-        e.dataTransfer.setData('text/plain', itemText);
-    });
-    
-    itemsContainer.appendChild(itemEl);
-}
+        // Rajouter un élément à la liste de gauche
+        function addItemBackToList(itemText) {
+            const itemEl = document.createElement('div');
+            itemEl.className = 'item';
+            itemEl.textContent = itemText;
+            itemEl.draggable = true;
+            
+            itemEl.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', itemText);
+            });
+            
+            itemsContainer.appendChild(itemEl);
+        }
+
         // Valider la solution
         function validateSolution() {
             let allCorrect = true;
