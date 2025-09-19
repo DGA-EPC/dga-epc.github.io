@@ -59,7 +59,14 @@
             cursor: pointer;
             font-weight: bold;
             margin-right: 10px;
+			transition: all 0.3s ease;
+			box-shadow: 4px 4px 6px rgba(0,0,0,0.5);
         }
+        .btn:hover {
+			box-shadow: 6px 6px 8px rgba(0,0,0,0.5);
+			transform: translateY(-4px);
+        }		
+		
 		.btn:disabled {
 			background-color: #cccccc;
 			color: #666666;
@@ -71,7 +78,6 @@
         }
         .btn-submit:hover {
             background-color: #00b50d;
-			transform: translateY(-4px);
         }
         .btn-solution {
             background-color: #5eabcc;
@@ -79,7 +85,6 @@
         }
         .btn-solution:hover {
             background-color: #0088c2;
-			transform: translateY(-4px);
         }
         .btn-new {
             background-color: #ffbf47;
@@ -87,7 +92,6 @@
         }
         .btn-new:hover {
             background-color: #ffa500;
-			transform: translateY(-4px);
         }		
 		.btn-close {
             background-color: #ff4747;
@@ -95,7 +99,6 @@
         }
         .btn-close:hover {
             background-color: #ff0000;
-            transform: translateY(-4px);
         }		
 
 

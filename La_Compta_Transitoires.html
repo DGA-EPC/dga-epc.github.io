@@ -22,7 +22,7 @@
             color: white;
             border-radius: 20px;
             margin-bottom: 20px;
-			border-top: 10px solid #24f400;
+			border-top: 8px solid #24f400;
 			border-bottom: 6px solid #ffff00;
         }
         footer {
@@ -118,14 +118,20 @@
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
+			margin-left: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 4px 4px 6px rgba(0,0,0,0.5);			
 		}
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 8px rgba(0,0,0,0.5);			
+		}		
         #validate-btn {
             background-color: #61b865;
             color: white;
         }
         #validate-btn:hover {
             background-color: #00b50d;
-            transform: translateY(-2px);
         }		
         #next-btn {
             background-color: #ffbf47;
@@ -133,7 +139,6 @@
         }
 		#next-btn:hover {
             background-color: #ffa500;
-            transform: translateY(-2px);
         }
         #add-line-btn {
             background-color: #B3EFFF;
@@ -141,7 +146,6 @@
         }
         #add-line-btn:hover {
             background-color: #0DDEFF;
-            transform: translateY(-2px);
         }	
         #restart-btn {
             background-color: #9b59b6;
@@ -155,8 +159,7 @@
         }
         #quit-btn:hover {
             background-color: #ff0000;
-            transform: translateY(-2px);
-        }		
+        }			
         .feedback {
             margin-top: 20px;
             padding: 15px;

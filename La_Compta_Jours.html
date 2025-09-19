@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcul des Jours</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #000000;
+        }
+        
+        .header {
+            background-color: #78004f; /* Violet foncé */
+            color: white;
+            padding: 15px 10px 0px;
+            text-align: center;
+            border-top: 5px solid #51FF46; /* Bord haut vert */
+            border-bottom: 5px solid #FDCF00; /* Bord bas orange */
+            margin-bottom: 5px;
+            position: relative;
+            border-radius: 8px;
+			max-width: 1000px;
+			margin: 0px auto;
+            box-shadow: 0 4px 12px rgba(106, 13, 173, 0.4);
+        }        
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-top: 0;
+        }
+        
+        .instructions {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        
+        table {
+			width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+			 background-color: #eeeeee;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 4px;
+            text-align: center;
+        }
+        
+        th {
+            background-color: #e6e6fa;
+        }
+        
+        .date-cell {
+            width: 12%;
+        }
+        
+        .calculation-cell {
+            width: 30%;
+        }
+        
+        .answer-cell {
+            width: 10%;
+        }
+        
+        .correction-cell {
+            width: 25%;
+        }
+        
+        input[type="number"] {
+            width: 80%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        textarea {
+            width: 95%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+        
+        .incorrect {
+            color: red;
+            font-weight: bold;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+		
+        #validate {
+            background-color: #61b865;
+            color: white;
+        }
+        #validate:hover {
+			background-color: #00b50d;
+			transform: translateY(-2px);
+        }
+        
+        #new {
+            background-color: #ffbf57;
+            color: white;
+        }
+        #new:hover {
+			background-color: #ffa500;
+			transform: translateY(-2px);
+        }		
+        
+        #solution {
+            background-color: #5eabcc;
+            color: white;
+        }
+        #solution:hover {
+			background-color: #0088c2;
+			transform: translateY(-2px);
+        }		
+        
+        .quit {
+            background-color: #ff4747;
+            color: white;
+        }
+        .quit:hover {
+			background-color: #ff0000;
+			transform: translateY(-2px);
+        }			
+        
+        footer {
+            text-align: center;
+            padding: 15px;
+            font-style: italic;
+			color: #ffb5fb;
+        }
+        
+        .leap-note {
+            font-size: 0.9em;
+            margin-top: -10px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: yellow;
+        }
+    </style>
+</head>
+<body>
+	<div class=header>
+    <h1>Le calcul des jours</h1>
+    </div>
+	
+    <div>
+        <br>
+    </div>
+    
+    <table id="calculations-table">
+        <thead>
+            <tr>
+                <th class="date-cell">Date du</th>
+                <th class="date-cell">au</th>
+                <th class="calculation-cell">Votre calcul</th>
+                <th class="answer-cell">Réponse</th>
+                <th class="correction-cell">Correction</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Les lignes seront générées par JavaScript -->
+        </tbody>
+    </table>
+    
+    <div class="leap-note">
+        * année bissextile
+    </div>
+    
+    <div class="buttons">
+        <button id="validate">Valider</button>
+        <button id="solution">Afficher la solution</button>
+        <button id="new">Nouvel exercice</button>
+        <button class="quit" onclick="window.close()">Quitter</button>
+    </div>
+    
+    <footer>
+        "Je fais de la compta et c'est ma joie!", DG, EPC-Fribourg
+    </footer>
+
+    <script>
+        // Données pour les exercices
+        let exercises = [];
+        
+        // Fonction pour générer une date aléatoire
+        function randomDate(startYear, endYear) {
+            const year = Math.floor(Math.random() * (endYear - startYear + 1)) + startYear;
+            const month = Math.floor(Math.random() * 12) + 1;
+            const day = Math.floor(Math.random() * 30) + 1; // Maximum 30 jours selon les règles commerciales
+            
+            return new Date(year, month - 1, day);
+        }
+        
+        // Fonction pour vérifier si une année est bissextile
+        function isLeapYear(year) {
+            return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+        }
+        
+        // Fonction pour ajuster les dates selon les règles commerciales
+        function adjustCommercialDate(date) {
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            
+            // Règle pour février
+            if (month === 2) {
+                if (day === 28) {
+                    return { day: isLeapYear(year) ? 28 : 30, month: month, isLeap: isLeapYear(year) };
+                } else if (day === 29) {
+                    return { day: isLeapYear(year) ? 30 : 30, month: month, isLeap: isLeapYear(year) };
+                } else if (day > 29) {
+                    return { day: 30, month: month, isLeap: isLeapYear(year) };
+                }
+            }
+            
+            // Règle générale : au-delà du 30, on considère le 30
+            return { day: day > 30 ? 30 : day, month: month, isLeap: false };
+        }
+        
+        // Fonction pour calculer le nombre de jours entre deux dates selon les règles commerciales
+function calculateCommercialDays(startDate, endDate) {
+    let start = new Date(startDate);
+    let end = new Date(endDate);
+    
+    // Ajuster les dates selon les règles commerciales
+    const startAdj = adjustCommercialDate(start);
+    const endAdj = adjustCommercialDate(end);
+    
+    // Calculer les mois complets entre les deux dates (corrigé)
+    let fullMonths = 0;
+    let current = new Date(start);
+    current.setMonth(current.getMonth() + 1);
+    current.setDate(1);
+    
+    // Compter seulement les mois complets entre les dates
+    let tempDate = new Date(start);
+    tempDate.setMonth(tempDate.getMonth() + 1);
+    tempDate.setDate(1);
+    
+    while (tempDate < end) {
+        // Vérifier si le mois suivant est toujours avant la date de fin
+        let nextMonth = new Date(tempDate);
+        nextMonth.setMonth(nextMonth.getMonth() + 1);
+        
+        if (nextMonth <= end) {
+            fullMonths++;
+        }
+        
+        tempDate.setMonth(tempDate.getMonth() + 1);
+    }
+    
+    // Calculer les jours restants du mois de début
+    const remainingDays = 30 - startAdj.day;
+    
+    // Calculer le total
+    return remainingDays + (fullMonths * 30) + endAdj.day;
+}
+        
+        // Fonction pour formater une date en jj.mm.aaaa
+        function formatDate(date) {
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            
+            return `${day}.${month}.${year}`;
+        }
+        
+        // Fonction pour générer de nouveaux exercices
+        function generateExercises() {
+            exercises = [];
+            const tableBody = document.querySelector('#calculations-table tbody');
+            tableBody.innerHTML = '';
+            
+            for (let i = 0; i < 10; i++) {
+                let startDate, endDate;
+                
+                // S'assurer que les dates ne dépassent pas 18 mois d'écart
+                do {
+                    startDate = randomDate(2020, 2023);
+                    const maxEndDate = new Date(startDate);
+                    maxEndDate.setMonth(maxEndDate.getMonth() + 18);
+                    endDate = randomDate(startDate.getFullYear(), maxEndDate.getFullYear());
+                    
+                    if (endDate > maxEndDate) {
+                        endDate = new Date(maxEndDate);
+                    }
+                } while (endDate <= startDate);
+                
+                const calculation = calculateCommercialDays(startDate, endDate);
+                
+                exercises.push({
+                    startDate,
+                    endDate,
+                    calculation
+                });
+                
+                // Vérifier si février est dans une année bissextile pour ajouter un astérisque
+                const startDisplay = formatDate(startDate);
+                const endDisplay = formatDate(endDate);
+                
+                const startAdj = adjustCommercialDate(startDate);
+                const endAdj = adjustCommercialDate(endDate);
+                
+                // Ajouter une ligne au tableau avec un textarea pour les calculs
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${startDisplay}${startAdj.month === 2 && startAdj.isLeap ? '*' : ''}</td>
+                    <td>${endDisplay}${endAdj.month === 2 && endAdj.isLeap ? '*' : ''}</td>
+                    <td><textarea id="calculation-${i}" rows="2" placeholder="Notez votre calcul ici"></textarea></td>
+                    <td><input type="number" min="0" id="answer-${i}"></td>
+                    <td id="correction-${i}"></td>
+                `;
+                
+                tableBody.appendChild(row);
+            }
+        }
+        
+        // Fonction pour valider les réponses
+        function validateAnswers() {
+            exercises.forEach((exercise, index) => {
+                const answerInput = document.getElementById(`answer-${index}`);
+                const correctionCell = document.getElementById(`correction-${index}`);
+                
+                if (answerInput.value === '') {
+                    correctionCell.textContent = 'Veuillez entrer une réponse';
+                    correctionCell.className = '';
+                    return;
+                }
+                
+                const userAnswer = parseInt(answerInput.value);
+                
+                if (userAnswer === exercise.calculation) {
+                    correctionCell.textContent = '✓ Correct';
+                    correctionCell.className = 'correct';
+                } else {
+                    correctionCell.innerHTML = `<span class="incorrect">✗ Incorrect</span><br>Réponse: ${exercise.calculation}`;
+                }
+            });
+        }
+        
+// Fonction pour afficher toutes les solutions
+function showSolutions() {
+    exercises.forEach((exercise, index) => {
+        const correctionCell = document.getElementById(`correction-${index}`);
+        
+        // Calculer le nombre de mois complets (corrigé)
+        let fullMonths = 0;
+        let tempDate = new Date(exercise.startDate);
+        tempDate.setMonth(tempDate.getMonth() + 1);
+        tempDate.setDate(1);
+        
+        // Compter seulement les mois complets entre les dates
+        while (tempDate < exercise.endDate) {
+            // Vérifier si le mois suivant est toujours avant la date de fin
+            let nextMonth = new Date(tempDate);
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            
+            if (nextMonth <= exercise.endDate) {
+                fullMonths++;
+            }
+            
+            tempDate.setMonth(tempDate.getMonth() + 1);
+        }
+        
+        const startAdj = adjustCommercialDate(exercise.startDate);
+        const endAdj = adjustCommercialDate(exercise.endDate);
+        
+        let febNote = "";
+        if (startAdj.month === 2 && startAdj.isLeap) {
+            febNote = "<br>* Février en année bissextile";
+        }
+        if (endAdj.month === 2 && endAdj.isLeap) {
+            febNote += febNote ? " et " : "<br>*";
+            febNote += "Février en année bissextile";
+        }
+        
+        correctionCell.innerHTML = `
+            <div><strong>Calcul détaillé:</strong><br>
+            (30 - ${startAdj.day}) + (${fullMonths} × 30) + ${endAdj.day} = ${exercise.calculation}
+            ${febNote}</div>
+        `;
+    });
+}
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            generateExercises();
+            
+            // Gestionnaires d'événements pour les boutons
+            document.getElementById('validate').addEventListener('click', validateAnswers);
+            document.getElementById('solution').addEventListener('click', showSolutions);
+            document.getElementById('new').addEventListener('click', generateExercises);
+            document.getElementById('quit').addEventListener('click', function() {
+                if (confirm('Êtes-vous sûr de vouloir quitter?')) {
+                    window.close();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

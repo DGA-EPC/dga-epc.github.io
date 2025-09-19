@@ -24,7 +24,7 @@
         }
         
         .header {
-            background-color: #6a0dad; /* Violet foncé */
+             background-color: #6a0dad; /* Violet foncé */
             color: white;
             padding: 15px 10px 0px;
             text-align: center;
@@ -35,18 +35,7 @@
             border-radius: 8px;
 			max-width: 1180px;
 			margin: 0px auto;
-            box-shadow: 0 4px 12px rgba(106, 13, 173, 0.4);            background-color: #6a0dad; /* Violet foncé */
-            color: white;
-            padding: 15px 10px 0px;
-            text-align: center;
-            border-top: 5px solid #51FF46; 
-            border-bottom: 5px solid #FDCF00; 
-            margin-bottom: 5px;
-            position: relative;
-            border-radius: 8px;
-			max-width: 1180px;
-			margin: 0px auto;
-            box-shadow: 0 4px 12px rgba(106, 13, 173, 0.4);
+            box-shadow: 0 4px 12px rgba(106, 13, 173, 0.4);           
         }   
         
         .supertitle {
@@ -114,15 +103,17 @@
             padding: 5px 10px 5px;
             background-color: #f3e5f5;
             border-radius: 6px;
-            transition: all 0.3s ease;
             border-radius: 8px;
             border-left: 4px solid #8e44ad;
+			margin-bottom: 10px;
+			transition: all 0.3s ease;
+            box-shadow: 4px 4px 6px rgba(0,0,0,0.5);
         }
         
         .chapter:hover:not(.no-link) {
             background-color: #e1bee7;
-            transform: translateY(-2px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transform: translateY(-4px);
+            box-shadow: 6px 6px 10px rgba(0,0,0,0.5);
         }
         
         .chapter a {
@@ -200,12 +191,15 @@
         }
         
         .subchapter {
-            padding: 12px 15px;
+            padding: 5px 10px;
             margin-bottom: 10px;
             background-color: #f3e5f5;
             transition: all 0.3s ease;
             border-radius: 8px;
+			margin-bottom: 20px;
             border-left: 4px solid #8e44ad;
+			transition: all 0.3s ease;
+            box-shadow: 4px 4px 6px rgba(0,0,0,0.5);
         }
 
         .chapter.has-subchapters {
@@ -215,7 +209,8 @@
         
         .subchapter:hover {
             background-color: #e1bee7;
-            transform: translateX(5px);
+            transform: translateY(-4px);
+            box-shadow: 6px 6px 10px rgba(0,0,0,0.5);
         }
         
         .subchapter a {
@@ -257,7 +252,10 @@
                         <a href="https://dga-epc.github.io/La_Compta_Bilan.html" target="_blank">1-1 Bilan</a>
                     </div>
                     <div class="chapter">
-                        <a href="https://dga-epc.github.io/La_Compta_Journal.html" target="_blank">1-2 Journalisation</a>
+                        <a href="https://dga-epc.github.io/La_Compta_Nature.html" target="_blank">1-2 Les comptes</a>
+                    </div>					
+                    <div class="chapter">
+                        <a href="https://dga-epc.github.io/La_Compta_Journal.html" target="_blank">1-3 Journalisation</a>
                     </div>	
 					<div class="chapter has-subchapters" onclick="openInteretModal()">2 et 3 Calcul d'intérêts avec impôt anticipé</div>
                     <div class="chapter has-subchapters" onclick="openModal()">12 Marchandises</div>
@@ -287,7 +285,7 @@
 					<div class="chapter">
                         <a href="https://dga-epc.github.io/La_Compta_ClotureRI.html" target="_blank">35 Clôture raison individuelle</a>
                     </div>
-                    <div class="chapter no-link">36 Clôture des SA</div>
+                    <div class="chapter has-subchapters" onclick="openSAModal()">36 La SA (Société anonyme)</div>
                     <div class="chapter no-link">54 Titres</div>
                     <div class="chapter no-link">55 Immeubles</div>
                 </div>
@@ -433,7 +431,7 @@
             <ul class="subchapters">
                 <li class="subchapter">
                     <a href="https://dga-epc.github.io/La_Compta_RL-Tableau.html"  target="_blank">
-                        1. Calcul des RL, du bénéfice et des fonds propres réels (Tableau)
+                        1. Tableau des réserves latentes
                     </a>
                 </li>
                 <li class="subchapter">
@@ -445,6 +443,28 @@
             </ul>
         </div>		
     </div>		
+	
+    <div id="subSAModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">36 Les SA - Parties</h3>
+                <button class="close-modal" onclick="closeSAModal()">&times;</button>
+            </div>
+            <ul class="subchapters">
+                <li class="subchapter">
+                    <a href="https://dga-epc.github.io/La_Compta_WIP.html"  target="_blank">
+                        1. Journalisation
+                    </a>
+                </li>                <li class="subchapter">
+                    <a href="https://dga-epc.github.io/La_Compta_SA-BN.html"  target="_blank">
+                        2. Etablir un tableau de répartition du bénéfice
+                    </a>
+                </li>
+
+			
+            </ul>
+        </div>		
+    </div>			
 	
     <script>
         function openModal() {
@@ -487,6 +507,14 @@
             document.getElementById('subRLModal').style.display = 'none';
         }
 		
+        function openSAModal() {
+            document.getElementById('subSAModal').style.display = 'flex';
+        }
+
+        function closeSAModal() {
+            document.getElementById('subSAModal').style.display = 'none';
+        }
+
         // Fermer n'importe quelle modale en cliquant à l'extérieur
         document.addEventListener('click', function(event) {
             const modals = document.querySelectorAll('.modal');

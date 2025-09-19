@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Répartition du bénéfice de la SA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #000000;
+        }
+        .header {
+            text-align: center;
+            padding: 0px  10px;
+			margin: 0 auto 30px auto; /* Centrage horizontal */
+			max-width: 1000px;
+            background-color: #78004f;
+            color: white;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            border-top: 5px solid yellow;
+            border-bottom: 5px solid blue;
+
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+			justify-content: center; /* Ajouté pour centrer les panneaux */
+        }
+        .informations {
+            flex: 1;
+            background-color: white;
+            padding: 5px 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+			margin: 0; /* Modifié: remplacé '220 auto' par '0' */
+			max-width: 400px; /* Ajouté pour limiter la largeur */
+            line-height: 1.3; /* Interligne resserré */
+        }
+        
+        .informations p {
+            margin: 8px 0; /* Espacement réduit entre les paragraphes */
+        }
+        
+        .informations h2 {
+            margin-bottom: 12px; /* Espacement réduit sous le titre */
+        }			
+        
+        .notes {
+            margin-top: 20px;
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            height: 250px;
+        }
+        .notes textarea {
+            width: 100%;
+            height: 170px;
+            border: 1px solid #ddd;
+            padding: 5px;
+            resize: none;
+        }
+        .tableau {
+            background-color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            max-width: 4000px;
+            margin: 0; /* Centrer le tableau */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            max-width: 1000px;
+            margin: 0 auto; /* Centrer le tableau */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #EED9FA;
+        }
+        input[type="number"], input[type="text"] {
+            padding: 5px;
+            text-align: right;
+            max-width: 120px;
+            border: 1px solid #ddd;
+        }
+        /* Champs de taux plus étroits */
+        .taux-input {
+            width: 60px !important;
+            max-width: 60px !important;
+        }
+        .buttons {
+            margin-top: 20px;
+            text-align: center;
+        }
+        button {
+            padding: 12px 18px;
+            margin: 10px 8px;
+            cursor: pointer;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 4px 4px 6px rgba(0,0,0,0.5);
+        }
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 6px 6px 12px rgba(0,0,0,0.5);
+        }
+        #valider {
+            background-color: #61b865;
+        }
+        #valider:hover {
+            background-color: #00b50d;
+        }
+        #nouvel-exercice {
+            background-color: #ffbf47;
+        }
+        #nouvel-exercice:hover {
+            background-color: #ffa500;
+        }
+        #afficher-solution {
+            background-color: #5eabcc;
+        }
+        #afficher-solution:hover {
+            background-color: #0088c2;
+        }
+        #quitter {
+            background-color: #ff4747;
+        }
+        #quitter:hover {
+            background-color: #ff0000;
+        }
+        .details {
+            margin-top: 30px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: none;
+            max-width: 800px; /* Rétrécir le détail des calculs */
+            margin: 30px auto; /* Centrer le détail des calculs */
+        }
+        .correct {
+            background-color: #e6ffe6;
+        }
+        .incorrect {
+            background-color: #ffe6e6;
+        }
+        .solution-hint {
+            color: #d9534f;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        .base-cell {
+            background-color: #f9f9f9;
+            font-weight: bold;
+        }
+        .empty-base-cell {
+            background-color: #f9f9f9;
+            height: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>La répartition du bénéfice de la SA</h1>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <div class="informations">
+                <h2>Informations</h2>
+                <div id="informations-text">
+                    <!-- Le contenu sera généré par JavaScript -->
+                </div>
+            </div>
+            <div class="notes">
+                <h3>Place pour vos calculs</h3>
+                <textarea placeholder="Prenez vos notes ici..."></textarea>
+            </div>
+        </div>
+
+        <div class="tableau">
+            <h2 style="text-align: center;">Tableau de répartition</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rubriques</th>
+                        <th>Taux (%)</th>
+                        <th>Base</th>
+                        <th>Montant</th>
+                    </tr>
+                </thead>
+                <tbody id="tableau-body">
+                    <!-- Le contenu sera généré par JavaScript -->
+                </tbody>
+            </table>
+
+            <div class="buttons">
+                <button id="valider">Valider</button>
+                <button id="nouvel-exercice">Nouvel exercice</button>
+                <button id="afficher-solution">Afficher la solution</button>
+                <button id="quitter" onclick="window.close()">Quitter</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="details" class="details">
+        <h2 style="text-align: center;">Détails des calculs</h2>
+        <div id="details-content">
+            <!-- Le contenu sera généré par JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let capitalActions, tauxLiberation, capitalParticipations, reserveLegaleBenefice, 
+            reserveLegaleCapital, superdividendeArrondi, beneficeExercice, beneficeReporte;
+        let solution = {};
+        let tauxTantiemes, tauxReserveSpeciale, montantDon;
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            genererNouvelExercice();
+            document.getElementById('nouvel-exercice').addEventListener('click', genererNouvelExercice);
+            document.getElementById('afficher-solution').addEventListener('click', afficherSolution);
+            document.getElementById('valider').addEventListener('click', validerReponses);
+            document.getElementById('quitter').addEventListener('click', function() {
+                alert("Je fais de la compta et c'est ma joie!");
+            });
+        });
+
+        // Fonction pour générer un nouvel exercice
+        function genererNouvelExercice() {
+            genererValeursAleatoires();
+            afficherInformations();
+            afficherTableau();
+            cacherDetails();
+        }
+
+        // Fonction pour générer des valeurs aléatoires selon les formules Excel
+        function genererValeursAleatoires() {
+            // Capital-actions (arrondi à 50'000 près)
+            capitalActions = Math.ceil(Math.floor(Math.random() * (1000000 - 100000 + 1) + 100000) / 50000) * 50000;
+            
+            // Taux de libération (arrondi à 5% près)
+            tauxLiberation = Math.ceil(Math.floor(Math.random() * (100 - 60 + 1) + 60) / 5) * 5;
+            
+            // Capital-participations (max 2x capital-actions, arrondi à 50'000 près)
+            const maxCapitalParticipations = Math.min(1000000, 2 * capitalActions);
+            capitalParticipations = Math.ceil(Math.floor(Math.random() * (maxCapitalParticipations - 100000 + 1) + 100000) / 50000) * 50000;
+            
+            // Réserve légale sur bénéfice (entre 15% et 60% du capital-actions, arrondi à 100 près)
+            const minReserveBenefice = capitalActions * 0.15;
+            const maxReserveBenefice = capitalActions * 0.6;
+            reserveLegaleBenefice = Math.ceil(Math.floor(Math.random() * (maxReserveBenefice - minReserveBenefice + 1) + minReserveBenefice) / 100) * 100;
+            
+            // Réserve légale sur capital (entre 0 et 40% du capital-actions, arrondi à 1000 près)
+            const maxReserveCapital = capitalActions * 0.4;
+            reserveLegaleCapital = Math.ceil(Math.floor(Math.random() * (maxReserveCapital + 1)) / 1000) * 1000;
+            
+            // Superdividende arrondi (0.25, 0.5 ou 1)
+            const choixSuperdividende = Math.floor(Math.random() * 3) + 1;
+            superdividendeArrondi = choixSuperdividende === 1 ? 0.25 : (choixSuperdividende === 2 ? 0.5 : 1);
+            
+            // Bénéfice de l'exercice (entre 20% et 40% du capital total, arrondi à 100 près)
+            const capitalTotal = capitalActions + capitalParticipations;
+            const minBenefice = 0.2 * capitalTotal;
+            const maxBenefice = 0.4 * capitalTotal;
+            beneficeExercice = Math.ceil(Math.floor(Math.random() * (maxBenefice - minBenefice + 1) + minBenefice) / 100) * 100;
+            
+            // Bénéfice reporté (entre 100 et 3000, arrondi à 20 près)
+            beneficeReporte = Math.ceil(Math.floor(Math.random() * (3000 - 100 + 1) + 100) / 20) * 20;
+            
+            // Taux aléatoires pour Tantièmes et Réserve spéciale
+            tauxTantiemes = Math.floor(Math.random() * 14) + 2;
+            tauxReserveSpeciale = Math.floor(Math.random() * 4) + 2;
+            
+            // Don (arrondi à 500 près)
+            montantDon = Math.ceil(Math.floor(Math.random() * (10000 - 1000 + 1) + 1000) / 500) * 500;
+            
+            // Calcul des valeurs de solution
+            calculerSolution();
+        }
+
+// Fonction pour calculer les valeurs de solution
+function calculerSolution() {
+    // Capital inscrit
+    solution.capitalInscrit = capitalActions;
+    
+    // Capital libéré total
+    solution.capitalLibereTotal = Math.round(capitalActions * tauxLiberation / 100 + capitalParticipations);
+    
+    // Capital total inscrit
+    solution.capitalTotalInscrit = capitalActions + capitalParticipations;
+    
+    // Total des réserves légales
+    solution.totalReservesLegales = reserveLegaleCapital + reserveLegaleBenefice;
+    
+    // % des réserves légales par rapport au capital inscrit
+    solution.pourcentageReserves = solution.totalReservesLegales / solution.capitalTotalInscrit;
+    
+    // Vérification si attribution à la réserve obligatoire
+    solution.attributionReserve = solution.pourcentageReserves < 0.5 ? 1 : 0;
+    
+    // Réserve légale sur bénéfice (5% sur bénéfice à répartir) UNIQUEMENT si <50%
+    solution.reserveLegaleBenefice = solution.attributionReserve ? Math.round(beneficeExercice * 0.05) : 0;
+    
+    // Dividendes (5% sur capital libéré total)
+    solution.dividendes = Math.round(solution.capitalLibereTotal * 0.05);
+    
+    // Tantièmes (% sur bénéfice à répartir)
+    solution.tantiemes = Math.round(beneficeExercice * tauxTantiemes / 100);
+    
+    // Réserve spéciale (% sur bénéfice à répartir)
+    solution.reserveSpeciale = Math.round(beneficeExercice * tauxReserveSpeciale / 100);
+    
+    // Don
+    solution.don = montantDon;
+    
+    // Superdividende
+    solution.superdividendeTaux = 0;
+    solution.superdividendeMontant = 0;
+    
+    // Bénéfice à répartir
+    solution.beneficeARepartir = beneficeExercice + beneficeReporte;
+    
+    // Solde disponible après déductions (sans superdividende)
+    const soldeSansSuperdividende = solution.beneficeARepartir - solution.reserveLegaleBenefice - 
+                                  solution.dividendes - solution.tantiemes - 
+                                  solution.reserveSpeciale - solution.don;
+    
+    // 1% de superdividende
+    const unPourcentSuperdividende = solution.capitalLibereTotal * 0.01;
+    
+    // Taux de superdividende
+    let tauxSuperdividende = soldeSansSuperdividende / unPourcentSuperdividende;
+    
+    // Taux arrondi selon le superdividende arrondi
+    if (superdividendeArrondi === 1) {
+        solution.superdividendeTaux = Math.floor(tauxSuperdividende);
+    } else if (superdividendeArrondi === 0.5) {
+        solution.superdividendeTaux = Math.floor(tauxSuperdividende * 2) / 2;
+    } else if (superdividendeArrondi === 0.25) {
+        solution.superdividendeTaux = Math.floor(tauxSuperdividende * 4) / 4;
+    }
+    
+    // Montant du superdividende
+    solution.superdividendeMontant = Math.round(solution.capitalLibereTotal * solution.superdividendeTaux / 100);
+    
+    // Bénéfice à reporter
+    solution.beneficeAReporter = solution.beneficeARepartir - solution.reserveLegaleBenefice - 
+                               solution.dividendes - solution.tantiemes - solution.reserveSpeciale - 
+                               solution.don - solution.superdividendeMontant;
+}
+
+        // Fonction pour afficher les informations
+        function afficherInformations() {
+            const infoDiv = document.getElementById('informations-text');
+            infoDiv.innerHTML = `
+                <p><strong>Capital-actions:</strong> ${formatMontant(capitalActions)}</p>
+                <p><strong>Libéré à:</strong> ${tauxLiberation}%</p>
+                <p><strong>Capital-participations:</strong> ${formatMontant(capitalParticipations)}</p>
+                <p><strong>Réserve légale sur bénéfice:</strong> ${formatMontant(reserveLegaleBenefice)}</p>
+                <p><strong>Réserve légale sur capital:</strong> ${formatMontant(reserveLegaleCapital)}</p>
+                <p><strong>Superdividende arrondi à:</strong> ${superdividendeArrondi}</p>
+				<p><strong>Tantièmes:</strong>Part du bénéfice de l'exercice</p>
+                <p><strong style="color: #6900A8;">Bénéfice de l'exercice:</strong> ${formatMontant(beneficeExercice)}</p>
+                <p><strong style="color: #6900A8;">Bénéfice reporté:</strong> ${formatMontant(beneficeReporte)}</p>
+            `;
+        }
+
+        // Fonction pour afficher le tableau de répartition
+        function afficherTableau() {
+            const tableauBody = document.getElementById('tableau-body');
+            tableauBody.innerHTML = `
+                <tr>
+                    <td>Bénéfice de l'exercice</td>
+                    <td></td>
+                    <td class="empty-base-cell"></td>
+                    <td><input type="text" id="input-benefice-exercice" placeholder="Montant" class="montant-input"></td>
+                </tr>
+                <tr>
+                    <td>+ bénéfice reporté</td>
+                    <td></td>
+                    <td class="empty-base-cell"></td>
+                    <td><input type="text" id="input-benefice-reporte" placeholder="Montant" class="montant-input"></td>
+                </tr>
+                <tr>
+                    <td>A répartir</td>
+                    <td></td>
+                    <td class="empty-base-cell"></td>
+                    <td><input type="text" id="input-a-repartir" placeholder="Montant" class="montant-input"></td>
+                </tr>
+                <tr>
+                    <td>- réserve légale sur bénéfice</td>
+                    <td><input type="number" id="taux-reserve" placeholder="Taux" class="taux-input"> % sur</td>
+                    <td><input type="text" id="base-reserve" placeholder="Base" class="montant-input"></td>
+                    <td><input type="text" id="montant-reserve" placeholder="Montant" class="montant-input"></td>
+                </tr>
+                <tr>
+                    <td>- Dividendes</td>
+                    <td><input type="number" id="taux-dividendes" placeholder="Taux" class="taux-input"> % sur</td>
+                    <td><input type="text" id="base-dividendes" placeholder="Base" class="montant-input"></td>
+                    <td><input type="text" id="montant-dividendes" placeholder="Montant" class="montant-input"></td>
+                </tr>
+                <tr>
+                    <td>- Tantièmes</td>
+                    <td><input type="number" id="taux-tantiemes" value="${tauxTantiemes}" readonly class="taux-input"> % sur</td>
+                    <td><input type="text" id="base-tantiemes" placeholder="Base" class="montant-input"></td>
+                    <td><input type="text" id="montant-tantiemes" placeholder="Montant" class="montant-input"></td>
+                </tr>
+                <tr>
+                    <td>- Réserve spéciale</td>
+                    <td><input type="number" id="taux-reserve-speciale" value="${tauxReserveSpeciale}" readonly class="taux-input"> % sur</td>
+                    <td><input type="text" id="base-reserve-speciale" placeholder="Base" class="montant-input"></td>
+                    <td><input type="text" id="montant-reserve-speciale" placeholder="Montant" class="montant-input"></td>
+                </tr>
+                <tr>
+                    <td>- Don</td>
+                    <td></td>
+                    <td></td>
+                    <td><input type="text" id="montant-don" value="${formatMontantInput(montantDon)}" readonly class="montant-input"></td>
+                </tr>
+                <tr>
+                    <td>- Superdividende</td>
+                    <td><input type="number" id="taux-superdividende" placeholder="Taux" class="taux-input"> % sur</td>
+                    <td><input type="text" id="base-superdividende" placeholder="Base" class="montant-input"></td>
+                    <td><input type="text" id="montant-superdividende" placeholder="Montant" class="montant-input"></td>
+                </tr>
+                <tr>
+                    <td>Bénéfice à reporter</td>
+                    <td></td>
+                    <td></td>
+                    <td><input type="text" id="benefice-reporter" placeholder="Montant" class="montant-input"></td>
+                </tr>
+            `;
+            
+            // Ajouter les écouteurs d'événements pour formater les montants à la saisie
+            document.querySelectorAll('.montant-input').forEach(input => {
+                input.addEventListener('blur', function() {
+                    if (this.value) {
+                        this.value = formatMontantInput(parseInt(this.value.replace(/\s/g, '')));
+                    }
+                });
+                
+                input.addEventListener('focus', function() {
+                    if (this.value) {
+                        this.value = this.value.replace(/\s/g, '');
+                    }
+                });
+            });
+        }
+
+        // Fonction pour afficher les détails de calcul
+        function afficherDetails() {
+            const detailsDiv = document.getElementById('details-content');
+            detailsDiv.innerHTML = `
+                <p><strong>Capital inscrit:</strong> ${formatMontant(solution.capitalInscrit)}</p>
+                <p><strong>Capital libéré total = Capital-action x taux de libération + Capital-participations, soit:</strong><br>
+                ${formatMontant(capitalActions)} x ${tauxLiberation}% + ${formatMontant(capitalParticipations)} = ${formatMontant(solution.capitalLibereTotal)}</p>
+                <p><strong>Capital total inscirt:</strong> ${formatMontant(capitalActions)} + ${formatMontant(capitalParticipations)} = ${formatMontant(solution.capitalTotalInscrit)}</p>
+                <p><strong>Total des réserves légales:</strong> ${formatMontant(reserveLegaleCapital)} + ${formatMontant(reserveLegaleBenefice)} = ${formatMontant(solution.totalReservesLegales)}</p>
+                <p><strong>% des réserves légales par rapport au capital inscrit:</strong> ${formatMontant(solution.totalReservesLegales)} / ${formatMontant(solution.capitalTotalInscrit)} = ${(solution.pourcentageReserves * 100).toFixed(2)}%</p>
+                <p><strong>${solution.attributionReserve ? "Attribution à la réserve obligatoire" : "Pas d'attribution à la réserve"}</strong> ${solution.attributionReserve ? "(<50%)" : ""}</p>
+                <p><strong>Superdividende:</strong></p>
+                <p><strong>Solde disponible:</strong> ${formatMontant(solution.beneficeARepartir)} - ${formatMontant(solution.reserveLegaleBenefice)} - ${formatMontant(solution.dividendes)} - ${formatMontant(solution.tantiemes)} - ${formatMontant(solution.reserveSpeciale)} - ${formatMontant(solution.don)} = ${formatMontant(solution.beneficeARepartir - solution.reserveLegaleBenefice - solution.dividendes - solution.tantiemes - solution.reserveSpeciale - solution.don)}</p>
+                <p><strong>1% de superdividende:</strong> 1% x ${formatMontant(solution.capitalLibereTotal)} = ${formatMontant(solution.capitalLibereTotal * 0.01)}</p>
+                <p><strong>Taux:</strong> ${formatMontant(solution.beneficeARepartir - solution.reserveLegaleBenefice - solution.dividendes - solution.tantiemes - solution.reserveSpeciale - solution.don)} / ${formatMontant(solution.capitalLibereTotal * 0.01)} = ${(solution.superdividendeTaux).toFixed(2)}%</p>
+                <p><strong>Taux arrondi:</strong> ${solution.superdividendeTaux}%</p>
+            `;
+            
+            document.getElementById('details').style.display = 'block';
+        }
+
+        // Fonction pour cacher les détails
+        function cacherDetails() {
+            document.getElementById('details').style.display = 'none';
+        }
+
+        // Fonction pour valider les réponses
+        function validerReponses() {
+            // Supprimer les anciens messages d'erreur
+            document.querySelectorAll('.solution-hint').forEach(el => el.remove());
+            
+            // Récupérer les valeurs saisies (en enlevant les séparateurs de milliers)
+            const inputBeneficeExercice = parseInt(document.getElementById('input-benefice-exercice').value.replace(/\s/g, '')) || 0;
+            const inputBeneficeReporte = parseInt(document.getElementById('input-benefice-reporte').value.replace(/\s/g, '')) || 0;
+            const inputARepartir = parseInt(document.getElementById('input-a-repartir').value.replace(/\s/g, '')) || 0;
+            const tauxReserve = parseInt(document.getElementById('taux-reserve').value) || 0;
+            const baseReserve = parseInt(document.getElementById('base-reserve').value.replace(/\s/g, '')) || 0;
+            const montantReserve = parseInt(document.getElementById('montant-reserve').value.replace(/\s/g, '')) || 0;
+            const tauxDividendes = parseInt(document.getElementById('taux-dividendes').value) || 0;
+            const baseDividendes = parseInt(document.getElementById('base-dividendes').value.replace(/\s/g, '')) || 0;
+            const montantDividendes = parseInt(document.getElementById('montant-dividendes').value.replace(/\s/g, '')) || 0;
+            const baseTantiemes = parseInt(document.getElementById('base-tantiemes').value.replace(/\s/g, '')) || 0;
+            const montantTantiemes = parseInt(document.getElementById('montant-tantiemes').value.replace(/\s/g, '')) || 0;
+            const baseReserveSpeciale = parseInt(document.getElementById('base-reserve-speciale').value.replace(/\s/g, '')) || 0;
+            const montantReserveSpeciale = parseInt(document.getElementById('montant-reserve-speciale').value.replace(/\s/g, '')) || 0;
+            const tauxSuperdividende = parseFloat(document.getElementById('taux-superdividende').value) || 0;
+            const baseSuperdividende = parseInt(document.getElementById('base-superdividende').value.replace(/\s/g, '')) || 0;
+            const montantSuperdividende = parseInt(document.getElementById('montant-superdividende').value.replace(/\s/g, '')) || 0;
+            const beneficeReporter = parseInt(document.getElementById('benefice-reporter').value.replace(/\s/g, '')) || 0;
+            
+            // Valider et colorer les réponses
+            validerEtColorer('input-benefice-exercice', inputBeneficeExercice, beneficeExercice);
+            validerEtColorer('input-benefice-reporte', inputBeneficeReporte, beneficeReporte);
+            validerEtColorer('input-a-repartir', inputARepartir, beneficeExercice + beneficeReporte);
+            validerEtColorer('taux-reserve', tauxReserve, 5);
+            validerEtColorer('base-reserve', baseReserve, beneficeExercice);
+            validerEtColorer('montant-reserve', montantReserve, solution.reserveLegaleBenefice);
+            validerEtColorer('taux-dividendes', tauxDividendes, 5);
+            validerEtColorer('base-dividendes', baseDividendes, solution.capitalLibereTotal);
+            validerEtColorer('montant-dividendes', montantDividendes, solution.dividendes);
+            validerEtColorer('base-tantiemes', baseTantiemes, beneficeExercice);
+            validerEtColorer('montant-tantiemes', montantTantiemes, solution.tantiemes);
+            validerEtColorer('base-reserve-speciale', baseReserveSpeciale, beneficeExercice);
+            validerEtColorer('montant-reserve-speciale', montantReserveSpeciale, solution.reserveSpeciale);
+            validerEtColorer('taux-superdividende', tauxSuperdividende, solution.superdividendeTaux);
+            validerEtColorer('base-superdividende', baseSuperdividende, solution.capitalLibereTotal);
+            validerEtColorer('montant-superdividende', montantSuperdividende, solution.superdividendeMontant);
+            validerEtColorer('benefice-reporter', beneficeReporter, solution.beneficeAReporter);
+        }
+
+        // Fonction pour valider et colorer une réponse
+        function validerEtColorer(elementId, valeurUtilisateur, valeurCorrecte) {
+            const element = document.getElementById(elementId);
+            const parentCell = element.parentElement;
+            
+            // Supprimer les anciens messages d'erreur
+            parentCell.querySelectorAll('.solution-hint').forEach(el => el.remove());
+            
+            if (Math.abs(valeurUtilisateur - valeurCorrecte) < 1) {
+                element.classList.remove('incorrect');
+                element.classList.add('correct');
+            } else {
+                element.classList.remove('correct');
+                element.classList.add('incorrect');
+                
+                // Ajouter un message avec la solution
+                const solutionHint = document.createElement('span');
+                solutionHint.className = 'solution-hint';
+                solutionHint.textContent = `Solution: ${formatMontantInput(valeurCorrecte)}`;
+                parentCell.appendChild(solutionHint);
+            }
+        }
+
+// Fonction pour afficher la solution
+function afficherSolution() {
+    // Supprimer les anciens messages d'erreur
+    document.querySelectorAll('.solution-hint').forEach(el => el.remove());
+    
+    // Remplir les champs avec les solutions
+    document.getElementById('input-benefice-exercice').value = formatMontantInput(beneficeExercice);
+    document.getElementById('input-benefice-reporte').value = formatMontantInput(beneficeReporte);
+    document.getElementById('input-a-repartir').value = formatMontantInput(beneficeExercice + beneficeReporte);
+    
+    // Mettre à jour selon si l'attribution est requise ou non
+    if (solution.attributionReserve) {
+        document.getElementById('taux-reserve').value = 5;
+        document.getElementById('base-reserve').value = formatMontantInput(beneficeExercice);
+        document.getElementById('montant-reserve').value = formatMontantInput(solution.reserveLegaleBenefice);
+    } else {
+        document.getElementById('taux-reserve').value = 0;
+        document.getElementById('base-reserve').value = "";
+        document.getElementById('montant-reserve').value = 0;
+    }
+    
+    document.getElementById('taux-dividendes').value = 5;
+    document.getElementById('base-dividendes').value = formatMontantInput(solution.capitalLibereTotal);
+    document.getElementById('montant-dividendes').value = formatMontantInput(solution.dividendes);
+    document.getElementById('base-tantiemes').value = formatMontantInput(beneficeExercice);
+    document.getElementById('montant-tantiemes').value = formatMontantInput(solution.tantiemes);
+    document.getElementById('base-reserve-speciale').value = formatMontantInput(beneficeExercice);
+    document.getElementById('montant-reserve-speciale').value = formatMontantInput(solution.reserveSpeciale);
+    document.getElementById('taux-superdividende').value = solution.superdividendeTaux;
+    document.getElementById('base-superdividende').value = formatMontantInput(solution.capitalLibereTotal);
+    document.getElementById('montant-superdividende').value = formatMontantInput(solution.superdividendeMontant);
+    document.getElementById('benefice-reporter').value = formatMontantInput(solution.beneficeAReporter);
+    
+    // Colorer tous les champs en vert
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.classList.remove('incorrect');
+        input.classList.add('correct');
+    });
+    
+    // Afficher les détails de calcul
+    afficherDetails();
+}
+        // Fonction pour formater les montants (affichage)
+        function formatMontant(montant) {
+            return new Intl.NumberFormat('fr-CH', { minimumFractionDigits: 0 }).format(montant);
+        }
+
+        // Fonction pour formater les montants (input)
+        function formatMontantInput(montant) {
+            return new Intl.NumberFormat('fr-CH', { minimumFractionDigits: 0 }).format(montant);
+        }
+    </script>
+</body>
+</html>

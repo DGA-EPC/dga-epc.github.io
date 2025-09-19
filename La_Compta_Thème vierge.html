@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Journalisation - Les intérêts</title>
+    <title>Journalisation - Exercice de Comptabilité</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,7 +22,7 @@
             color: white;
             border-radius: 20px;
             margin-bottom: 20px;
-			border-top: 10px solid #24f400;
+			border-top: 8px solid #24f400;
 			border-bottom: 6px solid #ffff00;
         }
         footer {
@@ -159,7 +159,7 @@
         }
         #quit-btn:hover {
             background-color: #ff0000;
-        }			
+        }		
         .feedback {
             margin-top: 20px;
             padding: 15px;
@@ -202,7 +202,8 @@
 <body>
     <header>
         <h2>Journalisation avec écritures multiples</h2>
-		<h1>Les intérêts</h1>
+		<h1>La TVA</h1>
+		<h4>Comptabilisation au net au taux normal (8.1%)</h4>
     </header>
 
 
@@ -244,7 +245,7 @@
                                 <optgroup label="PASSIF">
                                     <option value="Dettes fournisseurs">Dettes fournisseurs</option>
 									<option value="Autres dettes">Autres dettes</option>
-									<option value="Dette bancaire">Dette bancaire</option>
+									<option value="Dettes AFC">Dettes AFC</option>
 									<option value="TVA due">TVA due</option>
 									<option value="Capital">Capital</option>
                                 </optgroup>
@@ -263,7 +264,6 @@
 									<option value="Frais d'administration">Frais d'administration</option>
 									<option value="ACE">ACE</option>
 									<option value="Produits financiers">Produits financiers</option>
-									<option value="Charges financières">Charges financières</option>
                                 </optgroup>
                             </select>
                         </td>
@@ -284,7 +284,7 @@
                                 <optgroup label="PASSIF">
                                     <option value="Dettes fournisseurs">Dettes fournisseurs</option>
 									<option value="Autres dettes">Autres dettes</option>
-									<option value="Dette bancaire">Dette bancaire</option>
+									<option value="Dettes AFC">Dettes AFC</option>
 									<option value="TVA due">TVA due</option>
 									<option value="Capital">Capital</option>
                                 </optgroup>
@@ -303,7 +303,6 @@
 									<option value="Frais d'administration">Frais d'administration</option>
 									<option value="ACE">ACE</option>
 									<option value="Produits financiers">Produits financiers</option>
-									<option value="Charges financières">Charges financières</option>
                                 </optgroup>
                             </select>
                         </td>
@@ -342,7 +341,7 @@
         <div id="completion-message" class="completion-message">
             <h3>Félicitations ! Vous avez terminé toutes les écritures.</h3>
             <p>A vous de juger votre score : <span id="final-score">0</span></p>
-			<h3>N'oubliez pas : "Je fais de la compta et c'est ma joie!"</h3>
+			<h3>N'oubliez pas : "Je fais de la compta et c'est ma joie"</h3>
 
 
         <button id="restart-btn" type="button">Recommencer</button>
@@ -352,64 +351,86 @@
     <script>
         // Données des écritures comptables
         let accountingEntries = [
-            {
-                description: "Nous recevons un avis de débit de la banque :\nAmortissement de la dette\tCHF 5'000.-\nIntérêts annuels\t\tCHF   750.-\nTotal\t\t\t\tCHF 5'750.-",
-                solution: [
-                    { debit: "Dette bancaire", credit: "", amount: 5000 },
-					{ debit: "Charges financières", credit: "", amount: 750 },
-					{ debit: "", credit: "Banque", amount: 5750  }
-                ]
-            },
-			{
-                description: "Avis de crédit de la banque pour les intérêts annuels sur notre c/c (Compte courant):\n\Intérêts bruts\tCHF 40.-\nImpôt anticipé\tCHF 14.-\nIntérêts nets\tCHF 26.-",
-                solution: [
-                    { debit: "Banque", credit: "", amount: 26 },
-					{ debit: "Créances AFC", credit: "", amount: 14 },
-					{ debit: "", credit: "Produits financiers", amount: 40 }
-                ]
-            },
-			{
-                description: "Nous avons accordé un prêt à une entreprise partenaire. Celle-ci nous verse par poste l'intérêt annuel, CHF 400.-",
-                solution: [
-					{ debit: "Poste", credit: "Produits financiers", amount: 400 }
-                ]
-            },
-			{
-                description: "Nous payons par banque les intérêts annuels sur notre emprunt bancaire, CHF 800.-.",
-                solution: [
-					{ debit: "Charges financières", credit: "Banque", amount: 800 }
-                ]
-            },
-			{
-                description: "Nous remboursons par poste le solde de notre crédit bancaire, CHF 2'000.-, ainsi que les intérêts, CHF 120.-.",
-                solution: [
-                    { debit: "Dette bancaire", credit: "", amount: 2000 },
-					{ debit: "Charges financières", credit: "", amount:  120 },
-					{ debit: "", credit: "Poste", amount:  2120 }
-                ]
-            },
-			{
-                description: "Nous recevons un avis de crédit de la banque pour des intérêts reçus d'un placement étranger sans impôt anticipé, CHF 600.-.",
-                solution: [
-					{ debit: "Banque", credit: "Produits financiers", amount: 600 }
-                ]
-            },
-			{
-                description: "Nous recevons sur notre compte postal les intérêts annuels de 6% sur un placement de CHF 5'000.-. Tenir compte de l'impôt anticipé.",
-                solution: [
-                    { debit: "Poste", credit: "", amount: 195 },
-					{ debit: "Créances AFC", credit: "", amount: 105  },
-					{ debit: "", credit: "Produits financiers", amount: 300 }
-                ]
-            },
-			{
-                description: "Un client verse à la poste le montant dû pour une facture de CHF 3'000.-, en ajoutant 5% d'intérêts pour 60 jours de retard.",
-                solution: [
-                    { debit: "Poste", credit: "", amount: 3025  },
-					{ debit: "", credit: "Produits financiers", amount: 25 },
-					{ debit: "", credit: "Créances clients", amount:  3000 }
-                ]
-            }
+[
+    {
+        "description": "Amortissement dégressif du matériel informatique (40%, prorata temporis) - Valeur comptable: CHF 16'800 (acquisition récente), durée: 7 mois",
+        "solution": [
+            { "debit": "Amortissements", "credit": "Informatique", "amount": 3920 }
+        ]
+    },
+    {
+        "description": "Amortissement constant des machines (20%) - Valeur d'acquisition: CHF 89'400, valeur résiduelle: CHF 53'640",
+        "solution": [
+            { "debit": "Amortissements", "credit": "Machines", "amount": 17880 }
+        ]
+    },
+    {
+        "description": "Amortissement constant de l'immeuble commercial (2%) - Solde compte: CHF 1'300'000, solde FAC: CHF 104'000",
+        "solution": [
+            { "debit": "Amortissements", "credit": "FAC s/immeuble", "amount": 26000 }
+        ]
+    },
+    {
+        "description": "Amortissement dégressif des véhicules (40%) - Solde compte: CHF 143'500, solde FAC: CHF 16'000",
+        "solution": [
+            { "debit": "Amortissements", "credit": "FAC s/véhicules", "amount": 51000 }
+        ]
+    },
+    {
+        "description": "Amortissement constant des machines (10%) - Valeur d'acquisition: CHF 20'000",
+        "solution": [
+            { "debit": "Amortissements", "credit": "Machines", "amount": 2000 }
+        ]
+    },
+    {
+        "description": "Amortissement dégressif de l'immeuble (5%) - Valeur d'acquisition: CHF 220'000",
+        "solution": [
+            { "debit": "Charges d'immeuble", "credit": "Immeuble", "amount": 2500 }
+        ]
+    },
+    {
+        "description": "Amortissement constant des véhicules (15%) - Solde compte: CHF 30'000, solde FAC: CHF 13'500",
+        "solution": [
+            { "debit": "Amortissements", "credit": "FAC s/véhicules", "amount": 4500 }
+        ]
+    },
+    {
+        "description": "Amortissement dégressif de l'informatique (40%) - Solde compte: CHF 9'000, solde FAC: CHF 7'560",
+        "solution": [
+            { "debit": "Amortissements", "credit": "FAC s/informatique", "amount": 576 }
+        ]
+    },
+    {
+        "description": "Amortissement dégressif des machines (10%) - Valeur d'acquisition: CHF 32'000, valeur résiduelle au bilan",
+        "solution": [
+            { "debit": "Amortissements", "credit": "Machines", "amount": 2200 }
+        ]
+    },
+    {
+        "description": "Amortissement constant du mobilier (12.5%, prorata temporis 279 jours) - Valeur d'acquisition: CHF 22'400 - CHF 3'000 = CHF 19'400",
+        "solution": [
+            { "debit": "Amortissements", "credit": "FAC s/mobilier", "amount": 2170 }
+        ]
+    },
+    {
+        "description": "Amortissement dégressif des véhicules (40%, prorata temporis) - Solde compte: CHF 28'000, solde FAC: CHF 18'000",
+        "solution": [
+            { "debit": "Amortissements", "credit": "FAC s/vhc", "amount": 8000 }
+        ]
+    },
+    {
+        "description": "Amortissement constant de l'informatique (25%) - Valeur d'acquisition: CHF 9'600, valeur résiduelle au bilan",
+        "solution": [
+            { "debit": "Amortissements", "credit": "Informatique", "amount": 2400 }
+        ]
+    },
+    {
+        "description": "Amortissement constant de l'immeuble locatif (2%) - Solde compte: CHF 670'000, solde FAC: CHF 170'000",
+        "solution": [
+            { "debit": "Charges d'immeuble", "credit": "FAC s/imm", "amount": 13400 }
+        ]
+    }
+]
 	
             /* Ajouter d'autres écritures ici par la suite
 			,
@@ -550,7 +571,7 @@
                                 <optgroup label="PASSIF">
                                     <option value="Dettes fournisseurs">Dettes fournisseurs</option>
 									<option value="Autres dettes">Autres dettes</option>
-									<option value="Dette bancaire">Dette bancaire</option>
+									<option value="Dettes AFC">Dettes AFC</option>
 									<option value="TVA due">TVA due</option>
 									<option value="Capital">Capital</option>
                                 </optgroup>
@@ -569,7 +590,6 @@
 									<option value="Frais d'administration">Frais d'administration</option>
 									<option value="ACE">ACE</option>
 									<option value="Produits financiers">Produits financiers</option>
-									<option value="Charges financières">Charges financières</option>
                                 </optgroup>
                             </select>
                         </td>
@@ -590,7 +610,7 @@
                                 <optgroup label="PASSIF">
                                     <option value="Dettes fournisseurs">Dettes fournisseurs</option>
 									<option value="Autres dettes">Autres dettes</option>
-									<option value="Dette bancaire">Dette bancaire</option>
+									<option value="Dettes AFC">Dettes AFC</option>
 									<option value="TVA due">TVA due</option>
 									<option value="Capital">Capital</option>
                                 </optgroup>
@@ -609,7 +629,6 @@
 									<option value="Frais d'administration">Frais d'administration</option>
 									<option value="ACE">ACE</option>
 									<option value="Produits financiers">Produits financiers</option>
-									<option value="Charges financières">Charges financières</option>
                                 </optgroup>
                             </select>
                         </td>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Journalisation - Les intérêts</title>
+    <title>Journalisation - Exercice de Comptabilité</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,8 +22,8 @@
             color: white;
             border-radius: 20px;
             margin-bottom: 20px;
-			border-top: 10px solid #24f400;
-			border-bottom: 6px solid #ffff00;
+            border-top: 5px solid yellow;
+            border-bottom: 5px solid blue;
         }
         footer {
             margin-top: 20px;
@@ -159,7 +159,7 @@
         }
         #quit-btn:hover {
             background-color: #ff0000;
-        }			
+        }		
         .feedback {
             margin-top: 20px;
             padding: 15px;
@@ -202,7 +202,7 @@
 <body>
     <header>
         <h2>Journalisation avec écritures multiples</h2>
-		<h1>Les intérêts</h1>
+		<h1>La SA</h1>
     </header>
 
 
@@ -236,34 +236,41 @@
 									<option value="Banque">Banque</option>
 									<option value="Créances clients">Créances clients</option>
 									<option value="Créances AFC">Créances AFC</option>
-									<option value="IP sur marchandises">IP sur marchandises</option>
-									<option value="IP sur inv. et ACE">IP sur inv. et ACE</option>
 									<option value="Stock de marchandises">Stock de marchandises</option>
+									<option value="Machines">Machines</option>
 									<option value="Véhicules">Véhicules</option>
+									<option value="Actionnaires">Actionnaires</option>
+									<option value="Participants">Participants</option>
                                     </optgroup>
                                 <optgroup label="PASSIF">
                                     <option value="Dettes fournisseurs">Dettes fournisseurs</option>
 									<option value="Autres dettes">Autres dettes</option>
-									<option value="Dette bancaire">Dette bancaire</option>
-									<option value="TVA due">TVA due</option>
-									<option value="Capital">Capital</option>
+									<option value="Dettes AFC">Dettes AFC</option>
+									<option value="Dettes AVS">Dettes AVS</option>
+									<option value="Dividendes">Dividendes</option>
+									<option value="Tantièmes">Tantièmes</option>
+									<option value="Capital-actions">Capital-actions</option>
+									<option value="Capital-participations">Capital-participations</option>
+									<option value="Réserve légale sur capital">Réserve légale sur capital</option>
+									<option value="Réserve légale sur bénéfice">Réserve légale sur bénéfice</option>
+									<option value="Réserve libre">Réserve libre</option>
+									<option value="Bénéfice de l'exercice">Bénéfice de l'exercice</option>
+									<option value="Bénéfice reporté">Bénéfice reporté</option>
                                 </optgroup>
                                 <optgroup label="MARCHANDISES">
                                     <option value="Ventes de marchandises">Ventes de marchandises</option>
-									<option value="Déductions accordées">Déductions accordées</option>
                                     <option value="Achats de marchandises">Achats de marchandises</option>
-									<option value="Prestations à soi-même">Prestations à soi-même</option>
-									<option value="Déductions obtenues">Déductions obtenues</option>
                                 </optgroup>
                                 <optgroup label="CHARGES ET PRODUITS">
                                     <option value="Salaires">Salaires</option>
+									<option value="Charges sociales">Charges sociales</option>
                                     <option value="Loyers">Loyers</option>
 									<option value="Electricité">Electricité</option>
 									<option value="Frais de véhicules">Frais de véhicules</option>
 									<option value="Frais d'administration">Frais d'administration</option>
 									<option value="ACE">ACE</option>
+									<option value="FAO">FAO</option>
 									<option value="Produits financiers">Produits financiers</option>
-									<option value="Charges financières">Charges financières</option>
                                 </optgroup>
                             </select>
                         </td>
@@ -276,34 +283,41 @@
 									<option value="Banque">Banque</option>
 									<option value="Créances clients">Créances clients</option>
 									<option value="Créances AFC">Créances AFC</option>
-									<option value="IP sur marchandises">IP sur marchandises</option>
-									<option value="IP sur inv. et ACE">IP sur inv. et ACE</option>
 									<option value="Stock de marchandises">Stock de marchandises</option>
+									<option value="Machines">Machines</option>
 									<option value="Véhicules">Véhicules</option>
+									<option value="Actionnaires">Actionnaires</option>
+									<option value="Participants">Participants</option>
                                     </optgroup>
                                 <optgroup label="PASSIF">
                                     <option value="Dettes fournisseurs">Dettes fournisseurs</option>
 									<option value="Autres dettes">Autres dettes</option>
-									<option value="Dette bancaire">Dette bancaire</option>
-									<option value="TVA due">TVA due</option>
-									<option value="Capital">Capital</option>
+									<option value="Dettes AFC">Dettes AFC</option>
+									<option value="Dettes AVS">Dettes AVS</option>
+									<option value="Dividendes">Dividendes</option>
+									<option value="Tantièmes">Tantièmes</option>
+									<option value="Capital-actions">Capital-actions</option>
+									<option value="Capital-participations">Capital-participations</option>
+									<option value="Réserve légale sur capital">Réserve légale sur capital</option>
+									<option value="Réserve légale sur bénéfice">Réserve légale sur bénéfice</option>
+									<option value="Réserve libre">Réserve libre</option>
+									<option value="Bénéfice de l'exercice">Bénéfice de l'exercice</option>
+									<option value="Bénéfice reporté">Bénéfice reporté</option>
                                 </optgroup>
                                 <optgroup label="MARCHANDISES">
                                     <option value="Ventes de marchandises">Ventes de marchandises</option>
-									<option value="Déductions accordées">Déductions accordées</option>
                                     <option value="Achats de marchandises">Achats de marchandises</option>
-									<option value="Prestations à soi-même">Prestations à soi-même</option>
-									<option value="Déductions obtenues">Déductions obtenues</option>
                                 </optgroup>
                                 <optgroup label="CHARGES ET PRODUITS">
                                     <option value="Salaires">Salaires</option>
+									<option value="Charges sociales">Charges sociales</option>
                                     <option value="Loyers">Loyers</option>
 									<option value="Electricité">Electricité</option>
 									<option value="Frais de véhicules">Frais de véhicules</option>
 									<option value="Frais d'administration">Frais d'administration</option>
 									<option value="ACE">ACE</option>
+									<option value="FAO">FAO</option>
 									<option value="Produits financiers">Produits financiers</option>
-									<option value="Charges financières">Charges financières</option>
                                 </optgroup>
                             </select>
                         </td>
@@ -330,8 +344,8 @@
                 <tr>
                     <th>Comptes débités</th>
                     <th>Comptes crédités</th>
-                    <th>Montant débité (CHF)</th>
-                    <th>Montant crédité (CHF)</th>
+                    <th>Montant débité</th>
+                    <th>Montant crédité</th>
                 </tr>
             </thead>
             <tbody>
@@ -342,7 +356,7 @@
         <div id="completion-message" class="completion-message">
             <h3>Félicitations ! Vous avez terminé toutes les écritures.</h3>
             <p>A vous de juger votre score : <span id="final-score">0</span></p>
-			<h3>N'oubliez pas : "Je fais de la compta et c'est ma joie!"</h3>
+			<h3>N'oubliez pas : "Je fais de la compta et c'est ma joie"</h3>
 
 
         <button id="restart-btn" type="button">Recommencer</button>
@@ -352,64 +366,100 @@
     <script>
         // Données des écritures comptables
         let accountingEntries = [
-            {
-                description: "Nous recevons un avis de débit de la banque :\nAmortissement de la dette\tCHF 5'000.-\nIntérêts annuels\t\tCHF   750.-\nTotal\t\t\t\tCHF 5'750.-",
-                solution: [
-                    { debit: "Dette bancaire", credit: "", amount: 5000 },
-					{ debit: "Charges financières", credit: "", amount: 750 },
-					{ debit: "", credit: "Banque", amount: 5750  }
+
+		{
+			description: "Versement par banque des tantièmes aux administrateurs, 1000, avec retenue AVS de 6.4%.",
+			solution: [
+				{ debit: "Tantièmes", credit: "", amount: 1000 },
+				{ debit: "", credit: "Banque", amount: 936 },
+				{ debit: "", credit: "Dettes AVS", amount: 64 }
+			]
+		},
+		{
+			description: "Paiement des dividendes, 2'000 brut, par virement bancaire.\nTenir compte de l'impôt anticipé.",
+				solution: [
+				{ debit: "Dividendes", credit: "", amount: 2000 },
+				{ debit: "", credit: "Banque", amount: 1300 },
+				{ debit: "", credit: "Dettes AFC", amount: 700 }
+			]
+		},
+		{
+			description: "Création d'un capital-participation par l'émission de 1'000 bons:\n- Capital émis:\t\tCHF 100'000\n- Prix d'émission:\tCHF     135 par bon.",
+			solution: [
+				{ debit: "Participants", credit: "", amount: 135000 },
+				{ debit: "", credit: "Capital-participations", amount: 100000 },
+				{ debit: "", credit: "Réserve légale sur capital", amount: 35000 }
+			]
+		},
+		{
+			description: "Libération à la banque du montant souscrit par les participants, 30'000.",
+			solution: [
+				{ debit: "Banque", credit: "Participants", amount: 30000 }
+			]
+		},
+		{
+			description: "Paiement par virement postal des frais d'augmentation de capital (notaire, inscrition au RF, révision), 800.",
+			solution: [
+				{ debit: "FAO", credit: "Poste", amount: 800 }
+			]
+		},
+		{
+			description: "La banque prélève une commission de CHF 125 sur le montant encaissé lors de la libération du capital.",
+			solution: [
+				{ debit: "FAO", credit: "Banque", amount: 125 }
+			]
+		},
+		{
+			description: "Nous versons par poste l'impôt anticipé retenu sur le versement des dividendes, 600.",
+				solution: [
+				{ debit: "Dettes AFC", credit: "Poste", amount: 600 }
+			]
+		},
+		{
+			description: "Trois amis créent une SA avec un capital-actions de 300. Comptabilisez la souscription, puis la libération suivante :\n- Versement bancaire:\t150\n- Apport d'une machine:\t 50\n- Apport de créances:\t 20\n- Apport de véhicules\t 80",
+				solution: [
+					{ debit: "Actionnaires", credit: "", amount: 300 },
+					{ debit: "", credit: "Capital-actions", amount: 300 },
+					{ debit: "Banque", credit: "", amount: 150 },
+					{ debit: "Machines", credit: "", amount: 50 },
+					{ debit: "Créances clients", credit: "", amount: 20 },
+					{ debit: "Véhicules", credit: "", amount: 80 },
+					{ debit: "", credit: "Actionnaires", amount: 300 }
+				]
+		},
+		{
+			description: "Augmentation du capital-actions par l'émission de 1000 actions nouvelles de 100 de nominal. Prix de vente 120. Le capital est entièrement souscrit.",
+			solution: [
+				{ debit: "Actionnaires", credit: "", amount: 120000 },
+				{ debit: "", credit: "Capital-actions", amount: 100000 },
+				{ debit: "", credit: "Réserve légale sur capital", amount: 20000 }
+        ]
+		},
+		{
+            description: "Les actionnaires libèrent 80% du capital souscrit à la banque.\nValeur nominale:\t100'000.-\nMontant souscrit:\t250'000.-",
+				solution: [
+                    { debit: "Banque", credit: "Actionnaires", amount: 330000 }
                 ]
-            },
+        },
 			{
-                description: "Avis de crédit de la banque pour les intérêts annuels sur notre c/c (Compte courant):\n\Intérêts bruts\tCHF 40.-\nImpôt anticipé\tCHF 14.-\nIntérêts nets\tCHF 26.-",
+                description: "L'AG a accepté la distribution de bénéfice suivante :\nBénéfice de l'exercice\t1000\n+ bénéfice reporté\t  80\n- Réserve légale\t  50\n- Dividende 5%\t\t 300\n- Tantièmes\t\t 100\n- Dons Croix rouge\t  70\n- Superdividende\t 550\nBénéfice à reporter\t  10",
                 solution: [
-                    { debit: "Banque", credit: "", amount: 26 },
-					{ debit: "Créances AFC", credit: "", amount: 14 },
-					{ debit: "", credit: "Produits financiers", amount: 40 }
+                    { debit: "Bénéfice de l'exercice", credit: "", amount: 1000 },
+					{ debit: "Bénéfice reporté", credit: "", amount: 80 },
+					{ debit: "", credit: "Dividendes", amount: 850 },
+					{ debit: "", credit: "Tantièmes", amount: 100 },
+					{ debit: "", credit: "Réserve légale sur bénéfice", amount: 50 },
+					{ debit: "", credit: "Autres dettes", amount: 70 },
+					{ debit: "", credit: "Bénéfice reporté", amount: 10 }
                 ]
-            },
+         },
 			{
-                description: "Nous avons accordé un prêt à une entreprise partenaire. Celle-ci nous verse par poste l'intérêt annuel, CHF 400.-",
+                description: "Avant l'augmentation de capital, les actionnaires libèrent à la banque le solde du compte, soit 80'000.-.",
                 solution: [
-					{ debit: "Poste", credit: "Produits financiers", amount: 400 }
-                ]
-            },
-			{
-                description: "Nous payons par banque les intérêts annuels sur notre emprunt bancaire, CHF 800.-.",
-                solution: [
-					{ debit: "Charges financières", credit: "Banque", amount: 800 }
-                ]
-            },
-			{
-                description: "Nous remboursons par poste le solde de notre crédit bancaire, CHF 2'000.-, ainsi que les intérêts, CHF 120.-.",
-                solution: [
-                    { debit: "Dette bancaire", credit: "", amount: 2000 },
-					{ debit: "Charges financières", credit: "", amount:  120 },
-					{ debit: "", credit: "Poste", amount:  2120 }
-                ]
-            },
-			{
-                description: "Nous recevons un avis de crédit de la banque pour des intérêts reçus d'un placement étranger sans impôt anticipé, CHF 600.-.",
-                solution: [
-					{ debit: "Banque", credit: "Produits financiers", amount: 600 }
-                ]
-            },
-			{
-                description: "Nous recevons sur notre compte postal les intérêts annuels de 6% sur un placement de CHF 5'000.-. Tenir compte de l'impôt anticipé.",
-                solution: [
-                    { debit: "Poste", credit: "", amount: 195 },
-					{ debit: "Créances AFC", credit: "", amount: 105  },
-					{ debit: "", credit: "Produits financiers", amount: 300 }
-                ]
-            },
-			{
-                description: "Un client verse à la poste le montant dû pour une facture de CHF 3'000.-, en ajoutant 5% d'intérêts pour 60 jours de retard.",
-                solution: [
-                    { debit: "Poste", credit: "", amount: 3025  },
-					{ debit: "", credit: "Produits financiers", amount: 25 },
-					{ debit: "", credit: "Créances clients", amount:  3000 }
+					{ debit: "Banque", credit: "Actionnaires", amount: 80000 }
                 ]
             }
+
 	
             /* Ajouter d'autres écritures ici par la suite
 			,
@@ -502,6 +552,61 @@
             completionMessage.style.display = 'block';
             restartBtn.style.display = 'block';
         }
+		
+// Marquer les cellules incorrectes en rouge
+function markIncorrectCells(userEntries, correctSolution) {
+    const rows = entriesTable.querySelectorAll('tbody tr');
+    
+    // Réinitialiser toutes les couleurs d'abord
+    rows.forEach(row => {
+        row.querySelector('.debit-account').style.backgroundColor = '';
+        row.querySelector('.credit-account').style.backgroundColor = '';
+        row.querySelector('.debit-amount').style.backgroundColor = '';
+        row.querySelector('.credit-amount').style.backgroundColor = '';
+    });
+    
+    // Convertir la solution correcte en format comparable
+    const correctEntries = [];
+    correctSolution.forEach(entry => {
+        if (entry.debit) {
+            correctEntries.push({
+                account: entry.debit,
+                type: 'debit',
+                amount: entry.amount
+            });
+        }
+        if (entry.credit) {
+            correctEntries.push({
+                account: entry.credit,
+                type: 'credit',
+                amount: entry.amount
+            });
+        }
+    });
+    
+    // Marquer les cellules incorrectes
+    userEntries.forEach((userEntry, index) => {
+        const correspondingCorrect = correctEntries.find(correct => 
+            correct.account === userEntry.account && 
+            correct.type === userEntry.type && 
+            correct.amount === userEntry.amount
+        );
+        
+        if (!correspondingCorrect) {
+            // Trouver la ligne et la cellule correspondante
+            const rowIndex = Math.floor(index / 2); // 2 entrées par ligne (débit et crédit)
+            if (rows[rowIndex]) {
+                if (userEntry.type === 'debit') {
+                    rows[rowIndex].querySelector('.debit-account').style.backgroundColor = '#ffcccc';
+                    rows[rowIndex].querySelector('.debit-amount').style.backgroundColor = '#ffcccc';
+                } else {
+                    rows[rowIndex].querySelector('.credit-account').style.backgroundColor = '#ffcccc';
+                    rows[rowIndex].querySelector('.credit-amount').style.backgroundColor = '#ffcccc';
+                }
+            }
+        }
+    });
+}		
 
         // Réinitialiser le jeu
         function restartGame() {
@@ -542,34 +647,41 @@
 									<option value="Banque">Banque</option>
 									<option value="Créances clients">Créances clients</option>
 									<option value="Créances AFC">Créances AFC</option>
-									<option value="IP sur marchandises">IP sur marchandises</option>
-									<option value="IP sur inv. et ACE">IP sur inv. et ACE</option>
 									<option value="Stock de marchandises">Stock de marchandises</option>
+									<option value="Machines">Machines</option>
 									<option value="Véhicules">Véhicules</option>
+									<option value="Actionnaires">Actionnaires</option>
+									<option value="Participants">Participants</option>
                                     </optgroup>
                                 <optgroup label="PASSIF">
                                     <option value="Dettes fournisseurs">Dettes fournisseurs</option>
 									<option value="Autres dettes">Autres dettes</option>
-									<option value="Dette bancaire">Dette bancaire</option>
-									<option value="TVA due">TVA due</option>
-									<option value="Capital">Capital</option>
+									<option value="Dettes AFC">Dettes AFC</option>
+									<option value="Dettes AVS">Dettes AVS</option>
+									<option value="Dividendes">Dividendes</option>
+									<option value="Tantièmes">Tantièmes</option>
+									<option value="Capital-actions">Capital-actions</option>
+									<option value="Capital-participations">Capital-participations</option>
+									<option value="Réserve légale sur capital">Réserve légale sur capital</option>
+									<option value="Réserve légale sur bénéfice">Réserve légale sur bénéfice</option>
+									<option value="Réserve libre">Réserve libre</option>
+									<option value="Bénéfice de l'exercice">Bénéfice de l'exercice</option>
+									<option value="Bénéfice reporté">Bénéfice reporté</option>
                                 </optgroup>
                                 <optgroup label="MARCHANDISES">
                                     <option value="Ventes de marchandises">Ventes de marchandises</option>
-									<option value="Déductions accordées">Déductions accordées</option>
                                     <option value="Achats de marchandises">Achats de marchandises</option>
-									<option value="Prestations à soi-même">Prestations à soi-même</option>
-									<option value="Déductions obtenues">Déductions obtenues</option>
                                 </optgroup>
                                 <optgroup label="CHARGES ET PRODUITS">
                                     <option value="Salaires">Salaires</option>
+									<option value="Charges sociales">Charges sociales</option>
                                     <option value="Loyers">Loyers</option>
 									<option value="Electricité">Electricité</option>
 									<option value="Frais de véhicules">Frais de véhicules</option>
 									<option value="Frais d'administration">Frais d'administration</option>
 									<option value="ACE">ACE</option>
+									<option value="FAO">FAO</option>
 									<option value="Produits financiers">Produits financiers</option>
-									<option value="Charges financières">Charges financières</option>
                                 </optgroup>
                             </select>
                         </td>
@@ -582,34 +694,41 @@
 									<option value="Banque">Banque</option>
 									<option value="Créances clients">Créances clients</option>
 									<option value="Créances AFC">Créances AFC</option>
-									<option value="IP sur marchandises">IP sur marchandises</option>
-									<option value="IP sur inv. et ACE">IP sur inv. et ACE</option>
 									<option value="Stock de marchandises">Stock de marchandises</option>
+									<option value="Machines">Machines</option>
 									<option value="Véhicules">Véhicules</option>
+									<option value="Actionnaires">Actionnaires</option>
+									<option value="Participants">Participants</option>
                                     </optgroup>
                                 <optgroup label="PASSIF">
                                     <option value="Dettes fournisseurs">Dettes fournisseurs</option>
 									<option value="Autres dettes">Autres dettes</option>
-									<option value="Dette bancaire">Dette bancaire</option>
-									<option value="TVA due">TVA due</option>
-									<option value="Capital">Capital</option>
+									<option value="Dettes AFC">Dettes AFC</option>
+									<option value="Dettes AVS">Dettes AVS</option>
+									<option value="Dividendes">Dividendes</option>
+									<option value="Tantièmes">Tantièmes</option>
+									<option value="Capital-actions">Capital-actions</option>
+									<option value="Capital-participations">Capital-participations</option>
+									<option value="Réserve légale sur capital">Réserve légale sur capital</option>
+									<option value="Réserve légale sur bénéfice">Réserve légale sur bénéfice</option>
+									<option value="Réserve libre">Réserve libre</option>
+									<option value="Bénéfice de l'exercice">Bénéfice de l'exercice</option>
+									<option value="Bénéfice reporté">Bénéfice reporté</option>
                                 </optgroup>
                                 <optgroup label="MARCHANDISES">
                                     <option value="Ventes de marchandises">Ventes de marchandises</option>
-									<option value="Déductions accordées">Déductions accordées</option>
                                     <option value="Achats de marchandises">Achats de marchandises</option>
-									<option value="Prestations à soi-même">Prestations à soi-même</option>
-									<option value="Déductions obtenues">Déductions obtenues</option>
                                 </optgroup>
                                 <optgroup label="CHARGES ET PRODUITS">
                                     <option value="Salaires">Salaires</option>
+									<option value="Charges sociales">Charges sociales</option>
                                     <option value="Loyers">Loyers</option>
 									<option value="Electricité">Electricité</option>
 									<option value="Frais de véhicules">Frais de véhicules</option>
 									<option value="Frais d'administration">Frais d'administration</option>
 									<option value="ACE">ACE</option>
+									<option value="FAO">FAO</option>
 									<option value="Produits financiers">Produits financiers</option>
-									<option value="Charges financières">Charges financières</option>
                                 </optgroup>
                             </select>
                         </td>
@@ -621,32 +740,35 @@
         }
 
         // Valider la réponse
-        function validateAnswer() {
-            if (isValidationDone) return;
-            
-            const userEntries = getUserEntries();
-            const correctSolution = accountingEntries[currentEntryIndex].solution;
-            
-            // Vérifier si la réponse est correcte
-            const isCorrect = checkSolution(userEntries, correctSolution);
-            
-            if (isCorrect) {
-                feedback.textContent = "Bravo ! Votre réponse est correcte.";
-                feedback.className = "feedback correct";
-                score++;
-            } else {
-                feedback.textContent = "Voici la bonne réponse :";
-                feedback.className = "feedback incorrect";
-                showSolution(correctSolution);
-            }
-            
-            feedback.style.display = 'block';
-            validateBtn.disabled = true;
-            nextBtn.disabled = false;
-            isValidationDone = true;
-            remainingEntries--;
-            updateStats();
-        }
+function validateAnswer() {
+    if (isValidationDone) return;
+    
+    const userEntries = getUserEntries();
+    const correctSolution = accountingEntries[currentEntryIndex].solution;
+    
+    // Vérifier si la réponse est correcte
+    const isCorrect = checkSolution(userEntries, correctSolution);
+    
+    if (isCorrect) {
+        feedback.textContent = "Bravo ! Votre réponse est correcte.";
+        feedback.className = "feedback correct";
+        score++;
+    } else {
+        feedback.textContent = "Voici la bonne réponse :";
+        feedback.className = "feedback incorrect";
+        showSolution(correctSolution);
+        
+        // Marquer les cellules incorrectes en rouge
+        markIncorrectCells(userEntries, correctSolution);
+    }
+    
+    feedback.style.display = 'block';
+    validateBtn.disabled = true;
+    nextBtn.disabled = false;
+    isValidationDone = true;
+    remainingEntries--;
+    updateStats();
+}
 
         // Obtenir les entrées de l'utilisateur
         function getUserEntries() {

@@ -17,7 +17,7 @@
             padding: 15px;
             border-top: 5px solid #1EFF00;
             border-bottom: 5px solid #FF9000;
-            background-color: #4A148C;
+            background-color: #78004f;
             border-radius: 8px;
             margin-bottom: 20px;
         }
@@ -62,16 +62,19 @@
             cursor: pointer;
             font-weight: bold;
             margin-right: 10px;
+			transition: all 0.3s ease;
+			box-shadow: 4px 4px 6px rgba(0,0,0,0.5);
         }		
         button:hover {
             background-color: #6A1B9A;
 			transform: translateY(-4px);
+			box-shadow: 6px 6px 12px rgba(0,0,0,0.5);
         }
     button.generate {
-        background-color: #F7C745; /* Vert */
+        background-color: #ffbf47; /* Vert */
     }
     button.generate:hover {
-        background-color: #FFC200; /* Vert */
+        background-color: #ffa500; /* Vert */
     }
     button.check {
         background-color: #61b865; /* Bleu */
@@ -138,10 +141,10 @@
             <label for="answer">Votre réponse:</label>
             <input type="number" id="answer" step="0.01" placeholder="Entrez votre réponse">
         </div>
-
-        <button class="generate" onclick="generateProblem()">Générer un problème</button-new>
-        <button class="check"  onclick="checkAnswer()">Vérifier la réponse</button>
-        <button class="reponse" onclick="showSolution()">Voir la solution</button>
+		
+		<button class="check"  onclick="checkAnswer()">Valider</button>
+        <button class="generate" onclick="generateProblem()">Nouvel exerice</button-new>
+        <button class="reponse" onclick="showSolution()">Afficher la solution</button>
 		<button class="quit" onclick="window.close()">Quitter</button>
         
 		<div id="result-message"></div>
