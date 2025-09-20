@@ -36,7 +36,27 @@
 			max-width: 1180px;
 			margin: 0px auto;
             box-shadow: 0 4px 12px rgba(106, 13, 173, 0.4);           
-        }   
+            /* Animation d'ouverture */
+            animation: zoomIn 1s ease-out forwards;
+            transform-origin: center;
+            opacity: 0;
+        }
+        
+        /* Définition de l'animation */
+        @keyframes zoomIn {
+            0% {
+                transform: scale(3);
+                opacity: 0;
+            }
+            70% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
         
         .supertitle {
             font-size: 1.2em;
@@ -72,7 +92,23 @@
             display: flex; /* Ajout pour les 3 colonnes */
             gap: 20px; /* Espace entre les colonnes */
 			 margin-top: 20px;
+            /* Animation d'ouverture */
+            animation: rotateIn 1s ease-out forwards;
+            transform-origin: center;
+            opacity: 0;
         }
+        
+        @keyframes rotateIn {
+            0% {
+                transform: rotate(-180deg) scale(0.1);
+                opacity: 0;
+            }
+            100% {
+                transform: rotate(0) scale(1);
+                opacity: 1;
+            }
+        }
+        
         
         .year-section {
             flex: 1; /* Chaque colonne prend une part égale */
@@ -305,8 +341,6 @@
             </div>
         </div>
 
-<div class="h3">En gras : liens vers des exercices pour s'exercer</div>
-        
         <div class="quote">
             « Celui qui veut faire quelque chose trouve un moyen, celui qui ne veut rien faire trouve des excuses ! » Proverbe arabe
         </div>

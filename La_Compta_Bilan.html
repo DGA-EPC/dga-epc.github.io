@@ -32,7 +32,7 @@
             text-align: center;
 			border-top: 8px solid #44F527;
 			border-bottom: 4px solid #ffff00;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 0px 15px 5px rgba(255,240,125, 0.6);
         }
         
         .surtitre {
@@ -56,6 +56,7 @@
             max-width: 800px;
 			border-radius: 12px;
 			border-bottom: 4px solid #27E4F5;
+			box-shadow: 0px 0px 15px 5px rgba(146,155,255, 0.1);
         }
         
         .niveau {
@@ -84,20 +85,44 @@
         }
         
         .facile {
-            border-top: 8px solid #4caf50;
+            border-top: 8px solid #117300;
+			background-color: #dedede;
         }
-        
+        .facile:hover {
+            border-top: 8px solid #24FF00;
+			background-color: #ffffff;
+			box-shadow: 0px 0px 15px 5px rgba(125,255,132, 0.6);
+        }		
+		
         .moyen {
-            border-top: 8px solid #2196f3;
+            border-top: 8px solid #004A85;
+			background-color: #dedede;
+        }
+		.moyen:hover {
+            border-top: 8px solid #008BFF;
+			background-color: #ffffff;
+			box-shadow: 0px 0px 15px 5px rgba(125,205,255, 0.6);
         }
         
         .avance {
-            border-top: 8px solid #ff9800;
+            border-top: 8px solid #945600;
+			background-color: #dedede;
         }
+		.avance:hover {
+            border-top: 8px solid #ff9800;
+			background-color: #ffffff;
+			box-shadow: 0px 0px 15px 5px rgba(255,180,105, 0.6);
+        }		
         
         .defit {
-            border-top: 8px solid #f44336;
+            border-top: 8px solid #8F140A;
+			background-color: #dedede;
         }
+		.defit:hover {
+            border-top: 8px solid #FF1100;
+			background-color: #ffffff;
+			box-shadow: 0px 0px 15px 5px rgba(255,166,166, 0.6);
+        }		
         
         .btn-quitter {
             margin-top: 40px;
@@ -110,15 +135,12 @@
             font-size: 16px;
             font-weight: bold;
             transition: all 0.3s ease;
-            border-left: 2px solid #ff4747;
-			border-right: 2px solid #ff4747;
         }
         
         .btn-quitter:hover {
             background-color: #ff0000;
             transform: translateY(-4px);
-            border-left: 2px solid #ffffff;
-			border-right: 2px solid #ffffff;
+			box-shadow: 0px 0px 15px 5px rgba(255,66,66, 0.6);
         }
         
         @media (max-width: 600px) {
