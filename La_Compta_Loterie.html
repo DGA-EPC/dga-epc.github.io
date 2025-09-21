@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La roue de la révision!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin: 20px 0;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        h4 {
+            font-size: 0.9rem;
+            margin: 20px 0;
+            text-shadow: 0 0 10px rgba(0, 5, 5, 0.5);
+            color: #FF61FF;
+        }        
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #e60073, 0 0 20px #e60073;
+            }
+            to {
+                text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #ff4da6, 0 0 40px #ff4da6;
+            }
+        }
+        
+        .wheel-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin: 30px auto;
+        }
+        
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            border: 8px solid #333;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            transition: transform 10s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+        }
+        
+        .wheel-item {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: bottom right;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #000;
+            font-size: 14px;
+            padding-left: 50px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .wheel-pointer {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 60px;
+            background: #ff5252;
+            clip-path: polygon(50% 100%, 0 0, 100% 0);
+            z-index: 10;
+        }
+        
+        .result {
+            margin: 10px 0;
+            font-size: 1.1rem;
+            min-height: 30px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.0);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .result-scroll {
+            animation: scroll 15s linear infinite;
+            white-space: nowrap;
+            display: inline-block;
+            padding-left: 100%;
+        }
+        
+        @keyframes scroll {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        .btn-start {
+            background: linear-gradient(to bottom, #4b6cb7, #182848);
+            color: white;
+        }
+        
+        .btn-start:not(:disabled):hover {
+            background: linear-gradient(to bottom, #5a7dc9, #293a5a);
+            box-shadow: 0 0 20px #4b6cb7;
+        }
+        
+        .btn-go {
+            background: linear-gradient(to bottom, #2ecc71, #27ae60);
+            color: white;
+        }
+        
+        .btn-go:not(:disabled):hover {
+            background: linear-gradient(to bottom, #3edd84, #3ac773);
+            box-shadow: 0 0 20px #2ecc71;
+        }
+        
+        .btn-end {
+            background: linear-gradient(to bottom, #e74c3c, #c0392b);
+            color: white;
+        }
+        
+        .btn-end:hover {
+            background: linear-gradient(to bottom, #ff6656, #e04b3b);
+            box-shadow: 0 0 20px #e74c3c;
+        }
+        
+        .firework {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        @keyframes firework {
+            0% {
+                transform: translate(0, 0);
+                width: 5px;
+                height: 5px;
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--x), var(--y));
+                width: 50px;
+                height: 50px;
+                opacity: 0;
+            }
+        }
+        
+        .theme-display {
+            font-size: 2.2rem;
+            margin: 10px 0;
+            min-height: 30px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+			text-shadow: 0 0 10px rgba(5, 5, 5, 1);
+        }
+        
+        .theme-scroll {
+            animation: scroll 0.5s linear infinite;
+            white-space: nowrap;
+            display: inline-block;
+            padding-left: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>La roue de la révision!</h1>
+        
+        <div class="wheel-container">
+            <div class="wheel-pointer"></div>
+            <div class="wheel" id="wheel"></div>
+        </div>
+        
+        <div class="theme-display" id="themeDisplay">
+            <span id="themeText">Thème sélectionné: Aucun</span>
+            <div class="theme-scroll" id="themeScroll" style="display: none;"></div>
+        </div>
+        
+        <div class="result" id="result">
+            <div class="result-scroll" id="resultScroll">Appuyez sur START pour commencer!</div>
+        </div>
+        
+        <div class="buttons">
+            <button class="btn btn-start" id="btnStart">START</button>
+            <button class="btn btn-go" id="btnGo" disabled>GO!</button>
+            <button class="btn btn-end" id="btnEnd">END</button>
+        </div>
+    </div>
+		<div>
+			<h4><br>"Je fais de la compta et c'est ma joie!", DG, EPC Fribourg</h4>
+		</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const themes = [
+                { file: "La_Compta_Amortissements.html", name: "Les amortissements" },
+                { file: "La_Compta_Bilan4.html", name: "Etablir un bilan" },
+                { file: "La_Compta_CAN.html", name: "Calcul du CAN, PRAMV et BB" },
+                { file: "La_Compta_Change.html", name: "Les monnaies étrangères" },
+                { file: "La_Compta_ClotureRI.html", name: "La clôture d'une entreprise individuelle" },
+                { file: "La_Compta_Interets.html", name: "Le calcul des intérêts" },
+                { file: "La_Compta_InteretsJrnl.html", name: "La journalisation des intérêts" },
+                { file: "La_Compta_Marchandises.html", name: "La journalisation des marchandises" },
+                { file: "La_Compta_Prix.html", name: "Le schéma des prix" },
+                { file: "La_Compta_Provisions.html", name: "Les provisions Ducroire et autres" },
+                { file: "La_Compta_Resultat4.html", name: "Le compte de résultat à 4 degrés" },
+                { file: "La_Compta_SA-BN.html", name: "La répartition du bénéfice dans les SA" },
+                { file: "La_Compta_SA-Journal.html", name: "La journalisation dans les SA" },
+                { file: "La_Compta_Salaires.html", name: "La journalisation des salaires" },
+                { file: "La_Compta_SalairesDcpte.html", name: "Le décompte de salaire" },
+                { file: "La_Compta_Transitoires.html", name: "Les transitoires" },
+                { file: "La_Compta_TVA.html", name: "Les écritures avec TVA" },
+                { file: "La_Compta_Immeubles.html", name: "Les immeubles" },
+                { file: "La_Compta_Titres.html", name: "Les titres" }
+            ];
+            
+            const wheel = document.getElementById('wheel');
+            const resultElement = document.getElementById('resultScroll');
+            const themeDisplay = document.getElementById('themeDisplay');
+            const themeText = document.getElementById('themeText');
+            const themeScroll = document.getElementById('themeScroll');
+            const btnStart = document.getElementById('btnStart');
+            const btnGo = document.getElementById('btnGo');
+            const btnEnd = document.getElementById('btnEnd');
+            
+            let selectedTheme = null;
+            let isSpinning = false;
+            let scrollInterval = null;
+            
+            // Créer la roue
+            function createWheel() {
+                wheel.innerHTML = '';
+                const sliceAngle = 360 / themes.length;
+                
+                themes.forEach((theme, index) => {
+                    const slice = document.createElement('div');
+                    slice.className = 'wheel-item';
+                    slice.textContent = theme.name;
+                    
+                    // Alterner les couleurs
+                    if (index % 2 === 0) {
+                        slice.style.background = `hsl(${index * (360 / themes.length)}, 70%, 70%)`;
+                    } else {
+                        slice.style.background = `hsl(${index * (360 / themes.length)}, 80%, 80%)`;
+                    }
+                    
+                    slice.style.transform = `rotate(${index * sliceAngle}deg) skewY(${90 - sliceAngle}deg)`;
+                    
+                    wheel.appendChild(slice);
+                });
+            }
+            
+            // Faire défiler les thèmes dans la zone de thème
+            function scrollThemes() {
+                if (isSpinning) {
+                    let index = 0;
+                    scrollInterval = setInterval(() => {
+                        themeScroll.textContent = themes[index].name;
+                        index = (index + 1) % themes.length;
+                        
+                        if (!isSpinning) {
+                            clearInterval(scrollInterval);
+                        }
+                    }, 100);
+                }
+            }
+            
+            // Faire tourner la roue
+            function spinWheel() {
+                isSpinning = true;
+                btnGo.disabled = true;
+                
+                // Cacher le texte statique et afficher le défilement
+                themeText.style.display = 'none';
+                themeScroll.style.display = 'inline-block';
+                themeScroll.style.animation = 'scroll 0.5s linear infinite';
+                
+                // Démarrer le défilement des thèmes
+                scrollThemes();
+                
+                // Animation de rotation (10 secondes)
+                const rotations = 5 + Math.random() * 5;
+                const degrees = rotations * 360;
+                
+                // Sélection aléatoire d'un thème
+                const randomIndex = Math.floor(Math.random() * themes.length);
+                selectedTheme = themes[randomIndex];
+                
+                // Calculer l'angle d'arrêt pour que le pointeur vise le thème sélectionné
+                const sliceAngle = 360 / themes.length;
+                const targetAngle = degrees + (360 - (randomIndex * sliceAngle)) + sliceAngle/2;
+                
+                // Appliquer la rotation
+                wheel.style.transform = `rotate(${targetAngle}deg)`;
+                
+                // Désactiver l'animation de défilement et afficher le résultat
+                setTimeout(() => {
+                    isSpinning = false;
+                    clearInterval(scrollInterval);
+                    themeScroll.style.animation = 'none';
+                    themeText.textContent = `Thème sélectionné: ${selectedTheme.name}`;
+                    themeText.style.display = 'inline';
+                    themeScroll.style.display = 'none';
+                    resultElement.textContent = "Appuyer sur START pour relancer ou GO! pour réviser ce thème";
+                    btnGo.disabled = false;
+                }, 10000);
+            }
+            
+            // Créer des effets de feu d'artifice
+            function createFireworks() {
+                for (let i = 0; i < 50; i++) {
+                    setTimeout(() => {
+                        const firework = document.createElement('div');
+                        firework.className = 'firework';
+                        firework.style.left = Math.random() * 100 + 'vw';
+                        firework.style.top = Math.random() * 100 + 'vh';
+                        firework.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                        
+                        const x = (Math.random() - 0.5) * 200;
+                        const y = (Math.random() - 0.5) * 200;
+                        firework.style.setProperty('--x', x + 'px');
+                        firework.style.setProperty('--y', y + 'px');
+                        
+                        firework.style.animation = `firework 0.5s ease-out forwards`;
+                        document.body.appendChild(firework);
+                        
+                        setTimeout(() => {
+                            firework.remove();
+                        }, 500);
+                    }, i * 20);
+                }
+            }
+            
+            // Événements des boutons
+            btnStart.addEventListener('click', spinWheel);
+            
+            btnGo.addEventListener('click', function() {
+                if (selectedTheme) {
+                    createFireworks();
+                    setTimeout(() => {
+                        window.open(`https://dga-epc.github.io/${selectedTheme.file}`, '_blank');
+                    }, 800);
+                }
+            });
+            
+            btnEnd.addEventListener('click', function() {
+                window.close();
+            });
+            
+            // Initialiser la roue
+            createWheel();
+        });
+    </script>
+</body>
+</html>
