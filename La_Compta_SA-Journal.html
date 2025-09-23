@@ -565,8 +565,11 @@ function markIncorrectCells(userEntries, correctSolution) {
         row.querySelector('.credit-amount').style.backgroundColor = '';
     });
     
-    // Convertir la solution correcte en format comparable
+    // Créer une copie des entrées utilisateur pour les marquer au fur et à mesure
+    const userEntriesToCheck = [...userEntries];
     const correctEntries = [];
+    
+    // Convertir la solution correcte en format comparable
     correctSolution.forEach(entry => {
         if (entry.debit) {
             correctEntries.push({
@@ -584,28 +587,74 @@ function markIncorrectCells(userEntries, correctSolution) {
         }
     });
     
-    // Marquer les cellules incorrectes
-    userEntries.forEach((userEntry, index) => {
-        const correspondingCorrect = correctEntries.find(correct => 
-            correct.account === userEntry.account && 
-            correct.type === userEntry.type && 
-            correct.amount === userEntry.amount
+    // Première passe : marquer les entrées correctes
+    const correctUserEntries = [];
+    
+    correctEntries.forEach(correctEntry => {
+        const userEntryIndex = userEntriesToCheck.findIndex(userEntry => 
+            userEntry.account === correctEntry.account && 
+            userEntry.type === correctEntry.type && 
+            userEntry.amount === correctEntry.amount
         );
         
-        if (!correspondingCorrect) {
-            // Trouver la ligne et la cellule correspondante
-            const rowIndex = Math.floor(index / 2); // 2 entrées par ligne (débit et crédit)
-            if (rows[rowIndex]) {
-                if (userEntry.type === 'debit') {
-                    rows[rowIndex].querySelector('.debit-account').style.backgroundColor = '#ffcccc';
-                    rows[rowIndex].querySelector('.debit-amount').style.backgroundColor = '#ffcccc';
-                } else {
-                    rows[rowIndex].querySelector('.credit-account').style.backgroundColor = '#ffcccc';
-                    rows[rowIndex].querySelector('.credit-amount').style.backgroundColor = '#ffcccc';
-                }
+        if (userEntryIndex !== -1) {
+            correctUserEntries.push(userEntriesToCheck[userEntryIndex]);
+            userEntriesToCheck.splice(userEntryIndex, 1);
+        }
+    });
+    
+    // Deuxième passe : marquer les entrées incorrectes restantes
+    userEntriesToCheck.forEach(incorrectEntry => {
+        // Trouver la ligne où se trouve cette entrée incorrecte
+        let found = false;
+        
+        for (let i = 0; i < rows.length && !found; i++) {
+            const row = rows[i];
+            const debitAccount = row.querySelector('.debit-account').value;
+            const creditAccount = row.querySelector('.credit-account').value;
+            const debitAmount = parseFloat(row.querySelector('.debit-amount').value) || 0;
+            const creditAmount = parseFloat(row.querySelector('.credit-amount').value) || 0;
+            
+            if (incorrectEntry.type === 'debit' && 
+                debitAccount === incorrectEntry.account && 
+                debitAmount === incorrectEntry.amount) {
+                
+                row.querySelector('.debit-account').style.backgroundColor = '#ffcccc';
+                row.querySelector('.debit-amount').style.backgroundColor = '#ffcccc';
+                found = true;
+            }
+            else if (incorrectEntry.type === 'credit' && 
+                     creditAccount === incorrectEntry.account && 
+                     creditAmount === incorrectEntry.amount) {
+                
+                row.querySelector('.credit-account').style.backgroundColor = '#ffcccc';
+                row.querySelector('.credit-amount').style.backgroundColor = '#ffcccc';
+                found = true;
             }
         }
     });
+    
+    // Troisième passe : vérifier les entrées manquantes (dans la solution mais pas chez l'utilisateur)
+    const missingEntries = [];
+    const userEntriesCopy = [...userEntries];
+    
+    correctEntries.forEach(correctEntry => {
+        const exists = userEntriesCopy.some(userEntry => 
+            userEntry.account === correctEntry.account && 
+            userEntry.type === correctEntry.type && 
+            userEntry.amount === correctEntry.amount
+        );
+        
+        if (!exists) {
+            missingEntries.push(correctEntry);
+        }
+    });
+    
+    // Pour les entrées manquantes, on pourrait ajouter une ligne rouge vide
+    // ou simplement les indiquer dans le feedback
+    if (missingEntries.length > 0) {
+        feedback.textContent += ` Il manque ${missingEntries.length} écriture(s).`;
+    }
 }		
 
         // Réinitialiser le jeu
