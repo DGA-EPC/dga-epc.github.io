@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcul de Rendement des Titres</title>
+    <style>
+        :root {
+            --dark-purple: #4B0082;
+            --green-top: #32CD32;
+            --orange-bottom: #FFA500;
+            --green-button: #61b865;
+            --yellow-button: #ffbf47;
+            --blue-button: #5eabcc;
+            --red-button: #ff4747;
+            --correct: #90EE90;
+            --incorrect: #FFCCCB;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 5px;
+            background-color: #000000;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background-color: var(--dark-purple);
+            color: white;
+            padding: 2px;
+            text-align: center;
+			border-radius: 12px;
+            border-top: 5px solid var(--green-top);
+            border-bottom: 5px solid var(--orange-bottom);
+        }
+        
+        .content {
+            display: flex;
+            padding: 15px;
+            gap: 15px;
+        }
+        
+        .data-section {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .response-section {
+            flex: 2;
+            padding: 15px;
+            border: 1px solid #000000;
+            border-radius: 5px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+        
+        th, td {
+            border: 1px solid #a0a0a0;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #ecd9ee;
+        }
+        
+        .response-table {
+            width: 100%;
+        }
+        
+        .response-table td {
+            padding: 5px;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
+            border-top: 1px solid #ddd;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            margin: 0px 10px;
+			color: white;
+            cursor: pointer;
+            font-weight: bold;
+			transition: all 0.3s ease;
+            box-shadow: 4px 4px 6px rgba(0,0,0,0.5);				
+        }
+        button:hover {
+            transform: translateY(-4px);
+            box-shadow: 6px 6px 8px rgba(0,0,0,0.5);			
+		}			
+        
+        .validate {
+            background-color: var(--green-button);
+        }
+        .validate:hover {
+            background-color: #00b50d;
+        }		
+        
+        .new {
+            background-color: var(--yellow-button);
+        }
+        .new:hover {
+            background-color: #ffa500;
+        }		
+        
+        .solution {
+            background-color: var(--blue-button);
+        }
+        .solution:hover {
+            background-color: #0088c2;
+        }		
+        
+        .quit {
+            background-color: var(--red-button);
+        }
+        .quit:hover {
+            background-color: #ff0000;
+        }		
+        
+        .correct {
+            background-color: var(--correct);
+        }
+        
+        .incorrect {
+            background-color: var(--incorrect);
+        }
+        
+        .formula {
+            font-style: italic;
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        /* Alignement à droite pour les montants */
+        .amount {
+            text-align: right;
+        }
+        
+        .data-section td:last-child {
+            text-align: right;
+        }
+        
+        .reponse {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Le calcul de rendement des titres</h1>
+			<p>NB : ne laisser pas de ligne libre. Choisissez la rubrique dans l'ordre le plus logique.</p>
+        </div>
+
+        <div class="content">
+            <div class="data-section" id="data-section">
+                <!-- Les données seront générées dynamiquement -->
+            </div>
+            
+            <div class="response-section">
+                <table class="response-table">
+                    <tr>
+                        <th>Rubrique</th>
+                        <th>Calculs</th>
+                        <th>Réponse</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select class="rubrique">
+                                <option value="">Sélectionnez une rubrique</option>
+                                <!-- Options seront ajoutées dynamiquement -->
+                            </select>
+                        </td>
+                        <td><input type="text" class="calcul"></td>
+                        <td><input type="text" class="reponse"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select class="rubrique">
+                                <option value="">Sélectionnez une rubrique</option>
+                                <!-- Options seront ajoutées dynamiquement -->
+                            </select>
+                        </td>
+                        <td><input type="text" class="calcul"></td>
+                        <td><input type="text" class="reponse"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select class="rubrique">
+                                <option value="">Sélectionnez une rubrique</option>
+                                <!-- Options seront ajoutées dynamiquement -->
+                            </select>
+                        </td>
+                        <td><input type="text" class="calcul"></td>
+                        <td><input type="text" class="reponse"></td>
+                    </tr>
+                    <tr><td colspan="3" style="height: 20px;"></td></tr>
+                    <tr>
+                        <td>
+                            <select class="rubrique">
+                                <option value="">Sélectionnez une rubrique</option>
+                                <!-- Options seront ajoutées dynamiquement -->
+                            </select>
+                        </td>
+                        <td><input type="text" class="calcul"></td>
+                        <td><input type="text" class="reponse"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select class="rubrique">
+                                <option value="">Sélectionnez une rubrique</option>
+                                <!-- Options seront ajoutées dynamiquement -->
+                            </select>
+                        </td>
+                        <td><input type="text" class="calcul"></td>
+                        <td><input type="text" class="reponse"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select class="rubrique">
+                                <option value="">Sélectionnez une rubrique</option>
+                                <!-- Options seront ajoutées dynamiquement -->
+                            </select>
+                        </td>
+                        <td><input type="text" class="calcul"></td>
+                        <td><input type="text" class="reponse"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select class="rubrique">
+                                <option value="">Sélectionnez une rubrique</option>
+                                <!-- Options seront ajoutées dynamiquement -->
+                            </select>
+                        </td>
+                        <td><input type="text" class="calcul"></td>
+                        <td><input type="text" class="reponse"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select class="rubrique">
+                                <option value="">Sélectionnez une rubrique</option>
+                                <!-- Options seront ajoutées dynamiquement -->
+                            </select>
+                        </td>
+                        <td><input type="text" class="calcul"></td>
+                        <td><input type="text" class="reponse"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select class="rubrique">
+                                <option value="">Sélectionnez une rubrique</option>
+                                <!-- Options seront ajoutées dynamiquement -->
+                            </select>
+                        </td>
+                        <td><input type="text" class="calcul"></td>
+                        <td><input type="text" class="reponse"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select class="rubrique">
+                                <option value="">Sélectionnez une rubrique</option>
+                                <!-- Options seront ajoutées dynamiquement -->
+                            </select>
+                        </td>
+                        <td><input type="text" class="calcul"></td>
+                        <td><input type="text" class="reponse"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button class="validate" onclick="validateAnswers()">Valider</button>
+            <button class="new" onclick="newExercise()">Nouvel exercice</button>
+            <button class="solution" onclick="showSolution()">Afficher la solution</button>
+            <button class="quit" onclick="quit()">Quitter</button>
+        </div>
+    </div>
+
+    <script>
+        // Noms d'entreprises suisses
+        const swissCompanies = [
+            "Nestlé", "Novartis", "Roche", "UBS", "Logitec", 
+            "Zurich", "Swiss Re", "ABB", "Swatch", "Richemont"
+        ];
+        
+        // Types d'exercices
+        const exerciseTypes = ["obligation", "action"];
+        
+        // Données de l'exercice actuel
+        let currentExercise = {};
+        let correctAnswers = [];
+        let formulas = [];
+        
+        // Fonction pour mélanger un tableau (algorithme de Fisher-Yates)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Fonction pour formater les nombres avec séparateurs de milliers
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+        }
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            newExercise();
+        });
+        
+        // Générer un nouvel exercice
+        function newExercise() {
+            // Réinitialiser l'interface
+            resetInterface();
+            
+            // Choisir aléatoirement un type d'exercice
+            const exerciseType = exerciseTypes[Math.floor(Math.random() * exerciseTypes.length)];
+            currentExercise.type = exerciseType;
+            
+            // Générer les données selon le type
+            if (exerciseType === "obligation") {
+                generateBondData();
+            } else {
+                generateStockData();
+            }
+            
+            // Afficher les données
+            displayData();
+            
+            // Remplir les options des listes déroulantes
+            populateDropdowns();
+        }
+        
+        // Générer des données pour une obligation
+        function generateBondData() {
+            const company = swissCompanies[Math.floor(Math.random() * swissCompanies.length)];
+            
+            // Taux d'intérêt (1-4%)
+            const interestRate = (Math.floor(Math.random() * 40) + 1) / 10;
+            
+            // Valeur nominale (10,000 - 30,000)
+            const nominalValue = (Math.floor(Math.random() * 5) + 2) * 5000;
+            
+            // Prix d'achat (90-110)
+            const purchasePrice = Math.floor(Math.random() * 21) + 90;
+            
+            // Frais d'achat (0.5% de la valeur nominale)
+            const purchaseFees = Math.round(nominalValue * purchasePrice / 100 * 0.005);
+            
+            // Prix de vente (90-110)
+            const salePrice = Math.floor(Math.random() * 21) + 90;
+            
+            // Frais de vente (0.5% de la valeur nominale)
+            const saleFees = Math.round(nominalValue * salePrice / 100 * 0.005);
+            
+            // Durée du placement (100-720 jours)
+            const duration = Math.floor(Math.random() * 621) + 100;
+            
+            // Calculs
+            const actualPurchasePrice = nominalValue * purchasePrice / 100 + purchaseFees;
+            const actualSalePrice = nominalValue * salePrice / 100 - saleFees;
+            const gainLoss = actualSalePrice - actualPurchasePrice;
+            const gainLossText = gainLoss >= 0 ? "Gain à la revente" : "Perte à la revente";
+            const annualizedGainLoss = Math.round(gainLoss * 360 / duration);
+            const annualizedText = gainLoss >= 0 ? "Gain à la revente annualisé" : "Perte à la revente annualisée";
+            const annualInterest = nominalValue * interestRate / 100;
+            const total = annualInterest + annualizedGainLoss;
+            const yieldRate = Math.round(total * 100 / actualPurchasePrice * 100) / 100;
+            
+            // Stocker les données
+            currentExercise.data = {
+                company,
+                interestRate,
+                nominalValue,
+                purchasePrice,
+                purchaseFees,
+                salePrice,
+                saleFees,
+                duration,
+                actualPurchasePrice,
+                actualSalePrice,
+                gainLoss,
+                gainLossText,
+                annualizedGainLoss,
+                annualizedText,
+                annualInterest,
+                total,
+                yieldRate
+            };
+            
+            // Définir les bonnes réponses dans l'ordre
+            correctAnswers = [
+                "Prix d'achat",
+                "Prix de vente",
+                gainLossText,
+                annualizedText,
+                "Intérêt annuel",
+                "Total",
+                "Taux de rendement"
+            ];
+            
+            // Définir les formules
+            formulas = [
+                `= ${formatNumber(nominalValue)} × ${purchasePrice} / 100 + ${formatNumber(purchaseFees)} = ${formatNumber(actualPurchasePrice)}`,
+                `= ${formatNumber(nominalValue)} × ${salePrice} / 100 - ${formatNumber(saleFees)} = ${formatNumber(actualSalePrice)}`,
+                `= ${formatNumber(actualSalePrice)} - ${formatNumber(actualPurchasePrice)} = ${formatNumber(gainLoss)}`,
+                `= ${formatNumber(gainLoss)} × 360 / ${duration} = ${formatNumber(annualizedGainLoss)}`,
+                `= ${formatNumber(nominalValue)} × ${interestRate} / 100 = ${formatNumber(annualInterest)}`,
+                `= ${formatNumber(annualInterest)} + ${formatNumber(annualizedGainLoss)} = ${formatNumber(total)}`,
+                `= ${formatNumber(total)} × 100 / ${formatNumber(actualPurchasePrice)} = ${yieldRate}%`
+            ];
+        }
+        
+    // Générer des données pour une action
+    function generateStockData() {
+        const company = swissCompanies[Math.floor(Math.random() * swissCompanies.length)];
+        
+        // Nombre d'actions (100-500)
+        const quantity = (Math.floor(Math.random() * 5) + 1) * 100;
+        
+        // Valeur nominale (1-100)
+        const nominalValue = (Math.floor(Math.random() * 100) + 1) / 10 * 10;
+        
+        // Prix d'achat (90-110)
+        const purchasePrice = Math.floor(Math.random() * 21) + 90;
+        
+        // Frais d'achat (0.5% de la valeur)
+        const purchaseFees = Math.round(quantity * nominalValue * purchasePrice / 100 * 0.005);
+        
+        // Prix de vente (variation de -30% à +30%)
+        const priceChange = (Math.floor(Math.random() * 61) - 30) / 100;
+        const salePrice = Math.round(purchasePrice * (1 + priceChange));
+        
+        // Frais de vente (0.5% de la valeur)
+        const saleFees = Math.round(quantity * nominalValue * salePrice / 100 * 0.005);
+        
+        // Durée du placement (100-720 jours)
+        const duration = Math.floor(Math.random() * 621) + 100;
+        
+        // Dividendes (2-12%)
+        const dividendRate1 = Math.floor(Math.random() * 11) + 2;
+        let dividendRate2 = "";
+        let dividendRate3 = "";
+        
+        if (duration > 360) {
+            dividendRate2 = dividendRate1 * (1 + (Math.floor(Math.random() * 51) - 25) / 100);
+        }
+        
+        if (duration > 650) {
+            dividendRate3 = dividendRate1 * (1 + (Math.floor(Math.random() * 51) - 25) / 100);
+        }
+        
+        // Calculs
+        const actualPurchasePrice = quantity * purchasePrice + purchaseFees;
+        const actualSalePrice = quantity * salePrice - saleFees;
+        const gainLoss = actualSalePrice - actualPurchasePrice;
+        const gainLossText = gainLoss >= 0 ? "Gain à la revente" : "Perte à la revente";
+        const gainLossReportText = gainLoss >= 0 ? "Report du gain" : "Report de la perte";
+        const annualizedGainLoss = Math.round(gainLoss * 360 / duration);
+        const annualizedText = gainLoss >= 0 ? "Gain à la revente annualisé" : "Perte à la revente annualisée";
+        
+        const dividend1 = Math.round(quantity * nominalValue * dividendRate1 / 100);
+        const dividend2 = dividendRate2 ? Math.round(quantity * nominalValue * dividendRate2 / 100) : 0;
+        const dividend3 = dividendRate3 ? Math.round(quantity * nominalValue * dividendRate3 / 100) : 0;
+        
+        const totalDividends = dividend1 + dividend2 + dividend3;
+        const total = totalDividends + gainLoss;
+        const totalAnnualized = Math.round(total * 360 / duration);
+        const yieldRate = Math.round(total * 100 / actualPurchasePrice * 100) / 100;
+        
+        // Stocker les données
+        currentExercise.data = {
+            company,
+            quantity,
+            nominalValue,
+            purchasePrice,
+            purchaseFees,
+            salePrice,
+            saleFees,
+            duration,
+            dividendRate1,
+            dividendRate2,
+            dividendRate3,
+            actualPurchasePrice,
+            actualSalePrice,
+            gainLoss,
+            gainLossText,
+            gainLossReportText,
+            annualizedGainLoss,
+            annualizedText,
+            dividend1,
+            dividend2,
+            dividend3,
+            totalDividends,
+            total,
+            totalAnnualized,
+            yieldRate
+        };
+        
+        // Définir les bonnes réponses dans l'ordre (CORRIGÉ)
+        correctAnswers = [
+            "Prix d'achat",
+            "Prix de vente",
+            gainLossText,
+            gainLossReportText, // CORRECTION: Report du gain/perte au lieu de annualisé
+            "Dividende 1",
+            dividendRate2 ? "Dividende 2" : "",
+            dividendRate3 ? "Dividende 3" : "",
+            "Total", // CORRECTION: Maintenant correctement placé
+            "Total annualisé",
+            "Taux de rendement"
+        ].filter(item => item !== ""); // Supprimer les éléments vides
+        
+        // Définir les formules (CORRIGÉ)
+        formulas = [
+            `= ${formatNumber(quantity)} × ${purchasePrice} + ${formatNumber(purchaseFees)} = ${formatNumber(actualPurchasePrice)}`,
+            `= ${formatNumber(quantity)} × ${salePrice} - ${formatNumber(saleFees)} = ${formatNumber(actualSalePrice)}`,
+            `= ${formatNumber(actualSalePrice)} - ${formatNumber(actualPurchasePrice)} = ${formatNumber(gainLoss)}`,
+            `= ${formatNumber(gainLoss)} (report)`, // CORRECTION: Formule simplifiée pour le report
+            `= ${formatNumber(quantity)} × ${formatNumber(nominalValue)} × ${dividendRate1} / 100 = ${formatNumber(dividend1)}`,
+        ];
+        
+        if (dividendRate2) {
+            formulas.push(`= ${formatNumber(quantity)} × ${formatNumber(nominalValue)} × ${dividendRate2.toFixed(2)} / 100 = ${formatNumber(dividend2)}`);
+        }
+        
+        if (dividendRate3) {
+            formulas.push(`= ${formatNumber(quantity)} × ${formatNumber(nominalValue)} × ${dividendRate3.toFixed(2)} / 100 = ${formatNumber(dividend3)}`);
+        }
+        
+        formulas.push(
+            `= ${formatNumber(dividend1)} + ${formatNumber(dividend2)} + ${formatNumber(dividend3)} + ${formatNumber(gainLoss)} = ${formatNumber(total)}`,
+            `= ${formatNumber(total)} × 360 / ${duration} = ${formatNumber(totalAnnualized)}`,
+            `= ${formatNumber(total)} × 100 / ${formatNumber(actualPurchasePrice)} = ${yieldRate}%`
+        );
+    }
+        
+        // Afficher les données dans la section de gauche
+        function displayData() {
+            const dataSection = document.getElementById('data-section');
+            dataSection.innerHTML = '';
+            
+            if (currentExercise.type === "obligation") {
+                const data = currentExercise.data;
+                
+                const table = document.createElement('table');
+                table.innerHTML = `
+                    <tr>
+                        <th colspan="2">Rendement des obligations</th>
+                    </tr>
+                    <tr>
+                        <th colspan="2">Informations</th>
+                    </tr>
+                    <tr>
+                        <td>Obligation</td>
+                        <td>${data.company}</td>
+                    </tr>
+                    <tr>
+                        <td>Taux d'intérêts</td>
+                        <td class="amount">${data.interestRate} %</td>
+                    </tr>
+                    <tr>
+                        <td>Valeur nominale</td>
+                        <td class="amount">${formatNumber(data.nominalValue)}</td>
+                    </tr>
+                    <tr>
+                        <td>Prix d'achat</td>
+                        <td class="amount">${data.purchasePrice}</td>
+                    </tr>
+                    <tr>
+                        <td>Frais d'achat</td>
+                        <td class="amount">${formatNumber(data.purchaseFees)}</td>
+                    </tr>
+                    <tr>
+                        <td>Prix de vente</td>
+                        <td class="amount">${data.salePrice}</td>
+                    </tr>
+                    <tr>
+                        <td>Frais de vente</td>
+                        <td class="amount">${formatNumber(data.saleFees)}</td>
+                    </tr>
+                    <tr>
+                        <td>Durée du placement</td>
+                        <td class="amount">${formatNumber(data.duration)} jours</td>
+                    </tr>
+                `;
+                
+                dataSection.appendChild(table);
+            } else {
+                const data = currentExercise.data;
+                
+                const table = document.createElement('table');
+                let html = `
+                    <tr>
+                        <th colspan="2">Rendement des actions</th>
+                    </tr>
+                    <tr>
+                        <th colspan="2">Informations</th>
+                    </tr>
+                    <tr>
+                        <td>Actions</td>
+                        <td>${data.company}</td>
+                    </tr>
+                    <tr>
+                        <td>Nombre</td>
+                        <td class="amount">${formatNumber(data.quantity)}</td>
+                    </tr>
+                    <tr>
+                        <td>Valeur nominale</td>
+                        <td class="amount">${formatNumber(data.nominalValue)}</td>
+                    </tr>
+                    <tr>
+                        <td>Prix d'achat</td>
+                        <td class="amount">${data.purchasePrice}</td>
+                    </tr>
+                    <tr>
+                        <td>Frais d'achat</td>
+                        <td class="amount">${formatNumber(data.purchaseFees)}</td>
+                    </tr>
+                    <tr>
+                        <td>Prix de vente</td>
+                        <td class="amount">${data.salePrice}</td>
+                    </tr>
+                    <tr>
+                        <td>Frais de vente</td>
+                        <td class="amount">${formatNumber(data.saleFees)}</td>
+                    </tr>
+                    <tr>
+                        <td>Durée du placement</td>
+                        <td class="amount">${formatNumber(data.duration)} jours</td>
+                    </tr>
+                    <tr>
+                        <td>Dividendes</td>
+                        <td class="amount">${data.dividendRate1}%</td>
+                    </tr>
+                `;
+                
+                if (data.dividendRate2) {
+                    html += `
+                        <tr>
+                            <td></td>
+                            <td class="amount">${data.dividendRate2.toFixed(2)}%</td>
+                        </tr>
+                    `;
+                }
+                
+                if (data.dividendRate3) {
+                    html += `
+                        <tr>
+                            <td></td>
+                            <td class="amount">${data.dividendRate3.toFixed(2)}%</td>
+                        </tr>
+                    `;
+                }
+                
+                table.innerHTML = html;
+                dataSection.appendChild(table);
+            }
+        }
+        
+    // Remplir les listes déroulantes avec toutes les options possibles
+    function populateDropdowns() {
+        const allOptions = [
+            "Prix d'achat", "Prix de vente", "Gain à la revente", "Perte à la revente",
+            "Report du gain", "Report de la perte", // CORRECTION: Ajout des nouvelles options
+            "Gain à la revente annualisé", "Perte à la revente annualisée", 
+            "Intérêt annuel", "Dividende 1", "Dividende 2", "Dividende 3",
+            "Total", "Total annualisé", "Taux de rendement"
+        ];
+        
+        // Mélanger les options
+        const shuffledOptions = shuffleArray([...allOptions]);
+        
+        const dropdowns = document.querySelectorAll('.rubrique');
+        dropdowns.forEach(dropdown => {
+            // Sauvegarder la sélection actuelle
+            const currentValue = dropdown.value;
+            
+            // Vider le dropdown
+            dropdown.innerHTML = '<option value="">Sélectionnez une rubrique</option>';
+            
+            // Ajouter toutes les options mélangées
+            shuffledOptions.forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option;
+                optionElement.textContent = option;
+                dropdown.appendChild(optionElement);
+            });
+            
+            // Restaurer la sélection si elle existe toujours
+            if (currentValue && shuffledOptions.includes(currentValue)) {
+                dropdown.value = currentValue;
+            }
+        });
+    }
+        
+        // Valider les réponses
+        function validateAnswers() {
+            const dropdowns = document.querySelectorAll('.rubrique');
+            const responseInputs = document.querySelectorAll('.reponse');
+            
+            // Supprimer les formules précédentes
+            document.querySelectorAll('.formula').forEach(el => el.remove());
+            
+            dropdowns.forEach((dropdown, index) => {
+                const responseInput = responseInputs[index];
+                
+                // Vérifier si la ligne est utilisée (a une réponse correcte)
+                if (index < correctAnswers.length) {
+                    const isCorrect = dropdown.value === correctAnswers[index];
+                    
+                    // Appliquer le style selon si c'est correct ou non
+                    if (isCorrect) {
+                        dropdown.classList.remove('incorrect');
+                        dropdown.classList.add('correct');
+                        responseInput.classList.remove('incorrect');
+                        responseInput.classList.add('correct');
+                    } else {
+                        dropdown.classList.remove('correct');
+                        dropdown.classList.add('incorrect');
+                        responseInput.classList.remove('correct');
+                        responseInput.classList.add('incorrect');
+                    }
+                    
+                    // Ajouter la formule à côté
+                    const formulaDiv = document.createElement('div');
+                    formulaDiv.className = 'formula';
+                    formulaDiv.textContent = formulas[index];
+                    responseInput.parentNode.appendChild(formulaDiv);
+                } else {
+                    // Désactiver les lignes non utilisées
+                    dropdown.disabled = true;
+                    responseInput.disabled = true;
+                    dropdown.classList.remove('correct', 'incorrect');
+                    responseInput.classList.remove('correct', 'incorrect');
+                }
+            });
+        }
+        
+// Afficher la solution
+function showSolution() {
+    const dropdowns = document.querySelectorAll('.rubrique');
+    const responseInputs = document.querySelectorAll('.reponse');
+    const calculationInputs = document.querySelectorAll('.calcul');
+    
+    // Supprimer les formules précédentes
+    document.querySelectorAll('.formula').forEach(el => el.remove());
+    
+    dropdowns.forEach((dropdown, index) => {
+        // Vérifier si la ligne est utilisée (a une réponse correcte)
+        if (index < correctAnswers.length) {
+            // Définir la bonne rubrique
+            dropdown.value = correctAnswers[index];
+            
+            // Définir la réponse correcte
+            let correctValue = "";
+            if (currentExercise.type === "obligation") {
+                const data = currentExercise.data;
+                switch(index) {
+                    case 0: correctValue = formatNumber(data.actualPurchasePrice); break;
+                    case 1: correctValue = formatNumber(data.actualSalePrice); break;
+                    case 2: correctValue = formatNumber(data.gainLoss); break;
+                    case 3: correctValue = formatNumber(data.annualizedGainLoss); break;
+                    case 4: correctValue = formatNumber(data.annualInterest); break;
+                    case 5: correctValue = formatNumber(data.total); break;
+                    case 6: correctValue = data.yieldRate + "%"; break;
+                }
+            } else {
+                const data = currentExercise.data;
+                // CORRECTION: Utiliser directement l'ordre des correctAnswers
+                switch(correctAnswers[index]) {
+                    case "Prix d'achat": correctValue = formatNumber(data.actualPurchasePrice); break;
+                    case "Prix de vente": correctValue = formatNumber(data.actualSalePrice); break;
+                    case "Gain à la revente": correctValue = formatNumber(data.gainLoss); break;
+                    case "Perte à la revente": correctValue = formatNumber(data.gainLoss); break;
+                    case "Report du gain": correctValue = formatNumber(data.gainLoss); break;
+                    case "Report de la perte": correctValue = formatNumber(data.gainLoss); break;
+                    case "Dividende 1": correctValue = formatNumber(data.dividend1); break;
+                    case "Dividende 2": correctValue = formatNumber(data.dividend2); break;
+                    case "Dividende 3": correctValue = formatNumber(data.dividend3); break;
+                    case "Total": correctValue = formatNumber(data.total); break;
+                    case "Total annualisé": correctValue = formatNumber(data.totalAnnualized); break;
+                    case "Taux de rendement": correctValue = data.yieldRate + "%"; break;
+                }
+            }
+            
+            responseInputs[index].value = correctValue;
+            calculationInputs[index].value = formulas[index];
+            
+            // Appliquer le style correct
+            dropdown.classList.remove('incorrect');
+            dropdown.classList.add('correct');
+            responseInputs[index].classList.remove('incorrect');
+            responseInputs[index].classList.add('correct');
+            
+            // Ajouter la formule à côté
+            const formulaDiv = document.createElement('div');
+            formulaDiv.className = 'formula';
+            formulaDiv.textContent = formulas[index];
+            responseInputs[index].parentNode.appendChild(formulaDiv);
+        } else {
+            // Désactiver les lignes non utilisées
+            dropdown.disabled = true;
+            responseInputs[index].disabled = true;
+            calculationInputs[index].disabled = true;
+            dropdown.classList.remove('correct', 'incorrect');
+            responseInputs[index].classList.remove('correct', 'incorrect');
+        }
+    });
+}
+        
+        // Réinitialiser l'interface
+        function resetInterface() {
+            // Réinitialiser les champs
+            document.querySelectorAll('.rubrique').forEach(dropdown => {
+                dropdown.value = "";
+                dropdown.disabled = false;
+                dropdown.classList.remove('correct', 'incorrect');
+            });
+            
+            document.querySelectorAll('.calcul').forEach(input => {
+                input.value = "";
+                input.disabled = false;
+            });
+            
+            document.querySelectorAll('.reponse').forEach(input => {
+                input.value = "";
+                input.disabled = false;
+                input.classList.remove('correct', 'incorrect');
+            });
+            
+            // Supprimer les formules
+            document.querySelectorAll('.formula').forEach(el => el.remove());
+        }
+        
+        // Quitter l'application
+        function quit() {
+            if (confirm("Êtes-vous sûr de vouloir quitter?")) {
+                window.close();
+            }
+        }
+    </script>
+</body>
+</html>

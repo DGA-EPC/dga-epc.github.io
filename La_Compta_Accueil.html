@@ -323,7 +323,7 @@
                         <a href="https://dga-epc.github.io/La_Compta_ClotureRI.html" target="_blank">35 Clôture raison individuelle</a>
                     </div>
                     <div class="chapter has-subchapters" onclick="openSAModal()">36 La SA (Société anonyme)</div>
-                    <div class="chapter no-link">54 Titres</div>
+					<div class="chapter has-subchapters" onclick="openTitresModal()">54 Titres</div>
                     <div class="chapter no-link">55 Immeubles</div>
                 </div>
             </div>
@@ -504,7 +504,29 @@
 			
             </ul>
         </div>		
-    </div>			
+    </div>		
+	
+    <div id="subTitresModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">54 Les titres - Parties</h3>
+                <button class="close-modal" onclick="closeTitresModal()">&times;</button>
+            </div>
+            <ul class="subchapters">
+                <li class="subchapter">
+                    <a href="https://dga-epc.github.io/La_Compta_Titres.html"  target="_blank">
+                        1. Journalisation
+                    </a>
+                </li>                <li class="subchapter">
+                    <a href="https://dga-epc.github.io/La_Compta_Titres-Rdmt.html"  target="_blank">
+                        2. Calcul du rendement des titres
+                    </a>
+                </li>
+
+			
+            </ul>
+        </div>		
+    </div>		
 	
     <script>
         function openModal() {
@@ -554,6 +576,13 @@
         function closeSAModal() {
             document.getElementById('subSAModal').style.display = 'none';
         }
+        function openTitresModal() {
+            document.getElementById('subTitresModal').style.display = 'flex';
+        }
+
+        function closeTitresModal() {
+            document.getElementById('subTitresModal').style.display = 'none';
+        }		
 
         // Fermer n'importe quelle modale en cliquant à l'extérieur
         document.addEventListener('click', function(event) {
