@@ -202,7 +202,7 @@
 <body>
     <header>
         <h2>Journalisation avec écritures multiples</h2>
-		<h1>La SA</h1>
+		<h1>Les salaires</h1>
     </header>
 
 
@@ -638,11 +638,7 @@ function markIncorrectCells(userEntries, correctSolution) {
         }
     });
     
-    // Pour les entrées manquantes, on pourrait ajouter une ligne rouge vide
-    // ou simplement les indiquer dans le feedback
-    if (missingEntries.length > 0) {
-        feedback.textContent += ` Il manque ${missingEntries.length} écriture(s).`;
-    }
+
 }	
 
         // Réinitialiser le jeu
@@ -760,14 +756,19 @@ function markIncorrectCells(userEntries, correctSolution) {
             `;
             
             tbody.appendChild(newRow);
+			
+		    // Focus sur la liste déroulante de gauche de la nouvelle ligne
+			const newDebitAccount = newRow.querySelector('.debit-account');
+			newDebitAccount.focus();	
+	
         }
 
         // Valider la réponse
-function validateAnswer() {
-    if (isValidationDone) return;
+		function validateAnswer() {
+			if (isValidationDone) return;
     
-    const userEntries = getUserEntries();
-    const correctSolution = accountingEntries[currentEntryIndex].solution;
+			const userEntries = getUserEntries();
+			const correctSolution = accountingEntries[currentEntryIndex].solution;
     
     // Vérifier si la réponse est correcte
     const isCorrect = checkSolution(userEntries, correctSolution);
@@ -906,12 +907,12 @@ function validateAnswer() {
         }
 
         // Afficher la solution correcte
-function showSolution(solution) {
-    const tbody = solutionTable.querySelector('tbody');
-    tbody.innerHTML = '';
+		function showSolution(solution) {
+			const tbody = solutionTable.querySelector('tbody');
+			tbody.innerHTML = '';
     
-    solution.forEach(entry => {
-        const row = document.createElement('tr');
+			solution.forEach(entry => {
+				const row = document.createElement('tr');
         
         row.innerHTML = `
             <td>${entry.debit || ''}</td>
@@ -926,17 +927,17 @@ function showSolution(solution) {
     solutionTable.style.display = 'table';
 }
 
-// Formater le montant avec apostrophe
-function formatAmount(amount) {
-    const num = typeof amount === 'number' ? amount : parseFloat(amount);
-    const parts = num.toFixed(2).split('.');
-    let integerPart = parts[0];
-    const decimalPart = parts[1];
+	// Formater le montant avec apostrophe
+		function formatAmount(amount) {
+			const num = typeof amount === 'number' ? amount : parseFloat(amount);
+			const parts = num.toFixed(2).split('.');
+			let integerPart = parts[0];
+			const decimalPart = parts[1];
     
-    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+			integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, "'");
     
-    return `${integerPart}.${decimalPart}`;
-}
+			return `${integerPart}.${decimalPart}`;
+		}
 
         // Passer à l'écriture suivante
         function nextEntry() {

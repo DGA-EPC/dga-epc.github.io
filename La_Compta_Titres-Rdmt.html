@@ -172,6 +172,14 @@
         .reponse {
             text-align: right;
         }
+
+.correct-rubrique {
+    font-size: 0.8em;
+    color: var(--dark-purple);
+    font-style: italic;
+    margin-top: 2px;
+}
+		
     </style>
 </head>
 <body>
@@ -498,7 +506,7 @@
         const totalDividends = dividend1 + dividend2 + dividend3;
         const total = totalDividends + gainLoss;
         const totalAnnualized = Math.round(total * 360 / duration);
-        const yieldRate = Math.round(total * 100 / actualPurchasePrice * 100) / 100;
+        const yieldRate = Math.round(totalAnnualized * 100 / actualPurchasePrice * 100) / 100;
         
         // Stocker les données
         currentExercise.data = {
@@ -563,7 +571,7 @@
         formulas.push(
             `= ${formatNumber(dividend1)} + ${formatNumber(dividend2)} + ${formatNumber(dividend3)} + ${formatNumber(gainLoss)} = ${formatNumber(total)}`,
             `= ${formatNumber(total)} × 360 / ${duration} = ${formatNumber(totalAnnualized)}`,
-            `= ${formatNumber(total)} × 100 / ${formatNumber(actualPurchasePrice)} = ${yieldRate}%`
+            `= ${formatNumber(totalAnnualized)} × 100 / ${formatNumber(actualPurchasePrice)} = ${yieldRate}%`
         );
     }
         
@@ -726,48 +734,154 @@
         });
     }
         
-        // Valider les réponses
-        function validateAnswers() {
-            const dropdowns = document.querySelectorAll('.rubrique');
-            const responseInputs = document.querySelectorAll('.reponse');
+// Valider les réponses
+function validateAnswers() {
+    const dropdowns = document.querySelectorAll('.rubrique');
+    const responseInputs = document.querySelectorAll('.reponse');
+    
+    // Supprimer les formules précédentes
+    document.querySelectorAll('.formula').forEach(el => el.remove());
+    
+    dropdowns.forEach((dropdown, index) => {
+        const responseInput = responseInputs[index];
+        
+        // Vérifier si la ligne est utilisée (a une réponse correcte)
+        if (index < correctAnswers.length) {
+            // Vérifier si l'étiquette ET le montant sont corrects
+            const isLabelCorrect = dropdown.value === correctAnswers[index];
+            const isAmountCorrect = checkAmountCorrect(index, responseInput.value);
             
-            // Supprimer les formules précédentes
-            document.querySelectorAll('.formula').forEach(el => el.remove());
+            // Appliquer le style séparément pour l'étiquette et le montant
+            if (isLabelCorrect) {
+                dropdown.classList.remove('incorrect');
+                dropdown.classList.add('correct');
+            } else {
+                dropdown.classList.remove('correct');
+                dropdown.classList.add('incorrect');
+            }
             
-            dropdowns.forEach((dropdown, index) => {
-                const responseInput = responseInputs[index];
-                
-                // Vérifier si la ligne est utilisée (a une réponse correcte)
-                if (index < correctAnswers.length) {
-                    const isCorrect = dropdown.value === correctAnswers[index];
-                    
-                    // Appliquer le style selon si c'est correct ou non
-                    if (isCorrect) {
-                        dropdown.classList.remove('incorrect');
-                        dropdown.classList.add('correct');
-                        responseInput.classList.remove('incorrect');
-                        responseInput.classList.add('correct');
-                    } else {
-                        dropdown.classList.remove('correct');
-                        dropdown.classList.add('incorrect');
-                        responseInput.classList.remove('correct');
-                        responseInput.classList.add('incorrect');
-                    }
-                    
-                    // Ajouter la formule à côté
-                    const formulaDiv = document.createElement('div');
-                    formulaDiv.className = 'formula';
-                    formulaDiv.textContent = formulas[index];
-                    responseInput.parentNode.appendChild(formulaDiv);
-                } else {
-                    // Désactiver les lignes non utilisées
-                    dropdown.disabled = true;
-                    responseInput.disabled = true;
-                    dropdown.classList.remove('correct', 'incorrect');
-                    responseInput.classList.remove('correct', 'incorrect');
-                }
-            });
+            if (isAmountCorrect) {
+                responseInput.classList.remove('incorrect');
+                responseInput.classList.add('correct');
+            } else {
+                responseInput.classList.remove('correct');
+                responseInput.classList.add('incorrect');
+            }
+            
+            // Ajouter la formule à côté
+            const formulaDiv = document.createElement('div');
+            formulaDiv.className = 'formula';
+            formulaDiv.textContent = formulas[index];
+            responseInput.parentNode.appendChild(formulaDiv);
+        } else {
+            // Désactiver les lignes non utilisées
+            dropdown.disabled = true;
+            responseInput.disabled = true;
+            dropdown.classList.remove('correct', 'incorrect');
+            responseInput.classList.remove('correct', 'incorrect');
         }
+    });
+}
+
+// Nouvelle fonction pour vérifier si le montant est correct
+function checkAmountCorrect(index, userInput) {
+    // Nettoyer l'entrée utilisateur (supprimer les séparateurs et espaces)
+    const cleanUserInput = userInput.replace(/['\s]/g, '');
+    
+    if (currentExercise.type === "obligation") {
+        const data = currentExercise.data;
+        let correctValue = "";
+        switch(index) {
+            case 0: correctValue = data.actualPurchasePrice.toString(); break;
+            case 1: correctValue = data.actualSalePrice.toString(); break;
+            case 2: correctValue = data.gainLoss.toString(); break;
+            case 3: correctValue = data.annualizedGainLoss.toString(); break;
+            case 4: correctValue = data.annualInterest.toString(); break;
+            case 5: correctValue = data.total.toString(); break;
+            case 6: correctValue = data.yieldRate.toString(); break;
+        }
+        return cleanUserInput === correctValue || 
+               (index === 6 && cleanUserInput === correctValue + "%");
+    } else {
+        const data = currentExercise.data;
+        let correctValue = "";
+        switch(correctAnswers[index]) {
+            case "Prix d'achat": correctValue = data.actualPurchasePrice.toString(); break;
+            case "Prix de vente": correctValue = data.actualSalePrice.toString(); break;
+            case "Gain à la revente": 
+            case "Perte à la revente":
+            case "Report du gain": 
+            case "Report de la perte": 
+                correctValue = data.gainLoss.toString(); break;
+            case "Dividende 1": correctValue = data.dividend1.toString(); break;
+            case "Dividende 2": correctValue = data.dividend2.toString(); break;
+            case "Dividende 3": correctValue = data.dividend3.toString(); break;
+            case "Total": correctValue = data.total.toString(); break;
+            case "Total annualisé": correctValue = data.totalAnnualized.toString(); break;
+            case "Taux de rendement": correctValue = data.yieldRate.toString(); break;
+        }
+        return cleanUserInput === correctValue || 
+               (correctAnswers[index] === "Taux de rendement" && cleanUserInput === correctValue + "%");
+    }
+}
+
+// Valider les réponses
+function validateAnswers() {
+    const dropdowns = document.querySelectorAll('.rubrique');
+    const responseInputs = document.querySelectorAll('.reponse');
+    
+    // Supprimer les formules précédentes et les messages d'erreur précédents
+    document.querySelectorAll('.formula, .correct-rubrique').forEach(el => el.remove());
+    
+    dropdowns.forEach((dropdown, index) => {
+        const responseInput = responseInputs[index];
+        
+        // Vérifier si la ligne est utilisée (a une réponse correcte)
+        if (index < correctAnswers.length) {
+            // Vérifier si l'étiquette ET le montant sont corrects
+            const isLabelCorrect = dropdown.value === correctAnswers[index];
+            const isAmountCorrect = checkAmountCorrect(index, responseInput.value);
+            
+            // Appliquer le style séparément pour l'étiquette et le montant
+            if (isLabelCorrect) {
+                dropdown.classList.remove('incorrect');
+                dropdown.classList.add('correct');
+            } else {
+                dropdown.classList.remove('correct');
+                dropdown.classList.add('incorrect');
+                
+                // Afficher la bonne rubrique sous l'étiquette incorrecte
+                const correctRubriqueDiv = document.createElement('div');
+                correctRubriqueDiv.className = 'correct-rubrique';
+                correctRubriqueDiv.style.cssText = 'font-size: 0.8em; color: #4B0082; font-style: italic; margin-top: 2px;';
+                correctRubriqueDiv.textContent = `Correct: ${correctAnswers[index]}`;
+                dropdown.parentNode.appendChild(correctRubriqueDiv);
+            }
+            
+            if (isAmountCorrect) {
+                responseInput.classList.remove('incorrect');
+                responseInput.classList.add('correct');
+            } else {
+                responseInput.classList.remove('correct');
+                responseInput.classList.add('incorrect');
+            }
+            
+            // Ajouter la formule à côté
+            const formulaDiv = document.createElement('div');
+            formulaDiv.className = 'formula';
+            formulaDiv.textContent = formulas[index];
+            responseInput.parentNode.appendChild(formulaDiv);
+        } else {
+            // Désactiver les lignes non utilisées
+            dropdown.disabled = true;
+            responseInput.disabled = true;
+            dropdown.classList.remove('correct', 'incorrect');
+            responseInput.classList.remove('correct', 'incorrect');
+        }
+    });
+}
+
+
         
 // Afficher la solution
 function showSolution() {
@@ -867,9 +981,9 @@ function showSolution() {
         
         // Quitter l'application
         function quit() {
-            if (confirm("Êtes-vous sûr de vouloir quitter?")) {
+            
                 window.close();
-            }
+            
         }
     </script>
 </body>

@@ -554,6 +554,7 @@
             restartBtn.style.display = 'block';
         }
 
+
         // Réinitialiser le jeu
         function restartGame() {
             // Réinitialiser les variables d'état
@@ -669,6 +670,11 @@
             `;
             
             tbody.appendChild(newRow);
+			
+			// Focus sur la liste déroulante de gauche de la nouvelle ligne
+			const newDebitAccount = newRow.querySelector('.debit-account');
+			newDebitAccount.focus();	
+			
         }
 
         // Valider la réponse

@@ -786,6 +786,11 @@ function markIncorrectCells(userEntries, correctSolution) {
             `;
             
             tbody.appendChild(newRow);
+			
+			// Focus sur la liste déroulante de gauche de la nouvelle ligne
+			const newDebitAccount = newRow.querySelector('.debit-account');
+			newDebitAccount.focus();				
+			
         }
 
         // Valider la réponse

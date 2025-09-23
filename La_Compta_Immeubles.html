@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+			// Focus sur la liste déroulante de gauche de la nouvelle ligne
+			const newDebitAccount = newRow.querySelector('.debit-account');
+			newDebitAccount.focus();	<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -22,8 +24,8 @@
             color: white;
             border-radius: 20px;
             margin-bottom: 20px;
-			border-top: 8px solid #24f400;
-			border-bottom: 6px solid #ffff00;
+            border-top: 5px solid yellow;
+            border-bottom: 5px solid blue;
         }
         footer {
             margin-top: 20px;
@@ -202,8 +204,8 @@
 <body>
     <header>
         <h2>Journalisation avec écritures multiples</h2>
-		<h1>Les titres</h1>
-		<h4>NB : Les opérations sur titres sont effectuées par la banque</h4>
+		<h1>Les immeubles</h1>
+		<h4>Sauf indication contraire, il s'agit d'<strong>immeubles locatifs</strong></h4>
     </header>
 
 
@@ -236,18 +238,19 @@
                                     <option value="Poste">Poste</option>
 									<option value="Banque">Banque</option>
 									<option value="Créances clients">Créances clients</option>
-									<option value="Créances AFC">Créances AFC</option>
-									<option value="Titres">Titres</option>
+									<option value="Autres créances">Autres créances</option>
 									<option value="Stock de marchandises">Stock de marchandises</option>
-									<option value="Actifs transitoires">Actifs transitoires</option>
+									<option value="Machines">Machines</option>
 									<option value="Véhicules">Véhicules</option>
+									<option value="Immeubles">Immeubles</option>
+									<option value="FAC sur immeubles">FAC sur immeubles</option>
                                     </optgroup>
                                 <optgroup label="PASSIF">
                                     <option value="Dettes fournisseurs">Dettes fournisseurs</option>
-									<option value="Dettes AFC">Dettes AFC</option>
-									<option value="Provision pour fluctuations">Provision pour fluctuations</option>
-									<option value="Passifs transitoires">Passifs transitoires</option>
+									<option value="Autres dettes">Autres dettes</option>
+									<option value="Dette hypothécaire">Dette hypothécaire</option>
 									<option value="Capital">Capital</option>
+									<option value="Privé">Privé</option>
                                 </optgroup>
                                 <optgroup label="MARCHANDISES">
                                     <option value="Ventes de marchandises">Ventes de marchandises</option>
@@ -255,17 +258,20 @@
                                 </optgroup>
                                 <optgroup label="CHARGES ET PRODUITS">
                                     <option value="Salaires">Salaires</option>
+									<option value="Charges sociales">Charges sociales</option>
                                     <option value="Loyers">Loyers</option>
 									<option value="Electricité">Electricité</option>
-									<option value="Frais de véhicules">Frais de véhicules</option>
+									<option value="Entretien et réparations">Entretien et réparations</option>
 									<option value="Frais d'administration">Frais d'administration</option>
-									<option value="ACE">ACE</option>
+									<option value="Assurances">Assurances</option>
 									<option value="Amortissements">Amortissements</option>
-									<option value="Produits financiers">Produits financiers</option>
 									<option value="Charges financières">Charges financières</option>
-									<option value="Charges des titres">Charges des titres</option>
-									<option value="Produits des titres">Produits des titres</option>
-                                </optgroup>
+									<option value="Produits financiers">Produits financiers</option>
+									<option value="Charges d'immeubles">Charges d'immeubles</option>
+									<option value="Produits d'immeubles">Produits d'immeubles</option>
+									<option value="Charges exceptionnelles">Charges exceptionnelles</option>
+									<option value="Produits exceptionnels">Produits exceptionnels</option>									
+								</optgroup>
                             </select>
                         </td>
                         <td>
@@ -276,18 +282,19 @@
                                     <option value="Poste">Poste</option>
 									<option value="Banque">Banque</option>
 									<option value="Créances clients">Créances clients</option>
-									<option value="Créances AFC">Créances AFC</option>
-									<option value="Titres">Titres</option>
+									<option value="Autres créances">Autres créances</option>
 									<option value="Stock de marchandises">Stock de marchandises</option>
-									<option value="Actifs transitoires">Actifs transitoires</option>
+									<option value="Machines">Machines</option>
 									<option value="Véhicules">Véhicules</option>
+									<option value="Immeubles">Immeubles</option>
+									<option value="FAC sur immeubles">FAC sur immeubles</option>
                                     </optgroup>
                                 <optgroup label="PASSIF">
                                     <option value="Dettes fournisseurs">Dettes fournisseurs</option>
-									<option value="Dettes AFC">Dettes AFC</option>
-									<option value="Provision pour fluctuations">Provision pour fluctuations</option>
-									<option value="Passifs transitoires">Passifs transitoires</option>
+									<option value="Autres dettes">Autres dettes</option>
+									<option value="Dette hypothécaire">Dette hypothécaire</option>
 									<option value="Capital">Capital</option>
+									<option value="Privé">Privé</option>
                                 </optgroup>
                                 <optgroup label="MARCHANDISES">
                                     <option value="Ventes de marchandises">Ventes de marchandises</option>
@@ -295,17 +302,21 @@
                                 </optgroup>
                                 <optgroup label="CHARGES ET PRODUITS">
                                     <option value="Salaires">Salaires</option>
+									<option value="Charges sociales">Charges sociales</option>
                                     <option value="Loyers">Loyers</option>
 									<option value="Electricité">Electricité</option>
-									<option value="Frais de véhicules">Frais de véhicules</option>
+									<option value="Entretien et réparations">Entretien et réparations</option>
 									<option value="Frais d'administration">Frais d'administration</option>
-									<option value="ACE">ACE</option>
+									<option value="Assurances">Assurances</option>
 									<option value="Amortissements">Amortissements</option>
-									<option value="Produits financiers">Produits financiers</option>
 									<option value="Charges financières">Charges financières</option>
-									<option value="Charges des titres">Charges des titres</option>
-									<option value="Produits des titres">Produits des titres</option>
-                                </optgroup>
+									<option value="Produits financiers">Produits financiers</option>
+									<option value="Charges d'immeubles">Charges d'immeubles</option>
+									<option value="Produits d'immeubles">Produits d'immeubles</option>
+									<option value="Charges exceptionnelles">Charges exceptionnelles</option>
+									<option value="Produits exceptionnels">Produits exceptionnels</option>
+
+								</optgroup>
                             </select>
                         </td>
                         <td><input type="number" class="debit-amount" min="0" step="0.01" style="text-align: right;"></td>
@@ -331,8 +342,8 @@
                 <tr>
                     <th>Comptes débités</th>
                     <th>Comptes crédités</th>
-                    <th>Montant débité (CHF)</th>
-                    <th>Montant crédité (CHF)</th>
+                    <th>Montant débité</th>
+                    <th>Montant crédité</th>
                 </tr>
             </thead>
             <tbody>
@@ -354,111 +365,101 @@
         // Données des écritures comptables
         let accountingEntries = [
 
-
 		{
-			description: "Achat de CHF 10'000 d'obligations Samsung 3% au cours de 102. Frais et courtage CHF 200. Valeur : 15.01. Echéance : 15.09.",
-				solution: [
-				{ debit: "Titres", credit: "", amount: 10400 },
-				{ debit: "Produits des titres", credit: "", amount: 100 },
-				{ debit: "", credit: "Banque", amount: 10500 }
-			]
-		},
-		{
-			description: "Achat de 200 actions Nestlé au cours de 26 (Valeur nominale 10). Frais et courtage CHF 170.-.",
-				solution: [
-				{ debit: "Titres", credit: "Banque", amount: 5370 }
-			]
-		},
-		{
-			description: "Avis de crédit de la banque pour les dividendes bruts de CHF 360.- sur les actions Nestlé.",
-				solution: [
-				{ debit: "Banque", credit: "", amount: 234 },
-				{ debit: "Créances AFC", credit: "", amount: 126 },
-				{ debit: "", credit: "Produits des titres", amount: 360 }
-			]
-		},
-		{
-			description: "Vente de 500 actions UBS au cours de 12. Frais et courtage CHF 160.-.",
-				solution: [
-				{ debit: "Banque", credit: "Titres", amount: 5840 }
-			]
-		},
-		{
-			description: "Achat de 100 coupons de souscription Nestlé à CHF 2.60 sans frais.",
-				solution: [
-				{ debit: "Titres", credit: "Banque", amount: 260 }
-			]
-		},
-		{
-			description: "Libération à 60% de 100 actions Ursi SA à CHF 60 (valeur nominale CHF 10).",
-				solution: [
-				{ debit: "Titres", credit: "Banque", amount: 5600 }
-			]
-		},
-		{
-			description: "Reçu les intérêts les obligations Samsung. Taux 3%. Valeur nominale CHF 20'000. Cours 105.\nIl n'y a pas d'impôt anticipé.",
-				solution: [
-				{ debit: "Banque", credit: "Produits des titres", amount: 600 }
-			]
-		},
-		{
-			description: "Vente de CHF 10'000 d'obligations au cours 101. Intérêts courus CHF 130.- et frais CHF 170.-.",
-				solution: [
-				{ debit: "Banque", credit: "", amount: 10060 },
-				{ debit: "", credit: "Titres", amount: 9930 },
-				{ debit: "", credit: "Produits des titres", amount: 130 }
-			]
-		},
-		{
-			description: "A la clôture, la valeur marché des titres atteint CHF 5000. Solde du compte Titres 4500.\nAjuster le compte Titres sans effet sur le résultat.",
-				solution: [
-				{ debit: "Titres", credit: "Produits des titres", amount: 500 },
-				{ debit: "Charges des titres", credit: "Provision pour fluctuations", amount: 500 }
-			]
-		},
-		{
-			description: "Intérêts courus sur obligations Samsung: 3% annuel pour 10 mois.\nValeur nominale : 20'000.-. Cours : 103.",
-				solution: [
-				{ debit: "Actifs transitoires", credit: "Produits des titres", amount: 500 }
-			]
-		},
-		{
-			description: "Reçu le dividende de 30% sur les 500 actions Cornalis. Valeur nominale 10. Cours 85.\nTenir compte de l'impôt anticipé.",
+			description: "Vente d'un immeuble 1' 200. Il figure dans nos comptes pour une valeur amortie de 800. Le montant est viré à la poste.",
 			solution: [
-				{ debit: "Banque", credit: "", amount: 975 },
-				{ debit: "Créances AFC", credit: "", amount: 525 },
-				{ debit: "", credit: "Produits des titres", amount: 1500 }
+				{ debit: "Banque", credit: "", amount: 1200 },
+				{ debit: "", credit: "Immeubles", amount: 1200 },
+				{ debit: "FAC s/immeuble", credit: "Immeubles", amount: 800 },
+				{ debit: "Immeubles", credit: "Produits exceptionnels", amount: 600 }
 			]
 		},
 		{
-			description: "Vente de 300 bons de souscription à CHF 12 avec frais CHF 30",
-				solution: [
-				{ debit: "Banque", credit: "Titres", amount: 3570 }
+			description: "Paiement de l'annuité hypothécaire trimestrielle:\nAmortissement\tCHF 1'500.-\nIntérêts\tCHF   800.-\n\Annuité\t\tCHF 2'300.-",
+			solution: [
+				{ debit: "Dette hypothécaire", credit: "", amount: 1500 },
+				{ debit: "", credit: "Banque", amount: 2300 },
+				{ debit: "Charges d'immeubles", credit: "", amount: 800 }
 			]
 		},
 		{
-			description: "A la clôture, la valeur marché des titres atteint CHF 5000. Solde du compte Titres 6000.\nAjuster le compte Titres si la loi l'oblige uniquement.",
-				solution: [
-				{ debit: "Charges des titres", credit: "Titres", amount: 1000 }
-				]
+			description: "Encaissement des loyers des appartements locatifs, CHF 700.",
+			solution: [
+				{ debit: "Banque", credit: "Produits d'immeubles", amount: 700 }
+			]
 		},
 		{
-				description: "La banque prélève CHF 250.- de notre compte courant pour les frais de gestion du portefeuille titres.",
-				solution: [
-				{ debit: "Charges des titres", credit: "Banque", amount: 250 }
-		]
+			description: "Paiement par poste des frais de notaire pour l'acquisition d'un nouvel immeuble, CHF 5'000.-.",
+			solution: [
+				{ debit: "Immeubles", credit: "Poste", amount: 5000 }
+			]
+		},
+		{
+			description: "Tenir compte d'un loyer de 900 pour l'appartement qu'occupe le propriétaire de l'entreprise dans notre immeuble. ",
+			solution: [
+				{ debit: "Privé", credit: "Produits d'immeubles", amount: 900 }
+			]
+		},
+		{
+			description: "Paiement du salaire du concierge de notre immeuble locatif :\nSalaire brut\t\tCHF 450\nRetenue pour le loyer\tCHF 150\nVersé par poste\t\tCHF 300",
+			solution: [
+				{ debit: "Charges d'immeubles", credit: "", amount: 450 },
+				{ debit: "", credit: "Produits d'immeubles", amount: 150 },
+				{ debit: "", credit: "Poste", amount: 300 }
+			]
+		},
+		{
+			description: "Amortissement constant et indirect de l'immeuble commercial, 300.",
+			solution: [
+				{ debit: "Amortissements", credit: "FAC sur immeubles", amount: 300 }
+			]
+		},
+		{
+			description: "Amortissement constant et direct de l'immeuble locatif, 400",
+			solution: [
+				{ debit: "Charges d'immeubles", credit: "Immeubles", amount: 400 }
+			]
+		},
+		{
+			description: "Paiement par poste des charges d'électricité :\npour l'immeuble locatif:\tCHF   600\npour l'entreprise\t\tCHF   800\nTotal\t\t\t\tCHF 1'400",
+			solution: [
+				{ debit: "Charges d'immeubles", credit: "", amount: 600 },
+				{ debit: "Electricité", credit: "", amount: 800 },
+				{ debit: "", credit: "Poste", amount: 1400 }
+			]
+		},
+		{
+			description: "Reprise de dette hypothécaire lors de l'achat d'un immeuble, 800",
+			solution: [
+				{ debit: "Autres dettes", credit: "Dette hypothécaire", amount: 800 }
+			]
+		},
+		{
+			description: "Comptabilisation des frais de ramoneur pour notre immeuble, 300",
+			solution: [
+				{ debit: "Charges d'immeubles", credit: "Autres dettes", amount: 300 }
+			]
+		},
+		{
+			description: "Paiement par banque de diverses assurances :\n- RC d'entreprise\t300\n- ECAB*\t\t\t100\n- RC du patron\t\t 60\n- Total\t\t\t460\n\n*ECAB = assurance incendie pour les immeubles (Etablissement cantonal d'assurance bâtiment).",
+			solution: [
+				{ debit: "", credit: "Banque", amount: 460 },
+				{ debit: "Assurances", credit: "", amount: 300 },
+				{ debit: "Charges d'immeubles", credit: "", amount: 100 },
+				{ debit: "Privé", credit: "", amount: 60 }
+			]
 		}
 
 	
             /* Ajouter d'autres écritures ici par la suite
 			,
 			{
-                description: "",
+                description: """,
                 solution: [
                     { debit: "", credit: "", amount:  },
 					{ debit: "", credit: "", amount:   }
                 ]
-            },
+            }
 			*/
 			
 			
@@ -541,9 +542,8 @@
             completionMessage.style.display = 'block';
             restartBtn.style.display = 'block';
         }
-
-			
-			// Marquer les cellules incorrectes en rouge
+		
+// Marquer les cellules incorrectes en rouge
 function markIncorrectCells(userEntries, correctSolution) {
     const rows = entriesTable.querySelectorAll('tbody tr');
     
@@ -555,11 +555,8 @@ function markIncorrectCells(userEntries, correctSolution) {
         row.querySelector('.credit-amount').style.backgroundColor = '';
     });
     
-    // Créer une copie des entrées utilisateur pour les marquer au fur et à mesure
-    const userEntriesToCheck = [...userEntries];
-    const correctEntries = [];
-    
     // Convertir la solution correcte en format comparable
+    const correctEntries = [];
     correctSolution.forEach(entry => {
         if (entry.debit) {
             correctEntries.push({
@@ -577,71 +574,29 @@ function markIncorrectCells(userEntries, correctSolution) {
         }
     });
     
-    // Première passe : marquer les entrées correctes
-    const correctUserEntries = [];
-    
-    correctEntries.forEach(correctEntry => {
-        const userEntryIndex = userEntriesToCheck.findIndex(userEntry => 
-            userEntry.account === correctEntry.account && 
-            userEntry.type === correctEntry.type && 
-            userEntry.amount === correctEntry.amount
+    // Marquer les cellules incorrectes
+    userEntries.forEach((userEntry, index) => {
+        const correspondingCorrect = correctEntries.find(correct => 
+            correct.account === userEntry.account && 
+            correct.type === userEntry.type && 
+            correct.amount === userEntry.amount
         );
         
-        if (userEntryIndex !== -1) {
-            correctUserEntries.push(userEntriesToCheck[userEntryIndex]);
-            userEntriesToCheck.splice(userEntryIndex, 1);
-        }
-    });
-    
-    // Deuxième passe : marquer les entrées incorrectes restantes
-    userEntriesToCheck.forEach(incorrectEntry => {
-        // Trouver la ligne où se trouve cette entrée incorrecte
-        let found = false;
-        
-        for (let i = 0; i < rows.length && !found; i++) {
-            const row = rows[i];
-            const debitAccount = row.querySelector('.debit-account').value;
-            const creditAccount = row.querySelector('.credit-account').value;
-            const debitAmount = parseFloat(row.querySelector('.debit-amount').value) || 0;
-            const creditAmount = parseFloat(row.querySelector('.credit-amount').value) || 0;
-            
-            if (incorrectEntry.type === 'debit' && 
-                debitAccount === incorrectEntry.account && 
-                debitAmount === incorrectEntry.amount) {
-                
-                row.querySelector('.debit-account').style.backgroundColor = '#ffcccc';
-                row.querySelector('.debit-amount').style.backgroundColor = '#ffcccc';
-                found = true;
-            }
-            else if (incorrectEntry.type === 'credit' && 
-                     creditAccount === incorrectEntry.account && 
-                     creditAmount === incorrectEntry.amount) {
-                
-                row.querySelector('.credit-account').style.backgroundColor = '#ffcccc';
-                row.querySelector('.credit-amount').style.backgroundColor = '#ffcccc';
-                found = true;
+        if (!correspondingCorrect) {
+            // Trouver la ligne et la cellule correspondante
+            const rowIndex = Math.floor(index / 2); // 2 entrées par ligne (débit et crédit)
+            if (rows[rowIndex]) {
+                if (userEntry.type === 'debit') {
+                    rows[rowIndex].querySelector('.debit-account').style.backgroundColor = '#ffcccc';
+                    rows[rowIndex].querySelector('.debit-amount').style.backgroundColor = '#ffcccc';
+                } else {
+                    rows[rowIndex].querySelector('.credit-account').style.backgroundColor = '#ffcccc';
+                    rows[rowIndex].querySelector('.credit-amount').style.backgroundColor = '#ffcccc';
+                }
             }
         }
     });
-    
-    // Troisième passe : vérifier les entrées manquantes (dans la solution mais pas chez l'utilisateur)
-    const missingEntries = [];
-    const userEntriesCopy = [...userEntries];
-    
-    correctEntries.forEach(correctEntry => {
-        const exists = userEntriesCopy.some(userEntry => 
-            userEntry.account === correctEntry.account && 
-            userEntry.type === correctEntry.type && 
-            userEntry.amount === correctEntry.amount
-        );
-        
-        if (!exists) {
-            missingEntries.push(correctEntry);
-        }
-    });
-    
-
-}	
+}		
 
         // Réinitialiser le jeu
         function restartGame() {
@@ -681,18 +636,19 @@ function markIncorrectCells(userEntries, correctSolution) {
                                     <option value="Poste">Poste</option>
 									<option value="Banque">Banque</option>
 									<option value="Créances clients">Créances clients</option>
-									<option value="Créances AFC">Créances AFC</option>
-									<option value="Titres">Titres</option>
+									<option value="Autres créances">Autres créances</option>
 									<option value="Stock de marchandises">Stock de marchandises</option>
-									<option value="Actifs transitoires">Actifs transitoires</option>
+									<option value="Machines">Machines</option>
 									<option value="Véhicules">Véhicules</option>
+									<option value="Immeubles">Immeubles</option>
+									<option value="FAC sur immeubles">FAC sur immeubles</option>
                                     </optgroup>
                                 <optgroup label="PASSIF">
                                     <option value="Dettes fournisseurs">Dettes fournisseurs</option>
-									<option value="Dettes AFC">Dettes AFC</option>
-									<option value="Provision pour fluctuations">Provision pour fluctuations</option>
-									<option value="Passifs transitoires">Passifs transitoires</option>
+									<option value="Autres dettes">Autres dettes</option>
+									<option value="Dette hypothécaire">Dette hypothécaire</option>
 									<option value="Capital">Capital</option>
+									<option value="Privé">Privé</option>
                                 </optgroup>
                                 <optgroup label="MARCHANDISES">
                                     <option value="Ventes de marchandises">Ventes de marchandises</option>
@@ -700,17 +656,20 @@ function markIncorrectCells(userEntries, correctSolution) {
                                 </optgroup>
                                 <optgroup label="CHARGES ET PRODUITS">
                                     <option value="Salaires">Salaires</option>
+									<option value="Charges sociales">Charges sociales</option>
                                     <option value="Loyers">Loyers</option>
 									<option value="Electricité">Electricité</option>
-									<option value="Frais de véhicules">Frais de véhicules</option>
+									<option value="Entretien et réparations">Entretien et réparations</option>
 									<option value="Frais d'administration">Frais d'administration</option>
-									<option value="ACE">ACE</option>
+									<option value="Assurances">Assurances</option>
 									<option value="Amortissements">Amortissements</option>
-									<option value="Produits financiers">Produits financiers</option>
 									<option value="Charges financières">Charges financières</option>
-									<option value="Charges des titres">Charges des titres</option>
-									<option value="Produits des titres">Produits des titres</option>
-                                </optgroup>
+									<option value="Produits financiers">Produits financiers</option>
+									<option value="Charges d'immeubles">Charges d'immeubles</option>
+									<option value="Produits d'immeubles">Produits d'immeubles</option>
+									<option value="Charges exceptionnelles">Charges exceptionnelles</option>
+									<option value="Produits exceptionnels">Produits exceptionnels</option>									
+								</optgroup>
                             </select>
                         </td>
                         <td>
@@ -721,18 +680,19 @@ function markIncorrectCells(userEntries, correctSolution) {
                                     <option value="Poste">Poste</option>
 									<option value="Banque">Banque</option>
 									<option value="Créances clients">Créances clients</option>
-									<option value="Créances AFC">Créances AFC</option>
-									<option value="Titres">Titres</option>
+									<option value="Autres créances">Autres créances</option>
 									<option value="Stock de marchandises">Stock de marchandises</option>
-									<option value="Actifs transitoires">Actifs transitoires</option>
+									<option value="Machines">Machines</option>
 									<option value="Véhicules">Véhicules</option>
+									<option value="Immeubles">Immeubles</option>
+									<option value="FAC sur immeubles">FAC sur immeubles</option>
                                     </optgroup>
                                 <optgroup label="PASSIF">
                                     <option value="Dettes fournisseurs">Dettes fournisseurs</option>
-									<option value="Dettes AFC">Dettes AFC</option>
-									<option value="Provision pour fluctuations">Provision pour fluctuations</option>
-									<option value="Passifs transitoires">Passifs transitoires</option>
+									<option value="Autres dettes">Autres dettes</option>
+									<option value="Dette hypothécaire">Dette hypothécaire</option>
 									<option value="Capital">Capital</option>
+									<option value="Privé">Privé</option>
                                 </optgroup>
                                 <optgroup label="MARCHANDISES">
                                     <option value="Ventes de marchandises">Ventes de marchandises</option>
@@ -740,17 +700,20 @@ function markIncorrectCells(userEntries, correctSolution) {
                                 </optgroup>
                                 <optgroup label="CHARGES ET PRODUITS">
                                     <option value="Salaires">Salaires</option>
+									<option value="Charges sociales">Charges sociales</option>
                                     <option value="Loyers">Loyers</option>
 									<option value="Electricité">Electricité</option>
-									<option value="Frais de véhicules">Frais de véhicules</option>
+									<option value="Entretien et réparations">Entretien et réparations</option>
 									<option value="Frais d'administration">Frais d'administration</option>
-									<option value="ACE">ACE</option>
+									<option value="Assurances">Assurances</option>
 									<option value="Amortissements">Amortissements</option>
-									<option value="Produits financiers">Produits financiers</option>
 									<option value="Charges financières">Charges financières</option>
-									<option value="Charges des titres">Charges des titres</option>
-									<option value="Produits des titres">Produits des titres</option>
-                                </optgroup>
+									<option value="Produits financiers">Produits financiers</option>
+									<option value="Charges d'immeubles">Charges d'immeubles</option>
+									<option value="Produits d'immeubles">Produits d'immeubles</option>
+									<option value="Charges exceptionnelles">Charges exceptionnelles</option>
+									<option value="Produits exceptionnels">Produits exceptionnels</option>									
+								</optgroup>
                             </select>
                         </td>
                 <td><input type="number" class="debit-amount" min="0" step="100" style="text-align: right;"></td>
@@ -766,36 +729,35 @@ function markIncorrectCells(userEntries, correctSolution) {
         }
 
         // Valider la réponse
-        function validateAnswer() {
-            if (isValidationDone) return;
-            
-            const userEntries = getUserEntries();
-            const correctSolution = accountingEntries[currentEntryIndex].solution;
-            
-            // Vérifier si la réponse est correcte
-            const isCorrect = checkSolution(userEntries, correctSolution);
-            
-            if (isCorrect) {
-                feedback.textContent = "Bravo ! Votre réponse est correcte.";
-                feedback.className = "feedback correct";
-                score++;
-            } else {
-                feedback.textContent = "Voici la bonne réponse :";
-                feedback.className = "feedback incorrect";
-                showSolution(correctSolution);
-				
+function validateAnswer() {
+    if (isValidationDone) return;
+    
+    const userEntries = getUserEntries();
+    const correctSolution = accountingEntries[currentEntryIndex].solution;
+    
+    // Vérifier si la réponse est correcte
+    const isCorrect = checkSolution(userEntries, correctSolution);
+    
+    if (isCorrect) {
+        feedback.textContent = "Bravo ! Votre réponse est correcte.";
+        feedback.className = "feedback correct";
+        score++;
+    } else {
+        feedback.textContent = "Voici la bonne réponse :";
+        feedback.className = "feedback incorrect";
+        showSolution(correctSolution);
+        
         // Marquer les cellules incorrectes en rouge
         markIncorrectCells(userEntries, correctSolution);
-		
-            }
-            
-            feedback.style.display = 'block';
-            validateBtn.disabled = true;
-            nextBtn.disabled = false;
-            isValidationDone = true;
-            remainingEntries--;
-            updateStats();
-        }
+    }
+    
+    feedback.style.display = 'block';
+    validateBtn.disabled = true;
+    nextBtn.disabled = false;
+    isValidationDone = true;
+    remainingEntries--;
+    updateStats();
+}
 
         // Obtenir les entrées de l'utilisateur
         function getUserEntries() {

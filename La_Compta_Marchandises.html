@@ -558,6 +558,107 @@
             restartBtn.style.display = 'block';
         }
 
+			
+			// Marquer les cellules incorrectes en rouge
+function markIncorrectCells(userEntries, correctSolution) {
+    const rows = entriesTable.querySelectorAll('tbody tr');
+    
+    // Réinitialiser toutes les couleurs d'abord
+    rows.forEach(row => {
+        row.querySelector('.debit-account').style.backgroundColor = '';
+        row.querySelector('.credit-account').style.backgroundColor = '';
+        row.querySelector('.debit-amount').style.backgroundColor = '';
+        row.querySelector('.credit-amount').style.backgroundColor = '';
+    });
+    
+    // Créer une copie des entrées utilisateur pour les marquer au fur et à mesure
+    const userEntriesToCheck = [...userEntries];
+    const correctEntries = [];
+    
+    // Convertir la solution correcte en format comparable
+    correctSolution.forEach(entry => {
+        if (entry.debit) {
+            correctEntries.push({
+                account: entry.debit,
+                type: 'debit',
+                amount: entry.amount
+            });
+        }
+        if (entry.credit) {
+            correctEntries.push({
+                account: entry.credit,
+                type: 'credit',
+                amount: entry.amount
+            });
+        }
+    });
+    
+    // Première passe : marquer les entrées correctes
+    const correctUserEntries = [];
+    
+    correctEntries.forEach(correctEntry => {
+        const userEntryIndex = userEntriesToCheck.findIndex(userEntry => 
+            userEntry.account === correctEntry.account && 
+            userEntry.type === correctEntry.type && 
+            userEntry.amount === correctEntry.amount
+        );
+        
+        if (userEntryIndex !== -1) {
+            correctUserEntries.push(userEntriesToCheck[userEntryIndex]);
+            userEntriesToCheck.splice(userEntryIndex, 1);
+        }
+    });
+    
+    // Deuxième passe : marquer les entrées incorrectes restantes
+    userEntriesToCheck.forEach(incorrectEntry => {
+        // Trouver la ligne où se trouve cette entrée incorrecte
+        let found = false;
+        
+        for (let i = 0; i < rows.length && !found; i++) {
+            const row = rows[i];
+            const debitAccount = row.querySelector('.debit-account').value;
+            const creditAccount = row.querySelector('.credit-account').value;
+            const debitAmount = parseFloat(row.querySelector('.debit-amount').value) || 0;
+            const creditAmount = parseFloat(row.querySelector('.credit-amount').value) || 0;
+            
+            if (incorrectEntry.type === 'debit' && 
+                debitAccount === incorrectEntry.account && 
+                debitAmount === incorrectEntry.amount) {
+                
+                row.querySelector('.debit-account').style.backgroundColor = '#ffcccc';
+                row.querySelector('.debit-amount').style.backgroundColor = '#ffcccc';
+                found = true;
+            }
+            else if (incorrectEntry.type === 'credit' && 
+                     creditAccount === incorrectEntry.account && 
+                     creditAmount === incorrectEntry.amount) {
+                
+                row.querySelector('.credit-account').style.backgroundColor = '#ffcccc';
+                row.querySelector('.credit-amount').style.backgroundColor = '#ffcccc';
+                found = true;
+            }
+        }
+    });
+    
+    // Troisième passe : vérifier les entrées manquantes (dans la solution mais pas chez l'utilisateur)
+    const missingEntries = [];
+    const userEntriesCopy = [...userEntries];
+    
+    correctEntries.forEach(correctEntry => {
+        const exists = userEntriesCopy.some(userEntry => 
+            userEntry.account === correctEntry.account && 
+            userEntry.type === correctEntry.type && 
+            userEntry.amount === correctEntry.amount
+        );
+        
+        if (!exists) {
+            missingEntries.push(correctEntry);
+        }
+    });
+    
+
+}	
+
         // Réinitialiser le jeu
         function restartGame() {
             // Réinitialiser les variables d'état
@@ -675,6 +776,11 @@
             `;
             
             tbody.appendChild(newRow);
+			
+			// Focus sur la liste déroulante de gauche de la nouvelle ligne
+			const newDebitAccount = newRow.querySelector('.debit-account');
+			newDebitAccount.focus();	
+			
         }
 
         // Valider la réponse
@@ -695,6 +801,9 @@
                 feedback.textContent = "Voici la bonne réponse :";
                 feedback.className = "feedback incorrect";
                 showSolution(correctSolution);
+			
+			// Marquer les cellules incorrectes en rouge
+			markIncorrectCells(userEntries, correctSolution);				
             }
             
             feedback.style.display = 'block';
