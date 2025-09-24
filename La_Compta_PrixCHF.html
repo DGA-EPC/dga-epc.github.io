@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schéma des Prix Simple</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #000000;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background-color: #4b0082; /* Violet foncé */
+            color: white;
+            padding: 2px;
+			position: relative;
+			max-width: 1000px;
+			margin: 0 auto 30px;
+            border-top: 5px solid yellow;
+            border-bottom: 5px solid blue;
+            text-align: center;
+			border-radius: 20px;
+			box-shadow: 0px 0px 15px 5px rgba(246,255,117,0.8);
+        }
+        
+        .content {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+		.problem {
+			flex: 1;
+			background-color: #fff0f5; /* Nouvelle couleur de fond (rose très clair) */
+			padding: 15px;
+			max-width: 400px;
+			border-radius: 5px;
+			box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+			width: 20%; /* Rendre la boite plus étroite */
+		}
+        
+        .table-container {
+            flex: 1;
+			background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: right;
+        }
+        
+		th:first-child, td:first-child {
+			text-align: left; /* Excepté la première colonne (Rubrique) qui reste à gauche */
+		}
+
+		/* Ajustement des largeurs de colonnes */
+		th:nth-child(1), td:nth-child(1) { /* Colonne Rubrique */
+			width: 25%; /* Légèrement élargie */
+		}
+
+		th:nth-child(2), td:nth-child(2) { /* Colonne Montant */
+			width: 20%; /* Ajustée automatiquement */
+		}
+
+		th:nth-child(3), td:nth-child(3) { /* Première colonne % */
+			width: 15%; /* Légèrement rétrécie */
+		}
+
+		th:nth-child(4), td:nth-child(4) { /* Deuxième colonne % */
+			width: 15%; /* Légèrement rétrécie */
+		}		
+		
+        th {
+            background-color: #f2f2f2;
+        }
+        
+        input {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+			text-align: right;
+        }
+        
+        .correct {
+            background-color: #d4edda;
+        }
+        
+        .incorrect {
+            background-color: #f8d7da;
+        }
+        
+        .solution {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+			
+        }
+        
+        button {
+            padding: 10px 20px;
+			margin-right: 20px;
+			border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+			transition: background-color 0.3s, transform 0.1s;
+        }
+        button:hover {
+            transform: translateY(-3px);
+			box-shadow: 6px 6px 8px rgba(0,0,0,0.6);	
+        }		
+        
+        #validate {
+            background-color: #61b865;
+            color: white;
+        }
+		#validate:hover {
+            background-color: #00b50d;
+			box-shadow: 0px 0px 15px 5px rgba(0,255,49,0.6);
+        }
+        
+        #new {
+            background-color: #ffbf47;
+            color: white;
+        }
+        #new:hover {
+            background-color: #ffa500;
+			box-shadow: 0px 0px 10px 5px rgba(255,255,75, 0.6);	
+        }        
+        #solution {
+            background-color: #5eabcc;
+            color: white;
+        }
+        #solution:hover {
+            background-color: #0088c2;
+            box-shadow: 0px 0px 10px 5px rgba(120,255,255, 0.6);
+        }		
+        
+        #quit {
+            background-color: #ff4747;
+            color: white;
+        }
+        #quit:hover {
+            background-color: #ff0000;
+			box-shadow: 0px 0px 10px 5px rgba(255,55,55, 0.6);
+        }		
+        
+        .hidden {
+            display: none;
+        }
+        
+        .solution-text {
+            color: #28a745;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+		.info-icon {
+			position: absolute;
+			top: 15px;
+			right: 15px;
+			background-color: #51FF46;
+			color: black;
+			border-radius: 50%;
+			width: 24px;
+			height: 24px;
+			text-align: center;
+			line-height: 24px;
+			font-weight: bold;
+			cursor: pointer;
+			font-size: 16px;
+			font-style: italic;
+			font-family: serif;
+			box-shadow: 0px 0px 5px rgba(0,0,0,0.5);
+			transition: all 0.3s ease;
+		}
+
+		.info-icon:hover {
+			background-color: #FDCF00;
+			transform: scale(1.1);
+		}
+		
+		.info-icon:hover::after {
+			content: "Rappel de la théorie";
+			position: absolute;
+			top: -30px;
+			right: 0;
+			background: #333;
+			color: white;
+			padding: 5px 10px;
+			border-radius: 4px;
+			font-size: 12px;
+			white-space: nowrap;
+			font-style: normal;
+			font-family: Arial, sans-serif;
+		}
+
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 1000;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0,0,0,0.7);
+		}
+
+		.modal-content {
+			background-color: #3c3c54;
+			margin: 5% auto;
+			padding: 25px;
+			border-radius: 10px;
+			width: 80%;
+			max-width: 600px;
+			border: 3px solid #51FF46;
+			box-shadow: 0px 0px 20px rgba(81, 255, 70, 0.5);
+			position: relative;
+		}
+
+		.close {
+			color: #ff4747;
+			float: right;
+			font-size: 28px;
+			font-weight: bold;
+			cursor: pointer;
+			line-height: 1;
+		}
+
+		.close:hover {
+			color: #ff0000;
+			text-shadow: 0px 0px 10px rgba(255, 0, 0, 0.7);
+		}
+		
+		.theory-title {
+			color: #51FF46;
+			border-bottom: 2px solid #FDCF00;
+			padding-bottom: 10px;
+			margin-top: 0;
+		}
+
+		.theory-content {
+			line-height: 1.6;
+			margin-top: 15px;
+			color: white;
+		}		
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Le schéma des prix simple avec montant</h1>
+		<div class="info-icon" onclick="showTheory()">i</div>
+	</div>
+	
+	<div class="container">
+        <div class="content">
+            <div class="problem" id="problem-text">
+                <!-- Le texte du problème sera généré ici -->
+            </div>
+            
+            <div class="table-container">
+                <table id="price-table">
+                    <thead>
+                        <tr>
+                            <th>Rubrique</th>
+                            <th>Montant</th>
+                            <th>%</th>
+                            <th>%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Les lignes du tableau seront générées ici -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button id="validate">Valider</button>
+            <button id="new">Nouvel exercice</button>
+            <button id="solution">Afficher la solution</button>
+            <button id="quit">Quitter</button>
+        </div>
+    </div>
+
+		<!-- Pop-up théorique -->
+		<div id="theoryModal" class="modal">
+			<div class="modal-content">
+				<span class="close" onclick="closeTheory()">&times;</span>
+				<h2 class="theory-title">Rappel théorique - Calcul des montants</h2>
+				<div class="theory-content">
+					<p>1. Poser les montants et les % tirés de la donnée.</p>
+					<p>2. Compléter les trios de %. Réfléchissez : Quel est le 100% ?<br>
+					Exemple : BB 20% du <strong>PVN</strong> donne dans le schéma :</p>
+					<p>PRA......80%<br>BB........20%<br>PVN....100%</p>
+					<p>Alors que: BB 20% du <strong>PRA</strong> donne dans le schéma :</p>
+					<p>PRA.....100%<br>BB........20%<br>PVN....120%</p>
+					<p>Pigé ?</p>
+					<p>3. Calculer les montants manquant</p>
+				</div>
+			</div>
+		</div>
+
+    <script>
+        // Variables globales
+        let currentExerciseType; // 'PAB' ou 'PVB'
+        let exerciseData = {};
+        let correctValues = {};
+        let solutionDisplayed = false;
+
+        // Éléments DOM
+        const problemText = document.getElementById('problem-text');
+        const tableBody = document.querySelector('#price-table tbody');
+        const validateBtn = document.getElementById('validate');
+        const newBtn = document.getElementById('new');
+        const solutionBtn = document.getElementById('solution');
+        const quitBtn = document.getElementById('quit');
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            generateExercise();
+            
+            // Événements des boutons
+            validateBtn.addEventListener('click', validateAnswers);
+            newBtn.addEventListener('click', generateExercise);
+            solutionBtn.addEventListener('click', showSolution);
+            quitBtn.addEventListener('click', function() {
+                
+                    window.close();
+                
+            });
+        });
+
+        // Générer un nouvel exercice
+        function generateExercise() {
+            // Choisir aléatoirement entre PAB et PVB
+            currentExerciseType = Math.random() > 0.5 ? 'PAB' : 'PVB';
+            
+            // Réinitialiser
+            solutionDisplayed = false;
+            tableBody.innerHTML = '';
+            correctValues = {};
+            
+            // Générer les données aléatoires
+            generateRandomData();
+            
+            // Générer le texte du problème
+            generateProblemText();
+            
+            // Générer le tableau
+            generateTable();
+        }
+
+        // Générer des données aléatoires selon le type d'exercice
+        function generateRandomData() {
+            if (currentExerciseType === 'PAB') {
+                // Données pour "A partir du PAB"
+                exerciseData = {
+                    PAB: Math.floor(Math.random() * 11 + 10) * 500, // 10-20 * 500
+                    rabaisPercent: Math.floor(Math.random() * 16 + 5), // 5-20%
+                    FA: Math.floor(Math.random() * 13 + 8) * 10, // 8-20 * 10
+                    BBPercent: Math.floor(Math.random() * 7 + 4) * 5, // 4-10 * 5
+                    escomptePercent: Math.floor(Math.random() * 2 + 1) * 2 // 1-2 * 2
+                };
+                
+                // Calculer les valeurs correctes
+                calculatePABValues();
+            } else {
+                // Données pour "A partir du PVB"
+                exerciseData = {
+                    PVB: Math.floor(Math.random() * 9 + 2) * 500, // 2-10 * 500
+                    rabaisPercent: Math.floor(Math.random() * 3 + 2) * 5, // 2-4 * 5
+                    FA: Math.floor(Math.random() * 13 + 8) * 10, // 8-20 * 10
+                    BBPercent: Math.floor(Math.random() * 7 + 4) * 5, // 4-10 * 5
+                    escomptePercent: Math.floor(Math.random() * 2 + 1) * 2 // 1-2 * 2
+                };
+                
+                // Calculer les valeurs correctes
+                calculatePVBValues();
+            }
+        }
+
+// Calculer les valeurs pour l'exercice "A partir du PAB"
+function calculatePABValues() {
+    const data = exerciseData;
+    
+    // PAB
+    correctValues.PAB_montant = data.PAB;
+    correctValues.PAB_percent = 100;
+    
+    // Rabais
+    correctValues.rabais_montant = data.PAB * data.rabaisPercent / 100;
+    correctValues.rabais_percent = data.rabaisPercent;
+    
+    // PAN
+    correctValues.PAN_montant = data.PAB - correctValues.rabais_montant;
+    correctValues.PAN_percent = 100 - data.rabaisPercent;
+    
+    // FA
+    correctValues.FA_montant = data.FA;
+    correctValues.FA_percent = ''; // Pas de % pour FA
+    
+    // PRA
+    correctValues.PRA_montant = correctValues.PAN_montant + data.FA;
+    correctValues.PRA_percent = ''; // Pas de % pour PRA
+    
+    // Déterminer si BB est sur PVN ou PRA
+    const BBsurPVN = data.BBPercent < 36;
+    
+    // BB
+    if (BBsurPVN) {
+        correctValues.BB_montant = Math.round(correctValues.PRA_montant * data.BBPercent / (100 - data.BBPercent) * 20) / 20;
+        correctValues.BB_percent = '';
+        correctValues.BB_percent2 = data.BBPercent;
+        
+        // PVN
+        correctValues.PVN_montant = correctValues.PRA_montant + correctValues.BB_montant;
+        correctValues.PVN_percent = 100 - data.escomptePercent;
+        correctValues.PVN_percent2 = 100; // % de droite = 100 quand BB sur PVN
+        
+        // PRA
+        correctValues.PRA_percent2 = 100 - data.BBPercent;
+    } else {
+        correctValues.BB_montant = Math.round(correctValues.PRA_montant * data.BBPercent / 100 * 20) / 20;
+        correctValues.BB_percent = '';
+        correctValues.BB_percent2 = data.BBPercent;
+        
+        // PVN
+        correctValues.PVN_montant = correctValues.PRA_montant + correctValues.BB_montant;
+        correctValues.PVN_percent = 100 - data.escomptePercent;
+        correctValues.PVN_percent2 = 100 + data.BBPercent; // % de droite = 100 + BB% quand BB sur PRA
+        
+        // PRA
+        correctValues.PRA_percent2 = 100;
+    }
+    
+		// Escompte
+		correctValues.escompte_montant = Math.round(correctValues.PVN_montant * data.escomptePercent / (100 - data.escomptePercent) * 20) / 20;
+		correctValues.escompte_percent = data.escomptePercent;
+    
+		// PVB
+		correctValues.PVB_montant = correctValues.PVN_montant + correctValues.escompte_montant;
+		correctValues.PVB_percent = 100;
+}
+
+        // Calculer les valeurs pour l'exercice "A partir du PVB"
+        function calculatePVBValues() {
+            const data = exerciseData;
+            
+            // PVB
+            correctValues.PVB_montant = data.PVB;
+            correctValues.PVB_percent = 100;
+            
+            // Rabais
+            correctValues.rabais_montant = data.PVB * data.rabaisPercent / 100;
+            correctValues.rabais_percent = data.rabaisPercent;
+            
+            // PVN
+            correctValues.PVN_montant = data.PVB - correctValues.rabais_montant;
+            correctValues.PVN_percent = 100 - data.rabaisPercent;
+            
+            // Déterminer si BB est sur PVN ou PRA
+            const BBsurPVN = data.BBPercent < 36;
+            
+            // BB
+            if (BBsurPVN) {
+                correctValues.BB_montant = Math.round(correctValues.PVN_montant * data.BBPercent / 100 * 20) / 20;
+                correctValues.BB_percent = ''; // Pas de % pour BB
+                correctValues.BB_percent2 = data.BBPercent;
+                
+                // PRA
+                correctValues.PRA_montant = correctValues.PVN_montant - correctValues.BB_montant;
+                correctValues.PRA_percent = ''; // Pas de % pour PRA
+                correctValues.PRA_percent2 = 100 - data.BBPercent;
+                
+                // PVN
+                correctValues.PVN_percent2 = 100;
+            } else {
+                correctValues.BB_montant = Math.round(correctValues.PVN_montant * data.BBPercent / (100 + data.BBPercent) * 20) / 20;
+                correctValues.BB_percent = ''; // Pas de % pour BB
+                correctValues.BB_percent2 = data.BBPercent;
+                
+                // PRA
+                correctValues.PRA_montant = correctValues.PVN_montant - correctValues.BB_montant;
+                correctValues.PRA_percent = ''; // Pas de % pour PRA
+                correctValues.PRA_percent2 = 100;
+                
+                // PVN
+                correctValues.PVN_percent2 = 100 + data.BBPercent;
+            }
+            
+            // FA
+            correctValues.FA_montant = data.FA;
+            correctValues.FA_percent = ''; // Pas de % pour FA
+            
+            // PAN
+            correctValues.PAN_montant = correctValues.PRA_montant - data.FA;
+            correctValues.PAN_percent = 100 - data.escomptePercent;
+            
+            // Escompte
+            correctValues.escompte_montant = Math.round(correctValues.PAN_montant * data.escomptePercent / (100 - data.escomptePercent) * 20) / 20;
+            correctValues.escompte_percent = data.escomptePercent;
+            
+            // PAB
+            correctValues.PAB_montant = correctValues.PAN_montant + correctValues.escompte_montant;
+            correctValues.PAB_percent = 100;
+        }
+
+        // Générer le texte du problème
+        function generateProblemText() {
+            if (currentExerciseType === 'PAB') {
+                const BBsurPVN = exerciseData.BBPercent < 36;
+                problemText.innerHTML = `
+                    <p><strong>Problème</strong></p>
+                    <p>Un commerce achète un article CHF ${exerciseData.PAB}. Il obtient une remise de ${exerciseData.rabaisPercent}%. Les frais d'achat s'élèvent à CHF ${exerciseData.FA}.</p>
+                    <p>La marge brute du commerçant est de ${exerciseData.BBPercent}% ${BBsurPVN ? 'sur le PVN' : 'sur le PRA'}. Il accorde généralement un escompte de ${exerciseData.escomptePercent}% à ses clients.</p>
+                    <p>Calculez le PVB.</p>
+                `;
+            } else {
+                const BBsurPVN = exerciseData.BBPercent < 36;
+                problemText.innerHTML = `
+                    <p><strong>Problème</strong></p>
+                    <p>Un article est affiché en vitrine CHF ${exerciseData.PVB}. Grâce à une promotion, il affiche un rabais de ${exerciseData.rabaisPercent}%.</p>
+                    <p>La marge brute du commerçant est de ${exerciseData.BBPercent}% ${BBsurPVN ? 'sur le PVN' : 'sur le PRA'}. Les frais d'achat s'étant élevés à CHF ${exerciseData.FA} et son fournisseur lui accordant un escompte de ${exerciseData.escomptePercent}%, calculez le PAB de cet article.</p>
+                `;
+            }
+        }
+
+		// Générer le tableau avec les champs à remplir
+		function generateTable() {
+			const rubriques = currentExerciseType === 'PAB' 
+				? ['PAB', '- rabais', 'PAN', '+ FA', 'PRA', '+ BB', 'PVN', '+ escompte', 'PVB']
+				: ['PAB', '- escompte', 'PAN', '+ FA', 'PRA', '+ BB', 'PVN', '+ rabais', 'PVB'];
+    
+			rubriques.forEach(rubrique => {
+				const row = document.createElement('tr');
+				const rubriqueKey = rubrique.replace(/[+\s-]/g, '');
+			
+        
+				// Colonne Rubrique
+				const rubriqueCell = document.createElement('td');
+				rubriqueCell.textContent = rubrique;
+				row.appendChild(rubriqueCell);
+        
+				// Colonne Montant
+				const montantCell = document.createElement('td');
+				const montantInput = document.createElement('input');
+				montantInput.type = 'number';
+				montantInput.step = '0.05';
+				montantInput.dataset.rubrique = rubriqueKey;
+				montantInput.dataset.type = 'montant';
+				montantCell.appendChild(montantInput);
+				row.appendChild(montantCell);
+        
+				// Colonne %
+		const percentCell = document.createElement('td');
+
+		// Pour FA, PRA et BB, ne pas afficher d'input dans la colonne % de gauche
+		// Mais POUR ESCOMPTE on doit afficher l'input
+		if (!['FA', 'PRA', 'BB', 'Escompte'].includes(rubriqueKey) || rubriqueKey === 'Escompte') {
+			const percentInput = document.createElement('input');
+			percentInput.type = 'number';
+			percentInput.step = '0.01';
+			percentInput.dataset.rubrique = rubriqueKey;
+			percentInput.dataset.type = 'percent';
+			percentCell.appendChild(percentInput);
+		}
+
+		row.appendChild(percentCell);
+        
+			// Colonne % supplémentaire
+		const percent2Cell = document.createElement('td');
+
+		// Pour PRA, PVN, BB et Escompte, afficher l'input dans la colonne % de droite
+		if (['PRA', 'PVN', 'BB'].includes(rubriqueKey)) {
+			const percent2Input = document.createElement('input');
+			percent2Input.type = 'number';
+			percent2Input.step = '0.01';
+			percent2Input.dataset.rubrique = rubriqueKey;
+			percent2Input.dataset.type = 'percent2';
+			percent2Cell.appendChild(percent2Input);
+}
+
+row.appendChild(percent2Cell);
+        
+        tableBody.appendChild(row);
+    });
+}
+
+        // Valider les réponses
+        function validateAnswers() {
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                const rubrique = input.dataset.rubrique;
+                const type = input.dataset.type;
+                const userValue = parseFloat(input.value);
+                const correctValue = correctValues[`${rubrique}_${type}`];
+                
+                // Supprimer les anciennes solutions
+                const existingSolution = input.parentNode.querySelector('.solution-text');
+                if (existingSolution) {
+                    existingSolution.remove();
+                }
+                
+                // Vérifier si la valeur est correcte (avec une tolérance de 0.05 pour les montants, 0.1 pour les %)
+                const tolerance = type === 'montant' ? 0.05 : 0.1;
+                const isCorrect = !isNaN(userValue) && Math.abs(userValue - correctValue) <= tolerance;
+                
+                // Appliquer les classes CSS
+                input.classList.remove('correct', 'incorrect');
+                input.classList.add(isCorrect ? 'correct' : 'incorrect');
+                
+                // Afficher la solution si la réponse est incorrecte
+                if (!isCorrect && correctValue !== undefined && correctValue !== '') {
+                    const solutionSpan = document.createElement('span');
+                    solutionSpan.className = 'solution-text';
+                    solutionSpan.textContent = ` ${correctValue.toFixed(2)}`;
+                    input.parentNode.appendChild(solutionSpan);
+                }
+            });
+        }
+
+        // Afficher la solution
+        function showSolution() {
+            solutionDisplayed = true;
+            
+            // Remplir tous les champs avec les valeurs correctes
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                const rubrique = input.dataset.rubrique;
+                const type = input.dataset.type;
+                const correctValue = correctValues[`${rubrique}_${type}`];
+                
+                if (correctValue !== undefined && correctValue !== '') {
+                    input.value = correctValue.toFixed(2);
+                }
+            });
+            
+            // Valider pour afficher les couleurs
+            validateAnswers();
+        }
+		
+		// Fonctions pour le pop-up théorique
+		function showTheory() {
+			document.getElementById('theoryModal').style.display = 'block';
+		}
+
+		function closeTheory() {
+			document.getElementById('theoryModal').style.display = 'none';
+		}
+
+		// Fermer le pop-up si on clique en dehors
+		window.onclick = function(event) {
+			const modal = document.getElementById('theoryModal');
+			if (event.target === modal) {
+				closeTheory();
+			}
+		}		
+    </script>
+</body>
+</html>
