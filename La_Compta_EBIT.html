@@ -103,6 +103,21 @@
 		.btn-valide:hover {
 			background-color: #00b50d;
 		}
+		.btn-quit {
+			background-color: #ff4747;
+			color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s, transform 0.1s;
+		}
+		.btn-quit:hover {
+			transform: translateY(-3px);
+			box-shadow: 0px 0px 15px 10px rgba(200,100,100,0.6);	
+			background-color: #ff0000;
+		}		
 		
 		.btn-solution {
 			background-color: #5eabcc;
@@ -265,6 +280,96 @@
         vertical-align: middle;
     }
 	
+		.info-icon {
+			position: absolute;
+			top: 15px;
+			right: 15px;
+			background-color: #51FF46;
+			color: black;
+			border-radius: 50%;
+			width: 24px;
+			height: 24px;
+			text-align: center;
+			line-height: 24px;
+			font-weight: bold;
+			cursor: pointer;
+			font-size: 16px;
+			font-style: italic;
+			font-family: serif;
+			box-shadow: 0px 0px 5px rgba(0,0,0,0.5);
+			transition: all 0.3s ease;
+		}
+
+		.info-icon:hover {
+			background-color: #FDCF00;
+			transform: scale(1.1);
+		}
+		
+		.info-icon:hover::after {
+			content: "Rappel de la théorie";
+			position: absolute;
+			top: -30px;
+			right: 0;
+			background: #333;
+			color: white;
+			padding: 5px 10px;
+			border-radius: 4px;
+			font-size: 12px;
+			white-space: nowrap;
+			font-style: normal;
+			font-family: Arial, sans-serif;
+		}
+
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 1000;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0,0,0,0.7);
+		}
+
+		.modal-content {
+			background-color: #3c3c54;
+			margin: 5% auto;
+			padding: 25px;
+			border-radius: 10px;
+			width: 80%;
+			max-width: 700px;
+			border: 3px solid #51FF46;
+			box-shadow: 0px 0px 20px rgba(81, 255, 70, 0.5);
+			position: relative;
+		}
+
+		.close {
+			color: #ff4747;
+			float: right;
+			font-size: 28px;
+			font-weight: bold;
+			cursor: pointer;
+			line-height: 1;
+		}
+
+		.close:hover {
+			color: #ff0000;
+			text-shadow: 0px 0px 10px rgba(255, 0, 0, 0.7);
+		}
+		
+		.theory-title {
+			color: #51FF46;
+			border-bottom: 2px solid #FDCF00;
+			padding-bottom: 10px;
+			margin-top: 0;
+		}
+
+		.theory-content {
+			line-height: 1.6;
+			margin-top: 15px;
+			color: white;
+		}	
+	
     </style>
 </head>
 <body>
@@ -274,6 +379,7 @@
 	<div>
 	<header>
         <h1>Le Compte de Résultat</h1>
+		<div class="info-icon" onclick="showTheory()">i</div>
     </header>
 	</div>
 
@@ -290,10 +396,12 @@
                 <button class="btn">Commencer</button>
             </div>
         </div>
-    <footer>
-	<br>
-        "Je fais de la compta et c'est ma joie!", DG, EPC-Fribourg
-    </footer>
+	<footer>
+		<br>
+		"Je fais de la compta et c'est ma joie!", DG, EPC-Fribourg
+		<br><br>
+		<button class="btn-quit" onclick="window.close()">Quitter</button>
+	</footer>
 
     </div>
 
@@ -881,9 +989,45 @@ function calculateTotals() {
                 }
             }
         }
+		
+		// Fonctions pour le pop-up théorique
+		function showTheory() {
+			document.getElementById('theoryModal').style.display = 'block';
+		}
+
+		function closeTheory() {
+			document.getElementById('theoryModal').style.display = 'none';
+		}
+
+		// Fermer le pop-up si on clique en dehors
+		window.onclick = function(event) {
+			const modal = document.getElementById('theoryModal');
+			if (event.target === modal) {
+				closeTheory();
+			}
+		}		
 
         // Initialiser la page d'accueil
         showHome();
     </script>
+	
+		<!-- Pop-up théorique -->
+		<div id="theoryModal" class="modal">
+			<div class="modal-content">
+				<span class="close" onclick="closeTheory()">&times;</span>
+				<h2 class="theory-title">Rappel théorique</h2>
+				<div class="theory-content">
+					<p>Le code des obligations dit que le compte de Résultat doit faire ressortir le résultat net.<br>Bien insuffisant pour une analyse financière sérieuse.</p>
+					<p><br>C'est pourquoi, des normes fixent une présention qui permet de faire ressortir :</p>
+					<p><strong>Le résultat brut</strong>, appelé en pratique Bénéfice brut et, parfois, mais à tord, Marge brute</p>
+					<p><strong>EBITDA</strong> : Earning Before Interest, Taxes, Depreciation and Amortization (Gain avant intérêts, impôts et amortissements)</p>
+					<p><strong>EBIT</strong> : Earning Before Interest and Taxes (Gain avant intérêts et impôts)</p>
+					<p><strong>EBT</strong> : Earning Before Taxes (Gain avant impôts)</p>
+					<p><strong>Le résultat net d'exploitation</strong> : Gain ou la perte liée à l'activé de l'entreprise.</p>
+					<p><strong>Le résultat de l'exercice</strong> : Inclut les charges et produits exceptionnels.</p>
+				</div>
+			</div>
+		</div>
+		
 </body>
 </html>

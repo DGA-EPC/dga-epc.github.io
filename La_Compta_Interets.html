@@ -15,6 +15,7 @@
         .header {
             text-align: center;
             padding: 15px;
+			position: relative;
             border-top: 5px solid #1EFF00;
             border-bottom: 5px solid #FF9000;
             background-color: #78004f;
@@ -124,11 +125,102 @@
             color: #D32F2F;
             font-weight: bold;
         }
+
+		.info-icon {
+			position: absolute;
+			top: 15px;
+			right: 15px;
+			background-color: #51FF46;
+			color: black;
+			border-radius: 50%;
+			width: 24px;
+			height: 24px;
+			text-align: center;
+			line-height: 24px;
+			font-weight: bold;
+			cursor: pointer;
+			font-size: 16px;
+			font-style: italic;
+			font-family: serif;
+			box-shadow: 0px 0px 5px rgba(0,0,0,0.5);
+			transition: all 0.3s ease;
+		}
+
+		.info-icon:hover {
+			background-color: #FDCF00;
+			transform: scale(1.1);
+		}
+		
+		.info-icon:hover::after {
+			content: "Rappel de la théorie";
+			position: absolute;
+			top: -30px;
+			right: 0;
+			background: #333;
+			color: white;
+			padding: 5px 10px;
+			border-radius: 4px;
+			font-size: 12px;
+			white-space: nowrap;
+			font-style: normal;
+			font-family: Arial, sans-serif;
+		}
+
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 1000;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0,0,0,0.7);
+		}
+
+		.modal-content {
+			background-color: #3c3c54;
+			margin: 5% auto;
+			padding: 25px;
+			border-radius: 10px;
+			width: 80%;
+			max-width: 600px;
+			border: 3px solid #51FF46;
+			box-shadow: 0px 0px 20px rgba(81, 255, 70, 0.5);
+			position: relative;
+		}
+
+		.close {
+			color: #ff4747;
+			float: right;
+			font-size: 28px;
+			font-weight: bold;
+			cursor: pointer;
+			line-height: 1;
+		}
+
+		.close:hover {
+			color: #ff0000;
+			text-shadow: 0px 0px 10px rgba(255, 0, 0, 0.7);
+		}
+		
+		.theory-title {
+			color: #51FF46;
+			border-bottom: 2px solid #FDCF00;
+			padding-bottom: 10px;
+			margin-top: 0;
+		}
+
+		.theory-content {
+			line-height: 1;
+			margin-top: 15px;
+			color: white;
+		}		
     </style>
 </head>
 <body>
     <div class="header">
         <h1>Le calcul des intérêts</h1>
+		<div class="info-icon" onclick="showTheory()">i</div>
     </div>
 
     <div class="container">
@@ -329,13 +421,45 @@ const interest = roundedInterest.toFixed(2);
             solutionDiv.style.display = 'block';
         }
         
+		// Fonctions pour le pop-up théorique
+		function showTheory() {
+			document.getElementById('theoryModal').style.display = 'block';
+		}
+
+		function closeTheory() {
+			document.getElementById('theoryModal').style.display = 'none';
+		}
+
+		// Fermer le pop-up si on clique en dehors
+		window.onclick = function(event) {
+			const modal = document.getElementById('theoryModal');
+			if (event.target === modal) {
+				closeTheory();
+			}
+		}		
+		
         // Générer un problème au chargement de la page
         window.onload = generateProblem;
     </script>
-
-<div style="text-align: center; margin-top: 30px; font-style: italic; color: #7B1FA2; padding: 10px;">
-    "Je fais de la compta et c'est ma joie!"
-</div>
 	
+		<div style="text-align: center; margin-top: 30px; font-style: italic; color: #ffb5fb; padding: 10px;">
+			"Je fais de la compta et c'est ma joie!", DG, EPC Fribourg
+		</div>
+	
+		<!-- Pop-up théorique -->
+		<div id="theoryModal" class="modal">
+			<div class="modal-content">
+				<span class="close" onclick="closeTheory()">&times;</span>
+				<h2 class="theory-title">Rappel théorique - Le calcul des intérêts</h2>
+				<div class="theory-content">
+					<p>Formule de base à retenir : COTON!</p>
+					<p>c x t x n<br>-------- = i <br>    36000</p>
+					<p><br>i = intérêts en CHF<br>c = capital (montant le plus gros de la donnée!)<br>t = taux d'intérêt<br>n = nombre de jours</p>
+					<p>Remarque : si n = nombre de mois, on divise par 1200, car il y a 12 mois dans l'année (et x100 car 5% = 5 / 100)</p>
+					<p><br>Chercher autre chose que i, c'est toujours i x 36000 divisé par les autres variables!
+				</div>
+			</div>
+		</div>
+		
 </body>
 </html>

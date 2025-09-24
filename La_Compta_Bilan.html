@@ -26,7 +26,8 @@
             color: white;
             width: 100%;
             max-width: 800px;
-            padding: 20px;
+            position: relative;
+			padding: 20px;
             border-radius: 12px;
             margin-bottom: 30px;
             text-align: center;
@@ -148,12 +149,131 @@
                 grid-template-columns: 1fr;
             }
         }
+		
+		.info-icon {
+			position: absolute;
+			top: 15px;
+			right: 15px;
+			background-color: #51FF46;
+			color: black;
+			border-radius: 50%;
+			width: 24px;
+			height: 24px;
+			text-align: center;
+			line-height: 24px;
+			font-weight: bold;
+			cursor: pointer;
+			font-size: 16px;
+			font-style: italic;
+			font-family: serif;
+			box-shadow: 0px 0px 5px rgba(0,0,0,0.5);
+			transition: all 0.3s ease;
+		}
+
+		.info-icon:hover {
+			background-color: #FDCF00;
+			transform: scale(1.1);
+		}
+		
+		.info-icon:hover::after {
+			content: "Rappel de la théorie";
+			position: absolute;
+			top: -30px;
+			right: 0;
+			background: #333;
+			color: white;
+			padding: 5px 10px;
+			border-radius: 4px;
+			font-size: 12px;
+			white-space: nowrap;
+			font-style: normal;
+			font-family: Arial, sans-serif;
+		}
+
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 1000;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0,0,0,0.7);
+		}
+
+		.modal-content {
+			background-color: #3c3c54;
+			margin: 5% auto;
+			padding: 25px;
+			border-radius: 10px;
+			width: 80%;
+			max-width: 600px;
+			border: 3px solid #51FF46;
+			box-shadow: 0px 0px 20px rgba(81, 255, 70, 0.5);
+			position: relative;
+		}
+
+		.close {
+			color: #ff4747;
+			float: right;
+			font-size: 28px;
+			font-weight: bold;
+			cursor: pointer;
+			line-height: 1;
+		}
+
+		.close:hover {
+			color: #ff0000;
+			text-shadow: 0px 0px 10px rgba(255, 0, 0, 0.7);
+		}
+		
+		.theory-title {
+			color: #51FF46;
+			border-bottom: 2px solid #FDCF00;
+			padding-bottom: 10px;
+			margin-top: 0;
+		}
+
+		.theory-content {
+			line-height: 1.6;
+			margin-top: 15px;
+			color: white;
+		}
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-style: italic;
+			color: #ffb5fb;
+        }
+		
     </style>
+
 </head>
+
+<script>
+		// Fonctions pour le pop-up théorique
+		function showTheory() {
+			document.getElementById('theoryModal').style.display = 'block';
+		}
+
+		function closeTheory() {
+			document.getElementById('theoryModal').style.display = 'none';
+		}
+
+		// Fermer le pop-up si on clique en dehors
+		window.onclick = function(event) {
+			const modal = document.getElementById('theoryModal');
+			if (event.target === modal) {
+				closeTheory();
+			}
+		}
+</script>
+
 <body>
     <div class="header">
-        <div class="surtitre">"Je fais de la compta et c'est ma joie!"</div>
         <div class="titre">Établir un bilan</div>
+		<div class="info-icon" onclick="showTheory()">i</div>
     </div>
     
     <div class="niveaux-container">
@@ -179,7 +299,28 @@
     </div>
     
     <button class="btn-quitter" onclick="window.close()">Quitter</button>
-    
+
+        <div class="footer">
+            <p>"Je fais de la compta et c'est ma joie!" - DG, EPC Fribourg</p>
+        </div>
+
+
+		<!-- Pop-up théorique -->
+		<div id="theoryModal" class="modal">
+			<div class="modal-content">
+				<span class="close" onclick="closeTheory()">&times;</span>
+				<h2 class="theory-title">Rappel théorique - Le bilan</h2>
+				<div class="theory-content">
+					<p><strong>Le bilan</strong> comprend obligatoirement 5 <strong>groupes :</strong></p>
+					<p>A l'actif :<br>- Actifs circulants<br>- Actifs immobilisés</p>
+					<p><br>Au passif :<br>- Dettes à court terme<br>- Dettes à long terme<br>- Capitaux propres</p>
+					<p>On peut aussi utiliser le terme 'Fonds étrangers' à la place 'Dettes'</p>
+					<p><br>Lorsqu'il y a plus de passifs que d'actifs, on parle de <strong>Découvert</strong></p>
+				</div>
+			</div>
+		</div>    
+
+
 
 </body>
 </html>

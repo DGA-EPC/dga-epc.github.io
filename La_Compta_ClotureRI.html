@@ -23,13 +23,14 @@
         }
         
         header {
-            background-color: #8A2BE2; /* Violet foncé */
+            background-color: #6a0dad; /* Violet foncé */
             color: white;
             padding: 20px;
             text-align: center;
             border-radius: 6px;
             max-width: 1060px;
             margin: 0px auto;
+            position: relative;			
             border-top: 5px solid #FFD700; /* Jaune */
             border-bottom: 5px solid #1010f5; /* Rouge */
         }
@@ -331,11 +332,102 @@
             margin-top: 30px;
             color: #ffb5fb;
         }
+
+		.info-icon {
+			position: absolute;
+			top: 15px;
+			right: 15px;
+			background-color: #51FF46;
+			color: black;
+			border-radius: 50%;
+			width: 24px;
+			height: 24px;
+			text-align: center;
+			line-height: 24px;
+			font-weight: bold;
+			cursor: pointer;
+			font-size: 16px;
+			font-style: italic;
+			font-family: serif;
+			box-shadow: 0px 0px 5px rgba(0,0,0,0.5);
+			transition: all 0.3s ease;
+		}
+
+		.info-icon:hover {
+			background-color: #FDCF00;
+			transform: scale(1.1);
+		}
+		
+		.info-icon:hover::after {
+			content: "Rappel de la théorie";
+			position: absolute;
+			top: -30px;
+			right: 0;
+			background: #333;
+			color: white;
+			padding: 5px 10px;
+			border-radius: 4px;
+			font-size: 12px;
+			white-space: nowrap;
+			font-style: normal;
+			font-family: Arial, sans-serif;
+		}
+
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 1000;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0,0,0,0.7);
+		}
+
+		.modal-content {
+			background-color: #3c3c54;
+			margin: 5% auto;
+			padding: 25px;
+			border-radius: 10px;
+			width: 80%;
+			max-width: 600px;
+			border: 3px solid #51FF46;
+			box-shadow: 0px 0px 20px rgba(81, 255, 70, 0.5);
+			position: relative;
+		}
+
+		.close {
+			color: #ff4747;
+			float: right;
+			font-size: 28px;
+			font-weight: bold;
+			cursor: pointer;
+			line-height: 1;
+		}
+
+		.close:hover {
+			color: #ff0000;
+			text-shadow: 0px 0px 10px rgba(255, 0, 0, 0.7);
+		}
+		
+		.theory-title {
+			color: #51FF46;
+			border-bottom: 2px solid #FDCF00;
+			padding-bottom: 10px;
+			margin-top: 0;
+		}
+
+		.theory-content {
+			line-height: 1.6;
+			margin-top: 15px;
+			color: white;
+		}		
     </style>
 </head>
 <body>
     <header>
         <h1>Clôture des comptes d'une raison individuelle</h1>
+		<div class="info-icon" onclick="showTheory()">i</div>
     </header>
     <div>
         <br>
@@ -470,7 +562,7 @@
             </div>
         </div>
     </div>
-
+	
     <script>
         // Données des exercices
         const exercises = {
@@ -1110,6 +1202,23 @@
 				
 		}
 
+		// Fonctions pour le pop-up théorique
+		function showTheory() {
+			document.getElementById('theoryModal').style.display = 'block';
+		}
+
+		function closeTheory() {
+			document.getElementById('theoryModal').style.display = 'none';
+		}
+
+		// Fermer le pop-up si on clique en dehors
+		window.onclick = function(event) {
+			const modal = document.getElementById('theoryModal');
+			if (event.target === modal) {
+				closeTheory();
+			}
+		}
+
         // Démarrer l'application
         window.onload = init;
     </script>
@@ -1117,5 +1226,20 @@
 	 <div class="footer">
         "Je fais de la compta et c'est ma joie!" DG, EPC Fribourg
     </div>
+
+		<!-- Pop-up théorique -->
+		<div id="theoryModal" class="modal">
+			<div class="modal-content">
+				<span class="close" onclick="closeTheory()">&times;</span>
+				<h2 class="theory-title">Rappel théorique - Clôture des r.i.</h2>
+				<div class="theory-content">
+					<p>Etape 1<br>Clôturer les comptes charges et produits et virer le solde dans Résultat</p>
+					<p>Etape 2<br>Clôturer le compte de Résulat pour déterminer le BN (bénéfice net) ou la PN (perte nette)<br>BN/PN est reporté dans le compte <strong>Privé</strong></p>
+					<p>Etape 3<br>Clôturer le compte Privé. Le spb = la variation de fortune (VF).<br>Reporté la VF dans le compte <strong>Capital</strong></p>
+					<p>Si VF est à gauche de Capital, c'est une <strong>diminution</strong> de fortune. A droite, c'est une <strong>augmentation</strong> de fortune</p>
+					<p>Le revenu global du propriétaire = Salaire (au crédit de Privé) + Intérêts sur le capital (au crédit de Privé) + le BN ou - la PN</p>
+				</div>
+			</div>
+		</div>	
 </body>
 </html>

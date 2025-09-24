@@ -15,12 +15,13 @@
         .header {
             background-color: #6a0dad;
             color: white;
-            padding: 5px;
+            padding: 2px;
             text-align: center;
+            position: relative;			
             border-radius: 10px 10px 0 0;
 			border-top: 10px solid #24f400;
-			
         }
+       		
         .salary-container {
             background-color: white;
             border-radius: 0 0 10px 10px;
@@ -119,16 +120,19 @@
         }
         .info-card {
             background-color: #e7f4ff;
-            padding: 15px;
+            padding: 10px;
             border-radius: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 8px;
             display: none;
         }
+		.info-card h3 {
+			margin: 0 0 10px 10px; /* haut | droit | bas | gauche */
+}		
         .toggle-info {
             color: #f0f0f0;
             cursor: pointer;
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 		
 		
@@ -146,7 +150,95 @@
 			text-align: right;
 			font-variant-numeric: tabular-nums;
 		}		
+		.info-icon {
+			position: absolute;
+			top: 15px;
+			right: 15px;
+			background-color: #51FF46;
+			color: black;
+			border-radius: 50%;
+			width: 24px;
+			height: 24px;
+			text-align: center;
+			line-height: 24px;
+			font-weight: bold;
+			cursor: pointer;
+			font-size: 16px;
+			font-style: italic;
+			font-family: serif;
+			box-shadow: 0px 0px 5px rgba(0,0,0,0.5);
+			transition: all 0.3s ease;
+		}
+
+		.info-icon:hover {
+			background-color: #FDCF00;
+			transform: scale(1.1);
+		}
 		
+		.info-icon:hover::after {
+			content: "Rappel de la théorie";
+			position: absolute;
+			top: -30px;
+			right: 0;
+			background: #333;
+			color: white;
+			padding: 5px 10px;
+			border-radius: 4px;
+			font-size: 12px;
+			white-space: nowrap;
+			font-style: normal;
+			font-family: Arial, sans-serif;
+		}
+
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 1000;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0,0,0,0.7);
+		}
+
+		.modal-content {
+			background-color: #3c3c54;
+			margin: 5% auto;
+			padding: 25px;
+			border-radius: 10px;
+			width: 80%;
+			max-width: 600px;
+			border: 3px solid #51FF46;
+			box-shadow: 0px 0px 20px rgba(81, 255, 70, 0.5);
+			position: relative;
+		}
+
+		.close {
+			color: #ff4747;
+			float: right;
+			font-size: 28px;
+			font-weight: bold;
+			cursor: pointer;
+			line-height: 1;
+		}
+
+		.close:hover {
+			color: #ff0000;
+			text-shadow: 0px 0px 10px rgba(255, 0, 0, 0.7);
+		}
+		
+		.theory-title {
+			color: #51FF46;
+			border-bottom: 2px solid #FDCF00;
+			padding-bottom: 10px;
+			margin-top: 0;
+		}
+
+		.theory-content {
+			line-height: 1.6;
+			margin-top: 15px;
+			color: white;
+		}		
 
 		
     </style>
@@ -154,6 +246,7 @@
 <body>
     <div class="header">
         <h1>Décompte de Salaire</h1>
+		<div class="info-icon" onclick="showTheory()">i</div>
     </div>
     
     <div class="toggle-info" onclick="toggleInfo()">ℹ️ Afficher/Masquer les informations de calcul</div>
@@ -161,13 +254,13 @@
     <div class="info-card" id="infoCard">
         <h3>Informations de calcul (valables en 2025)</h3>
         <ul>
-            <li><strong>Salaire coordonné</strong> : 2'205.- par mois</li>
-            <li>Salaire coordonné minimum : 315.-</li>
-            <li>Salaire coordonné maximum : 5'355.-</li>
-            <li><strong>AVS/AI/APG</strong> : 5.3% sur le salaire AVS</li>
-			<li><strong>AC</strong> : 1.1% sur le salaire AVS (Max. 12'350.-/mois)</li>
-            <li><strong>LAA-AANP</strong> : 1.2% sur le salaire AVS</li>
-            <li><strong>LPP</strong> : x% sur le salaire coordonné (le pourcentage varie selon le fonds de pension)</li>
+            <li><strong>Salaire coordonné</strong> : 2'205.-/mois</li>
+            <li>Salaire coordonné minimum : 315.-/mois</li>
+            <li>Salaire coordonné maximum : 5'355.-/mois</li>
+            <li><strong>AVS/AI/APG</strong> : 5.3%</li>
+			<li><strong>AC</strong> : 1.1% (Max. 12'350.-/mois)</li>
+            <li><strong>LAA-AANP</strong> : 1.2%</li>
+            <li><strong>LPP</strong> : Le pourcentage varie selon le fonds de pension</li>
         </ul>
     </div>
     
@@ -261,6 +354,22 @@
         <p>Je fais de la compta et c'est ma joie, DG, EPC Fribourg</p>
     </div>
 
+		<!-- Pop-up théorique -->
+		<div id="theoryModal" class="modal">
+			<div class="modal-content">
+				<span class="close" onclick="closeTheory()">&times;</span>
+				<h2 class="theory-title">Le décompte de salaire</h2>
+				<div class="theory-content">
+					<p><strong>Salaire AVS</strong> = Tous les montants versés <strong>SAUF</strong> les allocations familiales.</p>
+					<p><strong>Salaire coordonné</strong> = Salaire AVS - déduction de coordination</p>
+					<p>Calculs des déductions :<br><strong>AVS/AI/APG/AC</strong> : % sur le salaire AVS<br><strong>LPP</strong> : % sur le salaire coordonné<br><strong>LAA (AANP)</strong> : % sur le salaire AVS</p>
+					<p>Parts patronales :<br><strong>AVS/AI/APG/AC</strong> : Même montant que l'employé + % de frais<br><strong>LPP</strong> : Paritaire (= même montant)<br><strong>LAA</strong> : AANP + AAP en début d'année, puis récupération de l'AANP sur le salaire<br>Cotisation à la <strong>caisse ALFA</strong> : entièrement à sa charge</p>
+					
+				</div>
+			</div>
+		</div>
+		
+		
     <script>
 
 		// Ajouter cette fonction pour vérifier si tous les champs sont remplis
@@ -443,10 +552,14 @@
             checkCalculations();
         }
         
-        function toggleInfo() {
-            const infoCard = document.getElementById('infoCard');
-            infoCard.style.display = infoCard.style.display === 'none' ? 'block' : 'none';
-        }
+		function toggleInfo() {
+			const infoCard = document.getElementById('infoCard');
+			if (infoCard.style.display === 'none' || infoCard.style.display === '') {
+				infoCard.style.display = 'block';
+			} else {
+				infoCard.style.display = 'none';
+			}
+		}
         
         // Fonction utilitaire pour générer un montant aléatoire
         function generateRandomAmount(min, max, step) {
@@ -471,9 +584,26 @@
     
 			return `${integerPart}.${decimalPart}`;
 		}
-    
-	 
+
+		// Fonctions pour le pop-up théorique
+		function showTheory() {
+			document.getElementById('theoryModal').style.display = 'block';
+		}
+
+		function closeTheory() {
+			document.getElementById('theoryModal').style.display = 'none';
+		}
+
+		// Fermer le pop-up si on clique en dehors
+		window.onclick = function(event) {
+			const modal = document.getElementById('theoryModal');
+			if (event.target === modal) {
+				closeTheory();
+			}
+		}
 	
 	</script>
+	
+	
 </body>
 </html>

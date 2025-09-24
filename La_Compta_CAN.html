@@ -19,6 +19,7 @@
 			max-width: 1370px;
             background-color: #78004f;
             color: white;
+			position: relative;
             border-radius: 20px;
             margin-bottom: 20px;
 			border-top: 8px solid #24f400;
@@ -171,11 +172,102 @@
             background-color: #e8f5e9;
             border-radius: 5px;
         }
+		
+		.info-icon {
+			position: absolute;
+			top: 15px;
+			right: 15px;
+			background-color: #51FF46;
+			color: black;
+			border-radius: 50%;
+			width: 24px;
+			height: 24px;
+			text-align: center;
+			line-height: 24px;
+			font-weight: bold;
+			cursor: pointer;
+			font-size: 16px;
+			font-style: italic;
+			font-family: serif;
+			box-shadow: 0px 0px 5px rgba(0,0,0,0.5);
+			transition: all 0.3s ease;
+		}
+
+		.info-icon:hover {
+			background-color: #FDCF00;
+			transform: scale(1.1);
+		}
+		
+		.info-icon:hover::after {
+			content: "Rappel de la théorie";
+			position: absolute;
+			top: -30px;
+			right: 0;
+			background: #333;
+			color: white;
+			padding: 5px 10px;
+			border-radius: 4px;
+			font-size: 12px;
+			white-space: nowrap;
+			font-style: normal;
+			font-family: Arial, sans-serif;
+		}
+
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 1000;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0,0,0,0.7);
+		}
+
+		.modal-content {
+			background-color: #3c3c54;
+			margin: 5% auto;
+			padding: 25px;
+			border-radius: 10px;
+			width: 80%;
+			max-width: 600px;
+			border: 3px solid #51FF46;
+			box-shadow: 0px 0px 20px rgba(81, 255, 70, 0.5);
+			position: relative;
+		}
+
+		.close {
+			color: #ff4747;
+			float: right;
+			font-size: 28px;
+			font-weight: bold;
+			cursor: pointer;
+			line-height: 1;
+		}
+
+		.close:hover {
+			color: #ff0000;
+			text-shadow: 0px 0px 10px rgba(255, 0, 0, 0.7);
+		}
+		
+		.theory-title {
+			color: #51FF46;
+			border-bottom: 2px solid #FDCF00;
+			padding-bottom: 10px;
+			margin-top: 0;
+		}
+
+		.theory-content {
+			line-height: 1.6;
+			margin-top: 15px;
+			color: white;
+		}		
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>CAN, PRAMV et autre BB!</h1>
+        <h1>Calculs sur le compte de Résultat</h1>
+		<div class="info-icon" onclick="showTheory()">i</div>
     </div>
     
     <div class="schemas-container">
@@ -195,7 +287,7 @@
         </div>
         
         <div class="schema" id="schema4">
-            <div class="schema-title">Calculez le BB</div>
+            <div class="schema-title">Calculez le résultat net</div>
             <div class="drop-zone" data-schema="4"></div>
         </div>
     </div>
@@ -225,8 +317,38 @@
     <div class="footer">
         <p>"Je fais de la compta et c'est ma joie!", DG, EPC Fribourg</p>
     </div>
+	
+		<!-- Pop-up théorique -->
+		<div id="theoryModal" class="modal">
+			<div class="modal-content">
+				<span class="close" onclick="closeTheory()">&times;</span>
+				<h2 class="theory-title">Calculs sur le compte de Résultat</h2>
+				<div class="theory-content">
+					<p>Ventes<br>- Déductions accordées<br>- Pertes sur créances<br>= CAN</p>
+					<p>Achats<br>- Déductions obtenues<br>+ Frais d'achats<br>- Prestations propres (= prélèvements privés)<br>= PRAMA</p>
+					<p>PRAMA<br>+ diminution de stock<br>ou<br>- augmentation de stock<br>= PRAMV</p>
+					<p>CAN<br>- PRAMV<br>= BB<br>- ACE (ou FG pour frais généraux)<br>= BN ou PN</p>
+				</div>
+			</div>
+		</div>	
 
     <script>
+		// Fonctions pour le pop-up théorique
+		function showTheory() {
+			document.getElementById('theoryModal').style.display = 'block';
+		}
+
+		function closeTheory() {
+			document.getElementById('theoryModal').style.display = 'none';
+		}
+
+		// Fermer le pop-up si on clique en dehors
+		window.onclick = function(event) {
+			const modal = document.getElementById('theoryModal');
+			if (event.target === modal) {
+				closeTheory();
+			}
+		}	
         document.addEventListener('DOMContentLoaded', function() {
             // Define all labels (correct ones and traps)
             const allLabels = [
@@ -253,6 +375,8 @@
                 { id: 'can-ref', text: 'CAN', schema: 4, operator: '' },
                 { id: 'pramv-ref', text: 'PRAMV', schema: 4, operator: '-' },
                 { id: 'bb', text: 'BB', schema: 4, operator: '=' },
+				{ id: 'ace', text: 'ACE', schema: 4, operator: '-' },
+				{ id: 'bn', text: 'BN/PN', schema: 4, operator: '=' },
                 
                 // Trap labels
                 { id: 'trap1', text: '+ PRAMV', schema: 0, operator: '' },
@@ -260,7 +384,9 @@
                 { id: 'trap3', text: '+ augmentation de stock', schema: 0, operator: '' },
                 { id: 'trap4', text: '+ Prestations propres', schema: 0, operator: '' },
                 { id: 'trap5', text: '- diminution de stock', schema: 0, operator: '' },
-				{ id: 'trap6', text: '- Frais d\'achat', schema: 0, operator: '' }
+                { id: 'trap6', text: '= PR', schema: 0, operator: '' },				
+				{ id: 'trap7', text: '- Frais d\'achat', schema: 0, operator: '' },
+				{ id: 'trap8', text: '+ ACE', schema: 0, operator: '' }
             ];
             
             const labelsContainer = document.getElementById('labels-container');
@@ -418,7 +544,7 @@
                 case 4: // BB
                     // CAN doit être en première position, BB en dernière
                     return placedLabels[0] === 'can-ref' && 
-                           placedLabels[placedLabels.length - 1] === 'bb';
+                           placedLabels[placedLabels.length - 1] === 'bn';
                 
                 default:
                     return false;
@@ -439,10 +565,46 @@
             // Reset button event
             resetBtn.addEventListener('click', initGame);
             
-            // Solution button event
-            solutionBtn.addEventListener('click', () => {
-                solutionDiv.style.display = solutionDiv.style.display === 'none' ? 'block' : 'none';
-            });
+            // Solution button event - MODIFIÉ
+            solutionBtn.addEventListener('click', showSolution);
+            
+            // Nouvelle fonction pour afficher la solution
+            function showSolution() {
+                // Clear all drop zones
+                dropZones.forEach(zone => {
+                    zone.innerHTML = '';
+                    zone.parentElement.classList.remove('correct', 'incorrect');
+                });
+                
+                // Get all labels currently in the container
+                const currentLabels = Array.from(labelsContainer.querySelectorAll('.label'));
+                
+                // Place correct labels in their respective drop zones
+                for (let i = 1; i <= 4; i++) {
+                    const zone = document.querySelector(`.drop-zone[data-schema="${i}"]`);
+                    const correctLabels = allLabels.filter(label => label.schema === i);
+                    
+                    // Add correct labels to the drop zone in order
+                    correctLabels.forEach(labelData => {
+                        const label = document.querySelector(`.label[data-id="${labelData.id}"]`);
+                        if (label) {
+                            // Remove from container
+                            label.remove();
+                            
+                            // Create a new label for the drop zone
+                            const newLabel = label.cloneNode(true);
+                            newLabel.addEventListener('click', () => {
+                                newLabel.remove();
+                                labelsContainer.appendChild(label);
+                            });
+                            
+                            zone.appendChild(newLabel);
+                        }
+                    });
+                }
+                
+                // Les traps restent dans le conteneur
+            }
             
             // Helper function to compare arrays
             function arraysEqual(a, b) {
@@ -454,5 +616,7 @@
             }
         });
     </script>
+	
+	
 </body>
 </html>

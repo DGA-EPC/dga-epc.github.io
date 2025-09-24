@@ -157,11 +157,10 @@
         }
         
         .solution-details {
-            margin-top: 15px;
-            padding: 10px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
-            font-size: 14px;
+            margin-top: 2px;
+            padding: 2px;
+            font-size: 18px;
+			max-width: 400px;			
         }
         
         .footer {
@@ -170,13 +169,136 @@
             font-style: italic;
 			color: #ffb5fb;
         }
-    </style>
+    
+		.info-icon {
+			position: absolute;
+			top: 15px;
+			right: 15px;
+			background-color: #51FF46;
+			color: black;
+			border-radius: 50%;
+			width: 24px;
+			height: 24px;
+			text-align: center;
+			line-height: 24px;
+			font-weight: bold;
+			cursor: pointer;
+			font-size: 16px;
+			font-style: italic;
+			font-family: serif;
+			box-shadow: 0px 0px 5px rgba(0,0,0,0.5);
+			transition: all 0.3s ease;
+		}
+
+		.info-icon:hover {
+			background-color: #FDCF00;
+			transform: scale(1.1);
+		}
+		
+		.info-icon:hover::after {
+			content: "Rappel de la théorie";
+			position: absolute;
+			top: -30px;
+			right: 0;
+			background: #333;
+			color: white;
+			padding: 5px 10px;
+			border-radius: 4px;
+			font-size: 12px;
+			white-space: nowrap;
+			font-style: normal;
+			font-family: Arial, sans-serif;
+		}
+
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 1000;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0,0,0,0.7);
+		}
+
+		.modal-content {
+			background-color: #3c3c54;
+			margin: 5% auto;
+			padding: 25px;
+			border-radius: 10px;
+			width: 80%;
+			max-width: 600px;
+			border: 3px solid #51FF46;
+			box-shadow: 0px 0px 20px rgba(81, 255, 70, 0.5);
+			position: relative;
+		}
+
+		.close {
+			color: #ff4747;
+			float: right;
+			font-size: 28px;
+			font-weight: bold;
+			cursor: pointer;
+			line-height: 1;
+		}
+
+		.close:hover {
+			color: #ff0000;
+			text-shadow: 0px 0px 10px rgba(255, 0, 0, 0.7);
+		}
+		
+		.theory-title {
+			color: #51FF46;
+			border-bottom: 2px solid #FDCF00;
+			padding-bottom: 10px;
+			margin-top: 0;
+		}
+
+		.theory-content {
+			line-height: 1.6;
+			margin-top: 15px;
+		}
+		
+		/* Styles pour la règle de trois */
+		.rule-of-three {
+			margin-top: 15px;
+			font-family: monospace;
+			background-color: rgba(0, 0, 0, 0.3);
+			padding: 10px;
+			border-radius: 5px;
+			border-left: 3px solid #51FF46;
+		}
+		
+		.rule-line {
+			display: flex;
+			justify-content: space-between;
+			margin: 5px 0;
+		}
+		
+		.rule-value {
+			text-align: right;
+			min-width: 100px;
+		}
+		
+		.rule-operator {
+			text-align: center;
+			margin: 0 10px;
+		}
+		
+		.rule-formula {
+			margin-top: 10px;
+			padding-top: 10px;
+			border-top: 1px solid #51FF46;
+			font-weight: bold;
+		}
+	
+	</style>
 </head>
 <body>
 
-
     <div class="header">
         <h1>Les changes</h1>
+		<div class="info-icon" onclick="showTheory()">i</div>
 	</div>
     
 		
@@ -197,7 +319,6 @@
                 </tbody>
             </table>
         </div>
-
 
         <div class="problem-container">
             <div class="problem-text" id="problem-text">
@@ -220,11 +341,10 @@
             <div class="solution-details" id="solution-details"></div>
         </div>
         
-
-
         <div class="footer">
             <p>"Je fais de la compta et c'est ma joie!" - DG, EPC Fribourg</p>
         </div>
+        
     <script>
         // Données des devises
         const currencies = [
@@ -247,8 +367,6 @@ const congratulations = [
     "Félicitations! Calcul précis et rapide!",
 	"Génial! Encore un pour la route ?"
 ];
-
-		
 
 // Fonction pour générer des taux de change aléatoires réalistes
 function generateRealisticRates() {
@@ -294,7 +412,6 @@ function generateRealisticRates() {
 	// Générer les taux de change une fois au chargement
 	const exchangeRates = generateRealisticRates();	
 	
-	
 	// Réinitialiser les taux
 function resetRates() {
     if (confirm("Voulez-vous générer de nouveaux taux de change? Les exercices en cours utiliseront les nouveaux taux.")) {
@@ -304,11 +421,12 @@ function resetRates() {
     }
 }
 	
-        let currentProblem = {};
-        let correctAnswer = 0;
-        let usedRate = 0;
-        let rateType = "";
-        let formula = "";
+    let currentProblem = {};
+    let correctAnswer = 0;
+    let usedRate = 0;
+    let rateType = "";
+    let formula = "";
+    let ruleOfThreeData = {};
 
 // Initialisation
 window.onload = function() {
@@ -327,18 +445,17 @@ window.onload = function() {
     generateNewProblem();
 };
 
-
 	// Afficher les taux de change
-		function displayExchangeRates() {
-			const ratesBody = document.getElementById('rates-body');
-			ratesBody.innerHTML = '';
+	function displayExchangeRates() {
+		const ratesBody = document.getElementById('rates-body');
+		ratesBody.innerHTML = '';
     
-			currencies.forEach(currency => {
-				const rate = exchangeRates[currency.code];
-				const multiplier = currency.multiplier;
-				const decimals = currency.decimals;
+		currencies.forEach(currency => {
+			const rate = exchangeRates[currency.code];
+			const multiplier = currency.multiplier;
+			const decimals = currency.decimals;
         
-				const row = document.createElement('tr');
+			const row = document.createElement('tr');
         
 			row.innerHTML = `
 				<td>${currency.code}</td>
@@ -356,10 +473,10 @@ window.onload = function() {
 }
 
 	// Générer un nouveau problème
-		function generateNewProblem() {
-			document.getElementById('result').textContent = '';
-			document.getElementById('user-answer').value = '';
-			document.getElementById('solution-details').textContent = '';
+	function generateNewProblem() {
+		document.getElementById('result').textContent = '';
+		document.getElementById('user-answer').value = '';
+		document.getElementById('solution-details').textContent = '';
     
     // Choisir aléatoirement le type de problème (touriste ou entreprise)
     const isTourist = Math.random() > 0.5;
@@ -386,6 +503,9 @@ window.onload = function() {
     let problemText = '';
     let answerIsChf = true;
     
+    // Déterminer le multiplicateur pour l'affichage de la règle de trois
+    const multiplier = ['USD', 'AUD', 'EUR', 'GBP'].includes(currency.code) ? 1 : 100;
+    
     if (isTourist) {
         if (isChfToForeign) {
             // Touriste achète des devises avec CHF (utilise cours vente billets)
@@ -396,28 +516,68 @@ window.onload = function() {
                 correctAnswer = calculateConversion(amount, 1/usedRate, currency);
                 formula = `${amount} ÷ ${usedRate} = ${correctAnswer}`;
                 answerIsChf = false;
+                
+                // Préparer les données pour la règle de trois
+                ruleOfThreeData = {
+                    type: 'devise',
+                    a: usedRate,
+                    b: multiplier,
+                    c: amount,
+                    x: correctAnswer,
+                    formula: `x = ${multiplier} × ${amount} ÷ ${usedRate} = ${correctAnswer}`
+                };
             } else {
                 problemText = `Un touriste suisse vend ${currency.code} ${amount.toLocaleString('fr-CH')} à une banque. Combien reçoit-il de CHF ?`;
                 usedRate = rateData.billetAchat;
                 rateType = "achat de billets";
                 correctAnswer = calculateConversion(amount, usedRate, currency);
                 formula = `${amount} × ${usedRate} = ${correctAnswer}`;
+                
+                // Préparer les données pour la règle de trois
+                ruleOfThreeData = {
+                    type: 'chf',
+                    a: usedRate,
+                    b: multiplier,
+                    c: amount,
+                    x: correctAnswer,
+                    formula: `x = ${usedRate} × ${amount} ÷ ${multiplier} = ${correctAnswer}`
+                };
             }
         } else {
             // Touriste vend des devises pour recevoir CHF (utilise cours achat billets)
             if (isBuying) {
                 problemText = `Un touriste étranger donne ${currency.code} ${amount.toLocaleString('fr-CH')} au guichet d'une banque suisse. Combien reçoit-il de CHF ?`;
-                usedRate = rateData.billetVente;
-                rateType = "vente de billets";
+                usedRate = rateData.billetAchat;
+                rateType = "achat de billets";
                 correctAnswer = calculateConversion(amount, usedRate, currency);
                 formula = `${amount} × ${usedRate} = ${correctAnswer}`;
+                
+                // Préparer les données pour la règle de trois
+                ruleOfThreeData = {
+                    type: 'chf',
+                    a: usedRate,
+                    b: multiplier,
+                    c: amount,
+                    x: correctAnswer,
+                    formula: `x = ${usedRate} × ${amount} ÷ ${multiplier} = ${correctAnswer}`
+                };
             } else {
-                problemText = `Un touriste suisse change CHF ${amount.toLocaleString('fr-CH')} contre des ${currency.code}. Combien reçoit-il de ${currency.code} ?`;
+                problemText = `Un touriste suisse de retour de vacances change le reste des ${currency.code}. La banque lui donne CHF ${amount.toLocaleString('fr-CH')}. Combien avait-il de ${currency.code} ?`;
                 usedRate = rateData.billetAchat;
                 rateType = "achat de billets";
                 correctAnswer = calculateConversion(amount, 1/usedRate, currency);
                 formula = `${amount} ÷ ${usedRate} = ${correctAnswer}`;
                 answerIsChf = false;
+                
+                // Préparer les données pour la règle de trois
+                ruleOfThreeData = {
+                    type: 'devise',
+                    a: usedRate,
+                    b: multiplier,
+                    c: amount,
+                    x: correctAnswer,
+                    formula: `x = ${multiplier} × ${amount} ÷ ${usedRate} = ${correctAnswer}`
+                };
             }
         }
     } else {
@@ -431,6 +591,16 @@ window.onload = function() {
                 correctAnswer = calculateConversion(amount, 1/usedRate, currency);
                 formula = `${amount} ÷ ${usedRate} = ${correctAnswer}`;
                 answerIsChf = false;
+                
+                // Préparer les données pour la règle de trois
+                ruleOfThreeData = {
+                    type: 'devise',
+                    a: usedRate,
+                    b: multiplier,
+                    c: amount,
+                    x: correctAnswer,
+                    formula: `x = ${multiplier} × ${amount} ÷ ${usedRate} = ${correctAnswer}`
+                };
             } else {
                 // Entreprise vend des devises pour recevoir CHF (utilise cours achat devises)
                 problemText = `Une entreprise suisse reçoit de son client ${currency.code} ${amount.toLocaleString('fr-CH')} sur son compte bancaire. Combien reçoit-elle de CHF ?`;
@@ -438,6 +608,16 @@ window.onload = function() {
                 rateType = "achat de devises";
                 correctAnswer = calculateConversion(amount, usedRate, currency);
                 formula = `${amount} × ${usedRate} = ${correctAnswer}`;
+                
+                // Préparer les données pour la règle de trois
+                ruleOfThreeData = {
+                    type: 'chf',
+                    a: usedRate,
+                    b: multiplier,
+                    c: amount,
+                    x: correctAnswer,
+                    formula: `x = ${usedRate} × ${amount} ÷ ${multiplier} = ${correctAnswer}`
+                };
             }
         } else {
             // Problèmes de recherche de cours
@@ -448,7 +628,17 @@ window.onload = function() {
                 rateType = "vente de devises";
                 correctAnswer = chfAmount / amount;
                 formula = `${chfAmount} ÷ ${amount} = ${correctAnswer.toFixed(4)}`;
-                problemText = `Une entreprise suisse a payé une facture de ${currency.code} ${amount.toLocaleString('fr-CH')} qu'elle a payé CHF ${chfAmount.toLocaleString('fr-CH')}. Quel était le cours pratiqué ?`;
+                problemText = `Une entreprise suisse a payé une facture de ${currency.code} ${amount.toLocaleString('fr-CH')}. La banque a débité CHF ${chfAmount.toLocaleString('fr-CH')} de son compte. Quel était le cours pratiqué ?`;
+                
+                // Préparer les données pour la règle de trois
+                ruleOfThreeData = {
+                    type: 'rate',
+                    a: chfAmount,
+                    b: amount,
+                    c: multiplier,
+                    x: correctAnswer,
+                    formula: `x = ${chfAmount} × ${multiplier} ÷ ${amount} = ${correctAnswer.toFixed(4)}`
+                };
             } else {
                 // Entreprise vend des devises (utilise cours achat devises)
                 problemText = `Une entreprise suisse reçoit de son client étranger ${currency.code} ${amount.toLocaleString('fr-CH')}. Quel est le montant en CHF crédité sur sont compte ?`;
@@ -456,6 +646,16 @@ window.onload = function() {
                 rateType = "achat de devises";
                 correctAnswer = calculateConversion(amount, usedRate, currency);
                 formula = `${amount} × ${usedRate} = ${correctAnswer}`;
+                
+                // Préparer les données pour la règle de trois
+                ruleOfThreeData = {
+                    type: 'chf',
+                    a: usedRate,
+                    b: multiplier,
+                    c: amount,
+                    x: correctAnswer,
+                    formula: `x = ${usedRate} × ${amount} ÷ ${multiplier} = ${correctAnswer}`
+                };
             }
         }
     }
@@ -471,7 +671,8 @@ window.onload = function() {
         rateType: rateType,
         formula: formula,
         usedRate: usedRate,
-        answerIsChf: answerIsChf
+        answerIsChf: answerIsChf,
+        multiplier: multiplier
     };
     
     // Afficher le problème
@@ -486,7 +687,6 @@ window.onload = function() {
         document.getElementById('user-answer').placeholder = `Votre réponse en ${currentProblem.currency}`;
     }
 }
- 
 
         // Calculer la conversion
         function calculateConversion(amount, rate, currency) {
@@ -519,6 +719,7 @@ function validateAnswer() {
         } else {
             resultElement.textContent = `Incorrect. La réponse était ${correctAnswer.toFixed(4)}.`;
             resultElement.style.color = "red";
+            showRuleOfThree();
         }
     } else {
         // Pour les conversions normales
@@ -529,36 +730,134 @@ function validateAnswer() {
             resultElement.style.color = "green";
         } else {
             const currency = currentProblem.answerIsChf ? "CHF" : currentProblem.currency;
-            resultElement.textContent = `Incorrect. La réponse était ${correctAnswer.toLocaleString('fr-CH')} ${currency}.`;
+            // Format avec séparateur de milliers et 2 décimales
+            resultElement.textContent = `Incorrect. La réponse était ${correctAnswer.toLocaleString('fr-CH', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${currency}.`;
             resultElement.style.color = "red";
+            showRuleOfThree();
         }
     }
 }
 
-// Afficher la solution
+// Afficher la solution avec règle de trois
 function showSolution() {
     const resultElement = document.getElementById('result');
     const solutionDetails = document.getElementById('solution-details');
     
+    // Déterminer le multiplicateur d'affichage pour les devises NOK, SEK, DKK, JPY
+    const displayMultiplier = ['NOK', 'SEK', 'DKK', 'JPY'].includes(currentProblem.currency) ? 100 : 1;
+    
     if (currentProblem.isRateQuestion) {
-        resultElement.textContent = `Solution: Le cours pratiqué était ${correctAnswer.toFixed(4)}.`;
-        solutionDetails.innerHTML = `
-            <strong>Détails du calcul:</strong><br>
-            Type de cours utilisé: ${currentProblem.rateType}<br>
-            Formule: ${currentProblem.formula}
-        `;
+        resultElement.textContent = `Solution: Le cours pratiqué était ${(correctAnswer * displayMultiplier).toFixed(4)}.`;
     } else {
         const currency = currentProblem.answerIsChf ? "CHF" : currentProblem.currency;
-        resultElement.textContent = `Solution: ${correctAnswer.toLocaleString('fr-CH')} ${currency}.`;
-        solutionDetails.innerHTML = `
-            <strong>Détails du calcul:</strong><br>
-            Type de cours utilisé: ${currentProblem.rateType} (${currentProblem.usedRate})<br>
-            Formule: ${currentProblem.formula}
-        `;
+        // Format avec séparateur de milliers et 2 décimales
+        resultElement.textContent = `Solution: ${currency} ${correctAnswer.toLocaleString('fr-CH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
     }
     resultElement.style.color = "yellow";
+    
+    showRuleOfThree();
 }
 
+// Afficher la règle de trois
+function showRuleOfThree() {
+    const solutionDetails = document.getElementById('solution-details');
+    
+    // Déterminer le multiplicateur d'affichage
+    const displayMultiplier = ['NOK', 'SEK', 'DKK', 'JPY'].includes(currentProblem.currency) ? 100 : 1;
+    const displayRate = ruleOfThreeData.a * displayMultiplier;
+    const displayX = ruleOfThreeData.type === 'rate' ? ruleOfThreeData.x * displayMultiplier : ruleOfThreeData.x;
+    
+    let ruleHTML = '<div class="rule-of-three">';
+    ruleHTML += '<strong>Règle de trois:</strong><br>';
+    
+    if (ruleOfThreeData.type === 'chf') {
+        // Recherche de montant CHF
+        ruleHTML += `
+            <div class="rule-line">
+                <span>${displayRate.toFixed(4)} CHF</span>
+                <span class="rule-operator">⇔</span>
+                <span class="rule-value">${ruleOfThreeData.b} ${currentProblem.currency}</span>
+            </div>
+            <div class="rule-line">
+                <span>x CHF</span>
+                <span class="rule-operator">⇔</span>
+                <span class="rule-value">${ruleOfThreeData.c} ${currentProblem.currency}</span>
+            </div>
+            <div class="rule-formula">
+                x = ${displayRate.toFixed(4)} × ${ruleOfThreeData.c} ÷ ${ruleOfThreeData.b} = ${ruleOfThreeData.x.toLocaleString('fr-CH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+            </div>
+        `;
+    } else if (ruleOfThreeData.type === 'devise') {
+        // Recherche de montant en devises
+        ruleHTML += `
+            <div class="rule-line">
+                <span>${displayRate.toFixed(4)} CHF</span>
+                <span class="rule-operator">⇔</span>
+                <span class="rule-value">${ruleOfThreeData.b} ${currentProblem.currency}</span>
+            </div>
+            <div class="rule-line">
+                <span>${ruleOfThreeData.c.toLocaleString('fr-CH', {minimumFractionDigits: 2, maximumFractionDigits: 2})} CHF</span>
+                <span class="rule-operator">⇔</span>
+                <span class="rule-value">x ${currentProblem.currency}</span>
+            </div>
+            <div class="rule-formula">
+                x = ${ruleOfThreeData.b} × ${ruleOfThreeData.c} ÷ ${displayRate.toFixed(4)} = ${ruleOfThreeData.x.toLocaleString('fr-CH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+            </div>
+        `;
+    } else if (ruleOfThreeData.type === 'rate') {
+        // Recherche de cours
+        ruleHTML += `
+            <div class="rule-line">
+                <span>${(ruleOfThreeData.a * displayMultiplier).toLocaleString('fr-CH', {minimumFractionDigits: 2, maximumFractionDigits: 2})} CHF</span>
+                <span class="rule-operator">⇔</span>
+                <span class="rule-value">${ruleOfThreeData.b} ${currentProblem.currency}</span>
+            </div>
+            <div class="rule-line">
+                <span>x CHF</span>
+                <span class="rule-operator">⇔</span>
+                <span class="rule-value">${ruleOfThreeData.c} ${currentProblem.currency}</span>
+            </div>
+            <div class="rule-formula">
+                x = ${(ruleOfThreeData.a * displayMultiplier).toLocaleString('fr-CH', {minimumFractionDigits: 2, maximumFractionDigits: 2})} × ${ruleOfThreeData.c} ÷ ${ruleOfThreeData.b} = ${displayX.toFixed(4)}
+            </div>
+        `;
+    }
+    
+    ruleHTML += '</div>';
+    solutionDetails.innerHTML = ruleHTML;
+}
+		// Fonctions pour le pop-up théorique
+		function showTheory() {
+			document.getElementById('theoryModal').style.display = 'block';
+		}
+
+		function closeTheory() {
+			document.getElementById('theoryModal').style.display = 'none';
+		}
+
+		// Fermer le pop-up si on clique en dehors
+		window.onclick = function(event) {
+			const modal = document.getElementById('theoryModal');
+			if (event.target === modal) {
+				closeTheory();
+			}
+		}
+
     </script>
+	
+	<div id="theoryModal" class="modal">
+		<div class="modal-content">
+			<span class="close" onclick="closeTheory()">&times;</span>
+			<h2 class="theory-title">Le change</h2>
+			<div class="theory-content">
+				<p><strong>Le cours Billets</strong> est utilisé essentiellement par les touristes pour des petits montants rarement plus élevés que CHF 5'000.-.</p>
+				<p><strong>Le cours Devises</strong> est celui choisi pour le paiement par carte de crédit, virement de compte à compte.</p>
+				<p><strong>TOUJOURS SE METTRE à la place de la banque</strong> pour le choix Achat/Vente :</p>
+				<p>- La BANQUE achète-t-elle des devises étrangères ou vend-elle des devises étrangères ?</p>
+				<p>Le cours du tableau sont en monnaie nationnale. Ici en CHF!<br>C'est la valeur de 1 USD ou autre dollar, 1 EUR, 1 GBP, mais 100 pour les autres devises</p>
+			</div>
+		</div>
+	</div>
+		
 </body>
 </html>
