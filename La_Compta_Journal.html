@@ -48,8 +48,9 @@
             padding: 10px 15px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
+			font-size: 16px;
             margin-top: 10px;
+			margin-right: 60px;
         }
         button:hover {
             background-color: #133852;
@@ -193,7 +194,7 @@
             <div id="feedback" class="feedback hidden"></div>
             
             <button id="validate-answer">Valider</button>
-            <button id="next-question" class="hidden">Suite</button>
+            <button id="next-question" class="hidden">Ecriture suivante</button>
             <button id="finish-exercise">Terminer l'exercice</button>
         </div>
         
@@ -218,8 +219,6 @@
             { niveau: "D", nom: "Poste", classe: 1 },
             { niveau: "D", nom: "Banque", classe: 1 },
             { niveau: "D", nom: "Créances clients", classe: 1 },
-            { niveau: "A", nom: "Autres créances", classe: 1 },
-            { niveau: "A", nom: "Créances AFC", classe: 1 },
             { niveau: "D", nom: "Stock de marchandises", classe: 1 },
             { niveau: "D", nom: "Machines et appareils", classe: 1 },
             { niveau: "D", nom: "Mobilier et installation", classe: 1 },
@@ -235,15 +234,11 @@
             { niveau: "A", nom: "Dette hypothécaire", classe: 2 },
 			{ niveau: "D", nom: "Capital", classe: 2 },
             { niveau: "D", nom: "Privé", classe: 2 },
-            { niveau: "A", nom: "==========MARCHANDISES============", classe: 4 },
-            { niveau: "A", nom: "Ventes de marchandises", classe: 4 },
-            { niveau: "A", nom: "Prestations propres", classe: 4 },
-            { niveau: "A", nom: "Déductions obtenues", classe: 4 },
-            { niveau: "A", nom: "Variation de stock", classe: 4 },
-            { niveau: "A", nom: "Déductions accordées", classe: 3 },
-            { niveau: "A", nom: "Achats de marchandises", classe: 3 },
-            { niveau: "A", nom: "Frais d'achat", classe: 3 },
-            { niveau: "A", nom: "=====CH. ET PRD D'EXPLOITATION====", classe: 3 },
+            { niveau: "A", nom: "===== PRODUITS D'EXPLOITATION====", classe: 3 },
+			{ niveau: "A", nom: "Honoraires", classe: 3 },
+			{ niveau: "A", nom: "Produits des travaux", classe: 3 },
+			{ niveau: "A", nom: "Produits financiers", classe: 3 },
+			{ niveau: "A", nom: "===== CHARGES D'EXPLOITATION====", classe: 3 },
             { niveau: "A", nom: "Salaires", classe: 3 },
             { niveau: "A", nom: "Loyers", classe: 3 },
             { niveau: "A", nom: "Entretien et réparation", classe: 3 },
@@ -257,24 +252,21 @@
             { niveau: "A", nom: "ACE", classe: 3 },
             { niveau: "A", nom: "Amortissements", classe: 3 },
             { niveau: "A", nom: "Charges financières", classe: 3 },
-            { niveau: "A", nom: "Produits financiers", classe: 4 },
-            { niveau: "A", nom: "===CH. ET PRD HORS EXPLOITATION===", classe: 3 },
-            { niveau: "A", nom: "Produits exceptionnels", classe: 3 },
-            { niveau: "A", nom: "Charges exceptionnelles", classe: 3 }
+            
         ];
 
         // Écritures comptables
         const transactions = [
             { 
-                description: "Achat de marchandises payé en espèces", 
-                debit: "Achats de marchandises", 
-                credit: "Caisse",
+                description: "Nous payons pas banque une campagne de publicité", 
+                debit: "Publicité", 
+                credit: "Banque",
                 niveau: "A"
             },
             { 
-                description: "Vente de marchandises au comptant", 
-                debit: "Caisse", 
-                credit: "Ventes de marchandises",
+                description: "Nous recevons la facture d'électricité du trimestre que nous comptabilisons.", 
+                debit: "Electricité", 
+                credit: "Autres dettes",
                 niveau: "A"
             },
             { 
@@ -299,7 +291,7 @@
                 description: "Enregistrement de l'amortissement des machines", 
                 debit: "Amortissements", 
                 credit: "Machines et appareils",
-                niveau: "A"
+                niveau: "T1"
             },
             { 
                 description: "Comptabilisation des intérêts bancaire en notre faveur", 
@@ -308,10 +300,10 @@
                 niveau: "A"
             },
             { 
-                description: "Un client paie une facture non comptabilisée par poste. Elle concerne une vente de marchandises.", 
+                description: "Un client paie une facture non comptabilisée par poste. Elle concerne des honoraires du mois passé.", 
                 debit: "Poste", 
-                credit: "Ventes de marchandises",
-                niveau: "A"
+                credit: "Honoraires",
+                niveau: "T1"
             },
             { 
                 description: "Nous prélevons CHF 5'000.- à la banque pour les besoins de liquidités.", 
@@ -332,10 +324,10 @@
                 niveau: "A"
             },
             { 
-                description: "Nous annulons une facture envoyée par erreur à un client pour des marchandises non vendues.", 
-                debit: "Ventes de marchandises", 
+                description: "Nous annulons une facture envoyée par erreur à un client pour des travaux de comptabilité.", 
+                debit: "Honoraires", 
                 credit: "Créances clients",
-                niveau: "A"
+                niveau: "T1"
             },
             { 
                 description: "Comptabilisation d'une facture pour l'assurance RC de l'entreprise.", 
@@ -344,8 +336,8 @@
                 niveau: "A"
             },
             { 
-                description: "Paiement en espèces d'une campagne de publicité de décembre à février.", 
-                debit: "Publicité", 
+                description: "Paiement en espèces du service de notre véhicule de fonction.", 
+                debit: "Frais de véhicule", 
                 credit: "Caisse",
                 niveau: "A"
             },
@@ -386,10 +378,10 @@
                 niveau: "D"
             },
             { 
-                description: "Ventes à crédit de la semaine à comptabiliser, CHF 16'000.-.", 
-                debit: "Créances clients", 
-                credit: "Ventes de marchandises",
-                niveau: "A"
+                description: "Nous accordons un rabais à un client sur une facture comptabilisée concernant des travaux d'entretien.", 
+                debit: "Produits des travaux", 
+                credit: "Créances client",
+                niveau: "T1"
             },
             { 
                 description: "Amortissement du matériel informatique.", 
@@ -408,12 +400,6 @@
                 debit: "Banque", 
                 credit: "Caisse",
                 niveau: "D"
-            },
-            { 
-                description: "Nous remboursons en espèces un retour de marchandises d'un client mécontent.", 
-                debit: "Ventes de marchandises", 
-                credit: "Caisse",
-                niveau: "A"
             },
             { 
                 description: "Le propriétaire de l'entreprise décide d'augmenter son apport par un versement bancaire de CHF 50'000.-.", 
@@ -452,9 +438,9 @@
                 niveau: "D"
             },
             { 
-                description: "Le stock au 1.1 était de CHF 8'000.-. Au 31.12, il atteint CHF 10'000.-. En tenir compte.", 
-                debit: "Stock de marchandises", 
-                credit: "Variation de stock",
+                description: "Nous achetons un nouvel entrepôt payé par un emprunt hypothécaire.", 
+                debit: "Immeuble", 
+                credit: "Dette hypothécaire",
                 niveau: "T1"
             },
             { 
@@ -470,24 +456,6 @@
                 niveau: "D"
             },
             { 
-                description: "Nous recevons de notre fournisseur un rabais spécial sur notre dernier achat.", 
-                debit: "Dettes fournisseurs", 
-                credit: "Déductions obtenues",
-                niveau: "T1"
-            },
-            { 
-                description: "La propriétaire de l'entreprise prélève des marchandises dans le stock pour ses besoins privés.", 
-                debit: "Privé", 
-                credit: "Prestations propres",
-                niveau: "T1"
-            },
-            { 
-                description: "Inventaire final des stocks, CHF 8'000.-. Au 1er janvier, le solde du compte était de CHF 5'000.-", 
-                debit: "Stock de marchandises", 
-                credit: "Variation de stock",
-                niveau: "T1"
-            },
-            { 
                 description: "Amortissement de la dette hypothécaire par banque.", 
                 debit: "Dette hypothécaire", 
                 credit: "Banque",
@@ -500,33 +468,9 @@
                 niveau: "D"
             },
             { 
-                description: "Suite à l'inventaire, enregistrement d'une diminution du stock.", 
-                debit: "Variation de stock", 
-                credit: "Stock de marchandises",
-                niveau: "T1"
-            },
-            { 
-                description: "Amortissement de la dette hypothécaire par banque", 
-                debit: "Dette hypothécaire", 
-                credit: "Banque",
-                niveau: "T1"
-            },
-            { 
                 description: "Nous payons par banque le loyer de l'appartement du propriétaire, CHF 2'800.-", 
                 debit: "Privé", 
                 credit: "Banque",
-                niveau: "T1"
-            },
-            { 
-                description: "Nous accordons un rabais sur la facture d'un client", 
-                debit: "Déductions accordées", 
-                credit: "Créances clients",
-                niveau: "T1"
-            },
-            { 
-                description: "Nous retournons de la marchandise défectueuse à un fournisseur qui nous remet une note de crédit.", 
-                debit: "Dettes fournisseurs", 
-                credit: "Achats de marchandises",
                 niveau: "T1"
             },
             { 
@@ -539,7 +483,7 @@
                 description: "Nous payons en espèces une facture d'électricité.", 
                 debit: "Autres dettes", 
                 credit: "Caisse",
-                niveau: "T1"
+                niveau: "A"
             },
             { 
                 description: "Nous vendons un ordinateur portable. Le montant est versé à la poste.", 
@@ -557,7 +501,7 @@
                 description: "Amortissement de la dette bancaire par virement postal.", 
                 debit: "Dette bancaire", 
                 credit: "Poste",
-                niveau: "T1"
+                niveau: "A"
             },
             { 
                 description: "Le propriétaire verse CHF 100'000.- à la banque pour augmenter son apport personnel.", 
@@ -617,7 +561,7 @@
                 description: "Nous avons facturé par erreur un achat d'appareil à crédit à un client. Nous annulons l'opération (extourne).", 
                 debit: "Machines et appareils", 
                 credit: "Créances clients",
-                niveau: "A"
+                niveau: "T1"
             }			
 			
         ];
