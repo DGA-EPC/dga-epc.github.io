@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Les Écritures Comptables</title>
     <style>
+        /* Votre CSS reste identique */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
@@ -14,20 +15,23 @@
             padding: 20px;
             background-color: #000000;
         }
-		h1 {
+		.header {
 			color: white;
 			background-color: #4b0082; /* Violet foncé */
-			padding: 10px;
+			padding: 0px 0px 0px; 
+			margin-bottom: 10px;
 			border-radius: 8px;
-		    border-top: 8px solid #5AFF00;
-			border-bottom: 5px solid #01a0ff;
+			 position: relative;
+		    border-top: 6px solid #eeff00;
+			border-bottom: 6px solid #5AFF00;
 			text-align: center;
-			
-		}
+			box-shadow: 0 -6px 8px 2px rgba(238,255,0,0.4);
+			}
         h2 {
             color: #2acfd6;
 			text-align: center;
         }
+		
         .container {
             background-color: white;
             padding: 20px;
@@ -35,6 +39,14 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             margin-bottom: 20px;
         }
+		.transaction-display {
+			background-color: #e6f2ff;
+			padding: 2px 15px;
+			border-radius: 8px;
+			border-left: 5px solid #3498db;
+			margin: 5px 0;
+			font-weight: bold;
+		}		
         .level-section, .theme-section {
             margin-bottom: 15px;
         }
@@ -42,32 +54,23 @@
             margin-right: 15px;
         }
         button {
-            background-color: #3498db;
-            color: white;
             border: none;
             padding: 10px 15px;
             border-radius: 4px;
             cursor: pointer;
 			font-size: 16px;
             margin-top: 10px;
-			margin-right: 60px;
+			transition: all 0.3s ease;
+			box-shadow: 4px 4px 6px rgba(0,0,0,0.5);
         }
         button:hover {
-            background-color: #133852;
 			transform: translateY(-4px);
+			box-shadow: 6px 6px 8px rgba(0,0,0,0.4);
         }
         button:disabled {
             background-color: #95a5a6;
             cursor: not-allowed;
         }
-        #quitter-btn {
-            background-color: #ff8585;
-            color: white;
-        }
-        #quitter-btn:hover {
-            background-color: #ff0000;
-            transform: translateY(-2px);
-        }		
         select {
             width: 100%;
             padding: 8px;
@@ -121,48 +124,211 @@
             display: none;
         }
 		
-
 		#start-exercise {
-        display: block;
-        margin: 20px auto;
-		}
-
-        .close-button {
-            background-color: #7b1fa2;
+            display: block;
             margin: 20px auto;
-			color: white;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 1.1em;
-            transition: all 0.3s ease;
+            background-color: #3498db;
+            color: white;
+        }
+        #start-exercise:hover {
+            background-color: #133852;
+        }
+
+        #close-button {
+            display: block;
+            margin: 20px auto;
+            background-color: #ff4747;
+            color: white;
         }
         
-        .close-button:hover {
-            background-color: #6a1b9a;
-            transform: scale(1.05);
+        #close-button:hover {
+            background-color: #ff0000;
         }
+		
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        #restart-exercise {
+            background-color: #61b865;
+            color: white;
+        }
+        #restart-exercise:hover {
+            background-color: #00b50d;
+        }		
+		
+        #validate-answer {
+            background-color: #61b865;
+            color: white;
+        }
+        #validate-answer:hover {
+            background-color: #00b50d;
+        }
+        
+        #next-question {
+            background-color: #ffbf47;
+            color: black;
+        }
+        #next-question:hover {
+            background-color: #ffa500;
+        }
+        
+        #finish-exercise {
+            background-color: #A270FF;
+            color: white;
+        }
+        #finish-exercise:hover {
+            background-color: #5a359c;
+        }
+        
+        .answer-feedback {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+        
+        .debit-feedback, .credit-feedback {
+            width: 45%;
+            padding: 8px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .correct-answer {
+            background-color: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+        
+        .incorrect-answer {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+        
+        #quitter-btn {
+            background-color: #ff8585;
+            color: white;
+        }
+        #quitter-btn:hover {
+            background-color: #ff0000;
+            transform: translateY(-2px);
+        }
+		.info-icon {
+			position: absolute;
+			top: 15px;
+			right: 15px;
+			background-color: #51FF46;
+			color: black;
+			border-radius: 50%;
+			width: 24px;
+			height: 24px;
+			text-align: center;
+			line-height: 24px;
+			font-weight: bold;
+			cursor: pointer;
+			font-size: 16px;
+			font-style: italic;
+			font-family: serif;
+			box-shadow: 0px 0px 5px rgba(0,0,0,0.5);
+			transition: all 0.3s ease;
+		}
+
+		.info-icon:hover {
+			background-color: #FDCF00;
+			transform: scale(1.1);
+		}
+		
+		.info-icon:hover::after {
+			content: "Rappel de la théorie";
+			position: absolute;
+			top: -30px;
+			right: 0;
+			background: #333;
+			color: white;
+			padding: 5px 10px;
+			border-radius: 4px;
+			font-size: 12px;
+			white-space: nowrap;
+			font-style: normal;
+			font-family: Arial, sans-serif;
+		}
+
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 1000;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0,0,0,0.7);
+		}
+
+		.modal-content {
+			background-color: #3c3c54;
+			margin: 5% auto;
+			padding: 25px;
+			border-radius: 10px;
+			width: 80%;
+			max-width: 600px;
+			border: 3px solid #51FF46;
+			box-shadow: 0px 0px 20px rgba(81, 255, 70, 0.5);
+			position: relative;
+		}
+
+		.close {
+			color: #ff4747;
+			float: right;
+			font-size: 28px;
+			font-weight: bold;
+			cursor: pointer;
+			line-height: 1;
+		}
+
+		.close:hover {
+			color: #ff0000;
+			text-shadow: 0px 0px 10px rgba(255, 0, 0, 0.7);
+		}
+		
+		.theory-title {
+			color: #51FF46;
+			border-bottom: 2px solid #FDCF00;
+			padding-bottom: 10px;
+			margin-top: 0;
+		}
+
+		.theory-content {
+			line-height: 1.6;
+			margin-top: 15px;
+			color: white;
+		}
 		
     </style>
 </head>
 <body>
+<div class="header">
     <h1>Les écritures comptables de base</h1>
+	<div class="info-icon" onclick="showTheory()">i</div>
+</div>
 	    
     <!-- Page d'accueil avec sélection des niveaux et thèmes -->
     <div id="home-page" class="container">
         <div class="level-section">
             <h3>Sélectionnez le ou les niveau(x) :</h3>
-            <label class="level-option"><input type="checkbox" id="theme1" value="D"> Débutant (uniquement Actif et Passif)</label>
+            <label class="level-option"><input type="checkbox" id="theme1" value="D">Actifs et Passifs seulement pour débuter</label>
 			<br>
-			<label class="level-option"><input type="checkbox" id="level-base" value="A"> Base (Premiers pas avec les charges et produits)</label>
+			<label class="level-option"><input type="checkbox" id="level-base" value="A">Charges et Produits, écriture de base</label>
 			<br>
-            <label class="level-option"><input type="checkbox" id="level-advanced" value="T1"> Avancé</label>
+            <label class="level-option"><input type="checkbox" id="level-advanced" value="T1">Avancé</label>
         </div>
      
-      
-        <button id="start-exercise">Commencer l'exercice</button>
-		        <div class="button-container">
-            <button class="close-button" onclick="window.close()">Fermer</button>
+        <div class="button-container">
+            <button id="start-exercise">Commencer l'exercice</button>
+            <button id="close-button" onclick="window.close()">Quitter</button>
         </div>
     </div>
     
@@ -177,7 +343,9 @@
         <div id="encouragement" class="encouragement hidden"></div>
         
         <div id="exercise-display">
-            <h3 id="transaction-description"></h3>
+			<div class="transaction-display">
+				<h3 id="transaction-description"></h3>
+			</div>
             
             <div class="exercise-container">
                 <div class="account-column">
@@ -191,19 +359,32 @@
                 </div>
             </div>
             
+            <div id="answer-feedback" class="answer-feedback hidden">
+                <div id="debit-feedback" class="debit-feedback"></div>
+                <div id="credit-feedback" class="credit-feedback"></div>
+            </div>
+            
             <div id="feedback" class="feedback hidden"></div>
             
-            <button id="validate-answer">Valider</button>
-            <button id="next-question" class="hidden">Ecriture suivante</button>
-            <button id="finish-exercise">Terminer l'exercice</button>
+            <div class="button-container">
+                <button id="validate-answer">Valider</button>
+                <button id="next-question" class="hidden">Ecriture suivante</button>
+                <button id="finish-exercise">Terminer l'exercice</button>
+            </div>
         </div>
         
         <div id="results" class="hidden">
             <h3>Résultats de l'exercice</h3>
             <div id="final-score"></div>
             <div id="final-comment"></div>
+
+        <div class="button-container">
             <button id="restart-exercise">Recommencer</button>
 			<button id="quitter-btn" onclick="window.close()">Quitter</button>
+        </div>			
+			
+			
+            
         </div>
     </div>
     
@@ -211,7 +392,38 @@
         "Je fais de la compta et c'est ma joie!" DG, EPC Fribourg
     </div>
 
+		<div id="theoryModal" class="modal">
+			<div class="modal-content">
+				<span class="close" onclick="closeTheory()">&times;</span>
+				<h2 class="theory-title">Rappel théorique</h2>
+				<div class="theory-content">
+					<p>Les <strong>ACTIFS</strong> : + / -</p>
+					<p>Les <strong>PASSIFS</strong> : - / +</p>
+					<p>Les <strong>CHARGES</strong> : + / -</p>
+					<p>Les <strong>PRODUITS</strong> : - / +</p>
+				</div>
+			</div>
+		</div>
+		
+		
     <script>
+		// Fonctions pour le pop-up théorique
+		function showTheory() {
+			document.getElementById('theoryModal').style.display = 'block';
+		}
+
+		function closeTheory() {
+			document.getElementById('theoryModal').style.display = 'none';
+		}
+
+		// Fermer le pop-up si on clique en dehors
+		window.onclick = function(event) {
+			const modal = document.getElementById('theoryModal');
+			if (event.target === modal) {
+				closeTheory();
+			}
+		}
+	
         // Données des comptes
         const accounts = [
             { niveau: "D", nom: "=============ACTIFS==============", classe: 1 },
@@ -435,7 +647,7 @@
                 description: "Avis de débit de la banque concernant le remboursement de notre crédit.", 
                 debit: "Dette bancaire", 
                 credit: "Banque",
-                niveau: "D"
+                niveau: "T1"
             },
             { 
                 description: "Nous achetons un nouvel entrepôt payé par un emprunt hypothécaire.", 
@@ -504,8 +716,8 @@
                 niveau: "A"
             },
             { 
-                description: "Le propriétaire verse CHF 100'000.- à la banque pour augmenter son apport personnel.", 
-                debit: "Banque", 
+                description: "Le propriétaire verse CHF 100'000.- à la poste pour augmenter son apport personnel.", 
+                debit: "Poste", 
                 credit: "Capital",
                 niveau: "D"
             },
@@ -596,6 +808,9 @@
         const finalScoreDiv = document.getElementById('final-score');
         const finalCommentDiv = document.getElementById('final-comment');
         const restartExerciseBtn = document.getElementById('restart-exercise');
+        const answerFeedbackDiv = document.getElementById('answer-feedback');
+        const debitFeedbackDiv = document.getElementById('debit-feedback');
+        const creditFeedbackDiv = document.getElementById('credit-feedback');
 
     // Initialisation
     document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
@@ -682,11 +897,23 @@
         }
 
         function nextQuestion() {
-            // Réinitialiser l'interface
-            feedbackDiv.classList.add('hidden');
-            validateAnswerBtn.classList.remove('hidden');
-            nextQuestionBtn.classList.add('hidden');
-            encouragementDiv.classList.add('hidden');
+			// Réinitialiser l'interface
+			feedbackDiv.classList.add('hidden');
+			answerFeedbackDiv.classList.add('hidden');
+			debitFeedbackDiv.classList.remove('correct-answer', 'incorrect-answer');
+			creditFeedbackDiv.classList.remove('correct-answer', 'incorrect-answer');
+			debitFeedbackDiv.classList.add('hidden');
+			creditFeedbackDiv.classList.add('hidden');
+			// Réinitialiser l'apparence des sélecteurs
+			debitAccountSelect.style.backgroundColor = '';
+			debitAccountSelect.style.border = '';
+			creditAccountSelect.style.backgroundColor = '';
+			creditAccountSelect.style.border = '';
+    
+			validateAnswerBtn.classList.remove('hidden');
+			nextQuestionBtn.classList.add('hidden');
+			encouragementDiv.classList.add('hidden');
+
             
             // Choisir une transaction
             if (incorrectTransactions.length > 0 && Math.random() < 0.3) {
@@ -722,17 +949,39 @@
             const selectedDebit = debitAccountSelect.value;
             const selectedCredit = creditAccountSelect.value;
             
-            if (selectedDebit === currentTransaction.debit && selectedCredit === currentTransaction.credit) {
-                // Réponse correcte
-                feedbackDiv.textContent = "Correct!";
+            const isCorrect = selectedDebit === currentTransaction.debit && 
+                             selectedCredit === currentTransaction.credit;
+            
+            // Afficher le feedback
+            answerFeedbackDiv.classList.remove('hidden');
+            
+            // Feedback pour le débit
+            if (selectedDebit === currentTransaction.debit) {
+                debitFeedbackDiv.textContent = "✓ Correct";
+                debitFeedbackDiv.className = "debit-feedback correct-answer";
+            } else {
+                debitFeedbackDiv.textContent = `✗ Doit être: ${currentTransaction.debit}`;
+                debitFeedbackDiv.className = "debit-feedback incorrect-answer";
+            }
+            
+            // Feedback pour le crédit
+            if (selectedCredit === currentTransaction.credit) {
+                creditFeedbackDiv.textContent = "✓ Correct";
+                creditFeedbackDiv.className = "credit-feedback correct-answer";
+            } else {
+                creditFeedbackDiv.textContent = `✗ Doit être: ${currentTransaction.credit}`;
+                creditFeedbackDiv.className = "credit-feedback incorrect-answer";
+            }
+            
+            // Mettre à jour les scores
+            if (isCorrect) {
+                feedbackDiv.textContent = "Bravo! Réponse correcte!";
                 feedbackDiv.className = "feedback correct";
                 correctAnswers++;
-                // Cette transaction ne reviendra pas
             } else {
-                // Réponse incorrecte
-                feedbackDiv.innerHTML = `Incorrect. La réponse est: <strong>${currentTransaction.debit}</strong> (débit) et <strong>${currentTransaction.credit}</strong> (crédit)`;
+                feedbackDiv.textContent = "Ce n'est pas correct. Réessayez la prochaine fois!";
                 feedbackDiv.className = "feedback incorrect";
-                // Ajouter cette transaction à la liste des transactions incorrectes pour la refaire plus tard
+                // Ajouter la transaction incorrecte au pool pour la reprendre plus tard
                 incorrectTransactions.push(currentTransaction);
             }
             
@@ -740,59 +989,69 @@
             validateAnswerBtn.classList.add('hidden');
             nextQuestionBtn.classList.remove('hidden');
             
+            // Mettre à jour les statistiques
             updateStats();
         }
 
         function updateStats() {
-            const totalTransactions = filteredTransactions.length + incorrectTransactions.length + questionCount;
-            const remaining = filteredTransactions.length + incorrectTransactions.length;
             const successRate = questionCount > 0 ? Math.round((correctAnswers / questionCount) * 100) : 0;
+            const remaining = filteredTransactions.length + incorrectTransactions.length;
             
-            progressDiv.textContent = `Question: ${questionCount}/${totalTransactions}`;
+            progressDiv.textContent = `Question: ${questionCount}`;
             scoreDiv.textContent = `Taux de réussite: ${successRate}%`;
             remainingDiv.textContent = `Restantes: ${remaining}`;
         }
 
         function showEncouragement() {
             const encouragements = [
-                "Bravo! Vous progressez bien, continuez comme ça!",
-                "Excellent travail! La pratique mène à la perfection.",
-                "Vous maîtrisez de mieux en mieux les écritures comptables!",
-                "Continuez ainsi, vous êtes sur la bonne voie!",
-                "Vos efforts portent leurs fruits, ne lâchez rien!"
+                "Vous progressez bien! Continuez comme ça!",
+                "Excellent travail! Vous maîtrisez bien la comptabilité!",
+                "Bravo! Votre persévérance porte ses fruits!",
+                "Vous êtes sur la bonne voie! Ne lâchez rien!"
             ];
             
-            const randomEncouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
-            encouragementDiv.textContent = randomEncouragement;
+            const randomIndex = Math.floor(Math.random() * encouragements.length);
+            encouragementDiv.textContent = encouragements[randomIndex];
             encouragementDiv.classList.remove('hidden');
         }
 
         function finishExercise() {
-            const successRate = questionCount > 0 ? Math.round((correctAnswers / questionCount) * 100) : 0;
-            
-            // Afficher les résultats
             document.getElementById('exercise-display').classList.add('hidden');
             resultsDiv.classList.remove('hidden');
             
-            finalScoreDiv.textContent = `Votre score final: ${successRate}% (${correctAnswers} bonnes réponses sur ${questionCount} questions)`;
+            const successRate = questionCount > 0 ? Math.round((correctAnswers / questionCount) * 100) : 0;
             
-            // Afficher un commentaire selon le score
+            finalScoreDiv.textContent = `Score final: ${successRate}% (${correctAnswers}/${questionCount} bonnes réponses)`;
+            
             if (successRate >= 90) {
-                finalCommentDiv.textContent = "Excellent! Vous maîtrisez parfaitement les écritures comptables.";
-            } else if (successRate >= 80) {
-                finalCommentDiv.textContent = "Vous êtes tout près de toucher le graal! Encore un petit effort.";
-            } else if (successRate >= 60) {
-                finalCommentDiv.textContent = "Ça passe, mais ne voulez-vous pas tenter de faire encore mieux?";
+                finalCommentDiv.textContent = "Excellent! Vous maîtrisez parfaitement les écritures comptables!";
+            } else if (successRate >= 70) {
+                finalCommentDiv.textContent = "Très bien! Vous avez une bonne compréhension des écritures comptables.";
+            } else if (successRate >= 50) {
+                finalCommentDiv.textContent = "Pas mal! Continuez à pratiquer pour améliorer votre score.";
             } else {
-                finalCommentDiv.textContent = "Désolé, il faut progresser pour être à niveau. N'hésitez pas à réviser et réessayer.";
+                finalCommentDiv.textContent = "Ne vous découragez pas! La pratique rend parfait. Réessayez!";
             }
         }
 
         function restartExercise() {
             resultsDiv.classList.add('hidden');
             document.getElementById('exercise-display').classList.remove('hidden');
-            homePage.classList.remove('hidden');
-            exercisePage.classList.add('hidden');
+            
+            // Réinitialiser les transactions
+            filteredTransactions = [...transactions].filter(transaction => {
+                const isLevelMatch = selectedLevels.includes(transaction.niveau);
+                const isThemeMatch = selectedThemes.includes(transaction.niveau);
+                return isLevelMatch || isThemeMatch;
+            });
+            
+            shuffleArray(filteredTransactions);
+            
+            questionCount = 0;
+            correctAnswers = 0;
+            incorrectTransactions = [];
+            
+            nextQuestion();
         }
 
         // Fonction utilitaire pour mélanger un tableau
