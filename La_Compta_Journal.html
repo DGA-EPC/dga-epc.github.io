@@ -151,11 +151,11 @@
     <div id="home-page" class="container">
         <div class="level-section">
             <h3>Sélectionnez le ou les niveau(x) :</h3>
-            <label class="level-option"><input type="checkbox" id="theme1" value="T1"> Débutant (uniquement Actif et Passif)</label>
+            <label class="level-option"><input type="checkbox" id="theme1" value="D"> Débutant (uniquement Actif et Passif)</label>
 			<br>
-			<label class="level-option"><input type="checkbox" id="level-base" value="D"> Base (Premiers pas avec les charges et produits)</label>
+			<label class="level-option"><input type="checkbox" id="level-base" value="A"> Base (Premiers pas avec les charges et produits)</label>
 			<br>
-            <label class="level-option"><input type="checkbox" id="level-advanced" value="A"> Avancé</label>
+            <label class="level-option"><input type="checkbox" id="level-advanced" value="T1"> Avancé</label>
         </div>
      
       
@@ -235,29 +235,29 @@
             { niveau: "A", nom: "Dette hypothécaire", classe: 2 },
 			{ niveau: "D", nom: "Capital", classe: 2 },
             { niveau: "D", nom: "Privé", classe: 2 },
-            { niveau: "D", nom: "==========MARCHANDISES============", classe: 4 },
-            { niveau: "D", nom: "Ventes de marchandises", classe: 4 },
+            { niveau: "A", nom: "==========MARCHANDISES============", classe: 4 },
+            { niveau: "A", nom: "Ventes de marchandises", classe: 4 },
             { niveau: "A", nom: "Prestations propres", classe: 4 },
             { niveau: "A", nom: "Déductions obtenues", classe: 4 },
             { niveau: "A", nom: "Variation de stock", classe: 4 },
             { niveau: "A", nom: "Déductions accordées", classe: 3 },
-            { niveau: "D", nom: "Achats de marchandises", classe: 3 },
+            { niveau: "A", nom: "Achats de marchandises", classe: 3 },
             { niveau: "A", nom: "Frais d'achat", classe: 3 },
-            { niveau: "D", nom: "=====CH. ET PRD D'EXPLOITATION====", classe: 3 },
-            { niveau: "D", nom: "Salaires", classe: 3 },
-            { niveau: "D", nom: "Loyers", classe: 3 },
-            { niveau: "D", nom: "Entretien et réparation", classe: 3 },
-            { niveau: "D", nom: "Frais de véhicules", classe: 3 },
-            { niveau: "D", nom: "Assurances", classe: 3 },
-            { niveau: "D", nom: "Electricité", classe: 3 },
-            { niveau: "D", nom: "Frais d'administration", classe: 3 },
-            { niveau: "D", nom: "Téléphone, internet", classe: 3 },
-            { niveau: "D", nom: "Frais d'informatique", classe: 3 },
-            { niveau: "D", nom: "Publicité", classe: 3 },
-            { niveau: "D", nom: "ACE", classe: 3 },
-            { niveau: "D", nom: "Amortissements", classe: 3 },
-            { niveau: "D", nom: "Charges financières", classe: 3 },
-            { niveau: "D", nom: "Produits financiers", classe: 4 },
+            { niveau: "A", nom: "=====CH. ET PRD D'EXPLOITATION====", classe: 3 },
+            { niveau: "A", nom: "Salaires", classe: 3 },
+            { niveau: "A", nom: "Loyers", classe: 3 },
+            { niveau: "A", nom: "Entretien et réparation", classe: 3 },
+            { niveau: "A", nom: "Frais de véhicules", classe: 3 },
+            { niveau: "A", nom: "Assurances", classe: 3 },
+            { niveau: "A", nom: "Electricité", classe: 3 },
+            { niveau: "A", nom: "Frais d'administration", classe: 3 },
+            { niveau: "A", nom: "Téléphone, internet", classe: 3 },
+            { niveau: "A", nom: "Frais d'informatique", classe: 3 },
+            { niveau: "A", nom: "Publicité", classe: 3 },
+            { niveau: "A", nom: "ACE", classe: 3 },
+            { niveau: "A", nom: "Amortissements", classe: 3 },
+            { niveau: "A", nom: "Charges financières", classe: 3 },
+            { niveau: "A", nom: "Produits financiers", classe: 4 },
             { niveau: "A", nom: "===CH. ET PRD HORS EXPLOITATION===", classe: 3 },
             { niveau: "A", nom: "Produits exceptionnels", classe: 3 },
             { niveau: "A", nom: "Charges exceptionnelles", classe: 3 }
@@ -269,19 +269,19 @@
                 description: "Achat de marchandises payé en espèces", 
                 debit: "Achats de marchandises", 
                 credit: "Caisse",
-                niveau: "D"
+                niveau: "A"
             },
             { 
                 description: "Vente de marchandises au comptant", 
                 debit: "Caisse", 
                 credit: "Ventes de marchandises",
-                niveau: "D"
+                niveau: "A"
             },
             { 
                 description: "Paiement du loyer par virement bancaire", 
                 debit: "Loyers", 
                 credit: "Banque",
-                niveau: "D"
+                niveau: "A"
             },
             { 
                 description: "Achat d'un véhicule payé par virement postal", 
@@ -293,25 +293,25 @@
                 description: "Paiement des salaires par virement bancaire", 
                 debit: "Salaires", 
                 credit: "Banque",
-                niveau: "D"
+                niveau: "A"
             },
             { 
                 description: "Enregistrement de l'amortissement des machines", 
                 debit: "Amortissements", 
                 credit: "Machines et appareils",
-                niveau: "D"
+                niveau: "A"
             },
             { 
                 description: "Comptabilisation des intérêts bancaire en notre faveur", 
                 debit: "Banque", 
                 credit: "Produits financiers",
-                niveau: "D"
+                niveau: "A"
             },
             { 
                 description: "Un client paie une facture non comptabilisée par poste. Elle concerne une vente de marchandises.", 
                 debit: "Poste", 
                 credit: "Ventes de marchandises",
-                niveau: "D"
+                niveau: "A"
             },
             { 
                 description: "Nous prélevons CHF 5'000.- à la banque pour les besoins de liquidités.", 
@@ -323,37 +323,37 @@
                 description: "Nous achetons du matériel de bureau payé en espèce.", 
                 debit: "Frais d'administration", 
                 credit: "Caisse",
-                niveau: "D"
+                niveau: "A"
             },
             { 
                 description: "Paiement par banque des intérêts sur notre emprunt bancaire.", 
                 debit: "Charges financières", 
                 credit: "Banque",
-                niveau: "D"
+                niveau: "A"
             },
             { 
                 description: "Nous annulons une facture envoyée par erreur à un client pour des marchandises non vendues.", 
                 debit: "Ventes de marchandises", 
                 credit: "Créances clients",
-                niveau: "D"
+                niveau: "A"
             },
             { 
                 description: "Comptabilisation d'une facture pour l'assurance RC de l'entreprise.", 
                 debit: "Assurances", 
                 credit: "Autres dettes",
-                niveau: "D"
+                niveau: "A"
             },
             { 
                 description: "Paiement en espèces d'une campagne de publicité de décembre à février.", 
                 debit: "Publicité", 
                 credit: "Caisse",
-                niveau: "D"
+                niveau: "A"
             },
             { 
                 description: "Nous versons CHF 500.- pas poste en faveur des Girons de la Broye.", 
                 debit: "ACE", 
                 credit: "Poste",
-                niveau: "D"
+                niveau: "A"
             },
             { 
                 description: "Un client règle par poste la facture du mois dernier.", 
@@ -371,7 +371,7 @@
                 description: "Nous payons par poste une facture non comptabilisée du garagiste, CHF 1'200.-.", 
                 debit: "Frais de véhicules", 
                 credit: "Poste",
-                niveau: "D"
+                niveau: "A"
             },
             { 
                 description: "Nous payons par poste la facture comptabilisée du garagiste, CHF 1'400.-.", 
@@ -389,19 +389,19 @@
                 description: "Ventes à crédit de la semaine à comptabiliser, CHF 16'000.-.", 
                 debit: "Créances clients", 
                 credit: "Ventes de marchandises",
-                niveau: "D"
+                niveau: "A"
             },
             { 
                 description: "Amortissement du matériel informatique.", 
                 debit: "Amortissements", 
                 credit: "Informatique",
-                niveau: "D"
+                niveau: "A"
             },
             { 
                 description: "Nous comptabilisons une facture concernant la réparation d'une machine.", 
                 debit: "Entretien et réparation", 
                 credit: "Autres dettes",
-                niveau: "D"
+                niveau: "A"
             },
             { 
                 description: "Nous versons à la banque notre recette du jour encaissée en espèces.", 
@@ -413,7 +413,7 @@
                 description: "Nous remboursons en espèces un retour de marchandises d'un client mécontent.", 
                 debit: "Ventes de marchandises", 
                 credit: "Caisse",
-                niveau: "D"
+                niveau: "A"
             },
             { 
                 description: "Le propriétaire de l'entreprise décide d'augmenter son apport par un versement bancaire de CHF 50'000.-.", 
@@ -443,91 +443,91 @@
                 description: "Nous payons par banque l'électricité du mois passé.", 
                 debit: "Electricité", 
                 credit: "Banque",
-                niveau: "D"
+                niveau: "A"
             },
             { 
                 description: "Avis de débit de la banque concernant le remboursement de notre crédit.", 
                 debit: "Dette bancaire", 
                 credit: "Banque",
-                niveau: "A"
+                niveau: "D"
             },
             { 
                 description: "Le stock au 1.1 était de CHF 8'000.-. Au 31.12, il atteint CHF 10'000.-. En tenir compte.", 
                 debit: "Stock de marchandises", 
                 credit: "Variation de stock",
-                niveau: "A"
+                niveau: "T1"
             },
             { 
                 description: "Le patron prélève CHF 400.- dans la caisse pour un usage personnel.", 
                 debit: "Privé", 
                 credit: "Caisse",
-                niveau: "A"
+                niveau: "T1"
             },
             { 
                 description: "Nous payons par poste une facture comptabilisée concernant l'électricité du mois passé.", 
                 debit: "Autres dettes", 
                 credit: "Poste",
-                niveau: "A"
+                niveau: "D"
             },
             { 
                 description: "Nous recevons de notre fournisseur un rabais spécial sur notre dernier achat.", 
                 debit: "Dettes fournisseurs", 
                 credit: "Déductions obtenues",
-                niveau: "A"
+                niveau: "T1"
             },
             { 
                 description: "La propriétaire de l'entreprise prélève des marchandises dans le stock pour ses besoins privés.", 
                 debit: "Privé", 
                 credit: "Prestations propres",
-                niveau: "A"
+                niveau: "T1"
             },
             { 
                 description: "Inventaire final des stocks, CHF 8'000.-. Au 1er janvier, le solde du compte était de CHF 5'000.-", 
                 debit: "Stock de marchandises", 
                 credit: "Variation de stock",
-                niveau: "A"
+                niveau: "T1"
             },
             { 
                 description: "Amortissement de la dette hypothécaire par banque.", 
                 debit: "Dette hypothécaire", 
                 credit: "Banque",
-                niveau: "A"
+                niveau: "T1"
             },
             { 
                 description: "Règlement par banque d'une facture fournisseur. Elle était comptabilisée.", 
                 debit: "Dettes fournisseurs", 
                 credit: "Banque",
-                niveau: "A"
+                niveau: "D"
             },
             { 
                 description: "Suite à l'inventaire, enregistrement d'une diminution du stock.", 
                 debit: "Variation de stock", 
                 credit: "Stock de marchandises",
-                niveau: "A"
+                niveau: "T1"
             },
             { 
                 description: "Amortissement de la dette hypothécaire par banque", 
                 debit: "Dette hypothécaire", 
                 credit: "Banque",
-                niveau: "A"
+                niveau: "T1"
             },
             { 
                 description: "Nous payons par banque le loyer de l'appartement du propriétaire, CHF 2'800.-", 
                 debit: "Privé", 
                 credit: "Banque",
-                niveau: "A"
+                niveau: "T1"
             },
             { 
                 description: "Nous accordons un rabais sur la facture d'un client", 
                 debit: "Déductions accordées", 
                 credit: "Créances clients",
-                niveau: "A"
+                niveau: "T1"
             },
             { 
                 description: "Nous retournons de la marchandise défectueuse à un fournisseur qui nous remet une note de crédit.", 
                 debit: "Dettes fournisseurs", 
                 credit: "Achats de marchandises",
-                niveau: "A"
+                niveau: "T1"
             },
             { 
                 description: "Nous achetons un bureau à crédit.", 
@@ -539,7 +539,7 @@
                 description: "Nous payons en espèces une facture d'électricité.", 
                 debit: "Autres dettes", 
                 credit: "Caisse",
-                niveau: "A"
+                niveau: "T1"
             },
             { 
                 description: "Nous vendons un ordinateur portable. Le montant est versé à la poste.", 
@@ -551,13 +551,13 @@
                 description: "Un client paie par virement bancaire une facture concernant une vente de marchandises.", 
                 debit: "Banque", 
                 credit: "Créances clients",
-                niveau: "A"
+                niveau: "T1"
             },
             { 
                 description: "Amortissement de la dette bancaire par virement postal.", 
                 debit: "Dette bancaire", 
                 credit: "Poste",
-                niveau: "A"
+                niveau: "T1"
             },
             { 
                 description: "Le propriétaire verse CHF 100'000.- à la banque pour augmenter son apport personnel.", 
@@ -597,7 +597,7 @@
             },
             { 
                 description: "Nous obtenons un rabais sur une facture concernant un gros achat de matériel informatique.", 
-                debit: "Dettes fournisseurs", 
+                debit: "Autres dettes", 
                 credit: "Informatique",
                 niveau: "A"
             },
@@ -611,7 +611,7 @@
                 description: "Nous achetons un nouveau véhicule que nous payons grâce à un crédit de la banque.", 
                 debit: "Véhicules", 
                 credit: "Dette bancaire",
-                niveau: "D"
+                niveau: "A"
             },
             { 
                 description: "Nous avons facturé par erreur un achat d'appareil à crédit à un client. Nous annulons l'opération (extourne).", 
