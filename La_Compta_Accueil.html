@@ -324,7 +324,7 @@
                     </div>
                     <div class="chapter has-subchapters" onclick="openSAModal()">36 La SA (Société anonyme)</div>
 					<div class="chapter has-subchapters" onclick="openTitresModal()">54 Titres</div>
-                    <div class="chapter no-link">55 Immeubles</div>
+                    <div class="chapter has-subchapters" onclick="openImmeubleModal()">55 Immeubles</div>
                 </div>
             </div>
             
@@ -551,6 +551,27 @@
         </div>		
     </div>			
 	
+    <div id="subImmeubleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">55 Immeubles - Parties</h3>
+                <button class="close-modal" onclick="closeImmeubleModal()">&times;</button>
+            </div>
+            <ul class="subchapters">
+                <li class="subchapter">
+                    <a href="https://dga-epc.github.io/La_Compta_Immeubles.html"  target="_blank">
+                        1. Journalisation
+                    </a>
+                </li>
+					<li class="subchapter">
+                    <a href="https://dga-epc.github.io/La_Compta_ImmeubleRdmt.html"  target="_blank">
+                        2. Calcul de rendement
+                    </a>
+                </li>
+            </ul>
+        </div>		
+    </div>			
+		
     <script>
         function openModal() {
             document.getElementById('subchapterModal').style.display = 'flex';
@@ -612,6 +633,13 @@
             document.getElementById('subPMModal').style.display = 'none';
         }		
 		
+        function openImmeubleModal() {
+            document.getElementById('subImmeubleModal').style.display = 'flex';
+        }
+        function closeImmeubleModal() {
+            document.getElementById('subImmeubleModal').style.display = 'none';
+        }	
+
         // Fermer n'importe quelle modale en cliquant à l'extérieur
         document.addEventListener('click', function(event) {
             const modals = document.querySelectorAll('.modal');

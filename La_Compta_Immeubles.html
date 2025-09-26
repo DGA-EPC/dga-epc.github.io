@@ -378,8 +378,8 @@
 			description: "Paiement de l'annuité hypothécaire trimestrielle:\nAmortissement\tCHF 1'500.-\nIntérêts\tCHF   800.-\n\Annuité\t\tCHF 2'300.-",
 			solution: [
 				{ debit: "Dette hypothécaire", credit: "", amount: 1500 },
-				{ debit: "", credit: "Banque", amount: 2300 },
-				{ debit: "Charges d'immeubles", credit: "", amount: 800 }
+				{ debit: "Charges d'immeubles", credit: "", amount: 800 },
+				{ debit: "", credit: "Banque", amount: 2300 }
 			]
 		},
 		{
@@ -447,6 +447,14 @@
 				{ debit: "Assurances", credit: "", amount: 300 },
 				{ debit: "Charges d'immeubles", credit: "", amount: 100 },
 				{ debit: "Privé", credit: "", amount: 60 }
+			]
+		},
+		{
+			description: "Paiement de l'annuité hypothécaire trimestrielle de CHF 5'000.-.\nDette hypotécaire : CHF 800'000.-. Intérêts : 1.5%",
+			solution: [
+				{ debit: "Dette hypothécaire", credit: "", amount: 2000 },
+				{ debit: "Charges d'immeubles", credit: "", amount: 3000 },
+				{ debit: "", credit: "Banque", amount: 5000 }
 			]
 		}
 
