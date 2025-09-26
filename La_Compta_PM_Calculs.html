@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcul du seuil de rentabilité</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #000000;
+        }
+        
+        .header {
+            background-color: #4b0082; /* Violet foncé */
+            color: white;
+            padding: 2px auto 0px;
+            text-align: center;
+			position: relative;
+            border-top: 5px solid red;
+            border-bottom: 5px solid orange;
+            margin-bottom: 10px;
+            border-radius: 8px;
+			box-shadow: 0 -6px 12px 3px rgba(250,12,12,0.4);
+        }
+        
+        .exercise-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+			border-bottom: 5px solid #42D4FF;
+        }
+        
+        .problem {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #F0DEFF;
+            border-left: 4px solid #4b0082;
+			border-radius: 8px;
+        }
+        
+        .solution {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f4f8;
+            border-radius: 5px;
+            border-left: 4px solid #2196F3;
+        }
+        
+        button {
+            background-color: #4b0082;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 50px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 4px 4px 6px rgba(0,0,0,0.5);			
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 6px 6px 12px rgba(0,0,0,0.5);
+        }
+
+		.compte-resultat {
+			border-collapse: collapse;
+			width: auto; /* Largeur automatique au lieu de 100% */
+			margin: 15px auto; /* Centrer le tableau */
+		}
+		.compte-resultat th, .compte-resultat td {
+			padding: 6px 12px; /* Padding réduit */
+			text-align: left;
+			border: 1px solid black;
+		}
+		.compte-resultat td:last-child {
+			text-align: right;
+			font-family: 'Courier New', monospace;
+			min-width: 100px; /* Largeur minimale pour la colonne chiffres */
+		}
+        .formula {
+            font-style: italic;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+        }
+        
+        .result {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .hint {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .input-section {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        
+        .input-group {
+            margin-bottom: 10px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input[type="number"] {
+            width: 150px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .check-btn {
+            background-color: #61b865;
+        }
+        
+        .check-btn:hover {
+            background-color: #00b50d;
+        }
+        .new-btn {
+            background-color: #ffbf47;
+        }
+        
+        .new-btn:hover {
+            background-color: #ffa500;
+        }
+        .sol-btn {
+            background-color: #5eabcc;
+        }
+        
+        .sol-btn:hover {
+            background-color: #0088c2;
+        }
+        .quit-btn {
+            background-color: #ff4747;
+        }
+        .quit-btn:hover {
+            background-color: #ff0000;
+        }		
+        
+        .feedback {
+            margin-top: 5px;
+            font-weight: bold;
+        }
+        
+        .correct {
+            color: #2E7D32;
+        }
+        
+        .incorrect {
+            color: #C62828;
+        }
+        
+        .question {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #ddd;
+        }
+		
+		.calcul-pad {
+			position: fixed;
+			top: 50%;
+			right: 20px;
+			transform: translateY(-50%);
+			width: 350px;
+			background: white;
+			border: 2px solid #4b0082;
+			border-radius: 8px;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+			z-index: 1000;
+			display: block;
+			cursor: move;
+			user-select: none;
+		}
+
+		.calcul-pad-header {
+			background: #4b0082;
+			color: white;
+			padding: 10px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			cursor: move;
+		}
+
+		.calcul-pad-content {
+			padding: 5px;
+			height: 200px;
+			user-select: text;
+		}
+
+		.calcul-pad textarea {
+			width: 100%;
+			height: 100%;
+			border: 1px solid #ddd;
+			border-radius: 4px;
+			padding: 0px;
+			font-family: monospace;
+			resize: none;
+			user-select: text;
+		}
+
+
+		.calcul-pad.moving {
+			opacity: 0.8;
+			box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+		}	
+		.info-icon {
+			position: absolute;
+			top: 15px;
+			right: 15px;
+			background-color: #51FF46;
+			color: black;
+			border-radius: 50%;
+			width: 24px;
+			height: 24px;
+			text-align: center;
+			line-height: 24px;
+			font-weight: bold;
+			cursor: pointer;
+			font-size: 16px;
+			font-style: italic;
+			font-family: serif;
+			box-shadow: 0px 0px 5px rgba(0,0,0,0.5);
+			transition: all 0.3s ease;
+		}
+
+		.info-icon:hover {
+			background-color: #FDCF00;
+			transform: scale(1.1);
+		}
+		
+		.info-icon:hover::after {
+			content: "Rappel de la théorie";
+			position: absolute;
+			top: -30px;
+			right: 0;
+			background: #333;
+			color: white;
+			padding: 5px 10px;
+			border-radius: 4px;
+			font-size: 12px;
+			white-space: nowrap;
+			font-style: normal;
+			font-family: Arial, sans-serif;
+		}
+
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 1000;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0,0,0,0.7);
+		}
+
+		.modal-content {
+			background-color: #3c3c54;
+			margin: 5% auto;
+			padding: 25px;
+			border-radius: 10px;
+			width: 80%;
+			max-width: 600px;
+			border: 3px solid #51FF46;
+			box-shadow: 0px 0px 20px rgba(81, 255, 70, 0.5);
+			position: relative;
+		}
+
+		.close {
+			color: #ff4747;
+			float: right;
+			font-size: 28px;
+			font-weight: bold;
+			cursor: pointer;
+			line-height: 1;
+		}
+
+		.close:hover {
+			color: #ff0000;
+			text-shadow: 0px 0px 10px rgba(255, 0, 0, 0.7);
+		}
+		
+		.theory-title {
+			color: #51FF46;
+			border-bottom: 2px solid #FDCF00;
+			padding-bottom: 10px;
+			margin-top: 0;
+		}
+
+		.theory-content {
+			line-height: 1.6;
+			margin-top: 15px;
+			color: white;
+		}		
+		.monospace {
+			font-family: 'Courier New', Courier, monospace;
+			white-space: pre;
+			line-height: 1.2; /* Réduit l'interligne */
+			margin: 0; /* Supprime les marges */
+			padding: 0; /* Supprime les padding */
+		}		
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Calcul du seuil de rentabilité</h1>
+		<div class="info-icon" onclick="showTheory()">i</div>
+    </div>
+    
+    <div class="exercise-container">
+
+        <div id="problem" class="problem">
+            <!-- Le problème sera généré ici -->
+        </div>
+        
+        <div id="inputSection" class="input-section">
+            <!-- Les champs de saisie seront générés ici -->
+        </div>
+        
+        <button id="checkBtn" class="check-btn">Valider</button>
+		<button id="generateBtn" class="new-btn">Nouvel exercice</button>
+        <button id="solutionBtn" class="sol-btn">Afficher la solution</button>
+        <button id="quitter" class="quit-btn" onclick="window.close()">Quitter</button>
+        <div id="solution" class="solution">
+            <!-- La solution sera affichée ici -->
+        </div>
+    </div>
+
+
+<div class="calcul-pad">
+    <div class="calcul-pad-header">
+        <span>Bloc-notes de calculs</span>
+        <button onclick="toggleCalculPad()" style="background:none; border:none; color:white; font-size:16px; cursor:pointer;">×</button>
+    </div>
+    <div class="calcul-pad-content">
+        <textarea id="calculPadText" placeholder="Notez vos calculs ici..."></textarea>
+    </div>
+</div>	
+
+		<!-- Pop-up théorique -->
+		<div id="theoryModal" class="modal">
+			<div class="modal-content">
+				<span class="close" onclick="closeTheory()">&times;</span>
+				<h2 class="theory-title">Rappel théorique - Changes</h2>
+				<div class="theory-content">
+				<p>
+					Méthode 1 : Par simple règle de trois<br>
+					<span class="monospace">CAN&nbsp;&nbsp;&nbsp;: 78'000   =>  CAN au PM ?</span><br>
+					<span class="monospace">PRAMV&nbsp;: 52'000</span><br>
+					<span class="monospace">BB&nbsp;&nbsp;&nbsp;&nbsp;: 26'000   =>  22'000</span><br>
+					<span class="monospace">FF&nbsp;&nbsp;&nbsp;&nbsp;: 22'000   =>  22'000</span><br>
+					<span class="monospace">BN&nbsp;&nbsp;&nbsp;&nbsp;:  4'000   =>       0</span><br>
+					<span class="monospace">PM = 78'000 × 22'000 ÷ 26'000 = <strong>CHF 66'000.-</strong></span><br>
+				</p>
+
+				<p>
+					Méthode 2 : Avec le % de marge brute<br>
+					<span class="monospace">CAN&nbsp;&nbsp;&nbsp;: 78'000 => 100%&nbsp;&nbsp;&nbsp;=> x</span><br>
+					<span class="monospace">PRAMV&nbsp;: 52'000</span><br>
+					<span class="monospace">BB&nbsp;&nbsp;&nbsp;&nbsp;: 26'000 => 33.33% => 22'000</span><br>
+					<span class="monospace">FF&nbsp;&nbsp;&nbsp;&nbsp;: 22'000</span><br>
+					<span class="monospace">BN&nbsp;&nbsp;&nbsp;&nbsp;:  4'000 =>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=>&nbsp;&nbsp;0</span><br>
+					<span class="monospace">PM = 22'000 × 100 ÷ 33.3333 = <strong>CHF 66'000.-</strong></span><br>
+				</p>
+
+				<p>
+					Méthode 3 : Par calcul unitaire<br>
+					<span class="monospace">PV unitaire : CHF 18</span><br>
+					<span class="monospace">PA unitaire : CHF  8</span><br>
+					<span class="monospace">BB unitaire : CHF 10</span><br>
+					<span class="monospace">Frais fixe : 750</span>
+					<br>Quantité au point mort = FF ÷ Marge unitaire
+					<br>Calcul : 750 ÷ 10 = 75 unités
+					<br>CA au point mort = 75 × 18 = CHF 1'350.-
+				</p>
+				</div>
+			</div>
+		</div>
+		
+		
+    <script>
+	
+// Fonction pour formater les nombres avec séparateurs de milliers
+function formatNumber(num) {
+    return new Intl.NumberFormat('fr-CH').format(num);
+}	
+        // Catégories de problèmes
+        const problemTypes = [
+            {
+                name: "Point mort simple",
+                template: (data) => `
+                    <p>Un artisan vend des ${data.product}.</p>
+                    <p>Le prix de vente unitaire est de CHF ${data.pv}.-</p>
+                    <p>Les coûts variables unitaires atteignent CHF ${data.cv}.-</p>
+                    <p>Les coûts fixes se montent à CHF ${data.cf}.- par période.</p>
+                    
+                `,
+                solution: (data) => {
+                    const margeUnitaire = data.pv - data.cv;
+                    const quantitePM = Math.ceil(data.cf / margeUnitaire);
+                    const caPM = quantitePM * data.pv;
+                    
+                    return `
+                        <div class="formula">
+                            Marge unitaire = Prix de vente - Coût variable = ${data.pv} - ${data.cv} = CHF ${margeUnitaire}.-
+                        </div>
+                        <div class="formula">
+                            Point mort (quantité) = Coûts fixes / Marge unitaire = ${data.cf} / ${margeUnitaire} = ${quantitePM} unités
+                        </div>
+                        <div class="formula">
+                            Point mort (CA) = Quantité × Prix de vente = ${quantitePM} × ${data.pv} = CHF ${caPM}.-
+                        </div>
+                        <div class="result">
+                            Le point mort est atteint avec ${quantitePM} ${data.product} vendus, soit un chiffre d'affaires de CHF ${caPM}.-
+                        </div>
+                    `;
+                },
+                generateData: () => {
+                    const products = ["gâteaux", "livres", "cafetières", "t-shirts", "paniers"];
+                    const product = products[Math.floor(Math.random() * products.length)];
+                    // Générer des nombres ronds (multiples de 10)
+                    const pv = Math.floor(Math.random() * 5 + 1) * 10; // 10-50
+                    const cv = Math.floor(Math.random() * (pv/10 - 1) + 1) * 10; // 10 à (pv-10)
+                    const cf = Math.floor(Math.random() * 10 + 2) * 100; // 200-1200
+                    
+                    return { product, pv, cv, cf };
+                },
+                // Fonction pour créer les champs de saisie
+                createInputs: (data) => {
+                    return `
+                        <div class="question">
+
+                            <div class="input-group">
+                                <label for="quantitePM">Quantité (unités) au point mort :</label>
+                                <input type="number" id="quantitePM" min="0" step="1">
+                            </div>
+                        </div>
+                        <div class="question">
+
+                            <div class="input-group">
+                                <label for="caPM">Chiffre d'affaires au point mort :</label>
+                                <input type="number" id="caPM" min="0" step="100">
+                            </div>
+                        </div>
+                    `;
+                },
+                // Fonction pour vérifier les réponses
+                checkAnswers: (data) => {
+                    const margeUnitaire = data.pv - data.cv;
+                    const quantitePM = Math.ceil(data.cf / margeUnitaire);
+                    const caPM = quantitePM * data.pv;
+                    
+                    const userQuantitePM = parseInt(document.getElementById('quantitePM').value) || 0;
+                    const userCaPM = parseInt(document.getElementById('caPM').value) || 0;
+                    
+                    const quantiteCorrect = userQuantitePM === quantitePM;
+                    const caCorrect = userCaPM === caPM;
+                    
+                    return {
+                        quantitePM: { correct: quantiteCorrect, expected: quantitePM, user: userQuantitePM },
+                        caPM: { correct: caCorrect, expected: caPM, user: userCaPM }
+                    };
+                }
+            },
+{
+    name: "Seuil de rentabilité avec compte de résultat",
+    template: (data) => `
+        <p>Sur la base du compte de résultat ci-dessous, calculez le seuil de rentabilité.</p>
+        <table class="compte-resultat">
+            <tr><th>Compte de résultat</th><th>CHF</th></tr>
+            <tr><td>Ventes</td><td>${formatNumber(data.ventes)}</td></tr>
+            <tr><td>Achats</td><td>${formatNumber(data.achats)}</td></tr>
+            <tr><td>Autres charges variables</td><td>${formatNumber(data.autresVariables)}</td></tr>
+            <tr><td>Salaires fixes</td><td>${formatNumber(data.salairesFixes)}</td></tr>
+            <tr><td>Loyers</td><td>${formatNumber(data.loyers)}</td></tr>
+            <tr><td>Autres charges fixes</td><td>${formatNumber(data.autresFixes)}</td></tr>
+        </table>
+    `,
+                solution: (data) => {
+                    const bb = data.ventes - data.achats - data.autresVariables;
+                    const pourcentageBB = (bb / data.ventes * 100).toFixed(1);
+                    const cf = data.salairesFixes + data.loyers + data.autresFixes;
+                    const seuilRentabilite = Math.ceil(cf / (pourcentageBB / 100));
+                    
+                    return `
+                        <div class="formula">
+                            Bénéfice brut = Ventes - Achats - Autres charges variables = ${data.ventes} - ${data.achats} - ${data.autresVariables} = CHF ${bb}.-
+                        </div>
+                        <div class="formula">
+                            % Bénéfice brut = (Bénéfice brut / Ventes) × 100 = (${bb} / ${data.ventes}) × 100 = ${pourcentageBB}%
+                        </div>
+                        <div class="formula">
+                            Charges fixes = Salaires fixes + Loyers + Autres charges fixes = ${data.salairesFixes} + ${data.loyers} + ${data.autresFixes} = CHF ${cf}.-
+                        </div>
+                        <div class="formula">
+                            Seuil de rentabilité = Charges fixes / (% Bénéfice brut / 100) = ${cf} / (${pourcentageBB} / 100) = CHF ${seuilRentabilite}.-
+                        </div>
+                        <div class="result">
+                            Le seuil de rentabilité est de CHF ${seuilRentabilite}.-
+                        </div>
+                    `;
+                },
+                generateData: () => {
+                    // Générer des nombres ronds (multiples de 1000)
+                    const ventes = Math.floor(Math.random() * 20 + 10) * 10000; // 100000-300000
+                    const achats = Math.floor(Math.random() * (ventes * 0.7/10000 - ventes * 0.3/10000) + ventes * 0.3/10000) * 10000;
+                    const autresVariables = Math.floor(Math.random() * (ventes * 0.1/10000 - ventes * 0.05/10000) + ventes * 0.05/10000) * 10000;
+                    const salairesFixes = Math.floor(Math.random() * 5 + 2) * 10000; // 20000-70000
+                    const loyers = Math.floor(Math.random() * 3 + 1) * 10000; // 10000-40000
+                    const autresFixes = Math.floor(Math.random() * 2 + 0.5) * 10000; // 5000-25000
+                    
+                    return { ventes, achats, autresVariables, salairesFixes, loyers, autresFixes };
+                },
+                createInputs: (data) => {
+                    return `
+                        <div class="question">
+                            
+                            <div class="input-group">
+                                <label for="seuilRentabilite">Seuil de rentabilité (CHF) :</label>
+                                <input type="number" id="seuilRentabilite" min="0" step="1000">
+                            </div>
+                        </div>
+                    `;
+                },
+                checkAnswers: (data) => {
+                    const bb = data.ventes - data.achats - data.autresVariables;
+                    const pourcentageBB = bb / data.ventes * 100;
+                    const cf = data.salairesFixes + data.loyers + data.autresFixes;
+                    const seuilRentabilite = Math.ceil(cf / (pourcentageBB / 100));
+                    
+                    const userSeuilRentabilite = parseInt(document.getElementById('seuilRentabilite').value) || 0;
+                    const seuilCorrect = userSeuilRentabilite === seuilRentabilite;
+                    
+                    return {
+                        seuilRentabilite: { correct: seuilCorrect, expected: seuilRentabilite, user: userSeuilRentabilite }
+                    };
+                }
+            },
+            {
+                name: "Calcul avec marge brute et variation de stock",
+                template: (data) => `
+                    <p>Vous connaissez les éléments suivants tirés du compte de résultat :</p>
+                    <ul>
+                        <li>Ventes : CHF ${data.ventes}.-</li>
+                        <li>Marge brute : ${data.pourcentageMarge}% du chiffre d'affaires net</li>
+                        <li>Frais généraux fixes : CHF ${data.fraisFixes}.-</li>
+                        <li>Variation de stock : ${data.variationStock > 0 ? 'augmentation de' : 'diminution de'} CHF ${Math.abs(data.variationStock)}.-</li>
+                    </ul>
+
+                `,
+                solution: (data) => {
+                    const bb = data.ventes * data.pourcentageMarge / 100;
+                    const pramv = data.ventes - bb;
+                    const prama = pramv - data.variationStock;
+                    const seuilRentabilite = Math.ceil(data.fraisFixes / (data.pourcentageMarge / 100));
+                    
+                    return `
+                        <p><strong>a) Bénéfice brut :</strong></p>
+                        <div class="formula">
+                            Bénéfice brut = Ventes × % Marge brute = ${data.ventes} × ${data.pourcentageMarge}% = CHF ${bb}.-
+                        </div>
+                        
+                        <p><strong>b) PRAMV :</strong></p>
+                        <div class="formula">
+                            PRAMV = Ventes - Bénéfice brut = ${data.ventes} - ${bb} = CHF ${pramv}.-
+                        </div>
+                        
+                        <p><strong>c) PRAMA :</strong></p>
+                        <div class="formula">
+                            PRAMA = PRAMV - Variation de stock = ${pramv} - ${data.variationStock} = CHF ${prama}.-
+                        </div>
+                        
+                        <p><strong>d) Point mort :</strong></p>
+                        <div class="formula">
+                            Point mort = Frais fixes / (% Marge brute / 100) = ${data.fraisFixes} / (${data.pourcentageMarge} / 100) = CHF ${seuilRentabilite}.-
+                        </div>
+                        
+                        <div class="result">
+                            Le point mort est de CHF ${seuilRentabilite}.-
+                        </div>
+                    `;
+                },
+                generateData: () => {
+                    // Générer des nombres ronds (multiples de 1000)
+                    const ventes = Math.floor(Math.random() * 30 + 10) * 10000; // 100000-400000
+                    const pourcentageMarge = Math.floor(Math.random() * 21 + 15); // 15-35%
+                    const fraisFixes = Math.floor(Math.random() * 5 + 1.5) * 10000; // 15000-65000
+                    const variationStock = (Math.floor(Math.random() * 10) - 5) * 1000; // -5000 à +5000
+                    
+                    return { ventes, pourcentageMarge, fraisFixes, variationStock };
+                },
+                createInputs: (data) => {
+                    return `
+                        <div class="question">
+                            
+                            <div class="input-group">
+                                <label for="beneficeBrut">Bénéfice brut (CHF) :</label>
+                                <input type="number" id="beneficeBrut" min="0" step="1000">
+                            </div>
+                        </div>
+                        <div class="question">
+                            
+                            <div class="input-group">
+                                <label for="pramv">PRAMV (CHF) :</label>
+                                <input type="number" id="pramv" min="0" step="1000">
+                            </div>
+                        </div>
+                        <div class="question">
+                            
+                            <div class="input-group">
+                                <label for="prama">PRAMA (CHF) :</label>
+                                <input type="number" id="prama" min="0" step="1000">
+                            </div>
+                        </div>
+                        <div class="question">
+                            
+                            <div class="input-group">
+                                <label for="pointMort">Point mort (CHF) :</label>
+                                <input type="number" id="pointMort" min="0" step="1000">
+                            </div>
+                        </div>
+                    `;
+                },
+                checkAnswers: (data) => {
+                    const bb = data.ventes * data.pourcentageMarge / 100;
+                    const pramv = data.ventes - bb;
+                    const prama = pramv - data.variationStock;
+                    const seuilRentabilite = Math.ceil(data.fraisFixes / (data.pourcentageMarge / 100));
+                    
+                    const userBb = parseInt(document.getElementById('beneficeBrut').value) || 0;
+                    const userPramv = parseInt(document.getElementById('pramv').value) || 0;
+                    const userPrama = parseInt(document.getElementById('prama').value) || 0;
+                    const userPointMort = parseInt(document.getElementById('pointMort').value) || 0;
+                    
+                    const bbCorrect = userBb === bb;
+                    const pramvCorrect = userPramv === pramv;
+                    const pramaCorrect = userPrama === prama;
+                    const pointMortCorrect = userPointMort === seuilRentabilite;
+                    
+                    return {
+                        beneficeBrut: { correct: bbCorrect, expected: bb, user: userBb },
+                        pramv: { correct: pramvCorrect, expected: pramv, user: userPramv },
+                        prama: { correct: pramaCorrect, expected: prama, user: userPrama },
+                        pointMort: { correct: pointMortCorrect, expected: seuilRentabilite, user: userPointMort }
+                    };
+                }
+            }
+        ];
+
+        // Éléments DOM
+        const problemElement = document.getElementById('problem');
+        const inputSection = document.getElementById('inputSection');
+        const solutionElement = document.getElementById('solution');
+        const generateBtn = document.getElementById('generateBtn');
+        const checkBtn = document.getElementById('checkBtn');
+        const solutionBtn = document.getElementById('solutionBtn');
+
+        // Variables globales
+        let currentProblemType = null;
+        let currentData = null;
+
+        // Générer un problème aléatoire
+        function generateProblem() {
+            // Choisir un type de problème aléatoire
+            currentProblemType = problemTypes[Math.floor(Math.random() * problemTypes.length)];
+            
+            // Générer des données aléatoires
+            currentData = currentProblemType.generateData();
+            
+            // Afficher le problème
+            problemElement.innerHTML = currentProblemType.template(currentData);
+            
+            // Afficher les champs de saisie
+            inputSection.innerHTML = currentProblemType.createInputs(currentData);
+            
+            // Cacher la solution
+            solutionElement.style.display = 'none';
+            
+            // Supprimer les anciens feedbacks
+            const oldFeedbacks = document.querySelectorAll('.feedback');
+            oldFeedbacks.forEach(feedback => feedback.remove());
+        }
+
+        // Vérifier les réponses
+        function checkAnswers() {
+            if (!currentProblemType || !currentData) {
+                alert("Veuillez d'abord générer un problème.");
+                return;
+            }
+            
+            // Vérifier les réponses
+            const results = currentProblemType.checkAnswers(currentData);
+            
+            // Afficher les résultats
+            for (const [key, result] of Object.entries(results)) {
+                const inputElement = document.getElementById(key);
+                let feedbackElement = document.getElementById(`feedback-${key}`);
+                
+                if (!feedbackElement) {
+                    feedbackElement = document.createElement('div');
+                    feedbackElement.id = `feedback-${key}`;
+                    feedbackElement.className = 'feedback';
+                    inputElement.parentNode.appendChild(feedbackElement);
+                }
+                
+                if (result.correct) {
+                    feedbackElement.textContent = '✓ Correct';
+                    feedbackElement.className = 'feedback correct';
+                } else {
+                    feedbackElement.textContent = `✗ Incorrect. La réponse correcte est ${result.expected}`;
+                    feedbackElement.className = 'feedback incorrect';
+                }
+            }
+        }
+
+        // Afficher la solution
+        function showSolution() {
+            if (!currentProblemType || !currentData) {
+                alert("Veuillez d'abord générer un problème.");
+                return;
+            }
+            
+            // Afficher la solution
+            solutionElement.innerHTML = currentProblemType.solution(currentData);
+            solutionElement.style.display = 'block';
+        }
+
+        // Événements
+        generateBtn.addEventListener('click', generateProblem);
+        checkBtn.addEventListener('click', checkAnswers);
+        solutionBtn.addEventListener('click', showSolution);
+
+        // Générer un problème au chargement de la page
+        window.addEventListener('load', generateProblem);
+
+
+// Fonctions pour le bloc-notes de calculs
+function toggleCalculPad() {
+    const calculPad = document.querySelector('.calcul-pad');
+    calculPad.style.display = calculPad.style.display === 'none' ? 'block' : 'none';
+}
+
+// Fonctions pour le déplacement du cadre
+function makeCalculPadDraggable() {
+    const calculPad = document.querySelector('.calcul-pad');
+    const header = document.querySelector('.calcul-pad-header');
+    
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    
+    header.onmousedown = dragMouseDown;
+    
+    function dragMouseDown(e) {
+        e = e || window.event;
+        e.preventDefault();
+        // Get the mouse cursor position at startup
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        // Call a function whenever the cursor moves
+        document.onmousemove = elementDrag;
+        calculPad.classList.add('moving');
+    }
+    
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        // Calculate the new cursor position
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        // Set the element's new position
+        calculPad.style.top = (calculPad.offsetTop - pos2) + "px";
+        calculPad.style.left = (calculPad.offsetLeft - pos1) + "px";
+        calculPad.style.right = "auto";
+        calculPad.style.transform = "none";
+    }
+    
+    function closeDragElement() {
+        // Stop moving when mouse button is released
+        document.onmouseup = null;
+        document.onmousemove = null;
+        calculPad.classList.remove('moving');
+    }
+}
+
+// Modifier la fonction toggleCalculPad pour qu'elle cache/affiche au lieu d'ouvrir/fermer
+function toggleCalculPad() {
+    const calculPad = document.querySelector('.calcul-pad');
+    calculPad.style.display = calculPad.style.display === 'none' ? 'block' : 'none';
+}
+
+// Supprimer l'événement du bouton toggle (puisqu'il n'existe plus)
+// document.querySelector('.calcul-pad-toggle').addEventListener('click', toggleCalculPad);
+
+// Modifier l'initialisation pour ne pas cacher le cadre au chargement
+window.addEventListener('load', function() {
+    const savedContent = localStorage.getItem('calculPadContent');
+    if (savedContent) {
+        document.getElementById('calculPadText').value = savedContent;
+    }
+    // Rendre le cadre déplaçable après le chargement
+    makeCalculPadDraggable();
+    
+    // Ne pas cacher le cadre - il est déjà visible par défaut
+});	
+
+		// Fonctions pour le pop-up théorique
+		function showTheory() {
+			document.getElementById('theoryModal').style.display = 'block';
+		}
+
+		function closeTheory() {
+			document.getElementById('theoryModal').style.display = 'none';
+		}
+
+		// Fermer le pop-up si on clique en dehors
+		window.onclick = function(event) {
+			const modal = document.getElementById('theoryModal');
+			if (event.target === modal) {
+				closeTheory();
+			}
+		}
+
+    </script>
+</body>
+</html>

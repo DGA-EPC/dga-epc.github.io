@@ -333,7 +333,7 @@
                 <h2 class="year-title">3ème année</h2>
                 <div class="chapters">
 					<div class="chapter has-subchapters" onclick="openRLModal()">37 Règles d'évaluation et réserves latentes</div>
-                    <div class="chapter no-link">44 Seuil de rentabilité et marge contributive</div>
+                    <div class="chapter has-subchapters" onclick="openPMModal()">44 Seuil de rentabilité (point mort)</div>
                     <div class="chapter no-link">51 Analyse de bilan et du résultat</div>
 					<div class="chapter has-subchapters" onclick="openResultatModal()">56 Compte de résultat à 3/4 degrés</div>
                     <div class="chapter no-link">57 Tableau des flux de trésorerie</div>
@@ -479,7 +479,6 @@
                         2. Journalisation de création/dissolution de réserves latentes
                     </a>
                 </li>
-			
             </ul>
         </div>		
     </div>		
@@ -495,13 +494,12 @@
                     <a href="https://dga-epc.github.io/La_Compta_SA-Journal.html"  target="_blank">
                         1. Journalisation
                     </a>
-                </li>                <li class="subchapter">
+                </li> 
+				<li class="subchapter">
                     <a href="https://dga-epc.github.io/La_Compta_SA-BN.html"  target="_blank">
                         2. Etablir un tableau de répartition du bénéfice
                     </a>
                 </li>
-
-			
             </ul>
         </div>		
     </div>		
@@ -517,16 +515,41 @@
                     <a href="https://dga-epc.github.io/La_Compta_Titres.html"  target="_blank">
                         1. Journalisation
                     </a>
-                </li>                <li class="subchapter">
+                </li>
+                <li class="subchapter">
                     <a href="https://dga-epc.github.io/La_Compta_Titres-Rdmt.html"  target="_blank">
                         2. Calcul du rendement des titres
                     </a>
                 </li>
-
-			
             </ul>
         </div>		
     </div>		
+
+    <div id="subPMModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">44 Seuil de rentabilité (point mort)</h3>
+                <button class="close-modal" onclick="closePMModal()">&times;</button>
+            </div>
+            <ul class="subchapters">
+                <li class="subchapter">
+                    <a href="https://dga-epc.github.io/La_Compta_PM_Graphique.html"  target="_blank">
+                        1. Lecture d'un graphique
+                    </a>
+                </li>
+					<li class="subchapter">
+                    <a href="https://dga-epc.github.io/La_Compta_PM_GraphAFaire.html"  target="_blank">
+                        2. Réalisation d'un graphique
+                    </a>
+                </li>
+					<li class="subchapter">
+                    <a href="https://dga-epc.github.io/La_Compta_PM_Calculs.html"  target="_blank">
+                        3. Problèmes mathématiques
+                    </a>
+                </li>				
+            </ul>
+        </div>		
+    </div>			
 	
     <script>
         function openModal() {
@@ -556,7 +579,6 @@
         function openResultatModal() {
             document.getElementById('subResultatModal').style.display = 'flex';
         }
-
         function closeResultatModal() {
             document.getElementById('subResultatModal').style.display = 'none';
         }			
@@ -564,7 +586,6 @@
         function openRLModal() {
             document.getElementById('subRLModal').style.display = 'flex';
         }
-
         function closeRLModal() {
             document.getElementById('subRLModal').style.display = 'none';
         }
@@ -576,14 +597,21 @@
         function closeSAModal() {
             document.getElementById('subSAModal').style.display = 'none';
         }
+		
         function openTitresModal() {
             document.getElementById('subTitresModal').style.display = 'flex';
         }
-
         function closeTitresModal() {
             document.getElementById('subTitresModal').style.display = 'none';
         }		
 
+        function openPMModal() {
+            document.getElementById('subPMModal').style.display = 'flex';
+        }
+        function closePMModal() {
+            document.getElementById('subPMModal').style.display = 'none';
+        }		
+		
         // Fermer n'importe quelle modale en cliquant à l'extérieur
         document.addEventListener('click', function(event) {
             const modals = document.querySelectorAll('.modal');
