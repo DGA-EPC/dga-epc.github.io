@@ -43,7 +43,7 @@
 			gap: 20px;
 			margin-top: 20px;
 			justify-content: center; /* Ajouté pour centrer horizontalement */
-			max-width: 900px; /* Largeur maximale pour contenir les deux sections */
+			max-width: 950px; /* Largeur maximale pour contenir les deux sections */
 			margin-left: auto; /* Centrage automatique à gauche */
 			margin-right: auto; /* Centrage automatique à droite */
 		}
@@ -52,7 +52,7 @@
 			flex: 1;
 			background-color: #ffebee;
 			padding: 15px;
-			max-width: 400px; /* Conserver la largeur maximale */
+			max-width: 350px; /* Conserver la largeur maximale */
 			border-radius: 5px;
 			box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 		}
@@ -62,7 +62,7 @@
             background-color: white;
             padding: 15px;
             border-radius: 5px;
-			max-width: 400px;
+			max-width: 500px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
@@ -86,6 +86,7 @@
         .solution-select {
             flex: 1;
             padding: 8px;
+			max-width: 190px;
             margin-right: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -96,14 +97,16 @@
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
+			max-width: 80px;
+			text-align: right;
         }
         
         .solution-formula {
             flex: 1;
-            padding: 8px;
-            margin-left: 10px;
-            font-style: italic;
-            color: #666;
+            padding: 2px;
+            margin-left: 5px;
+            color: red;
+			font-size: 13px;
             display: none;
         }
         
@@ -378,15 +381,15 @@
             const rendementNet = (gainNet / capitalInvesti) * 100;
             
             return {
-                "Prix de l'immeuble": `${prixImmeuble.toLocaleString('fr-FR')} (identique au prix d'achat)`,
-                "Dette hypothécaire": `${detteHypothecaire.toLocaleString('fr-FR')} (${prixImmeuble.toLocaleString('fr-FR')} × ${dettePourcentage}% / 100)`,
-                "Capital investi": `${capitalInvesti.toLocaleString('fr-FR')} (${prixImmeuble.toLocaleString('fr-FR')} - ${detteHypothecaire.toLocaleString('fr-FR')})`,
-                "Revenus": `${loyers.toLocaleString('fr-FR')} (identique aux loyers encaissés)`,
-                "- Charges d'entretien": `${charges.toLocaleString('fr-FR')} (identique aux charges d'entretien)`,
-                "- Intérêts sur la dette": `${interetsDette.toLocaleString('fr-FR')} (${detteHypothecaire.toLocaleString('fr-FR')} × ${tauxInteret}% / 100)`,
-                "Gain net": `${gainNet.toLocaleString('fr-FR')} (${loyers.toLocaleString('fr-FR')} - ${charges.toLocaleString('fr-FR')} - ${interetsDette.toLocaleString('fr-FR')})`,
-                "Rendement brut (%)": `${rendementBrut.toFixed(2)} % (${loyers.toLocaleString('fr-FR')} / ${prixImmeuble.toLocaleString('fr-FR')} × 100)`,
-                "Rendement net (%)": `${rendementNet.toFixed(2)} % (${gainNet.toLocaleString('fr-FR')} / ${capitalInvesti.toLocaleString('fr-FR')} × 100)`
+                "Prix de l'immeuble": `${prixImmeuble.toLocaleString('fr-FR')}`,
+                "Dette hypothécaire": `${detteHypothecaire.toLocaleString('fr-FR')} = ${prixImmeuble.toLocaleString('fr-FR')} × ${dettePourcentage}% / 100`,
+                "Capital investi": `${capitalInvesti.toLocaleString('fr-FR')} = ${prixImmeuble.toLocaleString('fr-FR')} - ${detteHypothecaire.toLocaleString('fr-FR')}`,
+                "Revenus": `${loyers.toLocaleString('fr-FR')} (loyers encaissés)`,
+                "- Charges d'entretien": `${charges.toLocaleString('fr-FR')}`,
+                "- Intérêts sur la dette": `${interetsDette.toLocaleString('fr-FR')} = ${detteHypothecaire.toLocaleString('fr-FR')} × ${tauxInteret}% / 100`,
+                "Gain net": `${gainNet.toLocaleString('fr-FR')} = ${loyers.toLocaleString('fr-FR')} - ${charges.toLocaleString('fr-FR')} - ${interetsDette.toLocaleString('fr-FR')}`,
+                "Rendement brut (%)": `${rendementBrut.toFixed(2)} % = ${loyers.toLocaleString('fr-FR')} / ${prixImmeuble.toLocaleString('fr-FR')} × 100`,
+                "Rendement net (%)": `${rendementNet.toFixed(2)} % = ${gainNet.toLocaleString('fr-FR')} / ${capitalInvesti.toLocaleString('fr-FR')} × 100`
             };
         }
         
@@ -501,7 +504,7 @@
                 }
             }
             
-            alert(`Vous avez ${correctCount} réponse(s) correcte(s) sur ${totalCount}.`);
+            alert(`Vous avez ${correctCount} réponse(s) correcte(s) sur ${totalCount}.\nVous pouvez réviser vos chiffres et revalider ou afficher la solution.`);
         }
         
         // Afficher la solution
