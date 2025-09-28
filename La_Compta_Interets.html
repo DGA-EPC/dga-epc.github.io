@@ -126,6 +126,49 @@
             font-weight: bold;
         }
 
+		.calcul-pad {
+			position: fixed;
+			top: 50%;
+			right: 20px;
+			transform: translateY(-50%);
+			width: 350px;
+			background: white;
+			border: 2px solid #4b0082;
+			border-radius: 8px;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+			z-index: 1000;
+			display: block;
+			cursor: move;
+			user-select: none;
+		}
+
+		.calcul-pad-header {
+			background: #4b0082;
+			color: white;
+			padding: 10px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			cursor: move;
+		}
+
+		.calcul-pad-content {
+			padding: 5px;
+			height: 200px;
+			user-select: text;
+		}
+
+		.calcul-pad textarea {
+			width: 100%;
+			height: 100%;
+			border: 1px solid #ddd;
+			border-radius: 4px;
+			padding: 0px;
+			font-family: monospace;
+			resize: none;
+			user-select: text;
+		}		
+
 		.info-icon {
 			position: absolute;
 			top: 15px;
@@ -247,6 +290,56 @@
         </div>
     </div>
 
+<div class="calcul-pad">
+    <div class="calcul-pad-header">
+        <span>Bloc-notes de calculs</span>
+        <button onclick="toggleCalculPad()" style="background:none; border:none; color:white; font-size:16px; cursor:pointer;">×</button>
+    </div>
+    <div class="calcul-pad-content">
+        <textarea id="calculPadText" placeholder="Notez vos calculs ici..."></textarea>
+    </div>
+</div>	
+
+		<!-- Pop-up théorique -->
+		<div id="theoryModal" class="modal">
+			<div class="modal-content">
+				<span class="close" onclick="closeTheory()">&times;</span>
+				<h2 class="theory-title">Rappel théorique - Changes</h2>
+				<div class="theory-content">
+				<p>
+					Méthode 1 : Par simple règle de trois<br>
+					<span class="monospace">CAN&nbsp;&nbsp;&nbsp;: 78'000   =>  CAN au PM ?</span><br>
+					<span class="monospace">PRAMV&nbsp;: 52'000</span><br>
+					<span class="monospace">BB&nbsp;&nbsp;&nbsp;&nbsp;: 26'000   =>  22'000</span><br>
+					<span class="monospace">FF&nbsp;&nbsp;&nbsp;&nbsp;: 22'000   =>  22'000</span><br>
+					<span class="monospace">BN&nbsp;&nbsp;&nbsp;&nbsp;:  4'000   =>       0</span><br>
+					<span class="monospace">PM = 78'000 × 22'000 ÷ 26'000 = <strong>CHF 66'000.-</strong></span><br>
+				</p>
+
+				<p>
+					Méthode 2 : Avec le % de marge brute<br>
+					<span class="monospace">CAN&nbsp;&nbsp;&nbsp;: 78'000 => 100%&nbsp;&nbsp;&nbsp;=> x</span><br>
+					<span class="monospace">PRAMV&nbsp;: 52'000</span><br>
+					<span class="monospace">BB&nbsp;&nbsp;&nbsp;&nbsp;: 26'000 => 33.33% => 22'000</span><br>
+					<span class="monospace">FF&nbsp;&nbsp;&nbsp;&nbsp;: 22'000</span><br>
+					<span class="monospace">BN&nbsp;&nbsp;&nbsp;&nbsp;:  4'000 =>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=>&nbsp;&nbsp;0</span><br>
+					<span class="monospace">PM = 22'000 × 100 ÷ 33.3333 = <strong>CHF 66'000.-</strong></span><br>
+				</p>
+
+				<p>
+					Méthode 3 : Par calcul unitaire<br>
+					<span class="monospace">PV unitaire : CHF 18</span><br>
+					<span class="monospace">PA unitaire : CHF  8</span><br>
+					<span class="monospace">BB unitaire : CHF 10</span><br>
+					<span class="monospace">Frais fixe : 750</span>
+					<br>Quantité au point mort = FF ÷ Marge unitaire
+					<br>Calcul : 750 ÷ 10 = 75 unités
+					<br>CA au point mort = 75 × 18 = CHF 1'350.-
+				</p>
+				</div>
+			</div>
+		</div>	
+
     <script>
 	
 	function formatNumber(num) {
@@ -282,14 +375,14 @@
 			
             const days = Math.floor(Math.random() * 360) + 1; // Entre 1 et 360 jours
             
-            // Déterminer quelle variable sera à trouver (c, t, i ou n)
-            const variables = ['c', 't', 'i', 'n'];
+            // Déterminer quelle variable sera à trouver (c, t, i, n ou inet)
+            const variables = ['c', 't', 'i', 'n', 'inet'];
             const unknownVariable = variables[Math.floor(Math.random() * variables.length)];
             
             // Calculer l'intérêt brut
             const rawInterest = capital * rate * days / 36000;
-const roundedInterest = Math.round(rawInterest * 20) / 20; // Arrondi à 0.05 près
-const interest = roundedInterest.toFixed(2);
+            const roundedInterest = Math.round(rawInterest * 20) / 20; // Arrondi à 0.05 près
+            const interest = roundedInterest.toFixed(2);
             
             // Stocker le problème actuel
             currentProblem = {
@@ -313,18 +406,20 @@ const interest = roundedInterest.toFixed(2);
                     expectedAnswer = rate;
                     break;
                 case 'i':
-                    problemText = `Un capital de CHF ${formatNumber(capital)} est placé à un taux de ${rate}% pendant ${days} jours. Calculez les intérêts générés.`;
+                    problemText = `Un capital de CHF ${formatNumber(capital)} est placé à un taux de ${rate}% pendant ${days} jours. Calculez l'intérêt brut.`;
                     expectedAnswer = parseFloat(interest);
                     break;
                 case 'n':
                     problemText = `Un capital de CHF ${formatNumber(capital)} placé à un taux de ${rate}% a généré des intérêts de CHF ${formatNumber(interest)}. Quelle était la durée du placement en jours?`;
                     expectedAnswer = days;
                     break;
-            }
-            
-            // Ajouter la note sur l'impôt si nécessaire
-            if (unknownVariable === 'i' && interest > 200) {
-                problemText += "<br><span class='tax-note'>Note: Les intérêts dépassent 200 CHF, pensez à déduire l'impôt anticipé de 35%.</span>";
+                case 'inet':
+                    problemText = `Un capital de CHF ${formatNumber(capital)} est placé à un taux de ${rate}% pendant ${days} jours. Calculez l'intérêt net (après déduction de l'impôt anticipé de 35%).`;
+                    // Calculer l'intérêt net
+                    const tax = (parseFloat(interest) * 0.35).toFixed(2);
+                    const netInterest = (parseFloat(interest) - parseFloat(tax)).toFixed(2);
+                    expectedAnswer = parseFloat(netInterest);
+                    break;
             }
             
             document.getElementById('problem-text').innerHTML = problemText;
@@ -364,7 +459,7 @@ const interest = roundedInterest.toFixed(2);
             if (currentProblem.unknownVariable !== 't') {
                 html += `<li>t = ${currentProblem.rate}%</li>`;
             }
-            if (currentProblem.unknownVariable !== 'i') {
+            if (currentProblem.unknownVariable !== 'i' && currentProblem.unknownVariable !== 'inet') {
                 html += `<li>i = CHF ${formatNumber(currentProblem.interest)}</li>`;
             }
             if (currentProblem.unknownVariable !== 'n') {
@@ -396,24 +491,26 @@ const interest = roundedInterest.toFixed(2);
                     
                     let grossInterest = currentProblem.interest;
                     html += `<p>i = ${grossInterest} CHF (intérêt brut)</p>`;
-                    
-                    // Vérifier si l'impôt s'applique
-                    if (grossInterest > 200) {
-                        html += `<p class="tax-note">Les intérêts dépassent 200 CHF, donc l'impôt anticipé de 35% s'applique sur la partie excédentaire.</p>`;
-                        const taxableAmount = (grossInterest - 200).toFixed(2);
-                        const tax = (taxableAmount * 0.35).toFixed(2);
-                        const netInterest = (grossInterest - tax).toFixed(2);
-                        
-                        html += `<p>Montant imposable: ${grossInterest} - 200 = ${taxableAmount} CHF</p>`;
-                        html += `<p>Impôt: ${taxableAmount} × 0.35 = ${tax} CHF</p>`;
-                        html += `<p>Intérêt net: ${grossInterest} - ${tax} = ${netInterest} CHF</p>`;
-                    }
                     break;
                 case 'n':
                     html += `<p>Formule réarrangée pour trouver n: n = i × 36000 / (c × t)</p>`;
                     html += `<p>Calcul: n = ${currentProblem.interest} × 36000 / (${currentProblem.capital} × ${currentProblem.rate})</p>`;
                     html += `<p>n = ${(currentProblem.interest * 36000).toFixed(2)} / ${(currentProblem.capital * currentProblem.rate).toFixed(2)}</p>`;
                     html += `<p>n = ${currentProblem.days} jours</p>`;
+                    break;
+                case 'inet':
+                    html += `<p>Calcul de l'intérêt brut: i = ${currentProblem.capital} × ${currentProblem.rate} × ${currentProblem.days} / 36000</p>`;
+                    html += `<p>i = ${(currentProblem.capital * currentProblem.rate * currentProblem.days).toFixed(2)} / 36000</p>`;
+                    
+                    const grossInterestNet = currentProblem.interest;
+                    html += `<p>i = ${grossInterestNet} CHF (intérêt brut)</p>`;
+                    
+                    // Calcul de l'impôt et de l'intérêt net
+                    const tax = (parseFloat(grossInterestNet) * 0.35).toFixed(2);
+                    const netInterest = (parseFloat(grossInterestNet) - parseFloat(tax)).toFixed(2);
+                    
+                    html += `<p>Impôt anticipé (35%): ${grossInterestNet} × 0.35 = ${tax} CHF</p>`;
+                    html += `<p>Intérêt net: ${grossInterestNet} - ${tax} = ${netInterest} CHF</p>`;
                     break;
             }
             
@@ -440,6 +537,81 @@ const interest = roundedInterest.toFixed(2);
 		
         // Générer un problème au chargement de la page
         window.onload = generateProblem;
+
+// Fonctions pour le bloc-notes de calculs
+function toggleCalculPad() {
+    const calculPad = document.querySelector('.calcul-pad');
+    calculPad.style.display = calculPad.style.display === 'none' ? 'block' : 'none';
+}
+
+// Fonctions pour le déplacement du cadre
+function makeCalculPadDraggable() {
+    const calculPad = document.querySelector('.calcul-pad');
+    const header = document.querySelector('.calcul-pad-header');
+    
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    
+    header.onmousedown = dragMouseDown;
+    
+    function dragMouseDown(e) {
+        e = e || window.event;
+        e.preventDefault();
+        // Get the mouse cursor position at startup
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        // Call a function whenever the cursor moves
+        document.onmousemove = elementDrag;
+        calculPad.classList.add('moving');
+    }
+    
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        // Calculate the new cursor position
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        // Set the element's new position
+        calculPad.style.top = (calculPad.offsetTop - pos2) + "px";
+        calculPad.style.left = (calculPad.offsetLeft - pos1) + "px";
+        calculPad.style.right = "auto";
+        calculPad.style.transform = "none";
+    }
+    
+    function closeDragElement() {
+        // Stop moving when mouse button is released
+        document.onmouseup = null;
+        document.onmousemove = null;
+        calculPad.classList.remove('moving');
+    }
+}
+
+// Modifier la fonction toggleCalculPad pour qu'elle cache/affiche au lieu d'ouvrir/fermer
+function toggleCalculPad() {
+    const calculPad = document.querySelector('.calcul-pad');
+    calculPad.style.display = calculPad.style.display === 'none' ? 'block' : 'none';
+}
+
+// Supprimer l'événement du bouton toggle (puisqu'il n'existe plus)
+// document.querySelector('.calcul-pad-toggle').addEventListener('click', toggleCalculPad);
+
+// Modifier l'initialisation pour ne pas cacher le cadre au chargement
+window.addEventListener('load', function() {
+    const savedContent = localStorage.getItem('calculPadContent');
+    if (savedContent) {
+        document.getElementById('calculPadText').value = savedContent;
+    }
+    // Rendre le cadre déplaçable après le chargement
+    makeCalculPadDraggable();
+    
+    // Ne pas cacher le cadre - il est déjà visible par défaut
+});	
+
+
+
+
     </script>
 	
 		<div style="text-align: center; margin-top: 30px; font-style: italic; color: #ffb5fb; padding: 10px;">
@@ -457,9 +629,12 @@ const interest = roundedInterest.toFixed(2);
 					<p><br>i = intérêts en CHF<br>c = capital (montant le plus gros de la donnée!)<br>t = taux d'intérêt<br>n = nombre de jours</p>
 					<p>Remarque : si n = nombre de mois, on divise par 1200, car il y a 12 mois dans l'année (et x100 car 5% = 5 / 100)</p>
 					<p><br>Chercher autre chose que i, c'est toujours i x 36000 divisé par les autres variables!
+                    <p><br>Pour l'intérêt net, on déduit l'impôt anticipé de 35% de l'intérêt brut.</p>
 				</div>
 			</div>
 		</div>
+
+		
 		
 </body>
 </html>
