@@ -79,7 +79,8 @@
         }
         
         .input-container {
-            margin: 15px 0;
+            margin: 15px 15px;
+
         }
         
         input {
@@ -170,6 +171,55 @@
 			color: #ffb5fb;
         }
     
+		.calcul-pad {
+			position: fixed;
+			top: 50%;
+			right: 20px;
+			transform: translateY(-50%);
+			width: 350px;
+			background: white;
+			border: 2px solid #4b0082;
+			border-radius: 8px;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+			z-index: 1000;
+			display: block;
+			cursor: move;
+			user-select: none;
+		}
+
+		.calcul-pad-header {
+			background: #4b0082;
+			color: white;
+			padding: 10px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			cursor: move;
+		}
+
+		.calcul-pad-content {
+			padding: 5px;
+			height: 200px;
+			user-select: text;
+		}
+
+		.calcul-pad textarea {
+			width: 100%;
+			height: 100%;
+			border: 1px solid #ddd;
+			border-radius: 4px;
+			padding: 0px;
+			font-family: monospace;
+			resize: none;
+			user-select: text;
+		}
+
+
+		.calcul-pad.moving {
+			opacity: 0.8;
+			box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+		}	
+	
 		.info-icon {
 			position: absolute;
 			top: 15px;
@@ -327,10 +377,10 @@
             
             <div class="input-container">
                 <input type="number" step="0.05" id="user-answer" placeholder="Votre réponse en CHF">
-                <button class="validate-btn" onclick="validateAnswer()">Valider</button>
             </div>
             
             <div>
+			    <button class="validate-btn" onclick="validateAnswer()">Valider</button>
                 <button class="new-btn" onclick="generateNewProblem()">Nouvel exercice</button>
                 <button class="solution-btn" onclick="showSolution()">Afficher la solution</button>
 				<button class="reset-btn" onclick="resetRates()">Nouveaux cours</button>
@@ -344,6 +394,56 @@
         <div class="footer">
             <p>"Je fais de la compta et c'est ma joie!" - DG, EPC Fribourg</p>
         </div>
+
+<div class="calcul-pad">
+    <div class="calcul-pad-header">
+        <span>Bloc-notes de calculs</span>
+        <button onclick="toggleCalculPad()" style="background:none; border:none; color:white; font-size:16px; cursor:pointer;">×</button>
+    </div>
+    <div class="calcul-pad-content">
+        <textarea id="calculPadText" placeholder="Notez vos calculs ici..."></textarea>
+    </div>
+</div>	
+
+		<!-- Pop-up théorique -->
+		<div id="theoryModal" class="modal">
+			<div class="modal-content">
+				<span class="close" onclick="closeTheory()">&times;</span>
+				<h2 class="theory-title">Rappel théorique - Changes</h2>
+				<div class="theory-content">
+				<p>
+					Méthode 1 : Par simple règle de trois<br>
+					<span class="monospace">CAN&nbsp;&nbsp;&nbsp;: 78'000   =>  CAN au PM ?</span><br>
+					<span class="monospace">PRAMV&nbsp;: 52'000</span><br>
+					<span class="monospace">BB&nbsp;&nbsp;&nbsp;&nbsp;: 26'000   =>  22'000</span><br>
+					<span class="monospace">FF&nbsp;&nbsp;&nbsp;&nbsp;: 22'000   =>  22'000</span><br>
+					<span class="monospace">BN&nbsp;&nbsp;&nbsp;&nbsp;:  4'000   =>       0</span><br>
+					<span class="monospace">PM = 78'000 × 22'000 ÷ 26'000 = <strong>CHF 66'000.-</strong></span><br>
+				</p>
+
+				<p>
+					Méthode 2 : Avec le % de marge brute<br>
+					<span class="monospace">CAN&nbsp;&nbsp;&nbsp;: 78'000 => 100%&nbsp;&nbsp;&nbsp;=> x</span><br>
+					<span class="monospace">PRAMV&nbsp;: 52'000</span><br>
+					<span class="monospace">BB&nbsp;&nbsp;&nbsp;&nbsp;: 26'000 => 33.33% => 22'000</span><br>
+					<span class="monospace">FF&nbsp;&nbsp;&nbsp;&nbsp;: 22'000</span><br>
+					<span class="monospace">BN&nbsp;&nbsp;&nbsp;&nbsp;:  4'000 =>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=>&nbsp;&nbsp;0</span><br>
+					<span class="monospace">PM = 22'000 × 100 ÷ 33.3333 = <strong>CHF 66'000.-</strong></span><br>
+				</p>
+
+				<p>
+					Méthode 3 : Par calcul unitaire<br>
+					<span class="monospace">PV unitaire : CHF 18</span><br>
+					<span class="monospace">PA unitaire : CHF  8</span><br>
+					<span class="monospace">BB unitaire : CHF 10</span><br>
+					<span class="monospace">Frais fixe : 750</span>
+					<br>Quantité au point mort = FF ÷ Marge unitaire
+					<br>Calcul : 750 ÷ 10 = 75 unités
+					<br>CA au point mort = 75 × 18 = CHF 1'350.-
+				</p>
+				</div>
+			</div>
+		</div>		
         
     <script>
         // Données des devises
@@ -826,6 +926,80 @@ function showRuleOfThree() {
     ruleHTML += '</div>';
     solutionDetails.innerHTML = ruleHTML;
 }
+
+// Fonctions pour le bloc-notes de calculs
+function toggleCalculPad() {
+    const calculPad = document.querySelector('.calcul-pad');
+    calculPad.style.display = calculPad.style.display === 'none' ? 'block' : 'none';
+}
+
+// Fonctions pour le déplacement du cadre
+function makeCalculPadDraggable() {
+    const calculPad = document.querySelector('.calcul-pad');
+    const header = document.querySelector('.calcul-pad-header');
+    
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    
+    header.onmousedown = dragMouseDown;
+    
+    function dragMouseDown(e) {
+        e = e || window.event;
+        e.preventDefault();
+        // Get the mouse cursor position at startup
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        // Call a function whenever the cursor moves
+        document.onmousemove = elementDrag;
+        calculPad.classList.add('moving');
+    }
+    
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        // Calculate the new cursor position
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        // Set the element's new position
+        calculPad.style.top = (calculPad.offsetTop - pos2) + "px";
+        calculPad.style.left = (calculPad.offsetLeft - pos1) + "px";
+        calculPad.style.right = "auto";
+        calculPad.style.transform = "none";
+    }
+    
+    function closeDragElement() {
+        // Stop moving when mouse button is released
+        document.onmouseup = null;
+        document.onmousemove = null;
+        calculPad.classList.remove('moving');
+    }
+}
+
+// Modifier la fonction toggleCalculPad pour qu'elle cache/affiche au lieu d'ouvrir/fermer
+function toggleCalculPad() {
+    const calculPad = document.querySelector('.calcul-pad');
+    calculPad.style.display = calculPad.style.display === 'none' ? 'block' : 'none';
+}
+
+// Supprimer l'événement du bouton toggle (puisqu'il n'existe plus)
+// document.querySelector('.calcul-pad-toggle').addEventListener('click', toggleCalculPad);
+
+// Modifier l'initialisation pour ne pas cacher le cadre au chargement
+window.addEventListener('load', function() {
+    const savedContent = localStorage.getItem('calculPadContent');
+    if (savedContent) {
+        document.getElementById('calculPadText').value = savedContent;
+    }
+    // Rendre le cadre déplaçable après le chargement
+    makeCalculPadDraggable();
+    
+    // Ne pas cacher le cadre - il est déjà visible par défaut
+});	
+
+
+
 		// Fonctions pour le pop-up théorique
 		function showTheory() {
 			document.getElementById('theoryModal').style.display = 'block';
