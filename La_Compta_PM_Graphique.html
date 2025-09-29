@@ -221,10 +221,7 @@
             document.getElementById('validateBtn').addEventListener('click', validateAnswers);
             document.getElementById('newExerciseBtn').addEventListener('click', generateNewExercise);
             document.getElementById('showAnswersBtn').addEventListener('click', showAnswers);
-            document.getElementById('quitBtn').addEventListener('click', function() {
-                if (confirm('Voulez-vous vraiment quitter ?')) {
-                    window.close();
-                }
+            document.getElementById('quitBtn').addEventListener('click', function() { window.close();
             });
         }
         
