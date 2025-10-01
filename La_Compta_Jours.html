@@ -25,6 +25,7 @@
             border-radius: 8px;
 			max-width: 1000px;
 			margin: 0px auto;
+			text-shadow: 2px 2px 4px rgba(0,0,0,1);
             box-shadow: 0 4px 12px rgba(106, 13, 173, 0.4);
         }        
 
@@ -114,45 +115,46 @@
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
+			text-shadow: 1px 1px 2px rgba(0,0,0,1);
             transition: background-color 0.3s, transform 0.1s;
         }
 		
         #validate {
-            background-color: #61b865;
+            background-color: #00b50d;
             color: white;
         }
         #validate:hover {
-			background-color: #00b50d;
+			background-color: #61b865;
 			transform: translateY(-2px);
 			box-shadow: 0px 0px 15px 5px rgba(0,255,49,0.6);
         }
         
         #new {
-            background-color: #ffbf57;
+            background-color: #ffa500;
             color: white;
         }
         #new:hover {
-			background-color: #ffa500;
+			background-color: #ffbf57;
 			transform: translateY(-2px);
 			box-shadow: 0px 0px 10px 5px rgba(255,255,75, 0.6);	
         }		
         
         #solution {
-            background-color: #5eabcc;
+            background-color: #0088c2;
             color: white;
         }
         #solution:hover {
-			background-color: #0088c2;
+			background-color: #5eabcc;
 			transform: translateY(-2px);
 			box-shadow: 0px 0px 10px 5px rgba(120,255,255, 0.6);
         }		
         
         .quit {
-            background-color: #ff4747;
+            background-color: #ff0000;
             color: white;
         }
         .quit:hover {
-			background-color: #ff0000;
+			background-color: #ff4747;
 			transform: translateY(-2px);
 			box-shadow: 0px 0px 10px 5px rgba(255,55,55, 0.6);
         }			
@@ -304,6 +306,14 @@
     </footer>
 
     <script>
+		document.addEventListener('keydown', function(e) {
+			if (e.keyCode == 123 || // F12
+				(e.ctrlKey && e.shiftKey && e.keyCode == 73) || // Ctrl+Shift+I
+				(e.ctrlKey && e.keyCode == 85)) { // Ctrl+U
+				e.preventDefault();
+			}
+		});
+		
         // Données pour les exercices
         let exercises = [];
         

@@ -24,6 +24,7 @@
 			max-width: 1200px;
             border-top: 6px solid #FF1100;
             border-bottom: 6px solid #2DFF00;			
+			text-shadow: 2px 2px 4px rgba(0,0,0,1);
             box-shadow: 0 -4px 12px 4px rgba(255, 161, 153, 0.6);
         }
         h1 {
@@ -144,14 +145,15 @@
             font-weight: bold;
             font-size: 0.9rem;
             transition: all 0.3s;
+			text-shadow: 1px 1px 2px rgba(0,0,0,1);
             box-shadow: 0 2px 4px rgba(0,0,0,0.15);
         }
         #submit-btn {
-            background-color: #61b865;
+            background-color: ##00b50d;
             color: white;
         }
         #submit-btn:hover:not(:disabled) {
-            background-color: #00b50d;
+            background-color: #61b865;
             transform: translateY(-2px);
             box-shadow: 0px 0px 10px 5px rgba(0,255,0, 0.6);
         }
@@ -161,29 +163,29 @@
             transform: none;
         }
         #reset-btn {
-            background-color: #ffbf47;
+            background-color: #ffa500;
             color: white;
         }
         #reset-btn:hover {
-            background-color: #ffa500;
+            background-color: #ffbf47;
             transform: translateY(-2px);
             box-shadow: 0px 0px 10px 5px rgba(255,255,75, 0.6);			
         }
         #solution-btn {
-            background-color: #5eabcc;
+            background-color: #0088c2;
             color: white;
         }
         #solution-btn:hover {
-            background-color: #0088c2;
+            background-color: #5eabcc;
             transform: translateY(-2px);
             box-shadow: 0px 0px 10px 5px rgba(120,255,255, 0.6);
         }
         #quitter-btn {
-            background-color: #ff8585;
+            background-color: #ff0000;
             color: white;
         }
         #quitter-btn:hover {
-            background-color: #ff0000;
+            background-color: #ff4747;
             transform: translateY(-2px);
             box-shadow: 0px 0px 10px 5px rgba(255,55,55, 0.6);
         }
@@ -348,6 +350,14 @@
 		</div>	
 
     <script>
+		document.addEventListener('keydown', function(e) {
+			if (e.keyCode == 123 || // F12
+				(e.ctrlKey && e.shiftKey && e.keyCode == 73) || // Ctrl+Shift+I
+				(e.ctrlKey && e.keyCode == 85)) { // Ctrl+U
+				e.preventDefault();
+			}
+		});
+		
         document.addEventListener('DOMContentLoaded', function() {
             // Définition des comptes disponibles
             const comptes = [

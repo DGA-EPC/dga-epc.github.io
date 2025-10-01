@@ -28,6 +28,7 @@
             border-bottom: 5px solid blue;
             text-align: center;
 			border-radius: 20px;
+			text-shadow: 2px 2px 4px rgba(0,0,0,1);
 			box-shadow: 0px 0px 15px 5px rgba(246,255,117,0.8);
         }
         
@@ -126,6 +127,7 @@
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
+			text-shadow: 1px 1px 2px rgba(0,0,0,1);
 			transition: background-color 0.3s, transform 0.1s;
         }
         button:hover {
@@ -134,37 +136,37 @@
         }		
         
         #validate {
-            background-color: #61b865;
+            background-color: #00b50d;
             color: white;
         }
 		#validate:hover {
-            background-color: #00b50d;
+            background-color: #61b865;
 			box-shadow: 0px 0px 15px 5px rgba(0,255,49,0.6);
         }
         
         #new {
-            background-color: #ffbf47;
+            background-color: #ffa500;
             color: white;
         }
         #new:hover {
-            background-color: #ffa500;
+            background-color: #ffbf47;
 			box-shadow: 0px 0px 10px 5px rgba(255,255,75, 0.6);	
         }        
         #solution {
-            background-color: #5eabcc;
+            background-color: #0088c2;
             color: white;
         }
         #solution:hover {
-            background-color: #0088c2;
+            background-color: #5eabcc;
             box-shadow: 0px 0px 10px 5px rgba(120,255,255, 0.6);
         }		
         
         #quit {
-            background-color: #ff4747;
+            background-color: #ff0000;
             color: white;
         }
         #quit:hover {
-            background-color: #ff0000;
+            background-color: #ff4747;
 			box-shadow: 0px 0px 10px 5px rgba(255,55,55, 0.6);
         }		
         
@@ -333,6 +335,14 @@
 		</div>
 
     <script>
+		document.addEventListener('keydown', function(e) {
+			if (e.keyCode == 123 || // F12
+				(e.ctrlKey && e.shiftKey && e.keyCode == 73) || // Ctrl+Shift+I
+				(e.ctrlKey && e.keyCode == 85)) { // Ctrl+U
+				e.preventDefault();
+			}
+		});
+		
         // Variables globales
         let currentExerciseType; // 'PAB' ou 'PVB'
         let exerciseData = {};

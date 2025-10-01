@@ -19,6 +19,7 @@
 			margin: 0 auto 30px auto; /* Centrage horizontal */
 			max-width: 1220px;
             background-color: #78004f;
+			text-shadow: 2px 2px 4px rgba(0,0,0,1);
             color: white;
             border-radius: 20px;
             margin-bottom: 20px;
@@ -120,6 +121,7 @@
             font-weight: bold;
 			margin-left: 15px;
             transition: all 0.3s ease;
+			text-shadow: 1px 1px 2px rgba(0,0,0,1);
             box-shadow: 4px 4px 6px rgba(0,0,0,0.5);			
 		}
         button:hover {
@@ -141,24 +143,27 @@
             background-color: #ffa500;
         }
         #add-line-btn {
-            background-color: #B3EFFF;
-            color: black;
+            background-color: #037DFF;
+			color: white;
         }
         #add-line-btn:hover {
-            background-color: #0DDEFF;
+            background-color: #045BB5;
         }	
-        #restart-btn {
-            background-color: #9b59b6;
-            color: white;
-            display: none;
-            margin: 20px auto;
-        }
         #quit-btn {
             background-color: #ff4747;
             color: white;
         }
         #quit-btn:hover {
             background-color: #ff0000;
+        }		
+        #restart-btn {
+            background-color: #9b59b6;
+            color: white;
+            display: none;
+            margin: 20px auto;
+        }
+		#restart-btn:hover {
+            background-color: #6D3D80;
         }		
         .feedback {
             margin-top: 20px;
@@ -350,6 +355,14 @@
 
 
     <script>
+		document.addEventListener('keydown', function(e) {
+			if (e.keyCode == 123 || // F12
+				(e.ctrlKey && e.shiftKey && e.keyCode == 73) || // Ctrl+Shift+I
+				(e.ctrlKey && e.keyCode == 85)) { // Ctrl+U
+				e.preventDefault();
+			}
+		});
+		
         // Données des écritures comptables
         let accountingEntries = [
 

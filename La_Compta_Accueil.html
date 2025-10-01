@@ -30,6 +30,7 @@
             text-align: center;
             border-top: 5px solid #51FF46; 
             border-bottom: 5px solid #FDCF00; 
+			text-shadow: 2px 3px 4px rgba(0,0,0,1);
             margin-bottom: 5px;
             position: relative;
             border-radius: 8px;
@@ -777,6 +778,15 @@
     </div>
 
     <script>
+
+document.addEventListener('keydown', function(e) {
+    if (e.keyCode == 123 || // F12
+        (e.ctrlKey && e.shiftKey && e.keyCode == 73) || // Ctrl+Shift+I
+        (e.ctrlKey && e.keyCode == 85)) { // Ctrl+U
+        e.preventDefault();
+    }
+});
+	
         // Messages aléatoires pour la fermeture
         const closeMessages = [
             {

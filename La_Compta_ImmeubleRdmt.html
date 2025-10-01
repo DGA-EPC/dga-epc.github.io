@@ -20,6 +20,7 @@
 			padding: 20px;
             border-radius: 12px;
             margin: 0px auto 30px;
+			text-shadow: 2px 2px 4px rgba(0,0,0,1);
             text-align: center;
 			border-top: 8px solid #44F527;
 			border-bottom: 4px solid #ffff00;
@@ -126,9 +127,10 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-weight: bold;
+			font-size: 1em;
             color: white;
 			transition: all 0.3s ease;
+			text-shadow: 1px 1px 2px rgba(0,0,0,1);
         }
 		button:hover {
 			transform: translateY(-5px);
@@ -142,11 +144,11 @@
         }		
         
         #new-btn {
-            background-color: #FFD700; /* Jaune */
+            background-color: #ffa500; /* Jaune */
             color: white;
         }
         #new-btn:hover {
-            background-color: #ffa500;
+            background-color: #FFD700;
 			box-shadow: 0px 0px 10px 5px rgba(255,255,75, 0.6);			
         }		
         
@@ -309,6 +311,14 @@
 		</div>	
 
     <script>
+		document.addEventListener('keydown', function(e) {
+			if (e.keyCode == 123 || // F12
+				(e.ctrlKey && e.shiftKey && e.keyCode == 73) || // Ctrl+Shift+I
+				(e.ctrlKey && e.keyCode == 85)) { // Ctrl+U
+				e.preventDefault();
+			}
+		});
+		
         // Données de base pour l'exercice
         const exerciseData = {
             "Prix d'achat de l'immeuble": 0,

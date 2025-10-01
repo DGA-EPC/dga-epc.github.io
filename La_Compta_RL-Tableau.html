@@ -22,6 +22,7 @@
             border-bottom: 8px solid #ffd700; /* Jaune */
             margin-bottom: 20px;
             border-radius: 8px;
+			text-shadow: 2px 2px 4px rgba(0,0,0,1);
 			box-shadow: 6px 8px 12px rgba(0,0,0,1);
         }
         .container {
@@ -93,38 +94,39 @@
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s;
+			text-shadow: 1px 1px 2px rgba(0,0,0,1);
         }
         #validate-btn {
-            background-color: #61b865;
+            background-color: #00b50d;
             color: white;
         }
         #validate-btn:hover {
-            background-color: #00b50d;
+            background-color: #61b865;
 			box-shadow: 0px 0px 15px 5px rgba(0,255,49,0.6);
         }		
 		
         #new-btn {
-            background-color: #ffbf47;
+            background-color: #ffa500;
             color: white;
         }
         #new-btn:hover {
-            background-color: #ffa500;
+            background-color: #ffbf47;
 			box-shadow: 0px 0px 10px 5px rgba(255,255,75, 0.6);	
         }		
         #solution-btn {
-            background-color: #5eabcc;
+            background-color: #0088c2;
             color: white;
         }
         #solution-btn:hover {
-            background-color: #0088c2;
+            background-color: #5eabcc;
 			box-shadow: 0px 0px 10px 5px rgba(120,255,255, 0.6);			
         }		
         .quit-btn {
-            background-color: #ff4747;
+            background-color: #ff0000;
             color: white;
         }
         .quit-btn:hover {
-            background-color: #ff0000;
+            background-color: #ff4747;
 			box-shadow: 0px 0px 10px 5px rgba(255,55,55, 0.6);			
         }
         button:hover {
@@ -379,6 +381,14 @@
         "Je fais de la compta et c'est ma joie!", DG, EPC-Fribourg
     </footer>
     <script>
+		document.addEventListener('keydown', function(e) {
+			if (e.keyCode == 123 || // F12
+				(e.ctrlKey && e.shiftKey && e.keyCode == 73) || // Ctrl+Shift+I
+				(e.ctrlKey && e.keyCode == 85)) { // Ctrl+U
+				e.preventDefault();
+			}
+		});
+		
         // Variables globales
         let currentValues = {};
         let calculatedValues = {};

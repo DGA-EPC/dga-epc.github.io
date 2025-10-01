@@ -23,6 +23,7 @@
             border-radius: 8px;
 			max-width: 1180px;
 			margin: 0px auto;
+			text-shadow: 2px 2px 4px rgba(0,0,0,1);
             border-top: 5px solid #007bff; /* Bleu vif */
             border-bottom: 5px solid #ffc107; /* Jaune */
         }
@@ -89,6 +90,7 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 1em;
+			text-shadow: 1px 1px 2px rgba(0,0,0,1);
 			box-shadow: 4px 4px 6px rgba(0,0,0,0.6);	
             transition: background-color 0.3s, transform 0.1s;
         }
@@ -464,6 +466,14 @@
     </div>
 
     <script>
+		document.addEventListener('keydown', function(e) {
+			if (e.keyCode == 123 || // F12
+				(e.ctrlKey && e.shiftKey && e.keyCode == 73) || // Ctrl+Shift+I
+				(e.ctrlKey && e.keyCode == 85)) { // Ctrl+U
+				e.preventDefault();
+			}
+		});
+		
         // Données pour les exercices
         const accountItems = [
             "Produit net des ventes",
