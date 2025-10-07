@@ -395,7 +395,7 @@
 
         // Variables globales pour stocker les valeurs calculées
         let salaireBrut, heuresSuppl, allocFamiliales, allocPatronales, retenuOp, avanceSalaire;
-        let salaireAVS, salaireCoordonne, deductionCoordination = 2205;
+        let salaireAVS, salaireCoordonne, salaireAC, salaireLAA, deductionCoordination = 2205;
         let avsDeduction, acDeduction, lppPercent, lppDeduction, laaDeduction, salaireNet;
         
         // Générer un nouveau décompte au chargement de la page
@@ -461,6 +461,10 @@
 			
 			// Limiter le salaire AC au max
             salaireAC = Math.max(0, Math.min(12350, salaireAC));
+			
+			// Limiter le salaire LAA au max
+			salaireLAA = roundToFiveCents(salaireBrut + heuresSuppl + allocPatronales);
+			salaireLAA = Math.max(0, Math.min(12350, salaireLAA));
             
             // Générer un pourcentage LPP aléatoire entre 5% et 10%
             lppPercent = Math.floor(Math.random() * 6) + 5; // 5-10%
@@ -470,7 +474,7 @@
             avsDeduction = roundToFiveCents(salaireAVS * 0.053);
 			acDeduction = roundToFiveCents(salaireAC * 0.011);
             lppDeduction = roundToFiveCents(salaireCoordonne * lppPercent / 100);
-            laaDeduction = roundToFiveCents(salaireAVS * 0.012);
+            laaDeduction = roundToFiveCents(salaireLAA * 0.012);
             
             // Calculer le salaire net
             const totalAdditions = salaireBrut + heuresSuppl + allocFamiliales + allocPatronales;
@@ -524,7 +528,7 @@
             
             // Vérifier LAA
             if (Math.abs(userLAA - laaDeduction) > 0.05) {
-                document.getElementById('laaError').innerHTML = '✗ Solution: ' + formatCurrency(laaDeduction) + ' (1.2% s/' + formatCurrency(salaireAVS) + ')';
+                document.getElementById('laaError').innerHTML = '✗ Solution: ' + formatCurrency(laaDeduction) + ' (1.2% s/' + formatCurrency(salaireLAA) + ' (max 12\'350!)';
                 document.getElementById('laaError').style.display = 'inline';
                 allCorrect = false;
             } else {
