@@ -506,7 +506,7 @@
 
             // Vérifier AC
             if (Math.abs(userAC - acDeduction) > 0.05) {
-                document.getElementById('acError').innerHTML = '✗ Solution: ' + formatCurrency(acDeduction) + ' (1.1% s/' + formatCurrency(salaireAVS) + ' (max 12\'350!)';
+                document.getElementById('acError').innerHTML = '✗ Solution: ' + formatCurrency(acDeduction) + ' (1.1% s/' + formatCurrency(salaireAC) + ' (max 12\'350!)';
                 document.getElementById('acError').style.display = 'inline';
                 allCorrect = false;
             } else {
