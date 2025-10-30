@@ -83,9 +83,22 @@
             margin-bottom: 20px;
         }
         
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+        
         table {
             width: 100%;
             border-collapse: collapse;
+        }
+        
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
         
         th, td {
@@ -96,6 +109,8 @@
         
         th {
             background-color: #8eddf8;
+            position: sticky;
+            top: 0;
         }
         
         input[type="radio"] {
@@ -277,21 +292,22 @@
     </div>
     
     <div class="exercise-container" id="exerciseContainer">
-        
-        <table id="accountsTable">
-            <thead>
-                <tr>
-                    <th>Compte</th>
-                    <th>ACTIF</th>
-                    <th>PASSIF</th>
-                    <th>CHARGE</th>
-                    <th>PRODUIT</th>
-                </tr>
-            </thead>
-            <tbody id="accountsBody">
-                <!-- Les comptes seront générés ici -->
-            </tbody>
-        </table>
+        <div class="table-container">
+            <table id="accountsTable">
+                <thead>
+                    <tr>
+                        <th>Compte</th>
+                        <th>ACTIF</th>
+                        <th>PASSIF</th>
+                        <th>CHARGE</th>
+                        <th>PRODUIT</th>
+                    </tr>
+                </thead>
+                <tbody id="accountsBody">
+                    <!-- Les comptes seront générés ici -->
+                </tbody>
+            </table>
+        </div>
         
         <div class="navigation">
 				<button id="validateButton" class="btn-valider" style="display: none;">Valider</button>
@@ -451,7 +467,8 @@
             
             // Sélectionner le nombre de comptes demandé
             if (countValue === 'all') {
-                selectedAccounts = [...filteredAccounts];
+                // Mélanger tous les comptes
+                selectedAccounts = shuffleArray([...filteredAccounts]);
             } else {
                 const count = parseInt(countValue);
                 // Mélanger les comptes et en prendre le nombre demandé
@@ -499,7 +516,8 @@
             
             // Sélectionner le nombre de comptes demandé
             if (countValue === 'all') {
-                selectedAccounts = [...filteredAccounts];
+                // Mélanger tous les comptes
+                selectedAccounts = shuffleArray([...filteredAccounts]);
             } else {
                 const count = parseInt(countValue);
                 // Mélanger les comptes et en prendre le nombre demandé
@@ -529,7 +547,8 @@
             
             // Sélectionner le nombre de comptes demandé
             if (countValue === 'all') {
-                selectedAccounts = [...filteredAccounts];
+                // Mélanger tous les comptes
+                selectedAccounts = shuffleArray([...filteredAccounts]);
             } else {
                 const count = parseInt(countValue);
                 // Mélanger les comptes et en prendre le nombre demandé
