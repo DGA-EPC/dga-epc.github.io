@@ -243,7 +243,7 @@
 									<option value="Créances clients">Créances clients</option>
 									<option value="Stock de marchandises">Stock de marchandises</option>
 									<option value="Véhicules">Véhicules</option>
-									<option value="Actifs transirtoires">Actifs transitoires</option>
+									<option value="Actifs transitoires">Actifs transitoires</option>
                                     </optgroup>
                                 <optgroup label="PASSIF">
                                     <option value="Dettes fournisseurs">Dettes fournisseurs</option>
@@ -264,6 +264,7 @@
 									<option value="Electricité">Electricité</option>
 									<option value="Frais de véhicules">Frais de véhicules</option>
 									<option value="Frais d'administration">Frais d'administration</option>
+									<option value="Assurances">Assurances</option>
 									<option value="Publicité">Publicité</option>
 									<option value="ACE">ACE</option>
 									<option value="Produits financiers">Produits financiers</option>
@@ -302,6 +303,7 @@
 									<option value="Electricité">Electricité</option>
 									<option value="Frais de véhicules">Frais de véhicules</option>
 									<option value="Frais d'administration">Frais d'administration</option>
+									<option value="Assurances">Assurances</option>
 									<option value="Publicité">Publicité</option>
 									<option value="ACE">ACE</option>
 									<option value="Produits financiers">Produits financiers</option>
@@ -364,16 +366,16 @@
         let accountingEntries = [
 
     {
-        description: "Extourne des transitoires à l'ouverture des comptes :\nVentes à facturer\tCHF 1'300\nÉlectricité à payer\tCHF   400\nRistournes à accorder\tCHF 3'000\nPublicité payée d'avance\tCHF  700",
+        description: "Extourne des transitoires à l'ouverture des comptes :\nVentes à facturer\t\tCHF 1'300\nÉlectricité à payer\t\tCHF   400\nRistournes à accorder\t\tCHF 3'000\nPublicité payée d'avance\tCHF   700",
         solution: [
             { debit: "Ventes de marchandises", credit: "Actifs transitoires", amount: 1300 },
-            { debit: "Passifs transitoires", credit: "Électricité", amount: 400 },
+            { debit: "Passifs transitoires", credit: "Electricité", amount: 400 },
             { debit: "Passifs transitoires", credit: "Déductions accordées", amount: 3000 },
             { debit: "Publicité", credit: "Actifs transitoires", amount: 700 }
         ]
     },
     {
-        description: "Nous avons payons par poste l'assurance LAA pour l'année prochaine CHF 5'000",
+        description: "Nous avons payé par poste l'assurance LAA pour l'année prochaine CHF 5'000",
         solution: [
             { debit: "Actifs transitoires", credit: "Charges sociales", amount: 5000 }
         ]
@@ -381,13 +383,13 @@
     {
         description: "Électricité non facturée - Moyenne mensuelle CHF 330, dernière facture au 10 décembre.",
         solution: [
-            { debit: "Électricité", credit: "Passifs transitoires", amount: 220 }
+            { debit: "Electricité", credit: "Passifs transitoires", amount: 220 }
         ]
     },
     {
         description: "Nous estimons les ventes à facturées pour décembre à CHF 6'000. En tenir compte",
         solution: [
-            { debit: "Actifs transitoires", credit: "Ventes marchandises", amount: 6000 }
+            { debit: "Actifs transitoires", credit: "Ventes de marchandises", amount: 6000 }
         ]
     },
     {
@@ -693,6 +695,7 @@ function markIncorrectCells(userEntries, correctSolution) {
 									<option value="Electricité">Electricité</option>
 									<option value="Frais de véhicules">Frais de véhicules</option>
 									<option value="Frais d'administration">Frais d'administration</option>
+									<option value="Assurances">Assurances</option>
 									<option value="Publicité">Publicité</option>
 									<option value="ACE">ACE</option>
 									<option value="Produits financiers">Produits financiers</option>
@@ -710,7 +713,7 @@ function markIncorrectCells(userEntries, correctSolution) {
 									<option value="Créances clients">Créances clients</option>
 									<option value="Stock de marchandises">Stock de marchandises</option>
 									<option value="Véhicules">Véhicules</option>
-									<option value="Actifs transirtoires">Actifs transitoires</option>
+									<option value="Actifs transitoires">Actifs transitoires</option>
                                     </optgroup>
                                 <optgroup label="PASSIF">
                                     <option value="Dettes fournisseurs">Dettes fournisseurs</option>
@@ -731,6 +734,7 @@ function markIncorrectCells(userEntries, correctSolution) {
 									<option value="Electricité">Electricité</option>
 									<option value="Frais de véhicules">Frais de véhicules</option>
 									<option value="Frais d'administration">Frais d'administration</option>
+									<option value="Assurances">Assurances</option>
 									<option value="Publicité">Publicité</option>
 									<option value="ACE">ACE</option>
 									<option value="Produits financiers">Produits financiers</option>
