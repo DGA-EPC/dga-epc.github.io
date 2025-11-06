@@ -329,6 +329,7 @@
         <div class="button-container">
             <button id="start-exercise">Commencer l'exercice</button>
             <button id="close-button" onclick="window.close()">Quitter</button>
+
         </div>
     </div>
     
@@ -380,8 +381,8 @@
 
         <div class="button-container">
             <button id="restart-exercise">Recommencer</button>
-			<button id="quitter-btn" onclick="window.close()">Quitter</button>
-        </div>			
+			<button id="quitter-btn">Retour à l'accueil</button>       
+	   </div>			
 			
 			
             
@@ -820,7 +821,10 @@
         const creditFeedbackDiv = document.getElementById('credit-feedback');
 
     // Initialisation
-    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+// Ajouter cette ligne avec les autres écouteurs d'événements :
+document.getElementById('quitter-btn').addEventListener('click', returnToHome);
+ 
+ document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
         checkbox.addEventListener('change', updateStartButtonState);
     });
 
@@ -1073,6 +1077,21 @@
                 [array[i], array[j]] = [array[j], array[i]];
             }
         }
+		
+function returnToHome() {
+    // Cacher la page d'exercice et les résultats
+    exercisePage.classList.add('hidden');
+    resultsDiv.classList.add('hidden');
+    
+    // Afficher la page d'accueil
+    homePage.classList.remove('hidden');
+    
+    // Réinitialiser les sélections
+    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    updateStartButtonState();
+}
     </script>
 </body>
 </html>
