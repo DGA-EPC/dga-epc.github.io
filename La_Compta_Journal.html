@@ -449,7 +449,6 @@
             { niveau: "D", nom: "============PASSIFS===============", classe: 2 },
             { niveau: "D", nom: "Dettes fournisseurs", classe: 2 },
             { niveau: "D", nom: "Autres dettes", classe: 2 },
-            { niveau: "A", nom: "Dettes AFC", classe: 2 },
             { niveau: "D", nom: "Dette bancaire", classe: 2 },
             { niveau: "A", nom: "Dette hypothécaire", classe: 2 },
 			{ niveau: "D", nom: "Capital", classe: 2 },
@@ -843,18 +842,23 @@
         selectedThemes = Array.from(document.querySelectorAll('.theme-option input:checked')).map(cb => cb.value);
         
         // Filtrer les comptes selon les sélections (MODIFICATION ICI)
-        filteredAccounts = accounts.filter(account => {
-            // Toujours inclure les comptes Débutant (D) et les séparateurs (C)
-            if (account.niveau === "D" || account.niveau === "C") return true;
-            
-            // Inclure les comptes Avancé (A) si niveau avancé sélectionné OU si des thèmes sont sélectionnés
-            if (account.niveau === "A" && (selectedLevels.includes("A") || selectedThemes.length > 0)) return true;
-            
-            // Inclure les comptes de thème si le thème est sélectionné
-            if (account.niveau.startsWith("T") && selectedThemes.includes(account.niveau)) return true;
-            
-            return false;
-        });
+    filteredAccounts = accounts.filter(account => {
+        // Si niveau avancé est sélectionné, inclure TOUS les comptes
+        if (selectedLevels.includes("T1")) return true;
+        
+        // Sinon, utiliser la logique normale de filtrage
+        // Toujours inclure les comptes Débutant (D) et les séparateurs (C)
+        if (account.niveau === "D" || account.niveau === "C") return true;
+        
+        // Inclure les comptes Avancé (A) si niveau avancé sélectionné OU si des thèmes sont sélectionnés
+        if (account.niveau === "A" && (selectedLevels.includes("A") || selectedThemes.length > 0)) return true;
+        
+        // Inclure les comptes de thème si le thème est sélectionné
+        if (account.niveau.startsWith("T") && selectedThemes.includes(account.niveau)) return true;
+        
+        return false;
+    });
+    
         
         // Filtrer les transactions selon les sélections
         filteredTransactions = transactions.filter(transaction => {
