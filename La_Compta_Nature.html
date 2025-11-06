@@ -275,7 +275,7 @@
             <div class="option-group">
                 <h3>Mode de jeu :</h3>
                 <label><input type="radio" name="mode" value="apprentissage" checked> Apprentissage</label><br>
-                <label><input type="radio" name="mode" value="defit"> Défit</label>
+                <label><input type="radio" name="mode" value="defit"> Défi</label>
             </div>
         </div>
         
@@ -287,7 +287,7 @@
         <div id="rules">
             <h4>Mode de jeu :</h4>
             <p>Apprentissage : pas de score. Si la réponse est correcte, fond vert. Réponse fausse : fond rouge</p>
-			<p>Défit : Tu connaîtras ton score à la fin, avec indication des erreurs et une correction</p>
+			<p>Défi : Tu connaîtras ton score à la fin, avec indication des erreurs et une correction</p>
         </div>
     </div>
     
@@ -483,7 +483,7 @@
             selectionContainer.style.display = 'none';
             exerciseContainer.style.display = 'block';
             
-            // Afficher le bouton Valider seulement en mode défit
+            // Afficher le bouton Valider seulement en mode défi
             validateButton.style.display = isLearningMode ? 'none' : 'block';
         });
 
@@ -566,7 +566,7 @@
             exerciseContainer.style.display = 'block';
         });
 
-        // Valider les réponses (mode défit)
+        // Valider les réponses (mode défi)
         validateButton.addEventListener('click', () => {
             validateAnswers();
         });
@@ -615,7 +615,7 @@
             });
         }
 
-        // Valider toutes les réponses (mode défit)
+        // Valider toutes les réponses (mode défi)
         function validateAnswers() {
             let correctCount = 0;
             
