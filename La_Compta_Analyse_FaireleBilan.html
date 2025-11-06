@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Les comptes</title>
+    <title>Bilan analytique</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
             background-color: #000000;
@@ -19,10 +19,10 @@
             color: white;
             padding: 15px;
             text-align: center;
-			border-radius: 12px;
+            border-radius: 12px;
             border-top: 5px solid #ffa500; /* Orange */
             border-bottom: 5px solid #24FF7C; /* Bleu clair */
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         
         h1 {
@@ -36,7 +36,7 @@
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             margin-bottom: 20px;
-			 border-bottom: 5px solid #24FFF0; /* Bleu clair */
+            border-bottom: 5px solid #24FFF0; /* Bleu clair */
         }
         
         .options {
@@ -108,11 +108,12 @@
         }
         
         th {
-            background-color: #8eddf8;
+            background-color: #8000A8;
+			color: #ffffff;
             position: sticky;
             top: 0;
         }
-        
+
     /* Alignement des comptes à gauche */
     #accountsBody td:first-child {
         text-align: left;
@@ -200,86 +201,80 @@
         
         .quit-button {
             background-color: #ff4747;
-			transition: background-color 0.3s, transform 0.1s;
-			box-shadow: 4px 4px 6px rgba(0,0,0,0.5);			
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 4px 4px 6px rgba(0,0,0,0.5);			
         }
         
         .quit-button:hover {
             background-color: #ff0000;
-			transform: translateY(-4px);
-			box-shadow: 6px 6px 8px rgba(0,0,0,0.5);			
+            transform: translateY(-4px);
+            box-shadow: 6px 6px 8px rgba(0,0,0,0.5);			
         }
         .start-button {
             background-color: #4CAF50; /* Vert */
-			color: white;
-			transition: background-color 0.3s, transform 0.1s;
-			box-shadow: 4px 4px 6px rgba(0,0,0,0.5);	
+            color: white;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 4px 4px 6px rgba(0,0,0,0.5);	
         }
         
         .start-button:hover {
             background-color: #077d00;
-			transform: translateY(-4px);
-			box-shadow: 6px 6px 8px rgba(0,0,0,0.5);
-			transform: translateY(-4px);
+            transform: translateY(-4px);
+            box-shadow: 6px 6px 8px rgba(0,0,0,0.5);
+            transform: translateY(-4px);
         }		
 
-		.btn-menu {
-			background-color: #BD99AC; 
-			color: white;
-			box-shadow: 4px 4px 6px rgba(0,0,0,0.5);	
-			transition: background-color 0.3s, transform 0.1s;
-		}
+        .btn-menu {
+            background-color: #BD99AC; 
+            color: white;
+            box-shadow: 4px 4px 6px rgba(0,0,0,0.5);	
+            transition: background-color 0.3s, transform 0.1s;
+        }
 
-		.btn-menu:hover {
-			background-color: #700158;
-			box-shadow: 6px 6px 8px rgba(0,0,0,0.5);
-			transform: translateY(-4px);
-			}
+        .btn-menu:hover {
+            background-color: #700158;
+            box-shadow: 6px 6px 8px rgba(0,0,0,0.5);
+            transform: translateY(-4px);
+            }
 
-		.btn-valider {
-			background-color: #61b865;
-			color: white;
-			box-shadow: 4px 4px 6px rgba(0,0,0,0.5);	
-			transition: background-color 0.3s, transform 0.1s;			
-		}
+        .btn-valider {
+            background-color: #61b865;
+            color: white;
+            box-shadow: 4px 4px 6px rgba(0,0,0,0.5);	
+            transition: background-color 0.3s, transform 0.1s;			
+        }
 
-		.btn-valider:hover {
-			background-color: #00b50d;
-			transition: background-color 0.3s, transform 0.1s;
-			box-shadow: 6px 6px 8px rgba(0,0,0,0.5);
-			transform: translateY(-4px);
-		}
+        .btn-valider:hover {
+            background-color: #00b50d;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 6px 6px 8px rgba(0,0,0,0.5);
+            transform: translateY(-4px);
+        }
 
-		.btn-nouveau {
-			background-color: #ffbf47;
-			color: white;
-			box-shadow: 4px 4px 6px rgba(0,0,0,0.5);	
-			transition: background-color 0.3s, transform 0.1s;			
-		}
+        .btn-nouveau {
+            background-color: #ffbf47;
+            color: white;
+            box-shadow: 4px 4px 6px rgba(0,0,0,0.5);	
+            transition: background-color 0.3s, transform 0.1s;			
+        }
 
-		.btn-nouveau:hover {
-			background-color: #ffa500;
-			transition: background-color 0.3s, transform 0.1s;
-			box-shadow: 6px 6px 8px rgba(0,0,0,0.5);
-			transform: translateY(-4px);
-		}
+        .btn-nouveau:hover {
+            background-color: #ffa500;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 6px 6px 8px rgba(0,0,0,0.5);
+            transform: translateY(-4px);
+        }
 
     </style>
 </head>
 <body>
     <div class="title-container">
-        <h1>Les comptes</h1>
-        <h2>Quelle est la nature des comptes ? Actif, passif, charge ou produit ?</h2>
+        <h1>Établir un bilan analytique</h1>
+        <h2>Dans quelle rubrique doit-on placer les comptes de bilan ?</h2>
     </div>
     
     <div class="selection-container" id="selectionContainer">
         <div class="options">
-            <div class="option-group">
-                <h3>Niveau :</h3>
-                <label><input type="checkbox" id="debutant" value="D" checked> Débutant (1ère année)</label><br>
-                <label><input type="checkbox" id="avance" value="A"> Avancé (2-3è année)</label>
-            </div>
-            
             <div class="option-group">
                 <h3>Nombre de comptes :</h3>
                 <select id="countSelect">
@@ -299,14 +294,14 @@
         </div>
         
         <div style="display: flex; justify-content: space-between; align-items: center;">
-			<button id="startButton" class="start-button">Lancer</button>
-			<button id="quitButton" class="quit-button">Quitter</button>
+            <button id="startButton" class="start-button">Lancer</button>
+            <button id="quitButton" class="quit-button">Quitter</button>
         </div>
         
         <div id="rules">
             <h4>Mode de jeu :</h4>
             <p>Apprentissage : pas de score. Si la réponse est correcte, fond vert. Réponse fausse : fond rouge</p>
-			<p>Défi : Tu connaîtras ton score à la fin, avec indication des erreurs et une correction</p>
+            <p>Défi : Tu connaîtras ton score à la fin, avec indication des erreurs et une correction</p>
         </div>
     </div>
     
@@ -316,10 +311,14 @@
                 <thead>
                     <tr>
                         <th>Compte</th>
-                        <th>ACTIF</th>
-                        <th>PASSIF</th>
-                        <th>CHARGE</th>
-                        <th>PRODUIT</th>
+                        <th>Liquidités</th>
+                        <th>Créances</th>
+                        <th>Stocks</th>
+                        <th>Immobilisés</th>
+                        <th>Dettes à court terme</th>
+                        <th>Dettes à long terme</th>
+                        <th>Capital social</th>
+                        <th>Capital de croissance</th>
                     </tr>
                 </thead>
                 <tbody id="accountsBody">
@@ -329,9 +328,9 @@
         </div>
         
         <div class="navigation">
-				<button id="validateButton" class="btn-valider" style="display: none;">Valider</button>
-				<button id="newExerciseButton" class="btn-nouveau">Nouvel exercice</button>
-				<button id="backToMenuButton" class="btn-menu">Retour au menu</button>
+                <button id="validateButton" class="btn-valider" style="display: none;">Valider</button>
+                <button id="newExerciseButton" class="btn-nouveau">Nouvel exercice</button>
+                <button id="backToMenuButton" class="btn-menu">Retour au menu</button>
         </div>
     </div>
     
@@ -354,8 +353,8 @@
         </table>
         
         <div class="navigation">
-				<button id="restartButton" class="btn-nouveau">Nouvel exercice</button>
-				<button id="backToMenuFromResultsButton" class="btn-menu">Retour au menu</button>
+                <button id="restartButton" class="btn-nouveau">Nouvel exercice</button>
+                <button id="backToMenuFromResultsButton" class="btn-menu">Retour au menu</button>
         </div>
     </div>
     
@@ -364,52 +363,65 @@
     </div>
 
     <script>
-		document.addEventListener('keydown', function(e) {
-			if (e.keyCode == 123 || // F12
-				(e.ctrlKey && e.shiftKey && e.keyCode == 73) || // Ctrl+Shift+I
-				(e.ctrlKey && e.keyCode == 85)) { // Ctrl+U
-				e.preventDefault();
-			}
-		});
-		
-        // Liste des comptes avec niveau et nature
+        document.addEventListener('keydown', function(e) {
+            if (e.keyCode == 123 || // F12
+                (e.ctrlKey && e.shiftKey && e.keyCode == 73) || // Ctrl+Shift+I
+                (e.ctrlKey && e.keyCode == 85)) { // Ctrl+U
+                e.preventDefault();
+            }
+        });
+        
+        // Liste des comptes avec niveau et catégorie
         const accounts = [
-            { niveau: "D", nom: "Caisse", nature: "Actif" },
-            { niveau: "D", nom: "Banque (avoir)", nature: "Actif" },
-            { niveau: "D", nom: "Banque (dette)", nature: "Passif" },
-            { niveau: "D", nom: "Poste", nature: "Actif" },
-            { niveau: "D", nom: "Créances clients", nature: "Actif" },
-            { niveau: "D", nom: "Stock de marchandises", nature: "Actif" },
-            { niveau: "A", nom: "Créances douteuses", nature: "Actif" },
-            { niveau: "A", nom: "Titres", nature: "Actif" },
-            { niveau: "A", nom: "Actifs transitoires", nature: "Actif" },
-            { niveau: "D", nom: "Mobilier et installation", nature: "Actif" },
-            { niveau: "D", nom: "Véhicules", nature: "Actif" },
-            { niveau: "D", nom: "Machines", nature: "Actif" },
-            { niveau: "A", nom: "FAC sur machines", nature: "Passif" },
-            { niveau: "A", nom: "FAC sur véhicules", nature: "Passif" },
-            { niveau: "A", nom: "Brevet", nature: "Actif" },
-            { niveau: "D", nom: "Dettes fournisseurs", nature: "Passif" },
-            { niveau: "D", nom: "Autres dettes", nature: "Passif" },
-            { niveau: "D", nom: "Capital", nature: "Passif" },
-            { niveau: "D", nom: "Privé", nature: "Passif" },
-            { niveau: "A", nom: "Ducroire", nature: "Passif" },
-            { niveau: "D", nom: "Salaire", nature: "Charge" },
-            { niveau: "D", nom: "Loyer", nature: "Charge" },
-            { niveau: "D", nom: "Amortissements", nature: "Charge" },
-            { niveau: "D", nom: "Charges financières", nature: "Charge" },
-            { niveau: "D", nom: "Produits financiers", nature: "Produit" },
-            { niveau: "A", nom: "Pertes sur créances", nature: "Charge" },
-            { niveau: "D", nom: "Achat de marchandises", nature: "Charge" },
-            { niveau: "D", nom: "Déductions accordées", nature: "Charge" },
-            { niveau: "D", nom: "Vente de marchandises", nature: "Produit" },
-            { niveau: "D", nom: "Déductions obtenues", nature: "Produit" },
-            { niveau: "A", nom: "Prestations propres", nature: "Produit" },
-            { niveau: "D", nom: "ACE", nature: "Charge" },
-            { niveau: "D", nom: "Entretien et réparation", nature: "Charge" },
-            { niveau: "A", nom: "Charges exceptionnelles", nature: "Charge" },
-            { niveau: "A", nom: "Produits exceptionnels", nature: "Produit" },
-            { niveau: "D", nom: "Frais de véhicule", nature: "Charge" }
+            { niveau: "D", nom: "Caisse", categorie: "Liquidités" },
+            { niveau: "D", nom: "Titres", categorie: "Créances" },
+            { niveau: "D", nom: "Banque", categorie: "Liquidités" },
+            { niveau: "D", nom: "Créances clients", categorie: "Créances" },
+            { niveau: "D", nom: "Stock de marchandises", categorie: "Stocks" },
+            { niveau: "D", nom: "Mobilier et installation", categorie: "Immobilisés" },
+            { niveau: "D", nom: "Dettes fournisseurs", categorie: "Dettes à court terme" },
+            { niveau: "D", nom: "Emprunt bancaire", categorie: "Dettes à long terme" },
+            { niveau: "D", nom: "Capital", categorie: "Capital social" },
+            { niveau: "A", nom: "Réserves légales issue du capital", categorie: "Capital social" },
+			{ niveau: "A", nom: "Créances AFC", categorie: "Créances" },
+			{ niveau: "A", nom: "Dividendes", categorie: "Dettes à court terme" },
+			{ niveau: "A", nom: "Réserve légale issue du bénéfice", categorie: "Capital de croissance" },
+			{ niveau: "D", nom: "TVA due", categorie: "Dettes à court terme" },
+			{ niveau: "A", nom: "FAC s/mobilier", categorie: "Immobilisés" },
+			{ niveau: "A", nom: "Ducroire", categorie: "Créances" },
+			{ niveau: "A", nom: "Tantièmes", categorie: "Dettes à court terme" },
+			{ niveau: "A", nom: "Dettes hypothécaires", categorie: "Dettes à long terme" },
+			{ niveau: "A", nom: "Provisions à court terme", categorie: "Dettes à court terme" },
+			{ niveau: "A", nom: "Capital-participations", categorie: "Capital social" },
+			{ niveau: "A", nom: "Brevet", categorie: "Immobilisés" },
+			{ niveau: "A", nom: "Goodwill", categorie: "Immobilisés" },
+			{ niveau: "A", nom: "Titres de participations", categorie: "Immobilisés" },
+			{ niveau: "A", nom: "Avances aux fournisseurs", categorie: "Stocks"},
+			{ niveau: "A", nom: "Produits à recevoir", categorie: "Créances" },
+			{ niveau: "A", nom: "Actifs transitoires", categorie: "Créances" },
+			{ niveau: "A", nom: "Bénéfice reporté", categorie: "Capital de croissance" },
+			{ niveau: "A", nom: "Actionnaires", categorie: "Capital social" },
+			{ niveau: "A", nom: "Tantièmes", categorie: "Dettes à court terme" },
+			{ niveau: "A", nom: "Charges à payer", categorie: "Dettes à court terme" },
+			{ niveau: "A", nom: "Informatique", categorie: "Immobilisés" },
+			{ niveau: "A", nom: "Réserve spéciale", categorie: "Capital de croissance" },
+			{ niveau: "A", nom: "Titres de placement", categorie: "Créances" },
+			{ niveau: "D", nom: "Mobilier", categorie: "Immobilisés" },
+			{ niveau: "D", nom: "Stock de produits finis", categorie: "Stocks" },
+			{ niveau: "D", nom: "Banque c/c débiteur", categorie: "Dettes à court terme" },
+			{ niveau: "A", nom: "Emprunt obligataire", categorie: "Dettes à long terme" },
+			{ niveau: "D", nom: "Machines", categorie: "Immobilisés" },
+			{ niveau: "A", nom: "Dettes LPP", categorie: "Dettes à court terme" },
+			{ niveau: "A", nom: "Prime à l'émission", categorie: "Capital social" },
+			{ niveau: "A", nom: "Bénéfice reporté", categorie: "Capital de croissance" },
+			{ niveau: "A", nom: "Avances des clients", categorie: "Stocks" },
+			{ niveau: "A", nom: "Participants", categorie: "Capital social" },
+			{ niveau: "A", nom: "Fonds de commerce", categorie: "Immobilisés" },
+			{ niveau: "A", nom: "Impôt préalable sur marchandises", categorie: "Créances" },
+			{ niveau: "A", nom: "Réserve de réévaluation", categorie: "Capital de croissance" },
+			{ niveau: "A", nom: "FAC sur véhicules", categorie: "Immobilisés" },
+			{ niveau: "A", nom: "Passifs transitoires", categorie: "Dettes à court terme" },
+			{ niveau: "A", nom: "Acomptes aux fournisseurs", categorie: "Stocks" }
         ];
 
         // Éléments DOM
@@ -469,29 +481,19 @@
 
         // Démarrer l'exercice
         startButton.addEventListener('click', () => {
-            const debutantChecked = document.getElementById('debutant').checked;
-            const avanceChecked = document.getElementById('avance').checked;
             const countValue = countSelect.value;
             const mode = document.querySelector('input[name="mode"]:checked').value;
             
             isLearningMode = mode === 'apprentissage';
             
-            // Filtrer les comptes selon le niveau sélectionné
-            let filteredAccounts = accounts;
-            if (debutantChecked && !avanceChecked) {
-                filteredAccounts = accounts.filter(account => account.niveau === 'D');
-            } else if (!debutantChecked && avanceChecked) {
-                filteredAccounts = accounts.filter(account => account.niveau === 'A');
-            }
-            
             // Sélectionner le nombre de comptes demandé
             if (countValue === 'all') {
                 // Mélanger tous les comptes
-                selectedAccounts = shuffleArray([...filteredAccounts]);
+                selectedAccounts = shuffleArray([...accounts]);
             } else {
                 const count = parseInt(countValue);
                 // Mélanger les comptes et en prendre le nombre demandé
-                selectedAccounts = shuffleArray([...filteredAccounts]).slice(0, count);
+                selectedAccounts = shuffleArray([...accounts]).slice(0, count);
             }
             
             // Initialiser les réponses
@@ -521,26 +523,16 @@
 
         // Nouvel exercice (reste sur la même page)
         newExerciseButton.addEventListener('click', () => {
-            const debutantChecked = document.getElementById('debutant').checked;
-            const avanceChecked = document.getElementById('avance').checked;
             const countValue = countSelect.value;
-            
-            // Filtrer les comptes selon le niveau sélectionné
-            let filteredAccounts = accounts;
-            if (debutantChecked && !avanceChecked) {
-                filteredAccounts = accounts.filter(account => account.niveau === 'D');
-            } else if (!debutantChecked && avanceChecked) {
-                filteredAccounts = accounts.filter(account => account.niveau === 'A');
-            }
             
             // Sélectionner le nombre de comptes demandé
             if (countValue === 'all') {
                 // Mélanger tous les comptes
-                selectedAccounts = shuffleArray([...filteredAccounts]);
+                selectedAccounts = shuffleArray([...accounts]);
             } else {
                 const count = parseInt(countValue);
                 // Mélanger les comptes et en prendre le nombre demandé
-                selectedAccounts = shuffleArray([...filteredAccounts]).slice(0, count);
+                selectedAccounts = shuffleArray([...accounts]).slice(0, count);
             }
             
             // Réinitialiser les réponses
@@ -552,26 +544,16 @@
 
         // Redémarrer l'exercice (depuis la page de résultats)
         restartButton.addEventListener('click', () => {
-            const debutantChecked = document.getElementById('debutant').checked;
-            const avanceChecked = document.getElementById('avance').checked;
             const countValue = countSelect.value;
-            
-            // Filtrer les comptes selon le niveau sélectionné
-            let filteredAccounts = accounts;
-            if (debutantChecked && !avanceChecked) {
-                filteredAccounts = accounts.filter(account => account.niveau === 'D');
-            } else if (!debutantChecked && avanceChecked) {
-                filteredAccounts = accounts.filter(account => account.niveau === 'A');
-            }
             
             // Sélectionner le nombre de comptes demandé
             if (countValue === 'all') {
                 // Mélanger tous les comptes
-                selectedAccounts = shuffleArray([...filteredAccounts]);
+                selectedAccounts = shuffleArray([...accounts]);
             } else {
                 const count = parseInt(countValue);
                 // Mélanger les comptes et en prendre le nombre demandé
-                selectedAccounts = shuffleArray([...filteredAccounts]).slice(0, count);
+                selectedAccounts = shuffleArray([...accounts]).slice(0, count);
             }
             
             // Réinitialiser les réponses
@@ -602,21 +584,21 @@
                 nameCell.textContent = account.nom;
                 row.appendChild(nameCell);
                 
-                // Créer les cases à cocher pour chaque nature
-                const natures = ['Actif', 'Passif', 'Charge', 'Produit'];
-                natures.forEach(nature => {
+                // Créer les cases à cocher pour chaque catégorie
+                const categories = ['Liquidités', 'Créances', 'Stocks', 'Immobilisés', 'Dettes à court terme', 'Dettes à long terme', 'Capital social', 'Capital de croissance'];
+                categories.forEach(categorie => {
                     const cell = document.createElement('td');
                     const radio = document.createElement('input');
                     radio.type = 'radio';
                     radio.name = `account-${index}`;
-                    radio.value = nature;
+                    radio.value = categorie;
                     
                     radio.addEventListener('change', () => {
-                        answers[index] = nature;
+                        answers[index] = categorie;
                         
                         if (isLearningMode) {
                             // En mode apprentissage, vérifier immédiatement la réponse
-                            if (nature === account.nature) {
+                            if (categorie === account.categorie) {
                                 row.classList.add('correct');
                                 row.classList.remove('incorrect');
                             } else {
@@ -644,7 +626,7 @@
             selectedAccounts.forEach((account, index) => {
                 const row = document.getElementById(`account-${index}`);
                 const userAnswer = answers[index];
-                const isCorrect = userAnswer === account.nature;
+                const isCorrect = userAnswer === account.categorie;
                 
                 if (isCorrect) {
                     row.classList.add('correct');
@@ -653,7 +635,7 @@
                     row.classList.add('incorrect');
                     
                     // Ajouter une coche verte pour la bonne réponse
-                    const correctRadio = row.querySelector(`input[value="${account.nature}"]`);
+                    const correctRadio = row.querySelector(`input[value="${account.categorie}"]`);
                     if (correctRadio) {
                         correctRadio.checked = true;
                         correctRadio.parentElement.style.backgroundColor = '#d4edda';
@@ -679,7 +661,7 @@
                 correctionRow.appendChild(userAnswerCell);
                 
                 const correctAnswerCell = document.createElement('td');
-                correctAnswerCell.textContent = account.nature;
+                correctAnswerCell.textContent = account.categorie;
                 correctAnswerCell.classList.add('correct-answer');
                 correctionRow.appendChild(correctAnswerCell);
                 
