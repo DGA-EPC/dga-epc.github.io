@@ -148,6 +148,7 @@
             margin-bottom: 10px;
             border-radius: 4px;
         }
+		
     </style>
 </head>
 <body>
@@ -219,7 +220,7 @@
         let chart;
         let score = 0;
         let qtyX, qtyY;
-        const TOLERANCE = 50; // Tolérance de ±5 CHF pour les réponses
+        const TOLERANCE = 100; // Tolérance de ±100 CHF pour les réponses
         
         // Initialisation
         document.addEventListener('DOMContentLoaded', function() {
@@ -308,40 +309,45 @@
                         }
                     ]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Quantité'
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'CHF'
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            },
-                            beginAtZero: true
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'none', //remplacé top par none pour enlever la légende
-                        },
-                        tooltip: {
-                            mode: 'none',  //remplacé index par none pour enlever le tooltip sur les ronds du graphique
-                            intersect: false
-                        }
-                    }
-                }
+options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+        x: {
+            title: {
+                display: true,
+                text: 'Quantité'
+            },
+            grid: {
+                color: 'rgba(0, 0, 0, 0.1)'
+            }
+        },
+        y: {
+            title: {
+                display: true,
+                text: 'CHF'
+            },
+            grid: {
+                color: 'rgba(0, 0, 0, 0.1)'
+            },
+            beginAtZero: true,
+            // AJOUT: Configuration pour la grille secondaire
+            ticks: {
+                // Forcer l'affichage de plus de ticks pour une grille plus dense
+                stepSize: 100 // Ajustez cette valeur selon l'échelle de vos données
+            }
+        }
+    },
+    plugins: {
+        legend: {
+            position: 'none',
+        },
+        tooltip: {
+            mode: 'none',
+            intersect: false
+        }
+    }
+}
             });
         }
         
