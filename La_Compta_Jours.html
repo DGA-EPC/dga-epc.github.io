@@ -361,6 +361,11 @@ function calculateCommercialDays(startDate, endDate) {
     const startAdj = adjustCommercialDate(start);
     const endAdj = adjustCommercialDate(end);
     
+	// Vérifier si même mois et même année - modification du 15.12.2025 *** CORRECTION BUG MÊME MOIS ***
+	if (start.getFullYear() === end.getFullYear() && start.getMonth() === end.getMonth()) {
+    return endAdj.day - startAdj.day;
+	}
+	
     // Calculer les mois complets entre les deux dates (corrigé)
     let fullMonths = 0;
     let current = new Date(start);
@@ -478,6 +483,8 @@ function showSolutions() {
     exercises.forEach((exercise, index) => {
         const correctionCell = document.getElementById(`correction-${index}`);
         
+	
+		
         // Calculer le nombre de mois complets (corrigé)
         let fullMonths = 0;
         let tempDate = new Date(exercise.startDate);
