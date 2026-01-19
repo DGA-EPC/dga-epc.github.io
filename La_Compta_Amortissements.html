@@ -258,11 +258,13 @@
 									<option value="Autres dettes">Autres dettes</option>
 									<option value="Dettes AFC">Dettes AFC</option>
 									<option value="TVA due">TVA due</option>
+									<option value="Dette hypothécaire">Dette hypothécaire</option>
 									<option value="Capital">Capital</option>
                                 </optgroup>
                                 <optgroup label="MARCHANDISES">
                                     <option value="Ventes de marchandises">Ventes de marchandises</option>
 									<option value="Déductions accordées">Déductions accordées</option>
+									<option value="Pertes sur créances">Pertes sur créances</option>
                                     <option value="Achats de marchandises">Achats de marchandises</option>
 									<option value="Prestations propres">Prestations propres</option>
 									<option value="Déductions obtenues">Déductions obtenues</option>
@@ -306,11 +308,13 @@
 									<option value="Autres dettes">Autres dettes</option>
 									<option value="Dettes AFC">Dettes AFC</option>
 									<option value="TVA due">TVA due</option>
+									<option value="Dette hypothécaire">Dette hypothécaire</option>
 									<option value="Capital">Capital</option>
                                 </optgroup>
                                 <optgroup label="MARCHANDISES">
                                     <option value="Ventes de marchandises">Ventes de marchandises</option>
 									<option value="Déductions accordées">Déductions accordées</option>
+									<option value="Pertes sur créances">Pertes sur créances</option>
                                     <option value="Achats de marchandises">Achats de marchandises</option>
 									<option value="Prestations propres">Prestations propres</option>
 									<option value="Déductions obtenues">Déductions obtenues</option>
@@ -469,7 +473,13 @@
             solution: [
 				{ debit: "Dette hypothécaire", credit: "Banque", amount: 1500 }
             ]
-        }
+        },
+		{
+            description: "La poursuite contre un client aboutit à la distribution d'un ADB de CHF 5'000.-. Nous amortissons la créance totalement.",
+            solution: [
+				{ debit: "Pertes sur créances", credit: "Créances clients", amount: 5000 }
+            ]
+        }		
 	
             /* Ajouter d'autres écritures ici par la suite
 			,
@@ -719,11 +729,13 @@ function markIncorrectCells(userEntries, correctSolution) {
 									<option value="Autres dettes">Autres dettes</option>
 									<option value="Dettes AFC">Dettes AFC</option>
 									<option value="TVA due">TVA due</option>
+									<option value="Dette hypothécaire">Dette hypothécaire</option>
 									<option value="Capital">Capital</option>
                                 </optgroup>
                                 <optgroup label="MARCHANDISES">
                                     <option value="Ventes de marchandises">Ventes de marchandises</option>
 									<option value="Déductions accordées">Déductions accordées</option>
+									<option value="Pertes sur créances">Pertes sur créances</option>
                                     <option value="Achats de marchandises">Achats de marchandises</option>
 									<option value="Prestations propres">Prestations propres</option>
 									<option value="Déductions obtenues">Déductions obtenues</option>
@@ -767,11 +779,13 @@ function markIncorrectCells(userEntries, correctSolution) {
 									<option value="Autres dettes">Autres dettes</option>
 									<option value="Dettes AFC">Dettes AFC</option>
 									<option value="TVA due">TVA due</option>
+									<option value="Dette hypothécaire">Dette hypothécaire</option>
 									<option value="Capital">Capital</option>
                                 </optgroup>
                                 <optgroup label="MARCHANDISES">
                                     <option value="Ventes de marchandises">Ventes de marchandises</option>
 									<option value="Déductions accordées">Déductions accordées</option>
+									<option value="Pertes sur créances">Pertes sur créances</option>
                                     <option value="Achats de marchandises">Achats de marchandises</option>
 									<option value="Prestations propres">Prestations propres</option>
 									<option value="Déductions obtenues">Déductions obtenues</option>
