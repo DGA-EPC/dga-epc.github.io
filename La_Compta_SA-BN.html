@@ -348,46 +348,46 @@
             cacherDetails();
         }
 
-        // Fonction pour générer des valeurs aléatoires selon les formules Excel
+        // Fonction pour générer des valeurs aléatoires avec arrondis à 0.05
         function genererValeursAleatoires() {
-            // Capital-actions (arrondi à 50'000 près)
-            capitalActions = Math.ceil(Math.floor(Math.random() * (1000000 - 100000 + 1) + 100000) / 50000) * 50000;
+            // Capital-actions (arrondi à 0.05 près)
+            capitalActions = Math.round((Math.floor(Math.random() * (1000000 - 100000 + 1) + 100000) / 0.05)) * 0.05;
             
             // Taux de libération (arrondi à 5% près)
             tauxLiberation = Math.ceil(Math.floor(Math.random() * (100 - 60 + 1) + 60) / 5) * 5;
             
-            // Capital-participations (max 2x capital-actions, arrondi à 50'000 près)
+            // Capital-participations (max 2x capital-actions, arrondi à 0.05 près)
             const maxCapitalParticipations = Math.min(1000000, 2 * capitalActions);
-            capitalParticipations = Math.ceil(Math.floor(Math.random() * (maxCapitalParticipations - 100000 + 1) + 100000) / 50000) * 50000;
+            capitalParticipations = Math.round((Math.floor(Math.random() * (maxCapitalParticipations - 100000 + 1) + 100000) / 0.05)) * 0.05;
             
-            // Réserve légale sur bénéfice (entre 15% et 60% du capital-actions, arrondi à 100 près)
+            // Réserve légale sur bénéfice (entre 15% et 60% du capital-actions, arrondi à 0.05 près)
             const minReserveBenefice = capitalActions * 0.15;
             const maxReserveBenefice = capitalActions * 0.6;
-            reserveLegaleBenefice = Math.ceil(Math.floor(Math.random() * (maxReserveBenefice - minReserveBenefice + 1) + minReserveBenefice) / 100) * 100;
+            reserveLegaleBenefice = Math.round((Math.floor(Math.random() * (maxReserveBenefice - minReserveBenefice + 1) + minReserveBenefice) / 0.05)) * 0.05;
             
-            // Réserve légale sur capital (entre 0 et 40% du capital-actions, arrondi à 1000 près)
+            // Réserve légale sur capital (entre 0 et 40% du capital-actions, arrondi à 0.05 près)
             const maxReserveCapital = capitalActions * 0.4;
-            reserveLegaleCapital = Math.ceil(Math.floor(Math.random() * (maxReserveCapital + 1)) / 1000) * 1000;
+            reserveLegaleCapital = Math.round((Math.floor(Math.random() * (maxReserveCapital + 1)) / 0.05)) * 0.05;
             
             // Superdividende arrondi (0.25, 0.5 ou 1)
             const choixSuperdividende = Math.floor(Math.random() * 3) + 1;
             superdividendeArrondi = choixSuperdividende === 1 ? 0.25 : (choixSuperdividende === 2 ? 0.5 : 1);
             
-            // Bénéfice de l'exercice (entre 20% et 40% du capital total, arrondi à 100 près)
+            // Bénéfice de l'exercice (entre 20% et 40% du capital total, arrondi à 0.05 près)
             const capitalTotal = capitalActions + capitalParticipations;
             const minBenefice = 0.2 * capitalTotal;
             const maxBenefice = 0.4 * capitalTotal;
-            beneficeExercice = Math.ceil(Math.floor(Math.random() * (maxBenefice - minBenefice + 1) + minBenefice) / 100) * 100;
+            beneficeExercice = Math.round((Math.floor(Math.random() * (maxBenefice - minBenefice + 1) + minBenefice) / 0.05)) * 0.05;
             
-            // Bénéfice reporté (entre 100 et 3000, arrondi à 20 près)
-            beneficeReporte = Math.ceil(Math.floor(Math.random() * (3000 - 100 + 1) + 100) / 20) * 20;
+            // Bénéfice reporté (entre 100 et 3000, arrondi à 0.05 près)
+            beneficeReporte = Math.round((Math.floor(Math.random() * (3000 - 100 + 1) + 100) / 0.05)) * 0.05;
             
             // Taux aléatoires pour Tantièmes et Réserve spéciale
             tauxTantiemes = Math.floor(Math.random() * 14) + 2;
             tauxReserveSpeciale = Math.floor(Math.random() * 4) + 2;
             
-            // Don (arrondi à 500 près)
-            montantDon = Math.ceil(Math.floor(Math.random() * (10000 - 1000 + 1) + 1000) / 500) * 500;
+            // Don (arrondi à 0.05 près)
+            montantDon = Math.round((Math.floor(Math.random() * (10000 - 1000 + 1) + 1000) / 0.05)) * 0.05;
             
             // Calcul des valeurs de solution
             calculerSolution();
@@ -399,7 +399,7 @@ function calculerSolution() {
     solution.capitalInscrit = capitalActions;
     
     // Capital libéré total
-    solution.capitalLibereTotal = Math.round(capitalActions * tauxLiberation / 100 + capitalParticipations);
+    solution.capitalLibereTotal = Math.round((capitalActions * tauxLiberation / 100 + capitalParticipations) / 0.05) * 0.05;
     
     // Capital total inscrit
     solution.capitalTotalInscrit = capitalActions + capitalParticipations;
@@ -414,16 +414,16 @@ function calculerSolution() {
     solution.attributionReserve = solution.pourcentageReserves < 0.5 ? 1 : 0;
     
     // Réserve légale sur bénéfice (5% sur bénéfice à répartir) UNIQUEMENT si <50%
-    solution.reserveLegaleBenefice = solution.attributionReserve ? Math.round(beneficeExercice * 0.05) : 0;
+    solution.reserveLegaleBenefice = solution.attributionReserve ? Math.round(beneficeExercice * 0.05 / 0.05) * 0.05 : 0;
     
     // Dividendes (5% sur capital libéré total)
-    solution.dividendes = Math.round(solution.capitalLibereTotal * 0.05);
+    solution.dividendes = Math.round(solution.capitalLibereTotal * 0.05 / 0.05) * 0.05;
     
     // Tantièmes (% sur bénéfice à répartir)
-    solution.tantiemes = Math.round(beneficeExercice * tauxTantiemes / 100);
+    solution.tantiemes = Math.round(beneficeExercice * tauxTantiemes / 100 / 0.05) * 0.05;
     
     // Réserve spéciale (% sur bénéfice à répartir)
-    solution.reserveSpeciale = Math.round(beneficeExercice * tauxReserveSpeciale / 100);
+    solution.reserveSpeciale = Math.round(beneficeExercice * tauxReserveSpeciale / 100 / 0.05) * 0.05;
     
     // Don
     solution.don = montantDon;
@@ -456,7 +456,7 @@ function calculerSolution() {
     }
     
     // Montant du superdividende
-    solution.superdividendeMontant = Math.round(solution.capitalLibereTotal * solution.superdividendeTaux / 100);
+    solution.superdividendeMontant = Math.round(solution.capitalLibereTotal * solution.superdividendeTaux / 100 / 0.05) * 0.05;
     
     // Bénéfice à reporter
     solution.beneficeAReporter = solution.beneficeARepartir - solution.reserveLegaleBenefice - 
@@ -550,7 +550,7 @@ function calculerSolution() {
             document.querySelectorAll('.montant-input').forEach(input => {
                 input.addEventListener('blur', function() {
                     if (this.value) {
-                        this.value = formatMontantInput(parseInt(this.value.replace(/\s/g, '')));
+                        this.value = formatMontantInput(parseFloat(this.value.replace(/\s/g, '').replace(',', '.')));
                     }
                 });
                 
@@ -569,7 +569,7 @@ function calculerSolution() {
                 <p><strong>Capital inscrit:</strong> ${formatMontant(solution.capitalInscrit)}</p>
                 <p><strong>Capital libéré total = Capital-action x taux de libération + Capital-participations, soit:</strong><br>
                 ${formatMontant(capitalActions)} x ${tauxLiberation}% + ${formatMontant(capitalParticipations)} = ${formatMontant(solution.capitalLibereTotal)}</p>
-                <p><strong>Capital total inscirt:</strong> ${formatMontant(capitalActions)} + ${formatMontant(capitalParticipations)} = ${formatMontant(solution.capitalTotalInscrit)}</p>
+                <p><strong>Capital total inscrit:</strong> ${formatMontant(capitalActions)} + ${formatMontant(capitalParticipations)} = ${formatMontant(solution.capitalTotalInscrit)}</p>
                 <p><strong>Total des réserves légales:</strong> ${formatMontant(reserveLegaleCapital)} + ${formatMontant(reserveLegaleBenefice)} = ${formatMontant(solution.totalReservesLegales)}</p>
                 <p><strong>% des réserves légales par rapport au capital inscrit:</strong> ${formatMontant(solution.totalReservesLegales)} / ${formatMontant(solution.capitalTotalInscrit)} = ${(solution.pourcentageReserves * 100).toFixed(2)}%</p>
                 <p><strong>${solution.attributionReserve ? "Attribution à la réserve obligatoire" : "Pas d'attribution à la réserve"}</strong> ${solution.attributionReserve ? "(<50%)" : ""}</p>
@@ -594,23 +594,23 @@ function calculerSolution() {
             document.querySelectorAll('.solution-hint').forEach(el => el.remove());
             
             // Récupérer les valeurs saisies (en enlevant les séparateurs de milliers)
-            const inputBeneficeExercice = parseInt(document.getElementById('input-benefice-exercice').value.replace(/\s/g, '')) || 0;
-            const inputBeneficeReporte = parseInt(document.getElementById('input-benefice-reporte').value.replace(/\s/g, '')) || 0;
-            const inputARepartir = parseInt(document.getElementById('input-a-repartir').value.replace(/\s/g, '')) || 0;
+            const inputBeneficeExercice = parseFloat(document.getElementById('input-benefice-exercice').value.replace(/\s/g, '').replace(',', '.')) || 0;
+            const inputBeneficeReporte = parseFloat(document.getElementById('input-benefice-reporte').value.replace(/\s/g, '').replace(',', '.')) || 0;
+            const inputARepartir = parseFloat(document.getElementById('input-a-repartir').value.replace(/\s/g, '').replace(',', '.')) || 0;
             const tauxReserve = parseInt(document.getElementById('taux-reserve').value) || 0;
-            const baseReserve = parseInt(document.getElementById('base-reserve').value.replace(/\s/g, '')) || 0;
-            const montantReserve = parseInt(document.getElementById('montant-reserve').value.replace(/\s/g, '')) || 0;
+            const baseReserve = parseFloat(document.getElementById('base-reserve').value.replace(/\s/g, '').replace(',', '.')) || 0;
+            const montantReserve = parseFloat(document.getElementById('montant-reserve').value.replace(/\s/g, '').replace(',', '.')) || 0;
             const tauxDividendes = parseInt(document.getElementById('taux-dividendes').value) || 0;
-            const baseDividendes = parseInt(document.getElementById('base-dividendes').value.replace(/\s/g, '')) || 0;
-            const montantDividendes = parseInt(document.getElementById('montant-dividendes').value.replace(/\s/g, '')) || 0;
-            const baseTantiemes = parseInt(document.getElementById('base-tantiemes').value.replace(/\s/g, '')) || 0;
-            const montantTantiemes = parseInt(document.getElementById('montant-tantiemes').value.replace(/\s/g, '')) || 0;
-            const baseReserveSpeciale = parseInt(document.getElementById('base-reserve-speciale').value.replace(/\s/g, '')) || 0;
-            const montantReserveSpeciale = parseInt(document.getElementById('montant-reserve-speciale').value.replace(/\s/g, '')) || 0;
+            const baseDividendes = parseFloat(document.getElementById('base-dividendes').value.replace(/\s/g, '').replace(',', '.')) || 0;
+            const montantDividendes = parseFloat(document.getElementById('montant-dividendes').value.replace(/\s/g, '').replace(',', '.')) || 0;
+            const baseTantiemes = parseFloat(document.getElementById('base-tantiemes').value.replace(/\s/g, '').replace(',', '.')) || 0;
+            const montantTantiemes = parseFloat(document.getElementById('montant-tantiemes').value.replace(/\s/g, '').replace(',', '.')) || 0;
+            const baseReserveSpeciale = parseFloat(document.getElementById('base-reserve-speciale').value.replace(/\s/g, '').replace(',', '.')) || 0;
+            const montantReserveSpeciale = parseFloat(document.getElementById('montant-reserve-speciale').value.replace(/\s/g, '').replace(',', '.')) || 0;
             const tauxSuperdividende = parseFloat(document.getElementById('taux-superdividende').value) || 0;
-            const baseSuperdividende = parseInt(document.getElementById('base-superdividende').value.replace(/\s/g, '')) || 0;
-            const montantSuperdividende = parseInt(document.getElementById('montant-superdividende').value.replace(/\s/g, '')) || 0;
-            const beneficeReporter = parseInt(document.getElementById('benefice-reporter').value.replace(/\s/g, '')) || 0;
+            const baseSuperdividende = parseFloat(document.getElementById('base-superdividende').value.replace(/\s/g, '').replace(',', '.')) || 0;
+            const montantSuperdividende = parseFloat(document.getElementById('montant-superdividende').value.replace(/\s/g, '').replace(',', '.')) || 0;
+            const beneficeReporter = parseFloat(document.getElementById('benefice-reporter').value.replace(/\s/g, '').replace(',', '.')) || 0;
             
             // Valider et colorer les réponses
             validerEtColorer('input-benefice-exercice', inputBeneficeExercice, beneficeExercice);
@@ -640,7 +640,7 @@ function calculerSolution() {
             // Supprimer les anciens messages d'erreur
             parentCell.querySelectorAll('.solution-hint').forEach(el => el.remove());
             
-            if (Math.abs(valeurUtilisateur - valeurCorrecte) < 1) {
+            if (Math.abs(valeurUtilisateur - valeurCorrecte) < 0.001) {
                 element.classList.remove('incorrect');
                 element.classList.add('correct');
             } else {
@@ -700,12 +700,12 @@ function afficherSolution() {
 }
         // Fonction pour formater les montants (affichage)
         function formatMontant(montant) {
-            return new Intl.NumberFormat('fr-CH', { minimumFractionDigits: 0 }).format(montant);
+            return new Intl.NumberFormat('fr-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(montant);
         }
 
         // Fonction pour formater les montants (input)
         function formatMontantInput(montant) {
-            return new Intl.NumberFormat('fr-CH', { minimumFractionDigits: 0 }).format(montant);
+            return new Intl.NumberFormat('fr-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(montant);
         }
 
 		// Fonctions pour le pop-up théorique
