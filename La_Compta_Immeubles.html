@@ -375,12 +375,11 @@
         // Données des écritures comptables
         let accountingEntries = [
 		{
-			description: "Vente d'un immeuble 1' 200. Il figure dans nos comptes pour une valeur amortie de 800. Le montant est viré à la poste.",
+			description: "Vente d'un immeuble 1'200. Il figure dans nos comptes pour une valeur amortie de 800 (amortissements directs). Le montant est viré à la poste.",
 			solution: [
-				{ debit: "Banque", credit: "", amount: 1200 },
+				{ debit: "Poste", credit: "", amount: 1200 },
 				{ debit: "", credit: "Immeubles", amount: 1200 },
-				{ debit: "FAC s/immeuble", credit: "Immeubles", amount: 800 },
-				{ debit: "Immeubles", credit: "Produits exceptionnels", amount: 600 }
+				{ debit: "Immeubles", credit: "Produits exceptionnels", amount: 400 }
 			]
 		},
 		{
