@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Carnet de vol — 1774 vols</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0A121D;
+    --bg-2:#0D1826;
+    --panel:#121F30;
+    --panel-2:#16283D;
+    --bezel:#1E3049;
+    --line:#24384f;
+    --amber:#FFB627;
+    --amber-dim:#8a6a2b;
+    --green:#4ADE80;
+    --green-dim:#2b6b4a;
+    --red:#FF6B5D;
+    --text:#E9EEF5;
+    --muted:#7E92AC;
+    --muted-2:#516378;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);}
+  body{
+    font-family:'Inter',sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(ellipse 1200px 600px at 50% -10%, #16263c 0%, transparent 60%),
+      var(--bg);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px 100px;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    padding:64px 24px 48px;
+    overflow:hidden;
+    border-bottom:1px solid var(--line);
+    background:
+      linear-gradient(180deg, #0d1a2b 0%, #0A121D 100%);
+  }
+  .horizon{
+    position:absolute; inset:0; z-index:0; opacity:.55;
+    background:
+      linear-gradient(to bottom, transparent 0%, transparent 49.5%, var(--amber-dim) 49.5%, var(--amber-dim) 50.5%, transparent 50.5%),
+      radial-gradient(circle at 50% 50%, rgba(255,182,39,0.06) 0%, transparent 55%);
+  }
+  .hero-inner{position:relative; z-index:1; max-width:1180px; margin:0 auto;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    letter-spacing:.18em; text-transform:uppercase;
+    color:var(--amber); font-size:12px; font-weight:600;
+    display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:''; width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green);}
+  h1{
+    font-family:'Oswald',sans-serif; font-weight:600; text-transform:uppercase;
+    font-size:clamp(30px,4.4vw,50px); letter-spacing:.01em; margin:14px 0 6px;
+    color:#fff;
+  }
+  .sub{color:var(--muted); font-size:15px; margin:0 0 40px; max-width:640px; line-height:1.55;}
+
+  .odometer-row{display:flex; flex-wrap:wrap; gap:16px; align-items:stretch;}
+  .odo{
+    background:linear-gradient(180deg,var(--panel-2),var(--panel));
+    border:1px solid var(--bezel);
+    border-radius:10px;
+    padding:22px 26px;
+    flex:1 1 200px;
+    position:relative;
+  }
+  .odo::before{
+    content:''; position:absolute; top:0; left:14px; right:14px; height:1px;
+    background:linear-gradient(90deg,transparent,rgba(255,182,39,.35),transparent);
+  }
+  .odo-label{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:8px;}
+  .odo-value{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:clamp(26px,3vw,36px); color:var(--amber); letter-spacing:.02em;}
+  .odo-value .unit{font-size:14px; color:var(--muted); margin-left:6px; font-weight:400;}
+  .odo.main .odo-value{color:#fff; font-size:clamp(38px,5vw,54px);}
+  .odo.main{flex:1.4 1 260px; border-color:#3a5170;}
+  .odo.main .odo-label{color:var(--amber);}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:56px 0;}
+  section + section{border-top:1px solid var(--line);}
+  .sec-head{display:flex; align-items:baseline; gap:14px; margin-bottom:28px;}
+  .sec-tag{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted-2); border:1px solid var(--line); border-radius:4px; padding:3px 8px; letter-spacing:.08em;}
+  .sec-head h2{font-family:'Oswald',sans-serif; text-transform:uppercase; font-weight:600; letter-spacing:.02em; font-size:22px; margin:0; color:#fff;}
+  .sec-note{color:var(--muted); font-size:14px; margin:-16px 0 28px; max-width:680px; line-height:1.6;}
+
+  .grid2{display:grid; grid-template-columns:1.1fr .9fr; gap:20px;}
+  .grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  @media(max-width:820px){ .grid2{grid-template-columns:1fr;} .grid3{grid-template-columns:1fr 1fr;} }
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:20px 22px;
+  }
+  .panel h3{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; text-transform:uppercase;
+    letter-spacing:.1em; color:var(--muted); margin:0 0 16px; font-weight:600;
+  }
+  canvas{max-width:100%;}
+
+  /* stat cards */
+  .stat-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    padding:18px 20px; position:relative;
+  }
+  .stat-card .num{font-family:'IBM Plex Mono',monospace; font-size:28px; font-weight:600; color:var(--green);}
+  .stat-card .lbl{font-size:12.5px; color:var(--muted); margin-top:6px; line-height:1.4;}
+
+  /* anecdotes / logbook entries */
+  .entry{
+    display:grid; grid-template-columns:110px 1fr; gap:18px;
+    padding:18px 0; border-top:1px dashed var(--line);
+  }
+  .entry:first-child{border-top:none;}
+  .entry .tag{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--bg);
+    background:var(--amber); border-radius:3px; padding:4px 8px; height:fit-content;
+    text-transform:uppercase; letter-spacing:.06em; font-weight:700; text-align:center;
+  }
+  .entry .tag.alt{background:var(--green);}
+  .entry .tag.alt2{background:var(--red); color:#1a0505;}
+  .entry h4{margin:0 0 6px; font-family:'Oswald',sans-serif; font-size:17px; text-transform:uppercase; letter-spacing:.01em; color:#fff; font-weight:500;}
+  .entry p{margin:0; color:var(--muted); font-size:14px; line-height:1.6;}
+  .entry .mono{font-family:'IBM Plex Mono',monospace; color:var(--amber);}
+
+  footer{
+    text-align:center; padding:36px 24px; color:var(--muted-2); font-size:12.5px;
+    font-family:'IBM Plex Mono',monospace; border-top:1px solid var(--line);
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="horizon"></div>
+  <div class="hero-inner">
+    <div class="eyebrow">Carnet de vol — analyse</div>
+    <h1>25 ans dans le carnet</h1>
+    <p class="sub">1774 lignes de vol, du 26 juin 2001 au 20 juillet 2026. Voici ce qu'elles racontent.</p>
+    <div class="odometer-row">
+      <div class="odo main">
+        <div class="odo-label">Heures de vol totales</div>
+        <div class="odo-value">1'103.5<span class="unit">h</span></div>
+      </div>
+      <div class="odo">
+        <div class="odo-label">Vols enregistrés</div>
+        <div class="odo-value">1'774</div>
+      </div>
+      <div class="odo">
+        <div class="odo-label">Jours de vol distincts</div>
+        <div class="odo-value">632</div>
+      </div>
+      <div class="odo">
+        <div class="odo-label">Terrains visités</div>
+        <div class="odo-value">348</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <section>
+    <div class="sec-head"><span class="sec-tag">01</span><h2>Vue d'ensemble</h2></div>
+    <div class="grid3" style="margin-bottom:16px;">
+      <div class="stat-card"><div class="num">37.3 min</div><div class="lbl">Durée moyenne d'un vol (34 min en médiane)</div></div>
+      <div class="stat-card"><div class="num">6</div><div class="lbl">Types d'avion différents pilotés</div></div>
+      <div class="stat-card"><div class="num">15</div><div class="lbl">Immatriculations distinctes volées</div></div>
+      <div class="stat-card"><div class="num">28%</div><div class="lbl">Des vols sont des vols locaux (départ = arrivée)</div></div>
+      <div class="stat-card"><div class="num">2012</div><div class="lbl">Année la plus active : 120 vols</div></div>
+      <div class="stat-card"><div class="num">2002</div><div class="lbl">Année la plus volée en heures : 89.0 h</div></div>
+    </div>
+    <div class="panel">
+      <h3>Heures de vol par année, avec cumul</h3>
+      <canvas id="chartYears" height="90"></canvas>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-tag">02</span><h2>La flotte</h2></div>
+    <p class="sec-note">Le C182 mène en nombre de vols (654, surtout des vols courts/locaux), mais c'est le DV20 qui totalise le plus d'heures (360.7 h) — signe de vols de voyage plus longs sur ce type.</p>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Heures par type d'avion</h3>
+        <canvas id="chartAcHours" height="220"></canvas>
+      </div>
+      <div class="panel">
+        <h3>Nombre de vols par type</h3>
+        <canvas id="chartAcFlights" height="220"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-tag">03</span><h2>Rythme de vol</h2></div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Vols par mois de l'année (juillet écrase tout)</h3>
+        <canvas id="chartMonth" height="200"></canvas>
+      </div>
+      <div class="panel">
+        <h3>Vols par jour de la semaine</h3>
+        <canvas id="chartDow" height="200"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-tag">04</span><h2>Destinations</h2></div>
+    <p class="sec-note">LSGE (Grenchen) est le terrain d'attache — base de départ ou d'arrivée de la majorité des vols. Voici les 10 terrains les plus visités en dehors de la base.</p>
+    <div class="panel">
+      <h3>Terrains les plus visités (hors LSGE)</h3>
+      <canvas id="chartDest" height="140"></canvas>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-tag">05</span><h2>Anecdotes du carnet</h2></div>
+
+    <div class="entry">
+      <div class="tag">Record</div>
+      <div>
+        <h4>La plus longue étape</h4>
+        <p><span class="mono">17.02.2019</span> — LSGE → LSZQ en DV20, <span class="mono">2h07</span> de vol. C'est la plus longue étape unique du carnet (l'anomalie de 23h32 du 11.12.2003 a été écartée des statistiques : il s'agit visiblement d'une erreur de saisie).</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="tag alt">Marathon</div>
+      <div>
+        <h4>La journée la plus chargée</h4>
+        <p><span class="mono">08.08.2018</span> — 15 vols en une seule journée. Plusieurs autres journées dépassent les 14 vols, typiquement en juillet : des séances de tours de piste ou d'école.</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="tag alt2">Pause</div>
+      <div>
+        <h4>La plus longue pause sans voler</h4>
+        <p><span class="mono">277 jours</span> sans un seul vol, entre le 22.09.2022 et le 26.06.2023 — la plus longue interruption des 25 ans de carnet.</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="tag">Voyage</div>
+      <div>
+        <h4>Le tour de France de juillet 2013</h4>
+        <p>Sur une dizaine de jours (8 au 20 juillet 2013), une longue tournée en C182 enchaîne des dizaines de terrains français (LFLS, LFNG, LFMZ, LFDA, LFRT, LFGJ…) avant de rentrer sur LSGE — le plus long périple du carnet en nombre d'étapes.</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="tag alt">Juillet</div>
+      <div>
+        <h4>Le mois qui domine tout</h4>
+        <p>445 vols ont eu lieu en juillet, soit 25% du total — largement plus que tout autre mois. Avril (183) et août (171) suivent loin derrière.</p>
+      </div>
+    </div>
+
+  </section>
+
+</div>
+
+<footer>CARNET DE VOL · 1774 ENTRÉES · 2001–2026 · GÉNÉRÉ À PARTIR DE Vol.xlsx</footer>
+
+<script>
+const data = {
+  years: [2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026],
+  yr_hours: [15.2,89.0,76.5,71.4,65.6,59.6,69.8,41.5,46.8,36.0,60.6,61.9,39.6,47.1,45.0,31.4,40.1,41.7,46.0,40.4,19.6,19.9,19.3,14.0,16.4,12.6],
+  cum_hours: [15.2,104.2,180.7,252.1,317.7,377.3,447.1,488.6,535.4,571.4,632.0,693.9,733.5,780.6,825.6,857.0,897.1,938.8,984.8,1025.2,1044.8,1064.7,1084.0,1098.0,1114.4,1127.0],
+  aircraft_types: ["DV20","C182","C172","PA28","P28R","C210"],
+  ac_hours: [360.7,290.4,262.7,199.5,13.3,0.4],
+  ac_flights: [455,654,396,241,27,1],
+  dow_names: ["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"],
+  dow_counts: [180,225,280,270,343,209,267],
+  month_names: ["Jan","Fév","Mar","Avr","Mai","Juin","Juil","Août","Sep","Oct","Nov","Déc"],
+  month_counts: [86,112,131,183,131,122,445,171,107,139,77,70],
+  dest_codes: ["LSGY","LSGL","LSGC","LSGN","LSTB","LFSP","LFLI","LSZP","LSGS","LSGT"],
+  dest_counts: [116,110,101,75,74,62,58,50,43,39]
+};
+
+const AMBER = "#FFB627";
+const GREEN = "#4ADE80";
+const MUTED = "#7E92AC";
+const LINE  = "#24384f";
+const TEXT  = "#E9EEF5";
+
+Chart.defaults.color = MUTED;
+Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+Chart.defaults.font.size = 11;
+
+function grid(){ return { color: LINE, drawTicks:false }; }
+
+new Chart(document.getElementById('chartYears'), {
+  data: {
+    labels: data.years,
+    datasets: [
+      { type:'bar', label:'Heures / an', data: data.yr_hours, backgroundColor:'rgba(255,182,39,0.55)', borderRadius:3, order:2, yAxisID:'y' },
+      { type:'line', label:'Cumul (h)', data: data.cum_hours, borderColor: GREEN, backgroundColor:'transparent', borderWidth:2, pointRadius:0, tension:.3, order:1, yAxisID:'y1' }
+    ]
+  },
+  options: {
+    responsive:true,
+    interaction:{ mode:'index', intersect:false },
+    plugins:{ legend:{ labels:{ color: TEXT, boxWidth:12 } } },
+    scales:{
+      x:{ grid:{ display:false }, ticks:{ maxRotation:0, autoSkip:true, maxTicksLimit:14 } },
+      y:{ position:'left', grid: grid(), title:{ display:true, text:'h / an', color:MUTED }, beginAtZero:true },
+      y1:{ position:'right', grid:{ display:false }, title:{ display:true, text:'cumul h', color:MUTED }, beginAtZero:true }
+    }
+  }
+});
+
+new Chart(document.getElementById('chartAcHours'), {
+  type:'bar',
+  data:{ labels:data.aircraft_types, datasets:[{ data:data.ac_hours, backgroundColor: AMBER, borderRadius:4 }] },
+  options:{ indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{grid:grid(), title:{display:true,text:'heures',color:MUTED}}, y:{grid:{display:false}} } }
+});
+
+new Chart(document.getElementById('chartAcFlights'), {
+  type:'bar',
+  data:{ labels:data.aircraft_types, datasets:[{ data:data.ac_flights, backgroundColor: GREEN, borderRadius:4 }] },
+  options:{ indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{grid:grid(), title:{display:true,text:'vols',color:MUTED}}, y:{grid:{display:false}} } }
+});
+
+new Chart(document.getElementById('chartMonth'), {
+  type:'bar',
+  data:{ labels:data.month_names, datasets:[{ data:data.month_counts, backgroundColor: AMBER, borderRadius:3 }] },
+  options:{ plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:grid()} } }
+});
+
+new Chart(document.getElementById('chartDow'), {
+  type:'bar',
+  data:{ labels:data.dow_names, datasets:[{ data:data.dow_counts, backgroundColor: GREEN, borderRadius:3 }] },
+  options:{ plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:grid()} } }
+});
+
+new Chart(document.getElementById('chartDest'), {
+  type:'bar',
+  data:{ labels:data.dest_codes, datasets:[{ data:data.dest_counts, backgroundColor: AMBER, borderRadius:3 }] },
+  options:{ plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:grid(), title:{display:true,text:'visites',color:MUTED}} } }
+});
+</script>
+
+</body>
+</html>
