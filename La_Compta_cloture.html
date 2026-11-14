@@ -79,15 +79,15 @@ section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;
 
 /* Comptes en T */
 .t{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 9px 8px;transition:opacity .35s, box-shadow .35s, transform .35s;position:relative;min-width:0}
-.t-head{font-weight:700;font-size:13.5px;text-align:center;padding:0 4px 1px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t-head{font-weight:700;font-size:13.5px;text-align:center;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:none;letter-spacing:0}
 .k-charge .t-head{color:var(--charge)}
 .k-produit .t-head{color:var(--produit)}
 .k-res .t-head{color:var(--res)}
 .k-passif .t-head{color:var(--passif)}
 .k-bilan .t-head{color:var(--bilan)}
 .k-actif .t-head{color:var(--actif)}
-.t-sides{display:grid;grid-template-columns:1fr 1fr;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--ink);padding:2px 0 2px}
-.t-sides span:first-child{padding-left:2px}.t-sides span:last-child{text-align:right;padding-right:2px}
+.t-sides{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:baseline;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--ink);padding:0 0 2px}
+.t-sides > span:first-child{padding-left:2px}.t-sides > span:last-child{text-align:right;padding-right:2px}
 .t-body{display:grid;grid-template-columns:1fr 1fr;min-height:30px}
 .col{padding:4px 5px;display:flex;flex-direction:column;gap:2px;min-width:0}
 .col.d{border-right:2px solid var(--ink)}
@@ -113,6 +113,7 @@ section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;
 .ln.chg .am{font-weight:700;color:#7a4b00}
 .t-tot span.chg{background:#ffe08a}
 .t.focus{box-shadow:0 0 0 2px var(--accent),0 6px 18px rgba(0,0,0,.08)}
+.t:not(.big) .t-head{font-size:12.5px;padding:0 2px}
 .t.big .t-head{font-size:15px}
 .t.big .ln{font-size:13px}
 .t.big .t-body{min-height:110px}
@@ -196,9 +197,9 @@ section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;
     <section class="sec" id="sec-res">
       <h2><span class="n">1</span>Comptes de résultat</h2>
       <div class="res-grid">
-        <div><div class="grp-t charge">Comptes de charges</div><div class="g2" id="box-charges"></div></div>
+        <div><div class="grp-t charge">Charges</div><div class="g2" id="box-charges"></div></div>
         <div><div class="grp-t res">Compte de résultat</div><div class="t big k-res" id="acc-cr"></div></div>
-        <div><div class="grp-t produit">Comptes de produits</div><div id="box-produits" style="display:grid;gap:10px"></div></div>
+        <div><div class="grp-t produit">Produits</div><div id="box-produits" style="display:grid;gap:10px"></div></div>
       </div>
     </section>
 
@@ -216,7 +217,7 @@ section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;
         <div>
           <div class="grp-t actif">Actifs</div>
           <div class="g3" id="box-actifs"></div>
-          <div class="grp-t passif" style="margin-top:12px">Passifs (fonds étrangers)</div>
+          <div class="grp-t passif" style="margin-top:12px">Passifs</div>
           <div class="g3" id="box-passifs"></div>
         </div>
         <div><div class="grp-t bilan">Bilan de clôture</div><div class="t big k-bilan" id="acc-bilan"></div></div>
@@ -351,14 +352,13 @@ function entries(id, D){
 }
 
 function chg(key, amount){ newSnap[key] = amount; return (base && base[key] !== amount) ? 'chg' : ''; }
-function tHTML(name, E, sides=['Débit','Crédit'], emptyMsg='', id=name){
+function tHTML(name, E, sides=['D','C'], emptyMsg='', id=name){
   const col = (arr,side) => arr.map(l=>`<div class="ln ${l.cls||''} ${l.fresh?'fresh':''} ${chg(id+'|'+side+'|'+l.label, l.amount)}"><span class="lb" title="${l.label}">${l.label}</span><span class="am">${fmt(l.amount)}</span></div>`).join('');
   const sd = E.d.reduce((s,l)=>s+l.amount,0), sc = E.c.reduce((s,l)=>s+l.amount,0);
   const body = (!E.d.length && !E.c.length && emptyMsg)
     ? `<div class="empty" style="grid-column:1/-1">${emptyMsg}</div>`
     : `<div class="col d">${col(E.d,'d')}</div><div class="col c">${col(E.c,'c')}</div>`;
-  return `<div class="t-head">${name}</div>
-    <div class="t-sides"><span>${sides[0]}</span><span>${sides[1]}</span></div>
+  return `<div class="t-sides"><span>${sides[0]}</span><span class="t-head">${name}</span><span>${sides[1]}</span></div>
     <div class="t-body">${body}</div>
     ${E.tot?`<div class="t-tot"><span class="${chg(id+'|tot|d',sd)}">${fmt(sd)}</span><span class="${chg(id+'|tot|c',sc)}">${fmt(sc)}</span></div>`:''}
     ${E.bubble?`<div class="bubble">${E.bubble}</div>`:''}`;
