@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pertes sur créances et provisions – théorie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+<style>
+
+
+
+:root{
+  --bg:#f5f3ee; --card:#fff; --ink:#1e2226; --muted:#6a6f76; --line:#e2ddd2; --soft:#efebe3;
+  --charge:#c2671f; --charge-bg:#fcefe3;
+  --produit:#2b8352; --produit-bg:#e6f4eb;
+  --res:#6d48b3; --res-bg:#efe9f9;
+  --passif:#a3333d; --passif-bg:#f8e8ea;
+  --bilan:#20394f; --bilan-bg:#e6ecf1;
+  --actif:#2a52be; --actif-bg:#e8eefb;
+  --accent:#c98a10; --accent-bg:#fff3d6;
+  --y1:#e8eefb; --y2:#fff3d6;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  /* *** Couleur fond *** */
+  background:#052035;
+  color:var(--ink);font:14px/1.45 Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+.app{zoom:var(--z,1);display:grid;grid-template-columns:370px minmax(0,1fr);gap:24px;max-width:1520px;margin:0 auto;padding:20px}
+aside{position:sticky;top:calc(20px / var(--z,1));align-self:start;max-height:calc((100vh - 40px) / var(--z,1));overflow:auto;display:flex;flex-direction:column;gap:14px;padding-bottom:4px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+h1{font-family:Fraunces,Georgia,serif;font-size:26px;line-height:1.15;margin:0 0 4px;font-weight:700}
+.sub{color:var(--muted);font-size:13px;margin:0}
+.dots{display:flex;gap:6px;margin:14px 0 2px}
+.dot{flex:1;height:6px;border-radius:3px;background:var(--soft);border:0;padding:0;cursor:pointer}
+.dot.done{background:#cbbfa6}.dot.cur{background:var(--accent)}
+.stepno{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.steptitle{font-family:Fraunces,Georgia,serif;font-size:21px;line-height:1.2;margin:0 0 8px}
+.steptext{margin:0 0 10px}
+.calc{background:var(--accent-bg);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:13.5px}
+.calc .row{display:flex;justify-content:space-between;gap:8px}
+.calc .row.big{font-weight:700;border-top:1px solid #e8d49f;margin-top:6px;padding-top:6px;font-size:15px}
+.calc.q{background:var(--bilan-bg)}
+.choices{display:flex;gap:8px;margin-top:10px}
+.ch{flex:1;font:inherit;font-weight:600;border-radius:10px;border:2px solid var(--bilan);background:#fff;color:var(--bilan);padding:9px 10px;cursor:pointer}
+.ch:not(:disabled):hover{background:var(--bilan);color:#fff}
+.ch:disabled{cursor:default;opacity:.45}
+.ch.ok{background:var(--produit);border-color:var(--produit);color:#fff;opacity:1}
+.ch.ko{background:var(--charge);border-color:var(--charge);color:#fff;opacity:1}
+.fb{margin-top:10px;padding:8px 10px;border-radius:8px;background:#fff;animation:pop 1.2s ease-out}
+.fb.ok{border-left:4px solid var(--produit)}.fb.ko{border-left:4px solid var(--charge)}
+.ch.blink{animation:blink 1.4s ease-in-out 2}
+@keyframes blink{0%,100%{box-shadow:0 0 0 0 rgba(32,57,79,0)}50%{box-shadow:0 0 0 5px rgba(201,138,16,.75);background:var(--accent-bg)}}
+.hint{font-size:12px;color:var(--muted);margin-top:8px;font-style:italic}
+.tag{display:inline-block;padding:2px 9px;border-radius:999px;font-weight:600;font-size:12.5px}
+.tag.good{background:var(--produit-bg);color:var(--produit)}
+.tag.bad{background:var(--charge-bg);color:var(--charge)}
+.tag.neutral{background:var(--soft);color:var(--muted)}
+.tag.at{background:var(--actif-bg);color:var(--actif)}
+.tag.pt{background:var(--passif-bg);color:var(--passif)}
+.journal{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+.journal caption{text-align:left;font-weight:600;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding-bottom:4px}
+.journal th{text-align:left;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding:4px 4px}
+.journal td{padding:4px 4px;border-bottom:1px dashed var(--line)}
+.journal td.am,.journal th.am{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.journal td.dt{color:var(--muted);white-space:nowrap}
+.journal tr.todo td{opacity:.38}
+.journal tr.cur td{background:var(--accent-bg);font-weight:600}
+.nav{display:flex;gap:8px}
+.btn{flex:1;font:inherit;font-weight:600;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:11px 12px;cursor:pointer}
+.btn.primary{background:#256015;color:#fff;border-color:var(--ink)}
+.btn.quiz{display:flex;align-items:center;justify-content:center;background:#037DFF;color:#fff;border-color:#037DFF;text-align:center;text-decoration:none}
+.btn.quit{background:#ff4747;color:#fff;border-color:#ff4747}
+.btn:disabled{opacity:.4;cursor:default}
+.btn:not(:disabled):hover{filter:brightness(1.5)}
+details summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"＋";color:var(--muted)}
+details[open] summary::after{content:"－"}
+.note{font-size:12px;color:var(--muted);margin:10px 0 0}
+
+.stage{display:flex;flex-direction:column;gap:18px;min-width:0}
+section.sec{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px 16px}
+section.sec h2{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 12px;font-weight:600;display:flex;align-items:center;gap:8px}
+section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--soft);color:var(--ink);font-size:11px}
+.story{font-size:15px;background:var(--soft);border-radius:10px;padding:10px 14px;margin-bottom:14px}
+.story b{font-variant-numeric:tabular-nums}
+
+/* Ligne du temps */
+.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;align-items:start}
+.t{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 9px 8px;position:relative;min-width:0}
+.t-head{font-weight:700;font-size:13.5px;text-align:center;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.k-charge .t-head{color:var(--charge)}.k-produit .t-head{color:var(--produit)}.k-passif .t-head{color:var(--passif)}.k-actif .t-head{color:var(--actif)}
+.t-sides{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:baseline;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--ink);padding:0 0 2px}
+.t-body{display:grid;grid-template-columns:1fr 1fr;min-height:46px}
+.col{padding:4px 4px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.col.d{border-right:2px solid var(--ink)}
+.ln{display:flex;flex-wrap:wrap;justify-content:space-between;gap:3px;font-size:11.5px;border-radius:4px;padding:1px 2px}
+.ln .lb{color:var(--muted);line-height:1.25;min-width:0}
+.ln .am{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:500;margin-left:auto}
+.ln.ext .lb{font-style:italic}
+.ln.fresh{animation:pop 1.8s ease-out;background:#ffe08a33}
+@keyframes pop{0%{background:#ffe08a}100%{background:#ffe08a33}}
+.t.focus{box-shadow:0 0 0 2px var(--accent),0 6px 18px rgba(0,0,0,.08)}
+.eff{font-size:12px;margin-top:6px;text-align:center}
+.eff .tag{font-size:11.5px}
+
+/* Introduction et résumé */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.box{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.box h4{margin:0 0 6px;font-size:14px}
+.quad{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.quad .hd{text-align:center;font-family:Fraunces,Georgia,serif;font-size:19px;font-weight:700;padding:8px;border-radius:10px}
+.quad .hd.at{background:var(--actif-bg);color:var(--actif)}.quad .hd.pt{background:var(--passif-bg);color:var(--passif)}
+.qc{border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;transition:box-shadow .2s}
+.qc:hover{box-shadow:0 0 0 2px var(--accent)}
+.qc h4{margin:0 0 4px;font-size:15px}
+.qc .ex{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
+.qc .ecr{display:flex;justify-content:space-between;font-size:13px;background:var(--soft);border-radius:8px;padding:6px 10px;font-weight:600}
+.qc .ecr span:last-child{color:var(--muted);font-weight:500}
+
+.zoombar{position:fixed;top:8px;right:10px;z-index:60;display:flex;gap:2px;opacity:.55;transition:opacity .2s}
+.zoombar:hover{opacity:1}
+.zoombar button{font:600 13px Inter,system-ui,sans-serif;color:var(--muted);background:rgba(255,255,255,.85);border:1px solid var(--line);border-radius:7px;padding:3px 8px;cursor:pointer}
+.zoombar button:hover{color:var(--ink)}
+
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;padding:12px 12px 90px}
+  aside{position:static;max-height:none;overflow:visible}
+  .nav-wrap{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(245,243,238,.95);backdrop-filter:blur(6px);padding:10px 12px;border-top:1px solid var(--line)}
+  .two,.quad{grid-template-columns:1fr}
+}
+
+/* --- Amortissements --- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s,box-shadow .3s}
+.card.on{box-shadow:0 0 0 2px var(--accent)}
+.card.off{opacity:.45}
+.card .lt{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--soft);font-weight:700;font-size:12px;margin-right:6px}
+.card h4{margin:0 0 4px;font-size:15px;display:flex;align-items:center}
+.card .ex{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
+.ecr{display:flex;justify-content:space-between;gap:8px;font-size:13px;background:var(--soft);border-radius:8px;padding:6px 10px;font-weight:600}
+.ecr span:last-child{color:var(--muted);font-weight:500}
+.ico{font-size:26px;line-height:1;margin-bottom:6px}
+.vocab{width:100%;border-collapse:collapse;font-size:13.5px}
+.vocab td{padding:7px 8px;border-bottom:1px dashed var(--line);vertical-align:top}
+.vocab td:first-child{font-weight:600;white-space:nowrap}
+.vocab tr.cur td{background:var(--accent-bg)}
+.vbar{display:flex;height:42px;border-radius:8px;overflow:hidden;margin:26px 0 8px;font-size:12.5px;font-weight:600;color:#fff;position:relative}
+.vbar div{display:flex;align-items:center;justify-content:center;white-space:nowrap}
+.tab{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+.tab th{color:var(--muted);font-weight:500;border-bottom:2px solid var(--ink);padding:6px 8px;text-align:right}
+.tab th:first-child,.tab td:first-child{text-align:left}
+.tab td{padding:6px 8px;border-bottom:1px dashed var(--line);text-align:right}
+.tab tr.todo td{color:transparent}
+.tab tr.cur td{background:var(--accent-bg);font-weight:700}
+.tab tr.cur td.am{color:var(--charge)}
+.tab td.am{color:var(--charge)}.tab td.vr{color:var(--actif)}
+.chart{width:100%;height:auto;display:block}
+.chart text{font:11px Inter,system-ui,sans-serif;fill:var(--muted)}
+.chart .lg text{fill:var(--ink);font-weight:600}
+.bil{border:1px solid var(--line);border-radius:12px;padding:10px 14px;max-width:420px}
+.bil h4{margin:0 0 6px;font-family:Fraunces,Georgia,serif;color:var(--bilan)}
+.bil .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;padding:2px 0}
+.bil .row.sub{color:var(--passif)}
+.bil .row.tot{font-weight:700;border-top:1px solid var(--ink);margin-top:4px;padding-top:4px}
+.bil .grp{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:4px}
+.k-fac .t-head{color:var(--passif)}
+.t-head{white-space:normal !important;line-height:1.2;overflow:visible !important;text-overflow:clip !important;hyphens:auto;-webkit-hyphens:auto}
+.split{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:1100px){ .split{grid-template-columns:1fr} }
+
+/* --- Bilan et journal --- */
+.inv{width:100%;border-collapse:collapse;font-size:14px}
+.inv td{padding:8px 8px;border-bottom:1px dashed var(--line);vertical-align:middle}
+.inv td.am{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+.inv td.tg2,.inv td.acc{width:1%;white-space:nowrap}
+.inv tr.hl td{background:var(--accent-bg)}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-weight:600;font-size:12.5px;animation:fadein .6s ease-out}
+@keyframes fadein{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
+.pill.a{background:var(--actif-bg);color:var(--actif)}.pill.p{background:var(--passif-bg);color:var(--passif)}
+.pill.acc{background:var(--soft);color:var(--ink)}
+.bl{display:grid;grid-template-columns:1fr 1fr;max-width:720px;margin:0 auto}
+.bl-title{grid-column:1/-1;text-align:center;font-family:Fraunces,Georgia,serif;font-weight:700;font-size:18px;padding-bottom:4px}
+.bl-head{font-weight:700;padding:4px 12px;border-bottom:3px solid var(--ink)}
+.bl-head small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.bl-head.a{color:var(--actif)}.bl-head.p{color:var(--passif);text-align:right}
+.bl-side{padding:6px 12px 8px;display:flex;flex-direction:column;gap:2px;min-height:60px}
+.bl-side.a{border-right:3px solid var(--ink)}
+.br{display:flex;justify-content:space-between;gap:10px;font-variant-numeric:tabular-nums;padding:2px 4px;border-radius:4px}
+.br.new{animation:pop 1.6s ease-out}
+.br.cap{color:var(--res);font-weight:700}
+.br.dec{color:var(--charge);font-weight:700}
+.bg{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:8px;padding:0 4px}
+.bg:first-child{margin-top:0}
+.bt{display:flex;justify-content:space-between;font-weight:700;border-top:2px solid var(--ink);padding:4px 16px;font-variant-numeric:tabular-nums}
+.bt.bad{color:var(--charge)}
+.order{font-size:12px;font-weight:600;color:var(--accent);padding:2px 4px}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.qa{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s}
+.qa.off{opacity:.25}
+.qa h4{margin:0 0 6px;font-size:15px}
+.acct{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px}
+.acct caption{text-align:left;font-weight:700;padding-bottom:4px}
+.acct th{color:var(--muted);font-weight:500;border-bottom:2px solid var(--ink);padding:4px 6px;text-align:left}
+.acct td{padding:4px 6px;border-bottom:1px dashed var(--line)}
+.acct td.n{text-align:right;font-variant-numeric:tabular-nums}
+.acct th.n{text-align:right}
+.rules{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rule{border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:center}
+.rule h4{margin:0 0 6px}
+.rule .pm{display:grid;grid-template-columns:1fr 1fr;border-top:2px solid var(--ink);font-size:22px;font-weight:700}
+.rule .pm span:first-child{border-right:2px solid var(--ink)}
+.rule .pm small{display:block;font-size:11px;color:var(--muted);font-weight:500}
+.plus{color:var(--produit)}.minus{color:var(--charge)}
+.case{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s,box-shadow .3s}
+.case.on{box-shadow:0 0 0 2px var(--accent)}.case.off{opacity:.4}
+.case p{margin:0 0 8px;font-size:14.5px}
+.t-sides .sg{font-weight:700}
+.acrow{display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:center;margin-bottom:10px}
+.acrow .t-body{min-height:26px}
+.acx{font-size:14px}
+.acgrp{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin:12px 0 6px}
+.acgrp:first-of-type{margin-top:0}
+.jr-stage{max-width:640px;margin-bottom:16px}
+.jr-stage .journal{font-size:13.5px}
+.inv tr.invhead td{border-bottom:0;padding-bottom:2px}
+.colbox{position:relative;display:block;text-align:center;font-weight:700;font-size:13px;color:var(--ink);border:2px solid var(--accent);border-radius:8px;padding:4px 10px;background:var(--accent-bg);animation:fadein .6s ease-out}
+.colarrow{position:absolute;left:50%;top:100%;transform:translateX(-50%);font-size:26px;line-height:1;color:var(--accent);animation:arrowgo 2.8s ease-in-out forwards;pointer-events:none}
+@keyframes arrowgo{0%{opacity:0;margin-top:-6px}15%{opacity:1}30%{margin-top:6px}45%{margin-top:-2px}60%{margin-top:6px;opacity:1}100%{opacity:0;margin-top:10px}}
+.bg.hl{color:var(--actif);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;font-size:12.5px}
+.bl-side.p .bg.hl{color:var(--passif)}
+.bl-side.dim,.bl-head.dim{opacity:.3}
+.t-head{white-space:normal !important;line-height:1.2;overflow:visible !important;text-overflow:clip !important;hyphens:auto;-webkit-hyphens:auto}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="panel">
+      <h1>Pertes sur créances et provisions</h1>
+      <p class="sub">Quand un client ne paie pas · montants en CHF</p>
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <div class="panel" id="explain"></div>
+
+    <div class="nav-wrap">
+      <div class="nav">
+        <button class="btn" id="prev">← Précédent</button>
+        <button class="btn primary" id="next">Suite →</button>
+      </div>
+    </div>
+
+    <div class="nav exit">
+      <!-- *** Lien des exercices *** : remplacer La_Compta_Provisions.html par le lien voulu -->
+      <a class="btn quiz" href="La_Compta_Provisions.html" target="_blank">Exercices</a>
+      <button class="btn quit" id="quit">Quitter</button>
+    </div>
+    <p class="note" id="quit-msg" style="display:none;color:#fff">Le navigateur ne permet pas de fermer cette fenêtre automatiquement : fermer l'onglet.</p>
+  </aside>
+
+  <main class="stage" id="stage"></main>
+</div>
+<div class="zoombar"><button id="zm" title="Réduire la taille" aria-label="Réduire la taille">A−</button><button id="zp" title="Agrandir la taille" aria-label="Agrandir la taille">A+</button></div>
+
+<script>
+/* ---------- Réglages ---------- */
+const Y2 = new Date().getFullYear(), Y1 = Y2-1;   // l'année précédente et l'année en cours
+const ANS = {};                                     // réponses choisies, clé "étape.phase"
+const fmt = n => { const neg=n<0; n=Math.abs(Math.round(n*100)/100); const [i,d]=n.toFixed(2).split('.');
+  return (neg?'−':'') + i.replace(/\B(?=(\d{3})+(?!\d))/g,"'") + (d!=='00' ? '.'+d : ''); };
+const $ = id => document.getElementById(id);
+const KIND = {'Créances clients':'actif','Poste':'actif','Banque':'actif','Créances douteuses':'actif',
+  'Pertes sur créances':'charge','Charges exceptionnelles':'charge','Produits exceptionnels':'produit','Produits financiers':'produit',
+  'Ducroire':'passif','Provision pour litige':'passif'};
+const PLUS_D = k => k==='actif' || k==='charge';
+
+/* ---------- Comptes en T ---------- */
+// J : écritures {ph, n, d, c, amt}  ·  {ph, open:compte, side, amt, lab}
+function postings(J, acc, ph){
+  const P = {d:[], c:[]};
+  J.forEach(e=>{
+    if (e.ph>ph) return;
+    const fresh = e.ph===ph;
+    if (e.open){ if (e.open===acc) P[e.side].push({lb:e.lab||'sàn', amt:e.amt, fresh}); return; }
+    if (e.d===acc) P.d.push({lb:e.n, amt:e.amt, fresh});
+    if (e.c===acc) P.c.push({lb:e.n, amt:e.amt, fresh});
+  });
+  return P;
+}
+const sum = a => a.reduce((s,l)=>s+l.amt,0);
+const bal = (acc,P) => PLUS_D(KIND[acc]) ? sum(P.d)-sum(P.c) : sum(P.c)-sum(P.d);
+function tHTML(acc, P, focus, eff){
+  const k = KIND[acc], pd = PLUS_D(k);
+  const col = arr => arr.map(l=>`<div class="ln ${l.fresh?'fresh':''}"><span class="lb">${l.lb}</span><span class="am">${fmt(l.amt)}</span></div>`).join('');
+  return `<div class="t k-${k} ${focus?'focus':''}">
+    <div class="t-sides"><span>D <b class="sg ${pd?'plus':'minus'}">${pd?'+':'−'}</b></span><span class="t-head" title="${acc}">${acc}</span><span><b class="sg ${pd?'minus':'plus'}">${pd?'−':'+'}</b> C</span></div>
+    <div class="t-body"><div class="col d">${col(P.d)}</div><div class="col c">${col(P.c)}</div></div>
+    ${eff?`<div class="eff">${eff}</div>`:''}</div>`;
+}
+const soldeTag = (acc,P,cls='neutral') => `Solde : <span class="tag ${cls}">${fmt(bal(acc,P))}</span>`;
+
+/* ---------- Les étapes ---------- */
+const LOI = [
+  ['📭','Aucun rappel n\'est exigé','Le créancier peut lancer une poursuite sans avoir envoyé de rappel.'],
+  ['💸','Les frais de poursuite','Ils sont avancés par le créancier, qui les facture ensuite au client.'],
+  ['📄','L\'acte de défaut de biens (ADB)','Après une poursuite, s\'il reste une dette impayée, le créancier reçoit un ADB, valable 20 ans.'],
+  ['%','Les intérêts moratoires','Le créancier peut réclamer 5&nbsp;% d\'intérêts moratoires (intérêts de retard).']];
+
+const STEPS = [
+ { title:'La loi',
+   ph:[{btn:'Suite →', text:`Un client ne paie pas sa facture. Que dit la loi ? Quatre points à retenir.`}],
+   stage: ph => `<section class="sec"><h2><span class="n">1</span>Quand un client ne paie pas</h2><div class="cards">
+     ${LOI.map(([ic,t,x])=>`<div class="qa"><div class="ico">${ic}</div><h4>${t}</h4>${x}</div>`).join('')}</div></section>` },
+
+ { title:'Les comptes',
+   ph:[{btn:'Suite →', text:`Cinq comptes sont utilisés quand un client ne paie pas. Chacun a sa nature : actif, produit ou charge.`}],
+   stage: () => { const row = (acc, txt) => `<div class="acrow">${tHTML(acc,{d:[],c:[]},false,'')}<div class="acx">${txt}</div></div>`;
+     return `<section class="sec"><h2><span class="n">1</span>Les comptes utilisés</h2>
+       <div class="acgrp" style="color:var(--actif)">Actif</div>
+       ${row('Créances clients','Les factures que les clients doivent encore payer.')}
+       ${row('Créances douteuses','Les factures à risque, pour lesquelles une poursuite est en cours. On l\'appelle aussi « compte approprié » ou « débiteur à risque ».')}
+       <div class="acgrp" style="color:var(--produit)">Produits</div>
+       ${row('Produits financiers','Les intérêts moratoires (intérêts de retard) facturés au client.')}
+       ${row('Produits exceptionnels','Une ancienne dette effacée qu\'on récupère.')}
+       <div class="acgrp" style="color:var(--charge)">Charge</div>
+       ${row('Pertes sur créances','Les factures perdues ou annulées.')}</section>`; } },
+
+ { title:'Les frais de poursuite', cpt:{
+   accs:['Créances clients','Poste'],
+   J:[{ph:0,open:'Créances clients',side:'d',amt:4000,lab:'Facture'},{ph:0,open:'Poste',side:'d',amt:3000},
+      {ph:1,n:1,d:'Créances clients',c:'Poste',amt:80}],
+   eff:(acc,P,ph)=> ph>=1 && acc==='Créances clients' ? soldeTag(acc,P,'at') : ''},
+   ph:[{btn:'Suite →', text:`Un client ne paie pas sa facture de 4'000. Nous lançons une poursuite et avançons par poste CHF 80 de frais de poursuite.`,
+        q:{text:'Ces frais de poursuite sont…', opts:[['ch','une charge pour nous'],['cl','facturés au client']], ok:'cl',
+           fb:'la loi permet de <b>facturer les frais au client</b> : il nous doit 80 de plus.'}},
+       {btn:'Suite →', text:`Les frais sont ajoutés à la créance du client : <b>Créances clients / Poste</b> 80. Le client nous doit maintenant 4'080.`}] },
+
+ { title:'L\'acte de défaut de biens', cpt:{
+   accs:['Créances clients','Pertes sur créances'],
+   J:[{ph:0,open:'Créances clients',side:'d',amt:4000,lab:'Facture'},
+      {ph:1,n:2,d:'Pertes sur créances',c:'Créances clients',amt:4000}],
+   eff:(acc,P,ph)=> ph>=1 ? (acc==='Créances clients' ? `<span class="tag good">soldé ✓</span>` : `Charge : <span class="tag bad">${fmt(bal(acc,P))}</span>`) : ''},
+   ph:[{btn:'Suite →', text:`La poursuite n'a rien donné : nous recevons un <b>acte de défaut de biens</b> pour une facture de CHF 4'000.`,
+        q:{text:'Que devient cette créance dans la comptabilité ?', opts:[['due','elle reste due'],['perdue','elle est perdue']], ok:'perdue',
+           fb:'le client ne peut pas payer : la créance est <b>perdue</b>. C\'est une charge, la <b>perte sur créances</b>.'}},
+       {btn:'Suite →', text:`On sort la facture des Créances clients et on enregistre la charge : <b>Pertes sur créances / Créances clients</b> 4'000.<br><br>L'ADB reste valable 20 ans : on pourra peut-être récupérer l'argent plus tard.`}] },
+
+ { title:'Récupérer la même année', cpt:{
+   accs:['Pertes sur créances','Banque'],
+   J:[{ph:0,open:'Pertes sur créances',side:'d',amt:4000,lab:'2'},
+      {ph:1,n:3,d:'Banque',c:'Pertes sur créances',amt:500}],
+   eff:(acc,P,ph)=> acc==='Pertes sur créances' ? `Perte de l'année : <span class="tag bad">${fmt(bal(acc,P))}</span>` : ''},
+   ph:[{btn:'Suite →', text:`<b>La même année</b>, nous relançons une poursuite contre ce client et récupérons CHF 500, versés à la banque.`,
+        q:{text:'Quel compte est crédité ?', opts:[['pc','Pertes sur créances'],['pe','Produits exceptionnels']], ok:'pc',
+           fb:'la perte a été comptabilisée <b>cette année</b> : on la diminue. On crédite les <b>Pertes sur créances</b>.'}},
+       {btn:'Suite →', text:`<b>Banque / Pertes sur créances</b> 500. La perte de l'année n'est plus que de 3'500.`}] },
+
+ { title:'Récupérer des années plus tard', cpt:{
+   accs:['Banque','Produits exceptionnels'],
+   J:[{ph:1,n:4,d:'Banque',c:'Produits exceptionnels',amt:600}],
+   eff:(acc,P,ph)=> ph>=1 && acc==='Produits exceptionnels' ? `Produit : <span class="tag good">${fmt(bal(acc,P))}</span>` : ''},
+   ph:[{btn:'Suite →', text:`<b>Deux ans plus tard</b>, grâce à l'ADB, nous relançons une poursuite et récupérons CHF 600, versés à la banque.`,
+        q:{text:'Quel compte est crédité ?', opts:[['pc','Pertes sur créances'],['pe','Produits exceptionnels']], ok:'pe',
+           fb:'la perte a été comptabilisée dans un <b>exercice précédent</b>, déjà clôturé. L\'argent récupéré est un <b>produit exceptionnel</b>.'}},
+       {btn:'Suite →', text:`<b>Banque / Produits exceptionnels</b> 600.<br><br>À retenir : même année → on diminue la perte ; année suivante ou plus tard → produit exceptionnel.`}] },
+
+ { title:'Les créances douteuses', cpt:{
+   accs:['Créances clients','Créances douteuses'],
+   J:[{ph:0,open:'Créances clients',side:'d',amt:1200,lab:'Facture'},
+      {ph:1,n:5,d:'Créances douteuses',c:'Créances clients',amt:1200}],
+   eff:(acc,P,ph)=> ph>=1 && acc==='Créances douteuses' ? soldeTag(acc,P,'at') : ''},
+   ph:[{btn:'Suite →', text:`Nous avons lancé une poursuite contre un client qui nous doit CHF 1'200. Nous ne savons pas encore s'il paiera.`,
+        q:{text:'Cette facture est-elle déjà perdue ?', opts:[['oui','oui, perdue'],['non','pas encore : à risque']], ok:'non',
+           fb:'tant qu\'il n\'y a pas d\'ADB, la facture n\'est <b>pas perdue</b>, mais elle est <b>à risque</b>.'}},
+       {btn:'Suite →', text:`On la transfère dans le « compte approprié » : <b>Créances douteuses / Créances clients</b> 1'200.<br><br>C'est toujours un <b>actif</b> : aucune charge n'est enregistrée. On sépare simplement les factures à risque.`}] },
+
+ { title:'Les provisions',
+   ph:[{btn:'Suite →', text:`Une <b>provision</b> est l'enregistrement dans la comptabilité d'une <b>charge future probable</b>.<br><br>Exemple : un procès risque de nous coûter de l'argent l'année prochaine. On enregistre la charge dès maintenant.`,
+        q:{text:'Une provision est-elle un actif ou un passif ?', opts:[['a','actif'],['p','passif']], ok:'p',
+           fb:'la provision est une charge comptabilisée dans un compte de <b>passif</b> : c\'est comme une dette probable.'}},
+       {btn:'Suite →', text:`La loi limite les provisions à certaines charges. Les trois principales :`}],
+   stage: ph => `<section class="sec"><h2><span class="n">1</span>L'écriture d'une provision</h2>
+       <div class="ecr" style="max-width:520px"><span>Charge / Provision (passif)</span><span>montant de la charge probable</span></div></section>
+     ${ph>=1?`<section class="sec"><h2><span class="n">2</span>Les principales provisions</h2><table class="vocab">
+       <tr><td>Ducroire<br><span style="font-weight:400;color:var(--muted)">provision pour pertes sur créances</span></td><td><b>Pertes sur créances / Ducroire</b><br>Limitée à 5&nbsp;% des clients suisses, 10&nbsp;% des clients étrangers en CHF, 15&nbsp;% des clients étrangers en devises.</td></tr>
+       <tr><td>Provision pour litige</td><td><b>Charges exceptionnelles / Provision pour litige</b><br>En cas de procès.</td></tr>
+       <tr><td>Provision pour entretien</td><td><b>Frais d'entretien / Provision pour entretien</b><br>Grosses réparations, rénovation de machines ou d'immeubles.</td></tr></table></section>`:''}` },
+
+ { title:'L\'impact des provisions',
+   ph:[{btn:'Avec provision →', text:`En ${Y1}, l'entreprise risque un procès et estime la perte à CHF 20'000. Le procès a lieu en ${Y2} et coûte CHF 32'000.<br><br>Bénéfice avant le procès : ${Y1} 280'000, ${Y2} 230'000. Impôt : 15&nbsp;%.<br><br>Comparons <b>avec</b> et <b>sans</b> provision.`},
+       {btn:'Sans provision →', text:`<b>${Y1}, avec provision</b> : Charges exceptionnelles / Provision pour litige 20'000.<br><br>Le bénéfice imposé baisse à 260'000. Impôt : 39'000.`},
+       {btn:'Le procès →', text:`<b>${Y1}, sans provision</b> : rien n'est comptabilisé. Le bénéfice imposé reste de 280'000. Impôt : 42'000.<br><br>Avec la provision, l'impôt de ${Y1} est plus petit.`},
+       {btn:'Sans provision →', text:`<b>${Y2}, avec provision</b> : le procès coûte 32'000.<br>• Charges exceptionnelles / Banque 32'000<br>• Provision pour litige / Charges exceptionnelles 20'000 : la provision est <b>dissoute</b>.<br><br>La charge nette de ${Y2} n'est que de 12'000.`},
+       {btn:'Comparer →', text:`<b>${Y2}, sans provision</b> : toute la perte de 32'000 tombe en ${Y2}.`,
+        q:{text:'Sur les deux années, l\'impôt total avec provision est…', opts:[['m','plus petit'],['e','égal'],['p','plus grand']], ok:'e',
+           fb:'le total est le <b>même</b> : 71\'700 dans les deux cas.'}},
+       {btn:'Suite →', text:`La provision ne supprime pas l'impôt : elle place la charge dans l'année où le <b>risque apparaît</b> (principe de prudence). L'impôt est simplement <b>payé plus tard</b>.`}],
+   stage: ph => {
+     const C = {
+       avec:{1:[280000,-20000,260000,39000], 2:[230000,-12000,218000,32700], lb1:'− provision', lb2:'− perte nette du procès', show1:1, show2:3},
+       sans:{1:[280000,0,280000,42000],      2:[230000,-32000,198000,29700], lb1:'− provision', lb2:'− perte du procès',      show1:2, show2:4}};
+     const box = (k,t) => { const c = C[k];
+       const cell = (y,i) => (ph>=c['show'+y]) ? fmt(c[y][i]) : '';
+       const tot = ph>=5 ? fmt(c[1][3]+c[2][3]) : '';
+       return `<div class="box"><h4>${t}</h4><table class="tab"><tr><th></th><th>${Y1}</th><th>${Y2}</th><th>Total</th></tr>
+         <tr><td>Bénéfice avant</td><td>${cell(1,0)}</td><td>${cell(2,0)}</td><td></td></tr>
+         <tr><td>${k==='avec'?'− provision / − perte nette':'− perte du procès'}</td><td class="am">${cell(1,1)}</td><td class="am">${cell(2,1)}</td><td></td></tr>
+         <tr><td>Bénéfice imposé</td><td>${cell(1,2)}</td><td>${cell(2,2)}</td><td></td></tr>
+         <tr class="${ph>=5?'cur':''}"><td><b>Impôt 15&nbsp;%</b></td><td><b>${cell(1,3)}</b></td><td><b>${cell(2,3)}</b></td><td><b>${tot}</b></td></tr></table></div>`; };
+     return `<section class="sec"><h2><span class="n">1</span>Avec ou sans provision</h2><div class="two">${box('avec','Avec provision')}${box('sans','Sans provision')}</div></section>`; } },
+
+ { title:'Ajuster le ducroire : cas a', cpt:{
+   accs:['Créances clients','Ducroire','Pertes sur créances'],
+   J:[{ph:0,open:'Créances clients',side:'d',amt:102800,lab:'Solde'},{ph:0,open:'Ducroire',side:'c',amt:4700},
+      {ph:2,n:6,d:'Pertes sur créances',c:'Ducroire',amt:440}],
+   eff:(acc,P,ph)=> acc==='Ducroire' ? (ph>=1 ? `Solde : <span class="tag ${ph>=2?'good':'bad'}">${fmt(bal(acc,P))}</span> · voulu : <b>5'140</b>` : soldeTag(acc,P,'pt')) : '',
+   bilan: ph => ph<2 ? '' : `<div class="bil"><h4>Bilan au 31.12.${Y2}</h4><div class="grp">Actifs circulants</div>
+      <div class="row"><span>Créances clients</span><span>102'800</span></div><div class="row sub"><span>− Ducroire</span><span>−5'140</span></div>
+      <div class="row tot"><span>= Valeur probable des créances</span><span>97'660</span></div></div>`},
+   ph:[{btn:'Calculer →', text:`Au 31.12, le solde des clients (suisses) est de <b>102'800</b>. Le compte Ducroire a un solde de <b>4'700</b>.<br><br>Chaque année, on <b>ajuste</b> le ducroire au pourcentage voulu des clients : ici 5&nbsp;%.`},
+       {btn:'Ajuster →', text:`Ducroire voulu : 5&nbsp;% de 102'800 = <b>5'140</b>.<br>Ducroire actuel : 4'700.`,
+        q:{text:'Faut-il augmenter ou diminuer le ducroire ?', opts:[['+','augmenter'],['-','diminuer']], ok:'+',
+           fb:'il faut passer de 4\'700 à 5\'140 : on <b>augmente</b> le ducroire de <b>440</b>.'}},
+       {btn:'Suite →', text:`Le ducroire est un passif : il augmente au <b>crédit</b>. La contrepartie est une charge : <b>Pertes sur créances / Ducroire</b> 440.<br><br>Au bilan, le ducroire se présente <b>sous les créances clients, en moins</b>.`}] },
+
+ { title:'Ajuster le ducroire : cas b', cpt:{
+   accs:['Créances clients','Ducroire','Pertes sur créances'],
+   J:[{ph:0,open:'Créances clients',side:'d',amt:102800,lab:'Solde'},{ph:0,open:'Ducroire',side:'c',amt:5600},
+      {ph:2,n:7,d:'Ducroire',c:'Pertes sur créances',amt:460}],
+   eff:(acc,P,ph)=> acc==='Ducroire' ? (ph>=1 ? `Solde : <span class="tag ${ph>=2?'good':'bad'}">${fmt(bal(acc,P))}</span> · voulu : <b>5'140</b>` : soldeTag(acc,P,'pt')) : ''},
+   ph:[{btn:'Calculer →', text:`Même solde des clients : <b>102'800</b>. Mais cette fois, le compte Ducroire a un solde de <b>5'600</b>.`},
+       {btn:'Ajuster →', text:`Ducroire voulu : 5&nbsp;% de 102'800 = <b>5'140</b>.<br>Ducroire actuel : 5'600.`,
+        q:{text:'Faut-il augmenter ou diminuer le ducroire ?', opts:[['+','augmenter'],['-','diminuer']], ok:'-',
+           fb:'il faut passer de 5\'600 à 5\'140 : on <b>diminue</b> le ducroire de <b>460</b>.'}},
+       {btn:'Suite →', text:`Le ducroire diminue au <b>débit</b>. La contrepartie diminue les charges : <b>Ducroire / Pertes sur créances</b> 460.<br><br>Les Pertes sur créances ont un solde au crédit : cette année, l'ajustement réduit les charges.`}] }
+];
+const LAST = STEPS.length-1;
+
+/* ---------- Actions ---------- */
+const A = [];
+STEPS.forEach((s,i)=>s.ph.forEach((_,p)=>A.push({step:i, ph:p})));
+let pos = 0;
+
+/* ---------- Rendu ---------- */
+function qBox(key, q){
+  const ch = ANS[key];
+  const btn = (a,lb) => `<button class="ch ${ch===a?(a===q.ok?'ok':'ko'):''} ${ch?'':'blink'}" data-a="${a}" ${ch?'disabled':''}>${lb}</button>`;
+  const fb = ch ? `<div class="fb ${ch===q.ok?'ok':'ko'}">${ch===q.ok?'✓ En effet':'✗ En fait'}, ${q.fb}</div>` : `<div class="hint">Cliquer sur la bonne réponse.</div>`;
+  return `<div class="calc q"><div style="font-weight:600;margin-bottom:4px">La question à se poser</div>${q.text}
+    <div class="choices" style="flex-wrap:wrap">${q.opts.map(([a,lb])=>btn(a,lb)).join('')}</div>${fb}</div>`;
+}
+function render(){
+  pos = Math.max(0, Math.min(A.length-1, pos));
+  const {step, ph} = A[pos], S = STEPS[step], P = S.ph[ph], key = step+'.'+ph;
+  document.querySelectorAll('.dot').forEach((b,i)=>{ b.classList.toggle('cur', i===step); b.classList.toggle('done', i<step); });
+  $('prev').disabled = pos===0;
+  $('next').disabled = pos===A.length-1 || (P.q && !ANS[key]);
+  $('next').textContent = pos===A.length-1 ? 'Terminé ✓' : P.btn;
+  const prog = S.ph.length>1 ? `<div class="progress" style="font-size:12px;color:var(--muted);margin:2px 0 8px">Phase ${ph+1} sur ${S.ph.length}</div>` : '';
+  let jr = '';
+  if (S.cpt){
+    const rows = S.cpt.J.filter(e=>!e.open);
+    jr = `<table class="journal"><caption>Journal</caption><tr><th>N°</th><th>Débit</th><th>Crédit</th><th class="am">Montant</th></tr>
+      ${rows.map(e=>`<tr class="${e.ph===ph?'cur':e.ph>ph?'todo':''}"><td>${e.n}</td><td>${e.ph>ph?'…':e.d}</td><td>${e.ph>ph?'…':e.c}</td><td class="am">${fmt(e.amt)}</td></tr>`).join('')}</table>`;
+  }
+  $('explain').innerHTML = `<div class="stepno">Étape ${step} / ${LAST}</div><h2 class="steptitle">${S.title}</h2>${prog}
+    <p class="steptext">${P.text}</p>${P.q?qBox(key,P.q):''}`;
+  if (S.cpt){
+    const C = S.cpt;
+    const ts = C.accs.map(acc=>{
+      const Pp = postings(C.J, acc, ph);
+      const focus = C.J.some(e=>e.ph===ph && !e.open && (e.d===acc||e.c===acc));
+      return tHTML(acc, Pp, focus, C.eff ? C.eff(acc,Pp,ph) : '');
+    }).join('');
+    const bl = C.bilan ? C.bilan(ph) : '';
+    $('stage').innerHTML = `<section class="sec"><h2><span class="n">1</span>Dans la comptabilité</h2>${jr?`<div class="jr-stage">${jr}</div>`:''}<div class="tg">${ts}</div></section>`
+      + (bl ? `<section class="sec"><h2><span class="n">2</span>Au bilan</h2>${bl}</section>` : '');
+  } else $('stage').innerHTML = S.stage(ph);
+}
+
+/* ---------- Navigation ---------- */
+function goTo(p){ pos = p; render(); }
+function goStep(s){ goTo(A.findIndex(a=>a.step===s)); }
+let Z = 1;
+try { Z = +localStorage.getItem('provisions-zoom') || 1; } catch(e){}
+function applyZoom(){
+  Z = Math.round(Math.max(0.8, Math.min(1.6, Z))*10)/10;
+  document.documentElement.style.setProperty('--z', Z);
+  try { localStorage.setItem('provisions-zoom', Z); } catch(e){}
+}
+$('dots').innerHTML = STEPS.map((s,i)=>`<button class="dot" data-s="${i}" title="Étape ${i} : ${s.title}" aria-label="Étape ${i}"></button>`).join('');
+$('zm').addEventListener('click', ()=>{ Z -= 0.1; applyZoom(); });
+$('zp').addEventListener('click', ()=>{ Z += 0.1; applyZoom(); });
+$('next').addEventListener('click', ()=>goTo(pos+1));
+$('prev').addEventListener('click', ()=>goTo(pos-1));
+$('explain').addEventListener('click', e=>{ const b=e.target.closest('.ch'); if (!b || b.disabled) return; const {step,ph}=A[pos]; ANS[step+'.'+ph] = b.dataset.a; render(); });
+$('quit').addEventListener('click', ()=>{ window.close(); setTimeout(()=>{ $('quit-msg').style.display='block'; }, 300); });
+$('dots').addEventListener('click', e=>{ const b=e.target.closest('.dot'); if (b) goStep(+b.dataset.s); });
+document.addEventListener('keydown', e=>{
+  if (e.key==='ArrowRight' && !$('next').disabled) goTo(pos+1);
+  if (e.key==='ArrowLeft') goTo(pos-1);
+});
+render();
+applyZoom();
+</script>
+</body>
+</html>

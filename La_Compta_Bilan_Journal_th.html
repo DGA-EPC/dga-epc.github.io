@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le bilan et le journal – théorie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+<style>
+
+
+:root{
+  --bg:#f5f3ee; --card:#fff; --ink:#1e2226; --muted:#6a6f76; --line:#e2ddd2; --soft:#efebe3;
+  --charge:#c2671f; --charge-bg:#fcefe3;
+  --produit:#2b8352; --produit-bg:#e6f4eb;
+  --res:#6d48b3; --res-bg:#efe9f9;
+  --passif:#a3333d; --passif-bg:#f8e8ea;
+  --bilan:#20394f; --bilan-bg:#e6ecf1;
+  --actif:#2a52be; --actif-bg:#e8eefb;
+  --accent:#c98a10; --accent-bg:#fff3d6;
+  --y1:#e8eefb; --y2:#fff3d6;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  /* *** Couleur fond *** */
+  background:#052035;
+  color:var(--ink);font:14px/1.45 Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+.app{zoom:var(--z,1);display:grid;grid-template-columns:370px minmax(0,1fr);gap:24px;max-width:1520px;margin:0 auto;padding:20px}
+aside{position:sticky;top:calc(20px / var(--z,1));align-self:start;max-height:calc((100vh - 40px) / var(--z,1));overflow:auto;display:flex;flex-direction:column;gap:14px;padding-bottom:4px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+h1{font-family:Fraunces,Georgia,serif;font-size:26px;line-height:1.15;margin:0 0 4px;font-weight:700}
+.sub{color:var(--muted);font-size:13px;margin:0}
+.dots{display:flex;gap:6px;margin:14px 0 2px}
+.dot{flex:1;height:6px;border-radius:3px;background:var(--soft);border:0;padding:0;cursor:pointer}
+.dot.done{background:#cbbfa6}.dot.cur{background:var(--accent)}
+.stepno{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.steptitle{font-family:Fraunces,Georgia,serif;font-size:21px;line-height:1.2;margin:0 0 8px}
+.steptext{margin:0 0 10px}
+.calc{background:var(--accent-bg);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:13.5px}
+.calc .row{display:flex;justify-content:space-between;gap:8px}
+.calc .row.big{font-weight:700;border-top:1px solid #e8d49f;margin-top:6px;padding-top:6px;font-size:15px}
+.calc.q{background:var(--bilan-bg)}
+.choices{display:flex;gap:8px;margin-top:10px}
+.ch{flex:1;font:inherit;font-weight:600;border-radius:10px;border:2px solid var(--bilan);background:#fff;color:var(--bilan);padding:9px 10px;cursor:pointer}
+.ch:not(:disabled):hover{background:var(--bilan);color:#fff}
+.ch:disabled{cursor:default;opacity:.45}
+.ch.ok{background:var(--produit);border-color:var(--produit);color:#fff;opacity:1}
+.ch.ko{background:var(--charge);border-color:var(--charge);color:#fff;opacity:1}
+.fb{margin-top:10px;padding:8px 10px;border-radius:8px;background:#fff;animation:pop 1.2s ease-out}
+.fb.ok{border-left:4px solid var(--produit)}.fb.ko{border-left:4px solid var(--charge)}
+.ch.blink{animation:blink 1.4s ease-in-out 2}
+@keyframes blink{0%,100%{box-shadow:0 0 0 0 rgba(32,57,79,0)}50%{box-shadow:0 0 0 5px rgba(201,138,16,.75);background:var(--accent-bg)}}
+.hint{font-size:12px;color:var(--muted);margin-top:8px;font-style:italic}
+.tag{display:inline-block;padding:2px 9px;border-radius:999px;font-weight:600;font-size:12.5px}
+.tag.good{background:var(--produit-bg);color:var(--produit)}
+.tag.bad{background:var(--charge-bg);color:var(--charge)}
+.tag.neutral{background:var(--soft);color:var(--muted)}
+.tag.at{background:var(--actif-bg);color:var(--actif)}
+.tag.pt{background:var(--passif-bg);color:var(--passif)}
+.journal{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+.journal caption{text-align:left;font-weight:600;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding-bottom:4px}
+.journal th{text-align:left;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding:4px 4px}
+.journal td{padding:4px 4px;border-bottom:1px dashed var(--line)}
+.journal td.am,.journal th.am{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.journal td.dt{color:var(--muted);white-space:nowrap}
+.journal tr.todo td{opacity:.38}
+.journal tr.cur td{background:var(--accent-bg);font-weight:600}
+.nav{display:flex;gap:8px}
+.btn{flex:1;font:inherit;font-weight:600;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:11px 12px;cursor:pointer}
+.btn.primary{background:#256015;color:#fff;border-color:var(--ink)}
+.btn.quiz{display:flex;align-items:center;justify-content:center;background:#037DFF;color:#fff;border-color:#037DFF;text-align:center;text-decoration:none}
+.btn.quit{background:#ff4747;color:#fff;border-color:#ff4747}
+.btn:disabled{opacity:.4;cursor:default}
+.btn:not(:disabled):hover{filter:brightness(1.5)}
+details summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"＋";color:var(--muted)}
+details[open] summary::after{content:"－"}
+.note{font-size:12px;color:var(--muted);margin:10px 0 0}
+
+.stage{display:flex;flex-direction:column;gap:18px;min-width:0}
+section.sec{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px 16px}
+section.sec h2{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 12px;font-weight:600;display:flex;align-items:center;gap:8px}
+section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--soft);color:var(--ink);font-size:11px}
+.story{font-size:15px;background:var(--soft);border-radius:10px;padding:10px 14px;margin-bottom:14px}
+.story b{font-variant-numeric:tabular-nums}
+
+/* Ligne du temps */
+.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;align-items:start}
+.t{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 9px 8px;position:relative;min-width:0}
+.t-head{font-weight:700;font-size:13.5px;text-align:center;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.k-charge .t-head{color:var(--charge)}.k-produit .t-head{color:var(--produit)}.k-passif .t-head{color:var(--passif)}.k-actif .t-head{color:var(--actif)}
+.t-sides{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:baseline;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--ink);padding:0 0 2px}
+.t-body{display:grid;grid-template-columns:1fr 1fr;min-height:46px}
+.col{padding:4px 4px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.col.d{border-right:2px solid var(--ink)}
+.ln{display:flex;flex-wrap:wrap;justify-content:space-between;gap:3px;font-size:11.5px;border-radius:4px;padding:1px 2px}
+.ln .lb{color:var(--muted);line-height:1.25;min-width:0}
+.ln .am{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:500;margin-left:auto}
+.ln.ext .lb{font-style:italic}
+.ln.fresh{animation:pop 1.8s ease-out;background:#ffe08a33}
+@keyframes pop{0%{background:#ffe08a}100%{background:#ffe08a33}}
+.t.focus{box-shadow:0 0 0 2px var(--accent),0 6px 18px rgba(0,0,0,.08)}
+.eff{font-size:12px;margin-top:6px;text-align:center}
+.eff .tag{font-size:11.5px}
+
+/* Introduction et résumé */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.box{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.box h4{margin:0 0 6px;font-size:14px}
+.quad{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.quad .hd{text-align:center;font-family:Fraunces,Georgia,serif;font-size:19px;font-weight:700;padding:8px;border-radius:10px}
+.quad .hd.at{background:var(--actif-bg);color:var(--actif)}.quad .hd.pt{background:var(--passif-bg);color:var(--passif)}
+.qc{border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;transition:box-shadow .2s}
+.qc:hover{box-shadow:0 0 0 2px var(--accent)}
+.qc h4{margin:0 0 4px;font-size:15px}
+.qc .ex{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
+.qc .ecr{display:flex;justify-content:space-between;font-size:13px;background:var(--soft);border-radius:8px;padding:6px 10px;font-weight:600}
+.qc .ecr span:last-child{color:var(--muted);font-weight:500}
+
+.zoombar{position:fixed;top:8px;right:10px;z-index:60;display:flex;gap:2px;opacity:.55;transition:opacity .2s}
+.zoombar:hover{opacity:1}
+.zoombar button{font:600 13px Inter,system-ui,sans-serif;color:var(--muted);background:rgba(255,255,255,.85);border:1px solid var(--line);border-radius:7px;padding:3px 8px;cursor:pointer}
+.zoombar button:hover{color:var(--ink)}
+
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;padding:12px 12px 90px}
+  aside{position:static;max-height:none;overflow:visible}
+  .nav-wrap{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(245,243,238,.95);backdrop-filter:blur(6px);padding:10px 12px;border-top:1px solid var(--line)}
+  .two,.quad{grid-template-columns:1fr}
+}
+
+/* --- Amortissements --- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s,box-shadow .3s}
+.card.on{box-shadow:0 0 0 2px var(--accent)}
+.card.off{opacity:.45}
+.card .lt{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--soft);font-weight:700;font-size:12px;margin-right:6px}
+.card h4{margin:0 0 4px;font-size:15px;display:flex;align-items:center}
+.card .ex{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
+.ecr{display:flex;justify-content:space-between;gap:8px;font-size:13px;background:var(--soft);border-radius:8px;padding:6px 10px;font-weight:600}
+.ecr span:last-child{color:var(--muted);font-weight:500}
+.ico{font-size:26px;line-height:1;margin-bottom:6px}
+.vocab{width:100%;border-collapse:collapse;font-size:13.5px}
+.vocab td{padding:7px 8px;border-bottom:1px dashed var(--line);vertical-align:top}
+.vocab td:first-child{font-weight:600;white-space:nowrap}
+.vocab tr.cur td{background:var(--accent-bg)}
+.vbar{display:flex;height:42px;border-radius:8px;overflow:hidden;margin:26px 0 8px;font-size:12.5px;font-weight:600;color:#fff;position:relative}
+.vbar div{display:flex;align-items:center;justify-content:center;white-space:nowrap}
+.tab{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+.tab th{color:var(--muted);font-weight:500;border-bottom:2px solid var(--ink);padding:6px 8px;text-align:right}
+.tab th:first-child,.tab td:first-child{text-align:left}
+.tab td{padding:6px 8px;border-bottom:1px dashed var(--line);text-align:right}
+.tab tr.todo td{color:transparent}
+.tab tr.cur td{background:var(--accent-bg);font-weight:700}
+.tab tr.cur td.am{color:var(--charge)}
+.tab td.am{color:var(--charge)}.tab td.vr{color:var(--actif)}
+.chart{width:100%;height:auto;display:block}
+.chart text{font:11px Inter,system-ui,sans-serif;fill:var(--muted)}
+.chart .lg text{fill:var(--ink);font-weight:600}
+.bil{border:1px solid var(--line);border-radius:12px;padding:10px 14px;max-width:420px}
+.bil h4{margin:0 0 6px;font-family:Fraunces,Georgia,serif;color:var(--bilan)}
+.bil .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;padding:2px 0}
+.bil .row.sub{color:var(--passif)}
+.bil .row.tot{font-weight:700;border-top:1px solid var(--ink);margin-top:4px;padding-top:4px}
+.bil .grp{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:4px}
+.k-fac .t-head{color:var(--passif)}
+.t-head{white-space:normal !important;line-height:1.2;overflow:visible !important;text-overflow:clip !important;hyphens:auto;-webkit-hyphens:auto}
+.split{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:1100px){ .split{grid-template-columns:1fr} }
+
+/* --- Bilan et journal --- */
+.inv{width:100%;border-collapse:collapse;font-size:14px}
+.inv td{padding:8px 8px;border-bottom:1px dashed var(--line);vertical-align:middle}
+.inv td.am{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+.inv td.tg2,.inv td.acc{width:1%;white-space:nowrap}
+.inv tr.hl td{background:var(--accent-bg)}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-weight:600;font-size:12.5px;animation:fadein .6s ease-out}
+@keyframes fadein{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
+.pill.a{background:var(--actif-bg);color:var(--actif)}.pill.p{background:var(--passif-bg);color:var(--passif)}
+.pill.acc{background:var(--soft);color:var(--ink)}
+.bl{display:grid;grid-template-columns:1fr 1fr;max-width:720px;margin:0 auto}
+.bl-title{grid-column:1/-1;text-align:center;font-family:Fraunces,Georgia,serif;font-weight:700;font-size:18px;padding-bottom:4px}
+.bl-head{font-weight:700;padding:4px 12px;border-bottom:3px solid var(--ink)}
+.bl-head small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.bl-head.a{color:var(--actif)}.bl-head.p{color:var(--passif);text-align:right}
+.bl-side{padding:6px 12px 8px;display:flex;flex-direction:column;gap:2px;min-height:60px}
+.bl-side.a{border-right:3px solid var(--ink)}
+.br{display:flex;justify-content:space-between;gap:10px;font-variant-numeric:tabular-nums;padding:2px 4px;border-radius:4px}
+.br.new{animation:pop 1.6s ease-out}
+.br.cap{color:var(--res);font-weight:700}
+.br.dec{color:var(--charge);font-weight:700}
+.bg{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:8px;padding:0 4px}
+.bg:first-child{margin-top:0}
+.bt{display:flex;justify-content:space-between;font-weight:700;border-top:2px solid var(--ink);padding:4px 16px;font-variant-numeric:tabular-nums}
+.bt.bad{color:var(--charge)}
+.order{font-size:12px;font-weight:600;color:var(--accent);padding:2px 4px}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.qa{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s}
+.qa.off{opacity:.25}
+.qa h4{margin:0 0 6px;font-size:15px}
+.acct{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px}
+.acct caption{text-align:left;font-weight:700;padding-bottom:4px}
+.acct th{color:var(--muted);font-weight:500;border-bottom:2px solid var(--ink);padding:4px 6px;text-align:left}
+.acct td{padding:4px 6px;border-bottom:1px dashed var(--line)}
+.acct td.n{text-align:right;font-variant-numeric:tabular-nums}
+.acct th.n{text-align:right}
+.rules{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rule{border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:center}
+.rule h4{margin:0 0 6px}
+.rule .pm{display:grid;grid-template-columns:1fr 1fr;border-top:2px solid var(--ink);font-size:22px;font-weight:700}
+.rule .pm span:first-child{border-right:2px solid var(--ink)}
+.rule .pm small{display:block;font-size:11px;color:var(--muted);font-weight:500}
+.plus{color:var(--produit)}.minus{color:var(--charge)}
+.case{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s,box-shadow .3s}
+.case.on{box-shadow:0 0 0 2px var(--accent)}.case.off{opacity:.4}
+.case p{margin:0 0 8px;font-size:14.5px}
+.t-sides .sg{font-weight:700}
+.tab.jl th{text-align:left}
+.tab.jl th:last-child{text-align:right}
+.inv tr.invhead td{border-bottom:0;padding-bottom:2px}
+.colbox{position:relative;display:block;text-align:center;font-weight:700;font-size:13px;color:var(--ink);border:2px solid var(--accent);border-radius:8px;padding:4px 10px;background:var(--accent-bg);animation:fadein .6s ease-out}
+.colarrow{position:absolute;left:50%;top:100%;transform:translateX(-50%);font-size:26px;line-height:1;color:var(--accent);animation:arrowgo 2.8s ease-in-out forwards;pointer-events:none}
+@keyframes arrowgo{0%{opacity:0;margin-top:-6px}15%{opacity:1}30%{margin-top:6px}45%{margin-top:-2px}60%{margin-top:6px;opacity:1}100%{opacity:0;margin-top:10px}}
+.bg.hl{color:var(--actif);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;font-size:12.5px}
+.bl-side.p .bg.hl{color:var(--passif)}
+.bl-side.dim,.bl-head.dim{opacity:.3}
+.t-head{white-space:normal !important;line-height:1.2;overflow:visible !important;text-overflow:clip !important;hyphens:auto;-webkit-hyphens:auto}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="panel">
+      <h1>Le bilan et le journal</h1>
+      <p class="sub">Cliquer sur une barre ci-dessous pour aller directement à l'étape. Le survol de la souris indique de quoi il s'agit.</p>
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <div class="panel" id="explain"></div>
+
+    <div class="nav-wrap">
+      <div class="nav">
+        <button class="btn" id="prev">← Précédent</button>
+        <button class="btn primary" id="next">Suite →</button>
+      </div>
+    </div>
+
+    <div class="nav exit">
+      <!-- *** Liens des exercices *** -->
+      <a class="btn quiz" href="La_Compta_Journal.html" target="_blank">Exercice de journalisation</a>
+      <a class="btn quiz" href="La_Compta_Bilan.html" target="_blank">Exercices de bilan</a>
+    </div>
+    <div class="nav exit">
+      <button class="btn quit" id="quit">Quitter</button>
+    </div>
+    <p class="note" id="quit-msg" style="display:none;color:#fff">Le navigateur ne permet pas de fermer cette fenêtre automatiquement : fermer l'onglet.</p>
+  </aside>
+
+  <main class="stage" id="stage"></main>
+</div>
+<div class="zoombar"><button id="zm" title="Réduire la taille" aria-label="Réduire la taille">A−</button><button id="zp" title="Agrandir la taille" aria-label="Agrandir la taille">A+</button></div>
+
+<script>
+/* ---------- Réglages ---------- */
+const Y = new Date().getFullYear();            // exercice = année en cours
+const ANS = {};                                // réponses choisies, clé "étape.phase"
+const fmt = n => { const neg=n<0; n=Math.abs(Math.round(n*100)/100); const [i,d]=n.toFixed(2).split('.');
+  return (neg?'−':'') + i.replace(/\B(?=(\d{3})+(?!\d))/g,"'") + (d!=='00' ? '.'+d : ''); };
+const $ = id => document.getElementById(id);
+
+/* ---------- L'entreprise : un atelier de menuiserie ---------- */
+// Inventaire dans le désordre (comme on le trouve dans l'atelier)
+const INV = [
+  {txt:'Une scie, une raboteuse et un établi',              amt:6000, acc:'Machines',                 s:'A'},
+  {txt:'La facture du garagiste, pas encore payée',          amt:3200, acc:'Autres dettes',            s:'P'},
+  {txt:'Les billets et les pièces dans le tiroir-caisse',    amt:500,  acc:'Caisse',                   s:'A'},
+  {txt:'Les factures envoyées aux clients, pas encore payées', amt:2300, acc:'Créances clients',       s:'A'},
+  {txt:'Le prêt de la banque, à rembourser dans 5 ans',      amt:4000, acc:'Crédit d\'investissement', s:'P'},
+  {txt:'L\'argent sur le compte postal',                      amt:1200, acc:'Poste',                    s:'A'},
+  {txt:'Le bureau, les chaises et l\'armoire',               amt:1500, acc:'Mobilier',                 s:'A'}];
+const AMT = Object.fromEntries(INV.map(i=>[i.acc,i.amt]));
+const TA = INV.filter(i=>i.s==='A').reduce((s,i)=>s+i.amt,0);   // 11'500
+const TD = INV.filter(i=>i.s==='P').reduce((s,i)=>s+i.amt,0);   // 7'200
+const CAP = TA-TD;                                                // 4'300
+AMT['Capital'] = CAP;
+
+// Structure du bilan (ordre de liquidité / d'exigibilité)
+const BA = [['Actifs circulants',['Caisse','Poste','Créances clients']],['Actifs immobilisés',['Machines','Mobilier']]];
+const BP = [['Dettes à court terme',['Autres dettes']],['Dettes à long terme',['Crédit d\'investissement']],['Capitaux propres',['Capital']]];
+const ACCS = ['Caisse','Poste','Créances clients','Machines','Mobilier','Autres dettes','Crédit d\'investissement','Capital'];
+const KIND = a => ['Autres dettes','Crédit d\'investissement','Capital'].includes(a) ? 'passif' : 'actif';
+
+// Les opérations (N° 1 = solde à nouveau)
+const OPS = [
+  {n:2, dt:'15.01', d:'Autres dettes', c:'Caisse',           lib:'Paiement d\'une dette en espèces', amt:200},
+  {n:3, dt:'05.03', d:'Machines',      c:'Autres dettes',    lib:'Achat d\'une machine à crédit',    amt:1200},
+  {n:4, dt:'20.03', d:'Poste',         c:'Créances clients', lib:'Un client paie sa facture par poste', amt:800}];
+
+/* ---------- Briques d'affichage ---------- */
+function bilanHTML(o){
+  // o : {a, p, cap, groups, order, fresh:'a'|'p'|'cap', title}
+  const side = (G, show) => !show ? '' : G.map(([g,L])=>{
+    const rows = L.filter(a=>a!=='Capital' || o.cap).map(a=>`<div class="br ${a==='Capital'?'cap':''} ${o.fresh===(a==='Capital'?'cap':(KIND(a)==='actif'?'a':'p'))?'new':''}"><span>${a}</span><span>${fmt(AMT[a])}</span></div>`).join('');
+    const grp = G===BA ? (o.groups||o.groupsA) : (o.groups||o.groupsP);
+    return rows ? (grp?`<div class="bg ${o.hl?'hl':''}">${g}</div>`:'') + rows : '';
+  }).join('');
+  const tA = o.a ? TA : 0, tP = (o.p?TD:0) + (o.cap?CAP:0), ok = tA===tP;
+  return `<div class="bl"><div class="bl-title">${o.title||`Bilan au 1.1.${Y}`}</div>
+    <div class="bl-head a">ACTIF<small>Avoirs : ce que l'entreprise possède${o.funds?'<br>Emploi des fonds':''}</small></div>
+    <div class="bl-head p ${o.dimP?'dim':''}">PASSIF<small>Dettes : ce que l'entreprise doit${o.funds?'<br>Source des fonds':''}</small></div>
+    <div class="bl-side a">${o.order||o.orderA?'<div class="order">↓ ordre de liquidité</div>':''}${side(BA,o.a)}</div>
+    <div class="bl-side p ${o.dimP?'dim':''}">${o.order||o.orderP?'<div class="order" style="text-align:right">ordre d\'exigibilité ↓</div>':''}${side(BP,o.p)}</div>
+    <div class="bt ${o.a&&o.p&&!ok?'bad':''}" style="border-right:3px solid var(--ink)"><span>Total</span><span>${o.a?fmt(tA):''}</span></div>
+    <div class="bt ${o.a&&o.p&&!ok?'bad':''}"><span>Total</span><span>${o.p?fmt(tP):''}</span></div></div>`;
+}
+
+// Écritures passées dans les comptes : liste {acc, side, lb, amt, n, fresh}
+function postings(nOps, extra){
+  const L = ACCS.map(a=>({acc:a, side:KIND(a)==='actif'?'d':'c', lb:'sàn', amt:AMT[a], n:1}));
+  OPS.slice(0,nOps).forEach(o=>{ L.push({acc:o.d, side:'d', lb:o.n, amt:o.amt, n:o.n}); L.push({acc:o.c, side:'c', lb:o.n, amt:o.amt, n:o.n}); });
+  (extra||[]).forEach(e=>L.push(e));
+  return L;
+}
+function tHTML(acc, L, focus){
+  const act = KIND(acc)==='actif';
+  const col = s => L.filter(l=>l.acc===acc && l.side===s).map(l=>`<div class="ln ${l.fresh?'fresh':''}"><span class="lb">${l.lb}</span><span class="am">${fmt(l.amt)}</span></div>`).join('');
+  return `<div class="t k-${KIND(acc)} ${focus?'focus':''}">
+    <div class="t-sides"><span>D <b class="sg ${act?'plus':'minus'}">${act?'+':'−'}</b></span><span class="t-head" title="${acc}">${acc}</span><span><b class="sg ${act?'minus':'plus'}">${act?'−':'+'}</b> C</span></div>
+    <div class="t-body"><div class="col d">${col('d')}</div><div class="col c">${col('c')}</div></div></div>`;
+}
+const tGrid = (L, focus=[]) => `<div class="tg">${ACCS.map(a=>tHTML(a, L, focus.includes(a))).join('')}</div>`;
+
+function acctTable(acc, nOps){
+  const act = KIND(acc)==='actif';
+  const rows = [{n:1, dt:'01.01', lib:'Solde à nouveau', d:act?AMT[acc]:'', c:act?'':AMT[acc]}];
+  OPS.slice(0,nOps).forEach(o=>{ if (o.d===acc) rows.push({n:o.n, dt:o.dt, lib:o.lib, d:o.amt, c:''}); if (o.c===acc) rows.push({n:o.n, dt:o.dt, lib:o.lib, d:'', c:o.amt}); });
+  return `<table class="acct"><caption class="${act?'':'p'}" style="color:var(--${KIND(acc)})">${acc}</caption>
+    <tr><th>N°</th><th>Date</th><th>Libellé (texte)</th><th class="n">Débit (${act?'+':'−'})</th><th class="n">Crédit (${act?'−':'+'})</th></tr>
+    ${rows.map(r=>`<tr><td>${r.n}</td><td>${r.dt}</td><td>${r.lib}</td><td class="n">${r.d===''?'':fmt(r.d)}</td><td class="n">${r.c===''?'':fmt(r.c)}</td></tr>`).join('')}</table>`;
+}
+
+function journalHTML(nOps, cur){
+  return `<table class="journal"><caption>Journal</caption><tr><th>N°</th><th>Date</th><th>Débit</th><th>Crédit</th><th class="am">Montant</th></tr>
+    ${OPS.map((o,i)=>`<tr class="${i+1===cur?'cur':i+1>nOps?'todo':''}"><td>${o.n}</td><td class="dt">${o.dt}</td><td>${o.d}</td><td>${o.c}</td><td class="am">${fmt(o.amt)}</td></tr>`).join('')}</table>`;
+}
+function journalBig(nOps, cur){
+  return `<table class="tab"><tr><th>N°</th><th>Date</th><th>Compte débité</th><th>Compte crédité</th><th>Libellé</th><th>Montant</th></tr>
+    ${OPS.map((o,i)=>`<tr class="${i+1===cur?'cur':i+1>nOps?'todo':''}"><td>${o.n}</td><td style="text-align:left">${o.dt}</td><td style="text-align:left">${o.d}</td><td style="text-align:left">${o.c}</td><td style="text-align:left">${o.lib}</td><td>${fmt(o.amt)}</td></tr>`).join('')}</table>`;
+}
+
+/* ---------- Les étapes ---------- */
+const QA = [
+  ['Où trouve-t-on les règles de la comptabilité ?','Dans le <b>Code des obligations</b> (CO, art. 957 et suivants).'],
+  ['Qui doit tenir une comptabilité ?','Les <b>personnes morales</b> (SA, Sàrl, coopérative) : toujours.<br>Les <b>entreprises individuelles</b> et les <b>sociétés de personnes</b> (p. ex. SNC) : dès un chiffre d\'affaires de plus de CHF 500\'000. En dessous, une comptabilité simplifiée (recettes, dépenses, patrimoine) suffit.'],
+  ['Quels documents établir ?','Le <b>bilan</b> et le <b>compte de résultat</b>.'],
+  ['À quelle fréquence ?','<b>Une fois par an</b>, généralement pour l\'année civile (du 1.1 au 31.12).']];
+
+const CASES = [
+  {txt:'Nous achetons du mobilier à crédit.', opts:['Mobilier','Autres dettes','Poste'], ok:'Mobilier', c:'Autres dettes',
+   fb:'le mobilier <b>augmente</b> (actif + au débit) et nous avons une nouvelle dette (passif + au crédit).'},
+  {txt:'Nous payons par poste une facture <b>déjà comptabilisée</b> pour un achat de mobilier.', opts:['Mobilier','Autres dettes','Poste'], ok:'Autres dettes', c:'Poste',
+   fb:'la facture est déjà dans les Autres dettes : on <b>diminue la dette</b> (passif − au débit). Le mobilier a déjà été compté.'},
+  {txt:'Nous payons par poste une facture <b>pas encore comptabilisée</b> pour un achat de mobilier.', opts:['Mobilier','Autres dettes','Poste'], ok:'Mobilier', c:'Poste',
+   fb:'aucune dette n\'a été enregistrée : on comptabilise directement l\'<b>achat de mobilier</b> (actif + au débit), payé par poste.'}];
+
+const STEPS = [
+ { title:'Les règles de base',
+   ph:[0,1,2,3].map(i=>({btn:'Suite →', text: i===0 ? `Avant de commencer, quatre questions sur la comptabilité en Suisse.` : `Question ${i+1} sur 4.`})),
+   stage: ph => `<section class="sec"><h2><span class="n">1</span>La comptabilité en 4 questions</h2><div class="cards">
+     ${QA.map(([q,a],i)=>`<div class="qa ${i>ph?'off':''}"><h4>${i+1}) ${q}</h4>${i<=ph?a:''}</div>`).join('')}</div></section>` },
+
+ { title:'L\'inventaire',
+   ph:[{btn:'Suite →', text:`Voici un petit atelier de menuiserie, le 1<sup>er</sup> janvier ${Y}.<br><br>Avant tout, on fait l'<b>inventaire</b> : on compte et on note la valeur de <b>tout</b> ce qui concerne l'entreprise.`},
+       {btn:'Trier →', text:`Dans cette liste, il y a deux sortes de choses : ce que l'entreprise <b>possède</b> et ce qu'elle <b>doit</b>.`,
+        q:{text:'La facture du garagiste, pas encore payée : l\'entreprise la possède ou la doit ?', opts:[['A','possède'],['P','doit']], ok:'P',
+           fb:'l\'entreprise doit encore payer cette facture : c\'est une <b>dette</b>.'}},
+       {btn:'Nommer →', text:`Ce que l'entreprise <b>possède</b> s'appelle les <b>actifs</b>.<br>Ce qu'elle <b>doit</b> s'appelle les <b>passifs</b>.`},
+       {btn:'Suite →', text:`Chaque élément reçoit un <b>nom de compte</b>.<br><br>Le nom des comptes figure dans un <b>plan comptable</b>. Les entreprises sont libres de l'utiliser.`}],
+   stage: ph => `<section class="sec"><h2><span class="n">1</span>Inventaire au 1.1.${Y}</h2><table class="inv">
+     ${ph>=3?`<tr class="invhead"><td></td><td></td><td></td><td class="acc"><span class="colbox">Comptes${ph===3?'<span class="colarrow">↓</span>':''}</span></td></tr>`:''}
+     ${INV.map(i=>`<tr class="${ph===1&&i.acc==='Autres dettes'?'hl':''}"><td>${i.txt}</td><td class="am">${fmt(i.amt)}</td>
+       <td class="tg2">${ph>=2?`<span class="pill ${i.s==='A'?'a':'p'}">${i.s==='A'?'possède · actif':'doit · passif'}</span>`:''}</td>
+       <td class="acc">${ph>=3?`<span class="pill acc">${i.acc}</span>`:''}</td></tr>`).join('')}</table></section>` },
+
+ { title:'Le bilan',
+   ph:[{btn:'Placer les actifs →', text:`Le <b>bilan</b> est basé sur l'inventaire. C'est une liste ordonnée de tout ce que l'entreprise <b>possède</b> (à gauche, l'actif) et <b>doit</b> (à droite, le passif).<br><br>Il montre la situation de l'entreprise <b>à un moment donné</b> : c'est une photo.`},
+       {btn:'Placer les dettes →', text:`Les <b>actifs</b> vont à gauche. Total : ${fmt(TA)}.`},
+       {btn:'Équilibrer →', text:`Les <b>dettes</b> vont à droite. Total : ${fmt(TD)}.<br><br>Les deux côtés ne sont pas égaux : il manque ${fmt(TA-TD)} à droite.`},
+       {btn:'Suite →', text:`La différence, c'est ce qui appartient au propriétaire : le <b>capital</b> (capitaux propres).<br><br>Capital = actifs − dettes = ${fmt(TA)} − ${fmt(TD)} = <b>${fmt(CAP)}</b>.<br><br>Le bilan est <b>toujours équilibré</b> : total de l'actif = total du passif.`}],
+   stage: ph => `<section class="sec"><h2><span class="n">1</span>De l'inventaire au bilan</h2>${bilanHTML({a:ph>=1, p:ph>=2, cap:ph>=3, funds:true, fresh:['', 'a','p','cap'][ph]})}</section>` },
+
+ { title:'L\'ordre du bilan',
+   ph:[{btn:'Suite →', text:`Le bilan n'est pas dans le désordre. À l'actif, on suit l'<b>ordre de liquidité</b> : d'abord ce qui est déjà de l'argent ou le deviendra vite.`,
+        q:{text:'Qui vient en premier à l\'actif ?', opts:[['cai','Caisse'],['mac','Machines']], ok:'cai',
+           fb:'la <b>caisse</b> est déjà de l\'argent : elle est la plus liquide. Les machines sont utilisées des années.'}},
+       {btn:'Le passif →', text:`L'actif est divisé en deux catégories :<br><br>• les <b>actifs circulants</b> : l'argent et ce qui deviendra bientôt de l'argent ;<br>• les <b>actifs immobilisés</b> : ce qui est utilisé pendant plusieurs années.<br><br>Il est <b>obligatoire</b> de ranger les comptes de l'actif dans ces <b>2 catégories</b> : circulants et immobilisés.`},
+       {btn:'Suite →', text:`Au passif, on suit l'<b>ordre d'exigibilité</b> : d'abord ce qu'il faut payer vite.<br><br>• les <b>dettes à court terme</b> : à payer dans les 12 mois ;<br>• les <b>dettes à long terme</b> ;<br>• les <b>capitaux propres</b> : ce qui appartient au propriétaire.<br><br>Ces catégories sont aussi <b>obligatoires</b>.`}],
+   extra: ph => ph<1 ? '' : `<div class="calc"><div style="font-weight:600;margin-bottom:4px">Autres comptes du bilan</div>
+      <div style="font-size:12.5px"><b>Actifs circulants</b> : Banque (avoir), Stock de marchandises<br><b>Actifs immobilisés</b> : Informatique, Véhicules, Instruments et outillage, Immeubles, Brevet
+      ${ph>=2?`<br><b>Dettes CT</b> : Dettes fournisseurs (marchandises), Banque (dette)<br><b>Dettes LT</b> : Crédit hypothécaire<br><b>Capitaux propres</b> : Privé`:''}</div></div>`,
+   stage: ph => `<section class="sec"><h2><span class="n">1</span>Le bilan ordonné</h2>${bilanHTML({a:true, p:true, cap:true, orderA:true, groupsA:ph>=1, orderP:ph>=2, groupsP:ph>=2, hl:true, dimP:ph<2})}</section>` },
+
+ { title:'Capital ou découvert ?',
+   ph:[{btn:'Suite →', text:`Dans l'atelier, les actifs (${fmt(TA)}) sont plus grands que les dettes (${fmt(TD)}). La différence est le <b>capital</b>, au passif.`},
+       {btn:'Suite →', text:`Une autre entreprise a des actifs de 6'000 et des dettes de 9'000.<br><br>Quand les <b>dettes sont plus élevées que les actifs</b>, la différence ne s'appelle plus capital : on parle de <b>découvert</b>. Ici : 9'000 − 6'000 = <b>3'000</b>.<br><br>Le découvert s'inscrit à l'<b>actif</b>, pour équilibrer le bilan. L'entreprise doit plus qu'elle ne possède : c'est une situation dangereuse.`}],
+   stage: ph => {
+     const mk = (t, aRows, pRows, tot) => `<div class="bl" style="max-width:none"><div class="bl-title" style="font-size:15px">${t}</div>
+       <div class="bl-head a">ACTIF</div><div class="bl-head p">PASSIF</div>
+       <div class="bl-side a">${aRows}</div><div class="bl-side p">${pRows}</div>
+       <div class="bt" style="border-right:3px solid var(--ink)"><span>Total</span><span>${tot}</span></div><div class="bt"><span>Total</span><span>${tot}</span></div></div>`;
+     const r = (l,v,c='') => `<div class="br ${c}"><span>${l}</span><span>${v}</span></div>`;
+     return `<section class="sec"><h2><span class="n">1</span>Deux situations</h2><div class="mini">
+       ${mk('Actifs > dettes', r('Actifs',fmt(TA)), r('Dettes',fmt(TD))+r('Capital',fmt(CAP),'cap'), fmt(TA))}
+       ${ph>=1 ? mk('Actifs < dettes', r('Actifs','6\'000')+r('Découvert','3\'000','dec new'), r('Dettes','9\'000'), '9\'000') : '<div></div>'}</div></section>`; } },
+
+ { title:'Les comptes',
+   ph:[{btn:'Suite →', text:`Le bilan est une photo au 1<sup>er</sup> janvier. Mais pendant l'année, tout bouge : on paie, on achète, on encaisse…<br><br>Pour suivre ces changements, chaque poste du bilan devient un <b>compte</b>. Le compte commence avec son <b>solde à nouveau</b> (sàn) : le montant du bilan.`},
+       {btn:'Suite →', text:`Un compte a deux côtés : le <b>débit</b> (à gauche) et le <b>crédit</b> (à droite).<br><br>• <b>Actif</b> : il est à gauche dans le bilan → il <b>augmente au débit</b> (+), diminue au crédit (−).<br>• <b>Passif</b> : il est à droite → il <b>augmente au crédit</b> (+), diminue au débit (−).`,
+        q:{text:'Autres dettes est un passif. Son solde à nouveau s\'inscrit…', opts:[['d','au débit'],['c','au crédit']], ok:'c',
+           fb:'un passif est à droite dans le bilan : son sàn s\'inscrit au <b>crédit</b>, à droite.'}},
+       {btn:'Forme en T →', text:`Le sàn s'inscrit toujours du <b>même côté que dans le bilan</b> : à gauche pour les actifs, à droite pour les passifs.`},
+       {btn:'Suite →', text:`Pour simplifier, on présente souvent les comptes sous forme de <b>T</b> : débit à gauche, crédit à droite.<br><br>Les signes + et − rappellent de quel côté le compte augmente.`}],
+   stage: ph => ph===0 ? `<section class="sec"><h2><span class="n">1</span>Un poste du bilan devient un compte</h2>${acctTable('Caisse',0)}</section>`
+     : ph<3 ? `<section class="sec"><h2><span class="n">1</span>Comptes d'actif et de passif</h2><div class="rules" style="margin-bottom:14px">
+         <div class="rule"><h4 style="color:var(--actif)">ACTIFS</h4><div class="pm"><span class="plus">+<small>débit</small></span><span class="minus">−<small>crédit</small></span></div></div>
+         <div class="rule"><h4 style="color:var(--passif)">PASSIFS</h4><div class="pm"><span class="minus">−<small>débit</small></span><span class="plus">+<small>crédit</small></span></div></div></div>
+         ${ph>=2 ? acctTable('Caisse',0)+acctTable('Machines',0)+acctTable('Autres dettes',0) : ''}</section>`
+     : `<section class="sec"><h2><span class="n">1</span>Les comptes en T au 1.1.${Y}</h2>${tGrid(postings(0))}</section>` },
+
+ { title:'Une opération, deux comptes',
+   ph:[{btn:'Suite →', text:`<b>15 janvier</b> : nous payons en espèces une partie de la facture du garagiste, CHF 200.`,
+        q:{text:'Le compte Caisse augmente ou diminue ?', opts:[['+','augmente'],['-','diminue']], ok:'-', fb:'l\'argent sort du tiroir : la <b>caisse diminue</b> de 200.'}},
+       {btn:'Suite →', text:`Caisse est un <b>actif</b> : il diminue au <b>crédit</b> (−, à droite).`,
+        q:{text:'Et le compte Autres dettes ?', opts:[['+','augmente'],['-','diminue']], ok:'-', fb:'nous devons 200 de moins au garagiste : les <b>autres dettes diminuent</b>.'}},
+       {btn:'Suite →', text:`Autres dettes est un <b>passif</b> : il diminue au <b>débit</b> (−, à gauche).<br><br>Chaque opération touche <b>au moins deux comptes</b> : un au <b>débit</b>, un au <b>crédit</b>, avec le <b>même montant</b>.`}],
+   stage: ph => { const ex = [];
+     if (ph>=1) ex.push({acc:'Caisse', side:'c', lb:2, amt:200, fresh:ph===1});
+     if (ph>=2) ex.push({acc:'Autres dettes', side:'d', lb:2, amt:200, fresh:true});
+     return `<section class="sec"><h2><span class="n">1</span>Les comptes</h2>${tGrid(postings(0,ex), ph===1?['Caisse']:ph===2?['Autres dettes']:[])}</section>`; } },
+
+ { title:'Un achat à crédit',
+   ph:[{btn:'Suite →', text:`<b>5 mars</b> : nous achetons une machine à crédit (la facture sera payée plus tard), CHF 1'200.`,
+        q:{text:'Le compte Machines augmente ou diminue ?', opts:[['+','augmente'],['-','diminue']], ok:'+', fb:'nous avons une machine de plus : les <b>machines augmentent</b> de 1\'200.'}},
+       {btn:'Suite →', text:`Machines est un <b>actif</b> : il augmente au <b>débit</b> (+, à gauche).`,
+        q:{text:'Et le compte Autres dettes ?', opts:[['+','augmente'],['-','diminue']], ok:'+', fb:'nous devons payer la facture : les <b>autres dettes augmentent</b>.'}},
+       {btn:'Suite →', text:`Autres dettes est un <b>passif</b> : il augmente au <b>crédit</b> (+, à droite).<br><br>Débit 1'200 = crédit 1'200 : l'égalité est respectée.`}],
+   stage: ph => { const ex = [];
+     if (ph>=1) ex.push({acc:'Machines', side:'d', lb:3, amt:1200, fresh:ph===1});
+     if (ph>=2) ex.push({acc:'Autres dettes', side:'c', lb:3, amt:1200, fresh:true});
+     return `<section class="sec"><h2><span class="n">1</span>Les comptes</h2>${tGrid(postings(1,ex), ph===1?['Machines']:ph===2?['Autres dettes']:[])}</section>`; } },
+
+ { title:'Le journal',
+   ph:[{btn:'Nouvelle opération →', text:`Le <b>journal</b> enregistre toutes les opérations dans l'<b>ordre chronologique</b>. Pour chacune, on écrit le <b>compte débité</b>, puis le <b>compte crédité</b>, et le montant. On écrit « Autres dettes / Caisse ».<br><br>L'ordre est toujours le même : on écrit <b>d'abord au journal</b>, <b>puis on reporte</b> dans les comptes.<br><br>Les opérations 2 et 3 sont déjà écrites et reportées.`},
+       {btn:'Suite →', text:`<b>20 mars</b> : un client paie sa facture par poste, CHF 800.<br><br>On cherche d'abord les <b>deux comptes touchés</b>. Ici <b>Poste</b> et <b>Créances clients</b>.`,
+        q:{text:'1<sup>er</sup> compte touché : le compte <b>Poste</b> augmente ou diminue ?', opts:[['+','augmente'],['-','diminue']], ok:'+',
+           fb:'l\'argent arrive sur le compte postal : la <b>Poste augmente</b>.'}},
+       {btn:'Suite →', text:`Poste est un <b>actif</b> : il augmente au <b>débit</b>. C'est le <b>compte débité</b>.`,
+        q:{text:'2<sup>e</sup> compte touché : le compte <b>Créances clients</b> augmente ou diminue ?', opts:[['+','augmente'],['-','diminue']], ok:'-',
+           fb:'le client a payé, il nous doit 800 de moins : les <b>créances clients diminuent</b>.'}},
+       {btn:'Reporter →', text:`Créances clients est un <b>actif</b> : il diminue au <b>crédit</b>. C'est le <b>compte crédité</b>.<br><br>L'écriture est complète dans le journal : <b>Poste / Créances clients</b> 800. Les comptes, eux, n'ont pas encore changé.`},
+       {btn:'Suite →', text:`On <b>reporte</b> maintenant l'écriture dans les comptes : 800 au débit de la Poste, 800 au crédit des Créances clients.`}],
+   stage: ph => {
+     const o = OPS[2], row = ph===0 ? null : {d: ph>=2?o.d:'…', c: ph>=3?o.c:'…'};
+     const L = postings(ph>=4?3:2).map(l=>({...l, fresh: ph>=4 && l.n===4}));
+     const focus = ph===2 ? ['Poste'] : ph===3 ? ['Créances clients'] : ph>=4 ? ['Poste','Créances clients'] : [];
+     const jr = `<table class="tab jl"><tr><th>N°</th><th>Date</th><th>Compte débité</th><th>Compte crédité</th><th>Libellé</th><th>Montant</th></tr>
+       ${OPS.slice(0,2).map(x=>`<tr><td>${x.n}</td><td style="text-align:left">${x.dt}</td><td style="text-align:left">${x.d}</td><td style="text-align:left">${x.c}</td><td style="text-align:left">${x.lib}</td><td>${fmt(x.amt)}</td></tr>`).join('')}
+       ${row?`<tr class="cur"><td>${o.n}</td><td style="text-align:left">${o.dt}</td><td style="text-align:left">${row.d}</td><td style="text-align:left">${row.c}</td><td style="text-align:left">${o.lib}</td><td>${fmt(o.amt)}</td></tr>`:''}</table>`;
+     return `<section class="sec"><h2><span class="n">1</span>D'abord : le journal</h2>${jr}</section>
+       <section class="sec"><h2><span class="n">2</span>Ensuite : les comptes${ph>=1&&ph<4?' · pas encore reportée':''}</h2>${tGrid(L, focus)}</section>`; } },
+
+ { title:'Les factures',
+   ph: CASES.map((c,i)=>({btn:'Suite →', text: i===0 ? `Les factures reviennent tout le temps. La question clé : la facture est-elle <b>déjà comptabilisée</b> ?` : `Cas ${i+1} sur 3.`,
+        q:{text:c.txt+' Quel compte est débité ?', opts:c.opts.map(o=>[o,o]), ok:c.ok, fb:c.fb}})),
+   stage: ph => `<section class="sec"><h2><span class="n">1</span>Trois situations avec des factures</h2><div class="cards" style="grid-template-columns:1fr">
+     ${CASES.map((c,i)=>{ const done = ANS['9.'+i]; return `<div class="case ${i===ph?'on':i>ph?'off':''}"><p>${i+1}) ${c.txt}</p>
+       ${done?`<div class="ecr"><span>${c.ok} / ${c.c}</span></div>`:''}</div>`; }).join('')}</div></section>` }
+];
+const LAST = STEPS.length-1;
+
+/* ---------- Actions ---------- */
+const A = [];
+STEPS.forEach((s,i)=>s.ph.forEach((_,p)=>A.push({step:i, ph:p})));
+let pos = 0;
+
+/* ---------- Rendu ---------- */
+function qBox(key, q){
+  const ch = ANS[key];
+  const btn = (a,lb) => `<button class="ch ${ch===a?(a===q.ok?'ok':'ko'):''} ${ch?'':'blink'}" data-a="${a}" ${ch?'disabled':''}>${lb}</button>`;
+  const fb = ch ? `<div class="fb ${ch===q.ok?'ok':'ko'}">${ch===q.ok?'✓ En effet':'✗ En fait'}, ${q.fb}</div>` : `<div class="hint">Cliquer sur la bonne réponse.</div>`;
+  return `<div class="calc q"><div style="font-weight:600;margin-bottom:4px">La question à se poser</div>${q.text}
+    <div class="choices" style="flex-wrap:wrap">${q.opts.map(([a,lb])=>btn(a,lb)).join('')}</div>${fb}</div>`;
+}
+function render(){
+  pos = Math.max(0, Math.min(A.length-1, pos));
+  const {step, ph} = A[pos], S = STEPS[step], P = S.ph[ph], key = step+'.'+ph;
+  document.querySelectorAll('.dot').forEach((b,i)=>{ b.classList.toggle('cur', i===step); b.classList.toggle('done', i<step); });
+  $('prev').disabled = pos===0;
+  $('next').disabled = pos===A.length-1 || (P.q && !ANS[key]);
+  $('next').textContent = pos===A.length-1 ? 'Terminé ✓' : P.btn;
+  const prog = S.ph.length>1 ? `<div class="progress" style="font-size:12px;color:var(--muted);margin:2px 0 8px">Phase ${ph+1} sur ${S.ph.length}</div>` : '';
+  $('explain').innerHTML = `<div class="stepno">Étape ${step} / ${LAST}</div><h2 class="steptitle">${S.title}</h2>${prog}
+    <p class="steptext">${P.text}</p>${P.q?qBox(key,P.q):''}${S.extra?S.extra(ph):''}${step===7||step===6 ? lastEntry(step,ph) : ''}`;
+  $('stage').innerHTML = S.stage(ph);
+}
+// Étapes 6 et 7 : l'écriture se construit au fil des réponses
+function lastEntry(step, ph){
+  const o = OPS[step-6];
+  const dd = step===6 ? (ph>=2 ? o.d : '…') : (ph>=1 ? o.d : '…');
+  const cc = step===6 ? (ph>=1 ? o.c : '…') : (ph>=2 ? o.c : '…');
+  return `<table class="journal"><caption>Écriture</caption><tr><th>N°</th><th>Débit</th><th>Crédit</th><th class="am">Montant</th></tr>
+    <tr class="cur"><td>${o.n}</td><td>${dd}</td><td>${cc}</td><td class="am">${fmt(o.amt)}</td></tr></table>`;
+}
+
+/* ---------- Navigation ---------- */
+function goTo(p){ pos = p; render(); }
+function goStep(s){ goTo(A.findIndex(a=>a.step===s)); }
+let Z = 1;
+try { Z = +localStorage.getItem('bilanjournal-zoom') || 1; } catch(e){}
+function applyZoom(){
+  Z = Math.round(Math.max(0.8, Math.min(1.6, Z))*10)/10;
+  document.documentElement.style.setProperty('--z', Z);
+  try { localStorage.setItem('bilanjournal-zoom', Z); } catch(e){}
+}
+$('dots').innerHTML = STEPS.map((s,i)=>`<button class="dot" data-s="${i}" title="Étape ${i} : ${s.title}" aria-label="Étape ${i}"></button>`).join('');
+$('zm').addEventListener('click', ()=>{ Z -= 0.1; applyZoom(); });
+$('zp').addEventListener('click', ()=>{ Z += 0.1; applyZoom(); });
+$('next').addEventListener('click', ()=>goTo(pos+1));
+$('prev').addEventListener('click', ()=>goTo(pos-1));
+$('explain').addEventListener('click', e=>{ const b=e.target.closest('.ch'); if (!b || b.disabled) return; const {step,ph}=A[pos]; ANS[step+'.'+ph] = b.dataset.a; render(); });
+$('quit').addEventListener('click', ()=>{ window.close(); setTimeout(()=>{ $('quit-msg').style.display='block'; }, 300); });
+$('dots').addEventListener('click', e=>{ const b=e.target.closest('.dot'); if (b) goStep(+b.dataset.s); });
+document.addEventListener('keydown', e=>{
+  if (e.key==='ArrowRight' && !$('next').disabled) goTo(pos+1);
+  if (e.key==='ArrowLeft') goTo(pos-1);
+});
+render();
+applyZoom();
+</script>
+</body>
+</html>

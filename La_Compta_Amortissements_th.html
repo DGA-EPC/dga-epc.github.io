@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Les amortissements – théorie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --bg:#f5f3ee; --card:#fff; --ink:#1e2226; --muted:#6a6f76; --line:#e2ddd2; --soft:#efebe3;
+  --charge:#c2671f; --charge-bg:#fcefe3;
+  --produit:#2b8352; --produit-bg:#e6f4eb;
+  --res:#6d48b3; --res-bg:#efe9f9;
+  --passif:#a3333d; --passif-bg:#f8e8ea;
+  --bilan:#20394f; --bilan-bg:#e6ecf1;
+  --actif:#2a52be; --actif-bg:#e8eefb;
+  --accent:#c98a10; --accent-bg:#fff3d6;
+  --y1:#e8eefb; --y2:#fff3d6;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  /* *** Couleur fond *** */
+  background:#052035;
+  color:var(--ink);font:14px/1.45 Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+.app{zoom:var(--z,1);display:grid;grid-template-columns:370px minmax(0,1fr);gap:24px;max-width:1520px;margin:0 auto;padding:20px}
+aside{position:sticky;top:calc(20px / var(--z,1));align-self:start;max-height:calc((100vh - 40px) / var(--z,1));overflow:auto;display:flex;flex-direction:column;gap:14px;padding-bottom:4px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+h1{font-family:Fraunces,Georgia,serif;font-size:26px;line-height:1.15;margin:0 0 4px;font-weight:700}
+.sub{color:var(--muted);font-size:13px;margin:0}
+.dots{display:flex;gap:6px;margin:14px 0 2px}
+.dot{flex:1;height:6px;border-radius:3px;background:var(--soft);border:0;padding:0;cursor:pointer}
+.dot.done{background:#cbbfa6}.dot.cur{background:var(--accent)}
+.stepno{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.steptitle{font-family:Fraunces,Georgia,serif;font-size:21px;line-height:1.2;margin:0 0 8px}
+.steptext{margin:0 0 10px}
+.calc{background:var(--accent-bg);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:13.5px}
+.calc .row{display:flex;justify-content:space-between;gap:8px}
+.calc .row.big{font-weight:700;border-top:1px solid #e8d49f;margin-top:6px;padding-top:6px;font-size:15px}
+.calc.q{background:var(--bilan-bg)}
+.choices{display:flex;gap:8px;margin-top:10px}
+.ch{flex:1;font:inherit;font-weight:600;border-radius:10px;border:2px solid var(--bilan);background:#fff;color:var(--bilan);padding:9px 10px;cursor:pointer}
+.ch:not(:disabled):hover{background:var(--bilan);color:#fff}
+.ch:disabled{cursor:default;opacity:.45}
+.ch.ok{background:var(--produit);border-color:var(--produit);color:#fff;opacity:1}
+.ch.ko{background:var(--charge);border-color:var(--charge);color:#fff;opacity:1}
+.fb{margin-top:10px;padding:8px 10px;border-radius:8px;background:#fff;animation:pop 1.2s ease-out}
+.fb.ok{border-left:4px solid var(--produit)}.fb.ko{border-left:4px solid var(--charge)}
+.ch.blink{animation:blink 1.4s ease-in-out 2}
+@keyframes blink{0%,100%{box-shadow:0 0 0 0 rgba(32,57,79,0)}50%{box-shadow:0 0 0 5px rgba(201,138,16,.75);background:var(--accent-bg)}}
+.hint{font-size:12px;color:var(--muted);margin-top:8px;font-style:italic}
+.tag{display:inline-block;padding:2px 9px;border-radius:999px;font-weight:600;font-size:12.5px}
+.tag.good{background:var(--produit-bg);color:var(--produit)}
+.tag.bad{background:var(--charge-bg);color:var(--charge)}
+.tag.neutral{background:var(--soft);color:var(--muted)}
+.tag.at{background:var(--actif-bg);color:var(--actif)}
+.tag.pt{background:var(--passif-bg);color:var(--passif)}
+.journal{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+.journal caption{text-align:left;font-weight:600;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding-bottom:4px}
+.journal th{text-align:left;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding:4px 4px}
+.journal td{padding:4px 4px;border-bottom:1px dashed var(--line)}
+.journal td.am,.journal th.am{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.journal td.dt{color:var(--muted);white-space:nowrap}
+.journal tr.todo td{opacity:0}
+.journal tr.cur td{background:var(--accent-bg);font-weight:600}
+.nav{display:flex;gap:8px}
+.btn{flex:1;font:inherit;font-weight:600;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:11px 12px;cursor:pointer}
+.btn.primary{background:#256015;color:#fff;border-color:var(--ink)}
+.btn.quiz{background:#037DFF;color:#fff;border-color:#037DFF;text-align:center;text-decoration:none}
+.btn.quit{background:#ff4747;color:#fff;border-color:#ff4747}
+.btn:disabled{opacity:.4;cursor:default}
+.btn:not(:disabled):hover{filter:brightness(1.5)}
+details summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"＋";color:var(--muted)}
+details[open] summary::after{content:"－"}
+.note{font-size:12px;color:var(--muted);margin:10px 0 0}
+
+.stage{display:flex;flex-direction:column;gap:18px;min-width:0}
+section.sec{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px 16px}
+section.sec h2{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 12px;font-weight:600;display:flex;align-items:center;gap:8px}
+section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--soft);color:var(--ink);font-size:11px}
+.story{font-size:15px;background:var(--soft);border-radius:10px;padding:10px 14px;margin-bottom:14px}
+.story b{font-variant-numeric:tabular-nums}
+
+/* Ligne du temps */
+.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;align-items:start}
+.t{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 9px 8px;position:relative;min-width:0}
+.t-head{font-weight:700;font-size:13.5px;text-align:center;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.k-charge .t-head{color:var(--charge)}.k-produit .t-head{color:var(--produit)}.k-passif .t-head{color:var(--passif)}.k-actif .t-head{color:var(--actif)}
+.t-sides{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:baseline;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--ink);padding:0 0 2px}
+.t-body{display:grid;grid-template-columns:1fr 1fr;min-height:46px}
+.col{padding:4px 4px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.col.d{border-right:2px solid var(--ink)}
+.ln{display:flex;flex-wrap:wrap;justify-content:space-between;gap:3px;font-size:11.5px;border-radius:4px;padding:1px 2px}
+.ln .lb{color:var(--muted);line-height:1.25;min-width:0}
+.ln .am{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:500;margin-left:auto}
+.ln.ext .lb{font-style:italic}
+.ln.fresh{animation:pop 1.8s ease-out;background:#ffe08a33}
+@keyframes pop{0%{background:#ffe08a}100%{background:#ffe08a33}}
+.t.focus{box-shadow:0 0 0 2px var(--accent),0 6px 18px rgba(0,0,0,.08)}
+.eff{font-size:12px;margin-top:6px;text-align:center}
+.eff .tag{font-size:11.5px}
+
+/* Introduction et résumé */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.box{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.box h4{margin:0 0 6px;font-size:14px}
+.quad{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.quad .hd{text-align:center;font-family:Fraunces,Georgia,serif;font-size:19px;font-weight:700;padding:8px;border-radius:10px}
+.quad .hd.at{background:var(--actif-bg);color:var(--actif)}.quad .hd.pt{background:var(--passif-bg);color:var(--passif)}
+.qc{border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;transition:box-shadow .2s}
+.qc:hover{box-shadow:0 0 0 2px var(--accent)}
+.qc h4{margin:0 0 4px;font-size:15px}
+.qc .ex{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
+.qc .ecr{display:flex;justify-content:space-between;font-size:13px;background:var(--soft);border-radius:8px;padding:6px 10px;font-weight:600}
+.qc .ecr span:last-child{color:var(--muted);font-weight:500}
+
+.zoombar{position:fixed;top:8px;right:10px;z-index:60;display:flex;gap:2px;opacity:.55;transition:opacity .2s}
+.zoombar:hover{opacity:1}
+.zoombar button{font:600 13px Inter,system-ui,sans-serif;color:var(--muted);background:rgba(255,255,255,.85);border:1px solid var(--line);border-radius:7px;padding:3px 8px;cursor:pointer}
+.zoombar button:hover{color:var(--ink)}
+
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;padding:12px 12px 90px}
+  aside{position:static;max-height:none;overflow:visible}
+  .nav-wrap{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(245,243,238,.95);backdrop-filter:blur(6px);padding:10px 12px;border-top:1px solid var(--line)}
+  .two,.quad{grid-template-columns:1fr}
+}
+
+/* --- Amortissements --- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s,box-shadow .3s}
+.card.on{box-shadow:0 0 0 2px var(--accent)}
+.card.off{opacity:.45}
+.card .lt{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--soft);font-weight:700;font-size:12px;margin-right:6px}
+.card h4{margin:0 0 4px;font-size:15px;display:flex;align-items:center}
+.card .ex{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
+.ecr{display:flex;justify-content:space-between;gap:8px;font-size:13px;background:var(--soft);border-radius:8px;padding:6px 10px;font-weight:600}
+.ecr span:last-child{color:var(--muted);font-weight:500}
+.ico{font-size:26px;line-height:1;margin-bottom:6px}
+.vocab{width:100%;border-collapse:collapse;font-size:13.5px}
+.vocab td{padding:7px 8px;border-bottom:1px dashed var(--line);vertical-align:top}
+.vocab td:first-child{font-weight:600;white-space:nowrap}
+.vocab tr.cur td{background:var(--accent-bg)}
+.vbar{display:flex;height:42px;border-radius:8px;overflow:hidden;margin:26px 0 8px;font-size:12.5px;font-weight:600;color:#fff;position:relative}
+.vbar div{display:flex;align-items:center;justify-content:center;white-space:nowrap}
+.tab{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+.tab th{color:var(--muted);font-weight:500;border-bottom:2px solid var(--ink);padding:6px 8px;text-align:right}
+.tab th:first-child,.tab td:first-child{text-align:left}
+.tab td{padding:6px 8px;border-bottom:1px dashed var(--line);text-align:right}
+.tab tr.todo td{color:transparent}
+.tab tr.cur td{background:var(--accent-bg);font-weight:700}
+.tab tr.cur td.am{color:var(--charge)}
+.tab td.am{color:var(--charge)}.tab td.vr{color:var(--actif)}
+.chart{width:100%;height:auto;display:block}
+.chart text{font:11px Inter,system-ui,sans-serif;fill:var(--muted)}
+.chart .lg text{fill:var(--ink);font-weight:600}
+.bil{border:1px solid var(--line);border-radius:12px;padding:10px 14px;max-width:420px}
+.bil h4{margin:0 0 6px;font-family:Fraunces,Georgia,serif;color:var(--bilan)}
+.bil .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;padding:2px 0}
+.bil .row.sub{color:var(--passif)}
+.bil .row.tot{font-weight:700;border-top:1px solid var(--ink);margin-top:4px;padding-top:4px}
+.bil .grp{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:4px}
+.k-fac .t-head{color:var(--passif)}
+.t-head{white-space:normal !important;line-height:1.2}
+.split{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:1100px){ .split{grid-template-columns:1fr} }
+
+.jr-stage{max-width:640px;margin-bottom:16px}
+.jr-stage .journal{font-size:13.5px}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="panel">
+      <h1>Les amortissements</h1>
+      <p class="sub">Amortir = diminuer · montants en CHF</p>
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <div class="panel" id="explain"></div>
+
+    <div class="nav-wrap">
+      <div class="nav">
+        <button class="btn" id="prev">← Précédent</button>
+        <button class="btn primary" id="next">Suivant →</button>
+      </div>
+    </div>
+
+    <div class="nav exit">
+      <!-- *** Lien des exercices *** : remplacer La_Compta_Amortissements.html par le lien voulu -->
+      <a class="btn quiz" href="La_Compta_Amortissements.html" target="_blank">Exercices</a>
+      <button class="btn quit" id="quit">Quitter</button>
+    </div>
+    <p class="note" id="quit-msg" style="display:none;color:#fff">Le navigateur ne permet pas de fermer cette fenêtre automatiquement : fermer l'onglet.</p>
+  </aside>
+
+  <main class="stage" id="stage"></main>
+</div>
+<div class="zoombar"><button id="zm" title="Réduire la taille" aria-label="Réduire la taille">A−</button><button id="zp" title="Agrandir la taille" aria-label="Agrandir la taille">A+</button></div>
+
+<script>
+/* ---------- Réglages ---------- */
+const Y0 = new Date().getFullYear();          // année d'acquisition = année en cours
+const VA = 20000;                              // valeur d'acquisition des exemples
+const ANS = {};                                // réponses choisies (par étape)
+
+const KIND = {'Véhicules':'actif','Véhicules (ancien)':'actif','Véhicules (nouveau)':'actif','Banque':'actif',
+  'Amortissements':'charge','Charges exceptionnelles':'charge','Produits exceptionnels':'produit','FAC s/Véhicules':'fac'};
+const fmt = n => { const neg=n<0; n=Math.abs(Math.round(n*100)/100); const [i,d]=n.toFixed(2).split('.');
+  return (neg?'−':'') + i.replace(/\B(?=(\d{3})+(?!\d))/g,"'") + (d!=='00' ? '.'+d : ''); };
+const r2 = x => Math.round(x*100)/100;
+const $ = id => document.getElementById(id);
+const COL = {am:'#c2671f', vr:'#2a52be', deg:'#c98a10'};
+
+/* ---------- Tableaux d'amortissement ---------- */
+function tableau(mode){
+  const R = []; let vr = VA, cum = 0;
+  if (mode==='const'){
+    for (let i=1;i<=5;i++){ const a = VA*0.2; cum += a; vr = VA-cum; R.push({an:i, base:VA, a, cum, vr}); }
+  } else {
+    for (let i=1;i<=6;i++){
+      const base = vr, a = i===6 ? vr : r2(base*0.4*(i===1?0.5:1));
+      if (mode==='deg1' && i>5) break;
+      if (mode==='deg1'){ const a1 = i===5 ? vr : r2(base*0.4); cum = r2(cum+a1); vr = r2(VA-cum); R.push({an:i, base, a:a1, cum, vr}); continue; }
+      cum = r2(cum+a); vr = r2(VA-cum); R.push({an:i, base, a, cum, vr});
+    }
+  }
+  return R;
+}
+const TC = tableau('const'), TD = tableau('deg'), TD1 = tableau('deg1');   // deg1 : dégressif dès le 1er janvier
+
+function tabHTML(R, upto){
+  return `<table class="tab"><tr><th>An</th><th>Valeur de calcul</th><th>Amortissement</th><th>Cumul</th><th>Valeur résiduelle</th></tr>
+    ${R.map(r=>`<tr class="${r.an===upto?'cur':r.an>upto?'todo':''}"><td>${r.an} · ${Y0+r.an-1}</td><td>${fmt(r.base)}</td><td class="am">${fmt(r.a)}</td><td>${fmt(r.cum)}</td><td class="vr">${fmt(r.vr)}</td></tr>`).join('')}</table>`;
+}
+
+/* Graphique en barres : amortissement et valeur résiduelle par année */
+function barChart(R, upto){
+  const W=900, H=300, L=60, B=34, T=26, n=R.length, gw=(W-L-10)/n, sc=v=>(H-B-T)*v/VA;
+  let g = '';
+  [0,5000,10000,15000,20000].forEach(v=>{ const y=H-B-sc(v); g+=`<line x1="${L}" x2="${W-6}" y1="${y}" y2="${y}" stroke="#e2ddd2"/><text x="${L-6}" y="${y+4}" text-anchor="end">${fmt(v)}</text>`; });
+  R.forEach((r,i)=>{
+    const x = L + i*gw + gw*0.14, bw = gw*0.34, on = r.an<=upto, op = on?1:.12;
+    g += `<rect x="${x}" y="${H-B-sc(r.a)}" width="${bw}" height="${sc(r.a)}" rx="3" fill="${COL.am}" opacity="${op}"/>`;
+    g += `<rect x="${x+bw+3}" y="${H-B-sc(r.vr)}" width="${bw}" height="${Math.max(sc(r.vr),0.5)}" rx="3" fill="${COL.vr}" opacity="${op}"/>`;
+    g += `<text x="${L+i*gw+gw/2}" y="${H-B+16}" text-anchor="middle">An ${r.an}</text>`;
+    if (r.an===upto) g += `<text x="${x+bw/2}" y="${H-B-sc(r.a)-5}" text-anchor="middle" style="fill:${COL.am};font-weight:700">${fmt(r.a)}</text><text x="${x+bw*1.5+3}" y="${H-B-sc(r.vr)-5}" text-anchor="middle" style="fill:${COL.vr};font-weight:700">${fmt(r.vr)}</text>`;
+  });
+  g += `<g class="lg"><rect x="${L}" y="4" width="12" height="12" rx="2" fill="${COL.am}"/><text x="${L+18}" y="14">amortissement</text>
+        <rect x="${L+140}" y="4" width="12" height="12" rx="2" fill="${COL.vr}"/><text x="${L+158}" y="14">valeur résiduelle</text></g>
+        <text x="${W-6}" y="${H-4}" text-anchor="end">année</text><text x="4" y="14">CHF</text>`;
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}">${g}</svg>`;
+}
+
+/* Graphique en lignes : valeur résiduelle constant vs dégressif */
+function lineChart(){
+  const W=900, H=300, L=60, B=34, T=26, n=5, sx=i=>L+i*(W-L-20)/n, sy=v=>H-B-(H-B-T)*v/VA;
+  const pts = R => [[0,VA],...R.map(r=>[r.an,r.vr])].map(([i,v])=>`${sx(i)},${sy(v)}`).join(' ');
+  let g = '';
+  [0,5000,10000,15000,20000].forEach(v=>{ g+=`<line x1="${L}" x2="${W-6}" y1="${sy(v)}" y2="${sy(v)}" stroke="#e2ddd2"/><text x="${L-6}" y="${sy(v)+4}" text-anchor="end">${fmt(v)}</text>`; });
+  for (let i=0;i<=n;i++) g += `<text x="${sx(i)}" y="${H-B+16}" text-anchor="middle">${i===0?'achat':'An '+i}</text>`;
+  g += `<polyline points="${pts(TC)}" fill="none" stroke="${COL.vr}" stroke-width="3"/><polyline points="${pts(TD1)}" fill="none" stroke="${COL.deg}" stroke-width="3" stroke-dasharray="7 5"/>`;
+  g += `<g class="lg"><line x1="${L}" x2="${L+22}" y1="10" y2="10" stroke="${COL.vr}" stroke-width="3"/><text x="${L+28}" y="14">constant 20 %</text>
+        <line x1="${L+150}" x2="${L+172}" y1="10" y2="10" stroke="${COL.deg}" stroke-width="3" stroke-dasharray="7 5"/><text x="${L+178}" y="14">dégressif 40 %</text></g>
+        <text x="4" y="14">CHF</text>`;
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}">${g}</svg>`;
+}
+
+/* ---------- Comptes en T ---------- */
+function postings(J, acc, ph){
+  const P = {d:[], c:[]};
+  J.forEach(e=>{
+    if (e.ph>ph) return;
+    const fresh = e.ph===ph;
+    if (e.open){ if (e.open===acc) P[e.side].push({lb:e.lab||'sàn', amt:e.amt, fresh}); return; }
+    if (e.d===acc) P.d.push({lb:e.n, amt:e.amt, fresh});
+    if (e.c===acc) P.c.push({lb:e.n, amt:e.amt, fresh});
+  });
+  return P;
+}
+const short = a => a.replace(/ \((ancien|nouveau)\)/,'');
+const sum = arr => arr.reduce((s,l)=>s+l.amt,0);
+function tHTML(acc, P, focus, eff){
+  const col = arr => arr.map(l=>`<div class="ln ${l.fresh?'fresh':''}"><span class="lb">${l.lb}</span><span class="am">${fmt(l.amt)}</span></div>`).join('');
+  return `<div class="t k-${KIND[acc]} ${focus?'focus':''}">
+    <div class="t-sides"><span>D</span><span class="t-head" title="${acc}">${acc}</span><span>C</span></div>
+    <div class="t-body"><div class="col d">${col(P.d)}</div><div class="col c">${col(P.c)}</div></div>
+    ${eff?`<div class="eff">${eff}</div>`:''}</div>`;
+}
+
+/* ---------- Les étapes ---------- */
+const S_SENS = [
+  ['a','Amortissement d\'une dette','Rembourser partiellement une dette (bancaire).','Dette bancaire','Liquidités'],
+  ['b','Amortissement d\'une créance','Effacer la facture d\'un client qui ne paiera pas.','Pertes sur créances','Créances clients'],
+  ['c','Amortissement d\'une perte','Utiliser une provision pour diminuer une charge.','Ducroire','Pertes sur créances'],
+  ['d','Amortissement d\'une immobilisation','Comptabiliser la perte de valeur.','Amortissements','Mobilier']];
+
+const STEPS = [
+ { title:'Amortir = diminuer',
+   ph:[{btn:'Suite →', text:`En allemand : <i>Abschreibungen</i>.<br><br>« Amortir » veut dire <b>diminuer</b>. Le mot s'utilise dans <b>4 situations</b> différentes : on diminue une dette, une créance, une perte… ou la valeur d'une immobilisation.`},
+       {btn:'Suite →', text:`Dans ce chapitre, on s'intéresse au sens <b>d)</b> : l'amortissement d'une <b>immobilisation</b>.<br><br>L'amortissement est une <b>charge</b> (au débit) qui diminue la valeur de l'actif (au crédit).`}],
+   stage: ph => `<section class="sec"><h2><span class="n">1</span>Les 4 sens du mot « amortir »</h2><div class="cards">
+     ${S_SENS.map(([l,t,ex,d,c])=>`<div class="card ${ph===1?(l==='d'?'on':'off'):''}"><h4><span class="lt">${l}</span>${t}</h4><div class="ex">${ex}</div><div class="ecr"><span>${d} / ${c}</span></div></div>`).join('')}</div></section>` },
+
+ { title:'Pourquoi perdre de la valeur ?',
+   ph:[{btn:'Suite →', text:`Une immobilisation (machine, véhicule, mobilier…) est utilisée pendant plusieurs années. Chaque année, elle perd une partie de sa valeur : c'est cette perte qu'on comptabilise.`}],
+   stage: () => `<section class="sec"><h2><span class="n">1</span>Les causes de la perte de valeur</h2><div class="cards">
+     <div class="card"><div class="ico">⚙️</div><h4>L'utilisation</h4><div class="ex">L'usure : plus on s'en sert, plus elle s'use.</div></div>
+     <div class="card"><div class="ico">⏳</div><h4>Le temps qui passe</h4><div class="ex">La mode, l'évolution technologique (obsolescence : l'objet devient obsolète), la fin d'un droit (brevet).</div></div>
+     <div class="card"><div class="ico">⛏️</div><h4>L'épuisement</h4><div class="ex">Les ressources s'épuisent : mine, gravière.</div></div>
+     </div></section>
+     <section class="sec"><h2><span class="n">2</span>Attention</h2><div class="calc" style="margin:0">En comptabilité, on <b>n'amortit pas les terrains</b> : ils ne s'usent pas.</div></section>` },
+
+ { title:'Le vocabulaire',
+   ph:[{btn:'Suite →', text:`Exemple : un véhicule acheté ${fmt(VA)}, amorti de 4'000 par an. Après 2 ans, le cumul des amortissements est de 8'000.`}],
+   stage: () => `<section class="sec"><h2><span class="n">1</span>Un véhicule après 2 ans</h2>
+     <div style="font-size:12.5px;color:var(--muted)">Valeur d'acquisition : ${fmt(VA)}</div>
+     <div class="vbar"><div style="width:40%;background:var(--charge)">Cumul d'amortissement 8'000</div><div style="width:60%;background:var(--actif)">Valeur résiduelle 12'000</div></div>
+     <div style="font-size:12.5px;color:var(--muted)">Valeur résiduelle = valeur d'acquisition − cumul des amortissements = ${fmt(VA)} − 8'000 = <b>12'000</b></div></section>
+     <section class="sec"><h2><span class="n">2</span>Les mots à connaître</h2><table class="vocab">
+       <tr><td>Valeur d'acquisition</td><td>Valeur d'achat, au prix de revient d'achat (PRA).</td></tr>
+       <tr><td>Cumul d'amortissement</td><td>Le total des amortissements effectués.</td></tr>
+       <tr class="cur"><td>Valeur résiduelle<br><span style="font-weight:400;color:var(--muted)">(Buchwert)</span></td><td>Valeur comptable, valeur amortie = valeur d'acquisition − total des amortissements.</td></tr>
+       <tr><td>Valeur intrinsèque</td><td>Valeur matérielle (p. ex. la valeur de l'or d'une bague).</td></tr>
+       <tr><td>Valeur vénale<br><span style="font-weight:400;color:var(--muted)">(Verkehrswert)</span></td><td>Valeur du marché : le prix auquel on pourrait la vendre.</td></tr></table></section>` },
+
+ { title:'Amortissement constant', tab:'const' },
+ { title:'Amortissement dégressif', tab:'deg' },
+
+ { title:'Quel taux utiliser ?',
+   ph:[{btn:'Suite →', text:`Les deux méthodes appliquées au même véhicule de ${fmt(VA)}, acheté le 1<sup>er</sup> janvier (pas de prorata).`,
+        q:{text:'Quelle méthode diminue le plus vite la valeur au début ?', opts:[['const','constant'],['deg','dégressif']], ok:'deg',
+           fb:'le <b>dégressif</b> amortit davantage les premières années : la valeur résiduelle baisse plus vite.'}}],
+   extra: () => ANS[5] ? `<div class="calc">En comptabilité, on applique le <b>principe de prudence</b> : on devrait amortir le plus vite possible.<br><br>L'<b>AFC</b> (Administration fédérale des contributions) fixe un <b>taux maximum</b> autorisé pour chaque type d'immobilisation.</div>` : '',
+   stage: () => `<section class="sec"><h2><span class="n">1</span>Valeur résiduelle : constant ou dégressif</h2>${lineChart()}</section>` },
+
+ { title:'Amortissement direct', cpt:{
+   accs:['Véhicules','Amortissements'],
+   J:[{ph:0,open:'Véhicules',side:'d',amt:VA,lab:'Achat'},
+      {ph:1,d:'Amortissements',c:'Véhicules',amt:4000,dt:`31.12.${Y0}`}],
+   eff:(acc,P,ph)=> ph<1 ? '' : acc==='Véhicules' ? `Au bilan : <span class="tag at">${fmt(sum(P.d)-sum(P.c))}</span>` : `Au compte de résultat : <span class="tag bad">${fmt(sum(P.d))}</span>`,
+   bilan: ph => `<div class="bil"><h4>Bilan au 31.12.${Y0}</h4><div class="grp">Immobilisés</div>
+      <div class="row"><span>Véhicules</span><span>${fmt(ph>=1?16000:VA)}</span></div></div>`},
+   ph:[{btn:'Amortir au 31.12 →', text:`Un véhicule est acheté ${fmt(VA)} début ${Y0}. Il est amorti de 20 % (constant), soit 4'000 par an.`},
+       {btn:'Suite →', text:`Le compte de l'immobilisation est <b>crédité directement</b> du montant de l'amortissement.<br><br>Au bilan, on ne voit plus que la valeur résiduelle (16'000) : la <b>valeur d'acquisition n'apparaît plus</b>.`}],
+   extra: ph => ph<1 ? '' : `<div class="calc"><div style="font-weight:600;margin-bottom:4px">Autres exemples</div>
+      <div class="row"><span>Amortissements / Machines</span></div><div class="row"><span>Amortissements / Immeuble commercial</span></div>
+      <div class="row"><span>Charges d'immeuble / Immeuble locatif</span></div></div>` },
+
+ { title:'Amortissement indirect', cpt:{
+   accs:['Véhicules','FAC s/Véhicules','Amortissements'],
+   J:[{ph:0,open:'Véhicules',side:'d',amt:VA,lab:'Achat'},
+      {ph:1,d:'Amortissements',c:'FAC s/Véhicules',amt:4000,dt:`31.12.${Y0}`}],
+   eff:(acc,P,ph)=> ph<1 ? '' : acc==='Véhicules' ? `Au bilan : <span class="tag at">${fmt(sum(P.d))}</span>` : acc==='Amortissements' ? `Au compte de résultat : <span class="tag bad">${fmt(sum(P.d))}</span>` : `Au bilan (en moins) : <span class="tag pt">${fmt(sum(P.c))}</span>`,
+   bilan: ph => `<div class="bil"><h4>Bilan au 31.12.${Y0}</h4><div class="grp">Immobilisés</div>
+      <div class="row"><span>Véhicules</span><span>${fmt(VA)}</span></div>
+      ${ph>=1?`<div class="row sub"><span>− FAC s/Véhicules</span><span>−4'000</span></div><div class="row tot"><span>= Valeur résiduelle</span><span>16'000</span></div>`:''}</div>`},
+   ph:[{btn:'Amortir au 31.12 →', text:`Le même véhicule de ${fmt(VA)}, amorti de 4'000.`},
+       {btn:'Suite →', text:`L'amortissement est viré dans un compte « passif » : le <b>FAC</b> (fonds d'amortissements cumulés). Le compte Véhicules garde sa valeur d'acquisition.<br><br>Au bilan, le FAC figure <b>sous le compte d'actif, en moins</b> : on voit la valeur d'acquisition, le cumul et la valeur résiduelle.`}],
+   extra: ph => ph<1 ? '' : `<div class="calc"><div style="font-weight:600;margin-bottom:4px">Autres exemples</div>
+      <div class="row"><span>Amortissements / FAC s/Machines</span></div><div class="row"><span>Amortissements / FAC s/Immeuble commercial</span></div>
+      <div class="row"><span>Charges d'immeuble / FAC s/Immeuble locatif</span></div></div>` },
+
+ { title:'Vente : amortissement direct', cpt:{
+   accs:['Véhicules (ancien)','Véhicules (nouveau)','Banque','Produits exceptionnels'],
+   J:[{ph:0,open:'Véhicules (ancien)',side:'d',amt:4000},
+      {ph:1,d:'Véhicules (nouveau)',c:'Banque',amt:30000,dt:'achat'},
+      {ph:2,d:'Banque',c:'Véhicules (ancien)',amt:5000,dt:'vente'},
+      {ph:3,d:'Véhicules (ancien)',c:'Produits exceptionnels',amt:1000,dt:'gain'}],
+   eff:(acc,P,ph)=> acc==='Véhicules (ancien)' ? (ph===3?`<span class="tag good">soldé ✓</span>`: ph===0 ? `Valeur comptable : <span class="tag at">4'000</span>` : '') : ''},
+   ph:[{btn:'Acheter le nouveau →', text:`Lors de la vente d'une immobilisation, il faut <b>mettre à zéro</b> les comptes du bilan qui la concernent.<br><br>Nous achetons un nouveau véhicule, CHF 30'000. L'ancien est vendu CHF 5'000. Il figure dans les comptes pour CHF 4'000. Paiements par banque.`},
+       {btn:'Vendre l\'ancien →', text:`Le nouveau véhicule est comptabilisé normalement. (Dans le journal, c'est le même compte Véhicules : on sépare l'ancien et le nouveau pour y voir plus clair.)`},
+       {btn:'Comptabiliser la différence →', text:`La vente est créditée au compte Véhicules. Il reste un solde de 1'000 au <b>crédit</b> : le compte n'est pas à zéro.`,
+        q:{text:`Prix de vente 5'000, valeur comptable 4'000 : gain ou perte ?`, opts:[['gain','gain'],['perte','perte']], ok:'gain',
+           fb:`le véhicule est vendu plus cher que sa valeur comptable (5'000 > 4'000) : c'est un <b>GAIN</b> de 1'000 → <b>Produits exceptionnels</b>.`}},
+       {btn:'Suite →', text:`Le gain est crédité aux <b>Produits exceptionnels</b>. Le compte de l'ancien véhicule est soldé.`}] },
+
+ { title:'Vente : amortissement indirect', cpt:{
+   accs:['Véhicules (ancien)','FAC s/Véhicules','Véhicules (nouveau)','Banque','Charges exceptionnelles'],
+   J:[{ph:0,open:'Véhicules (ancien)',side:'d',amt:28000},{ph:0,open:'FAC s/Véhicules',side:'c',amt:22000},
+      {ph:1,d:'Véhicules (nouveau)',c:'Banque',amt:30000,dt:'achat'},
+      {ph:2,d:'Banque',c:'Véhicules (ancien)',amt:5000,dt:'vente'},
+      {ph:3,d:'FAC s/Véhicules',c:'Véhicules (ancien)',amt:22000,dt:'FAC'},
+      {ph:4,d:'Charges exceptionnelles',c:'Véhicules (ancien)',amt:1000,dt:'perte'}],
+   eff:(acc,P,ph)=> acc==='Véhicules (ancien)' && ph===4 ? `<span class="tag good">soldé ✓</span>` : acc==='FAC s/Véhicules' && ph>=3 ? `<span class="tag good">soldé ✓</span>` : ''},
+   ph:[{btn:'Acheter le nouveau →', text:`Nous achetons un nouveau véhicule, CHF 30'000. L'ancien est vendu CHF 5'000.<br><br>Les comptes de l'ancien : Véhicules 28'000 et FAC 22'000. Sa valeur comptable est donc de 28'000 − 22'000 = <b>6'000</b>.`},
+       {btn:'Vendre l\'ancien →', text:`Le nouveau véhicule est comptabilisé normalement.`},
+       {btn:'Virer le FAC →', text:`La vente est créditée au compte Véhicules.`},
+       {btn:'Comptabiliser la différence →', text:`Le FAC est viré au compte de l'immobilisation : il est soldé. Le compte Véhicules (ancien) a encore un solde de 1'000 au <b>débit</b>.`,
+        q:{text:`Prix de vente 5'000, valeur comptable 6'000 : gain ou perte ?`, opts:[['gain','gain'],['perte','perte']], ok:'perte',
+           fb:`le véhicule est vendu moins cher que sa valeur comptable (5'000 < 6'000) : c'est une <b>PERTE</b> de 1'000 → <b>Charges exceptionnelles</b>.`}},
+       {btn:'Terminé', text:`La perte est débitée aux <b>Charges exceptionnelles</b>. Les comptes de l'ancien véhicule (Véhicules et FAC) sont à zéro.`}] }
+];
+
+/* Phases des tableaux : 0 = formules, puis une année par clic */
+function tabStep(mode){
+  const R = mode==='const' ? TC : TD, n = R.length;
+  const ph = [{btn:'1er amortissement →', text: mode==='const'
+      ? `Chaque année, le montant de l'amortissement est <b>identique</b>.<br><br>Exemple : véhicule de ${fmt(VA)}, durée d'utilisation 5 ans.`
+      : `Chaque année, le montant de l'amortissement <b>diminue</b> (sauf la dernière année).<br><br>Exemple : véhicule de ${fmt(VA)}, acheté le <b>30 juin ${Y0}</b>, taux dégressif 40 %.`}];
+  R.forEach((r,i)=>{
+    let t;
+    if (mode==='const') t = `Amortissement = ${fmt(VA)} × 20 % = <b>${fmt(r.a)}</b><br>Valeur résiduelle = ${fmt(VA)} − ${fmt(r.cum)} = <b>${fmt(r.vr)}</b>` + (r.vr===0?'<br><br>Après 5 ans, le véhicule est entièrement amorti.':'');
+    else if (r.an===1) t = `Le véhicule est acheté le 30 juin : on n'amortit que <b>6 mois</b> la première année.<br>Amortissement = ${fmt(r.base)} × 40 % × 6/12 = <b>${fmt(r.a)}</b>`;
+    else if (r.an===n) t = `Dernière année : on amortit <b>tout le solde</b> restant, soit <b>${fmt(r.a)}</b>. La valeur résiduelle tombe à 0.`;
+    else t = `La valeur de calcul est la <b>valeur résiduelle</b> de l'année précédente : ${fmt(r.base)}.<br>Amortissement = ${fmt(r.base)} × 40 % = <b>${fmt(r.a)}</b>`;
+    ph.push({btn: i===n-1 ? 'Suite →' : `Amortissement ${r.an+1} →`, text:t});
+  });
+  return ph;
+}
+STEPS.forEach(s=>{ if (s.tab) s.ph = tabStep(s.tab); });
+// N° du journal : numérotation des écritures de chaque étape
+STEPS.forEach(s=>{ if (s.cpt){ let k = 1; s.cpt.J.forEach(e=>{ if (!e.open) e.n = k++; }); } });
+const LAST = STEPS.length-1;
+
+/* ---------- Actions ---------- */
+const A = [];
+STEPS.forEach((s,i)=>s.ph.forEach((_,p)=>A.push({step:i, ph:p})));
+let pos = 0;
+
+/* ---------- Rendu ---------- */
+function qBox(step, q){
+  const ch = ANS[step];
+  const btn = (a,lb) => `<button class="ch ${ch===a?(a===q.ok?'ok':'ko'):''} ${ch?'':'blink'}" data-a="${a}" ${ch?'disabled':''}>${lb}</button>`;
+  const fb = ch ? `<div class="fb ${ch===q.ok?'ok':'ko'}">${ch===q.ok?'✓ En effet':'✗ En fait'}, ${q.fb}</div>` : `<div class="hint">Cliquer sur la bonne réponse.</div>`;
+  return `<div class="calc q"><div style="font-weight:600;margin-bottom:4px">La question à se poser</div>${q.text}
+    <div class="choices">${q.opts.map(([a,lb])=>btn(a,lb)).join('')}</div>${fb}</div>`;
+}
+
+function render(){
+  pos = Math.max(0, Math.min(A.length-1, pos));
+  const {step, ph} = A[pos], S = STEPS[step], P = S.ph[ph];
+  document.querySelectorAll('.dot').forEach((b,i)=>{ b.classList.toggle('cur', i===step); b.classList.toggle('done', i<step); });
+  $('prev').disabled = pos===0;
+  $('next').disabled = pos===A.length-1 || (P.q && !ANS[step]);
+  $('next').textContent = pos===A.length-1 ? 'Terminé ✓' : P.btn;
+
+  // question : affichée sur sa phase et sur les suivantes si elle a été répondue
+  const qi = S.ph.findIndex(x=>x.q), q = qi>=0 && (ph===qi || (ph>qi && ANS[step])) ? qBox(step, S.ph[qi].q) : '';
+  let jr = '';
+  if (S.cpt){
+    const rows = S.cpt.J.filter(e=>!e.open);
+    jr = `<table class="journal"><caption>Journal</caption><tr><th>N°</th><th>Débit</th><th>Crédit</th><th class="am">Montant</th></tr>
+      ${rows.map(e=>`<tr class="${e.ph===ph?'cur':e.ph>ph?'todo':''}"><td>${e.n}</td><td>${short(e.d)}</td><td>${short(e.c)}</td><td class="am">${fmt(e.amt)}</td></tr>`).join('')}</table>`;
+  }
+  const prog = S.ph.length>1 ? `<div class="progress" style="font-size:12px;color:var(--muted);margin:2px 0 8px">Phase ${ph+1} sur ${S.ph.length}</div>` : '';
+  $('explain').innerHTML = `<div class="stepno">Étape ${step} / ${LAST}</div><h2 class="steptitle">${S.title}</h2>${prog}
+    <p class="steptext">${P.text}</p>${q}${S.extra?S.extra(ph):''}${S.tab?formules(S.tab):''}`;
+
+  // scène
+  if (S.tab){
+    const R = S.tab==='const' ? TC : TD;
+    $('stage').innerHTML = `<section class="sec"><h2><span class="n">1</span>Tableau d'amortissement</h2>${tabHTML(R, ph)}</section>
+      <section class="sec"><h2><span class="n">2</span>Graphique</h2>${barChart(R, ph)}</section>`;
+  } else if (S.cpt){
+    const C = S.cpt;
+    const ts = C.accs.map(acc=>{
+      const Pp = postings(C.J, acc, ph);
+      const focus = C.J.some(e=>e.ph===ph && (e.d===acc||e.c===acc||e.open===acc));
+      return tHTML(acc, Pp, focus, C.eff ? C.eff(acc,Pp,ph) : '');
+    }).join('');
+    $('stage').innerHTML = `<section class="sec"><h2><span class="n">1</span>Dans la comptabilité</h2><div class="jr-stage">${jr}</div><div class="tg">${ts}</div></section>`
+      + (C.bilan ? `<section class="sec"><h2><span class="n">2</span>Au bilan</h2>${C.bilan(ph)}</section>` : '');
+  } else {
+    $('stage').innerHTML = S.stage(ph);
+  }
+}
+
+function formules(mode){
+  return mode==='const'
+    ? `<div class="calc"><div style="font-weight:600;margin-bottom:4px">Calculs</div>
+        <div class="row"><span>Taux = 100 : nombre d'années</span><span>100 : 5 = 20 %</span></div>
+        <div class="row"><span>Amortissement = valeur d'achat : nb d'années</span></div>
+        <div class="row"><span>Amortissement = valeur d'acquisition × taux</span></div></div>`
+    : `<div class="calc"><div style="font-weight:600;margin-bottom:4px">Calculs</div>
+        <div class="row"><span>Taux = taux constant × 2</span><span>20 % × 2 = 40 %</span></div>
+        <div class="row"><span>Amortissement = valeur résiduelle × taux</span></div></div>`;
+}
+
+/* ---------- Navigation ---------- */
+function goTo(p){ pos = p; render(); }
+function goStep(s){ goTo(A.findIndex(a=>a.step===s)); }
+
+let Z = 1;
+try { Z = +localStorage.getItem('amortissements-zoom') || 1; } catch(e){}
+function applyZoom(){
+  Z = Math.round(Math.max(0.8, Math.min(1.6, Z))*10)/10;
+  document.documentElement.style.setProperty('--z', Z);
+  try { localStorage.setItem('amortissements-zoom', Z); } catch(e){}
+}
+$('dots').innerHTML = STEPS.map((s,i)=>`<button class="dot" data-s="${i}" title="Étape ${i} : ${s.title}" aria-label="Étape ${i}"></button>`).join('');
+$('zm').addEventListener('click', ()=>{ Z -= 0.1; applyZoom(); });
+$('zp').addEventListener('click', ()=>{ Z += 0.1; applyZoom(); });
+$('next').addEventListener('click', ()=>goTo(pos+1));
+$('prev').addEventListener('click', ()=>goTo(pos-1));
+$('explain').addEventListener('click', e=>{ const b=e.target.closest('.ch'); if (!b || b.disabled) return; ANS[A[pos].step] = b.dataset.a; render(); });
+$('quit').addEventListener('click', ()=>{ window.close(); setTimeout(()=>{ $('quit-msg').style.display='block'; }, 300); });
+$('dots').addEventListener('click', e=>{ const b=e.target.closest('.dot'); if (b) goStep(+b.dataset.s); });
+document.addEventListener('keydown', e=>{
+  if (e.key==='ArrowRight' && !$('next').disabled) goTo(pos+1);
+  if (e.key==='ArrowLeft') goTo(pos-1);
+});
+render();
+applyZoom();
+</script>
+</body>
+</html>

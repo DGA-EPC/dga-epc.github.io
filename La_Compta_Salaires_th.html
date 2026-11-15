@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Les salaires – théorie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+<style>
+
+
+
+:root{
+  --bg:#f5f3ee; --card:#fff; --ink:#1e2226; --muted:#6a6f76; --line:#e2ddd2; --soft:#efebe3;
+  --charge:#c2671f; --charge-bg:#fcefe3;
+  --produit:#2b8352; --produit-bg:#e6f4eb;
+  --res:#6d48b3; --res-bg:#efe9f9;
+  --passif:#a3333d; --passif-bg:#f8e8ea;
+  --bilan:#20394f; --bilan-bg:#e6ecf1;
+  --actif:#2a52be; --actif-bg:#e8eefb;
+  --accent:#c98a10; --accent-bg:#fff3d6;
+  --y1:#e8eefb; --y2:#fff3d6;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  /* *** Couleur fond *** */
+  background:#052035;
+  color:var(--ink);font:14px/1.45 Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+.app{zoom:var(--z,1);display:grid;grid-template-columns:370px minmax(0,1fr);gap:24px;max-width:1520px;margin:0 auto;padding:20px}
+aside{position:sticky;top:calc(20px / var(--z,1));align-self:start;max-height:calc((100vh - 40px) / var(--z,1));overflow:auto;display:flex;flex-direction:column;gap:14px;padding-bottom:4px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+h1{font-family:Fraunces,Georgia,serif;font-size:26px;line-height:1.15;margin:0 0 4px;font-weight:700}
+.sub{color:var(--muted);font-size:13px;margin:0}
+.dots{display:flex;gap:6px;margin:14px 0 2px}
+.dot{flex:1;height:6px;border-radius:3px;background:var(--soft);border:0;padding:0;cursor:pointer}
+.dot.done{background:#cbbfa6}.dot.cur{background:var(--accent)}
+.stepno{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.steptitle{font-family:Fraunces,Georgia,serif;font-size:21px;line-height:1.2;margin:0 0 8px}
+.steptext{margin:0 0 10px}
+.calc{background:var(--accent-bg);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:13.5px}
+.calc .row{display:flex;justify-content:space-between;gap:8px}
+.calc .row.big{font-weight:700;border-top:1px solid #e8d49f;margin-top:6px;padding-top:6px;font-size:15px}
+.calc.q{background:var(--bilan-bg)}
+.choices{display:flex;gap:8px;margin-top:10px}
+.ch{flex:1;font:inherit;font-weight:600;border-radius:10px;border:2px solid var(--bilan);background:#fff;color:var(--bilan);padding:9px 10px;cursor:pointer}
+.ch:not(:disabled):hover{background:var(--bilan);color:#fff}
+.ch:disabled{cursor:default;opacity:.45}
+.ch.ok{background:var(--produit);border-color:var(--produit);color:#fff;opacity:1}
+.ch.ko{background:var(--charge);border-color:var(--charge);color:#fff;opacity:1}
+.fb{margin-top:10px;padding:8px 10px;border-radius:8px;background:#fff;animation:pop 1.2s ease-out}
+.fb.ok{border-left:4px solid var(--produit)}.fb.ko{border-left:4px solid var(--charge)}
+.ch.blink{animation:blink 1.4s ease-in-out 2}
+@keyframes blink{0%,100%{box-shadow:0 0 0 0 rgba(32,57,79,0)}50%{box-shadow:0 0 0 5px rgba(201,138,16,.75);background:var(--accent-bg)}}
+.hint{font-size:12px;color:var(--muted);margin-top:8px;font-style:italic}
+.tag{display:inline-block;padding:2px 9px;border-radius:999px;font-weight:600;font-size:12.5px}
+.tag.good{background:var(--produit-bg);color:var(--produit)}
+.tag.bad{background:var(--charge-bg);color:var(--charge)}
+.tag.neutral{background:var(--soft);color:var(--muted)}
+.tag.at{background:var(--actif-bg);color:var(--actif)}
+.tag.pt{background:var(--passif-bg);color:var(--passif)}
+.journal{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+.journal caption{text-align:left;font-weight:600;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding-bottom:4px}
+.journal th{text-align:left;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding:4px 4px}
+.journal td{padding:4px 4px;border-bottom:1px dashed var(--line)}
+.journal td.am,.journal th.am{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.journal td.dt{color:var(--muted);white-space:nowrap}
+.journal tr.todo td{opacity:.38}
+.journal tr.cur td{background:var(--accent-bg);font-weight:600}
+.nav{display:flex;gap:8px}
+.btn{flex:1;font:inherit;font-weight:600;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:11px 12px;cursor:pointer}
+.btn.primary{background:#256015;color:#fff;border-color:var(--ink)}
+.btn.quiz{display:flex;align-items:center;justify-content:center;background:#037DFF;color:#fff;border-color:#037DFF;text-align:center;text-decoration:none}
+.btn.quit{background:#ff4747;color:#fff;border-color:#ff4747}
+.btn:disabled{opacity:.4;cursor:default}
+.btn:not(:disabled):hover{filter:brightness(1.5)}
+details summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"＋";color:var(--muted)}
+details[open] summary::after{content:"－"}
+.note{font-size:12px;color:var(--muted);margin:10px 0 0}
+
+.stage{display:flex;flex-direction:column;gap:18px;min-width:0}
+section.sec{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px 16px}
+section.sec h2{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 12px;font-weight:600;display:flex;align-items:center;gap:8px}
+section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--soft);color:var(--ink);font-size:11px}
+.story{font-size:15px;background:var(--soft);border-radius:10px;padding:10px 14px;margin-bottom:14px}
+.story b{font-variant-numeric:tabular-nums}
+
+/* Ligne du temps */
+.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;align-items:start}
+.t{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 9px 8px;position:relative;min-width:0}
+.t-head{font-weight:700;font-size:13.5px;text-align:center;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.k-charge .t-head{color:var(--charge)}.k-produit .t-head{color:var(--produit)}.k-passif .t-head{color:var(--passif)}.k-actif .t-head{color:var(--actif)}
+.t-sides{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:baseline;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--ink);padding:0 0 2px}
+.t-body{display:grid;grid-template-columns:1fr 1fr;min-height:46px}
+.col{padding:4px 4px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.col.d{border-right:2px solid var(--ink)}
+.ln{display:flex;flex-wrap:wrap;justify-content:space-between;gap:3px;font-size:11.5px;border-radius:4px;padding:1px 2px}
+.ln .lb{color:var(--muted);line-height:1.25;min-width:0}
+.ln .am{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:500;margin-left:auto}
+.ln.ext .lb{font-style:italic}
+.ln.fresh{animation:pop 1.8s ease-out;background:#ffe08a33}
+@keyframes pop{0%{background:#ffe08a}100%{background:#ffe08a33}}
+.t.focus{box-shadow:0 0 0 2px var(--accent),0 6px 18px rgba(0,0,0,.08)}
+.eff{font-size:12px;margin-top:6px;text-align:center}
+.eff .tag{font-size:11.5px}
+
+/* Introduction et résumé */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.box{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.box h4{margin:0 0 6px;font-size:14px}
+.quad{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.quad .hd{text-align:center;font-family:Fraunces,Georgia,serif;font-size:19px;font-weight:700;padding:8px;border-radius:10px}
+.quad .hd.at{background:var(--actif-bg);color:var(--actif)}.quad .hd.pt{background:var(--passif-bg);color:var(--passif)}
+.qc{border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;transition:box-shadow .2s}
+.qc:hover{box-shadow:0 0 0 2px var(--accent)}
+.qc h4{margin:0 0 4px;font-size:15px}
+.qc .ex{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
+.qc .ecr{display:flex;justify-content:space-between;font-size:13px;background:var(--soft);border-radius:8px;padding:6px 10px;font-weight:600}
+.qc .ecr span:last-child{color:var(--muted);font-weight:500}
+
+.zoombar{position:fixed;top:8px;right:10px;z-index:60;display:flex;gap:2px;opacity:.55;transition:opacity .2s}
+.zoombar:hover{opacity:1}
+.zoombar button{font:600 13px Inter,system-ui,sans-serif;color:var(--muted);background:rgba(255,255,255,.85);border:1px solid var(--line);border-radius:7px;padding:3px 8px;cursor:pointer}
+.zoombar button:hover{color:var(--ink)}
+
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;padding:12px 12px 90px}
+  aside{position:static;max-height:none;overflow:visible}
+  .nav-wrap{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(245,243,238,.95);backdrop-filter:blur(6px);padding:10px 12px;border-top:1px solid var(--line)}
+  .two,.quad{grid-template-columns:1fr}
+}
+
+/* --- Amortissements --- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s,box-shadow .3s}
+.card.on{box-shadow:0 0 0 2px var(--accent)}
+.card.off{opacity:.45}
+.card .lt{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--soft);font-weight:700;font-size:12px;margin-right:6px}
+.card h4{margin:0 0 4px;font-size:15px;display:flex;align-items:center}
+.card .ex{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
+.ecr{display:flex;justify-content:space-between;gap:8px;font-size:13px;background:var(--soft);border-radius:8px;padding:6px 10px;font-weight:600}
+.ecr span:last-child{color:var(--muted);font-weight:500}
+.ico{font-size:26px;line-height:1;margin-bottom:6px}
+.vocab{width:100%;border-collapse:collapse;font-size:13.5px}
+.vocab td{padding:7px 8px;border-bottom:1px dashed var(--line);vertical-align:top}
+.vocab td:first-child{font-weight:600;white-space:nowrap}
+.vocab tr.cur td{background:var(--accent-bg)}
+.vbar{display:flex;height:42px;border-radius:8px;overflow:hidden;margin:26px 0 8px;font-size:12.5px;font-weight:600;color:#fff;position:relative}
+.vbar div{display:flex;align-items:center;justify-content:center;white-space:nowrap}
+.tab{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+.tab th{color:var(--muted);font-weight:500;border-bottom:2px solid var(--ink);padding:6px 8px;text-align:right}
+.tab th:first-child,.tab td:first-child{text-align:left}
+.tab td{padding:6px 8px;border-bottom:1px dashed var(--line);text-align:right}
+.tab tr.todo td{color:transparent}
+.tab tr.cur td{background:var(--accent-bg);font-weight:700}
+.tab tr.cur td.am{color:var(--charge)}
+.tab td.am{color:var(--charge)}.tab td.vr{color:var(--actif)}
+.chart{width:100%;height:auto;display:block}
+.chart text{font:11px Inter,system-ui,sans-serif;fill:var(--muted)}
+.chart .lg text{fill:var(--ink);font-weight:600}
+.bil{border:1px solid var(--line);border-radius:12px;padding:10px 14px;max-width:420px}
+.bil h4{margin:0 0 6px;font-family:Fraunces,Georgia,serif;color:var(--bilan)}
+.bil .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;padding:2px 0}
+.bil .row.sub{color:var(--passif)}
+.bil .row.tot{font-weight:700;border-top:1px solid var(--ink);margin-top:4px;padding-top:4px}
+.bil .grp{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:4px}
+.k-fac .t-head{color:var(--passif)}
+.t-head{white-space:normal !important;line-height:1.2;overflow:visible !important;text-overflow:clip !important;hyphens:auto;-webkit-hyphens:auto}
+.split{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:1100px){ .split{grid-template-columns:1fr} }
+
+/* --- Bilan et journal --- */
+.inv{width:100%;border-collapse:collapse;font-size:14px}
+.inv td{padding:8px 8px;border-bottom:1px dashed var(--line);vertical-align:middle}
+.inv td.am{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+.inv td.tg2,.inv td.acc{width:1%;white-space:nowrap}
+.inv tr.hl td{background:var(--accent-bg)}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-weight:600;font-size:12.5px;animation:fadein .6s ease-out}
+@keyframes fadein{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
+.pill.a{background:var(--actif-bg);color:var(--actif)}.pill.p{background:var(--passif-bg);color:var(--passif)}
+.pill.acc{background:var(--soft);color:var(--ink)}
+.bl{display:grid;grid-template-columns:1fr 1fr;max-width:720px;margin:0 auto}
+.bl-title{grid-column:1/-1;text-align:center;font-family:Fraunces,Georgia,serif;font-weight:700;font-size:18px;padding-bottom:4px}
+.bl-head{font-weight:700;padding:4px 12px;border-bottom:3px solid var(--ink)}
+.bl-head small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.bl-head.a{color:var(--actif)}.bl-head.p{color:var(--passif);text-align:right}
+.bl-side{padding:6px 12px 8px;display:flex;flex-direction:column;gap:2px;min-height:60px}
+.bl-side.a{border-right:3px solid var(--ink)}
+.br{display:flex;justify-content:space-between;gap:10px;font-variant-numeric:tabular-nums;padding:2px 4px;border-radius:4px}
+.br.new{animation:pop 1.6s ease-out}
+.br.cap{color:var(--res);font-weight:700}
+.br.dec{color:var(--charge);font-weight:700}
+.bg{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:8px;padding:0 4px}
+.bg:first-child{margin-top:0}
+.bt{display:flex;justify-content:space-between;font-weight:700;border-top:2px solid var(--ink);padding:4px 16px;font-variant-numeric:tabular-nums}
+.bt.bad{color:var(--charge)}
+.order{font-size:12px;font-weight:600;color:var(--accent);padding:2px 4px}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.qa{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s}
+.qa.off{opacity:.25}
+.qa h4{margin:0 0 6px;font-size:15px}
+.acct{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px}
+.acct caption{text-align:left;font-weight:700;padding-bottom:4px}
+.acct th{color:var(--muted);font-weight:500;border-bottom:2px solid var(--ink);padding:4px 6px;text-align:left}
+.acct td{padding:4px 6px;border-bottom:1px dashed var(--line)}
+.acct td.n{text-align:right;font-variant-numeric:tabular-nums}
+.acct th.n{text-align:right}
+.rules{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rule{border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:center}
+.rule h4{margin:0 0 6px}
+.rule .pm{display:grid;grid-template-columns:1fr 1fr;border-top:2px solid var(--ink);font-size:22px;font-weight:700}
+.rule .pm span:first-child{border-right:2px solid var(--ink)}
+.rule .pm small{display:block;font-size:11px;color:var(--muted);font-weight:500}
+.plus{color:var(--produit)}.minus{color:var(--charge)}
+.case{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s,box-shadow .3s}
+.case.on{box-shadow:0 0 0 2px var(--accent)}.case.off{opacity:.4}
+.case p{margin:0 0 8px;font-size:14.5px}
+.t-sides .sg{font-weight:700}
+.inv tr.invhead td{border-bottom:0;padding-bottom:2px}
+.colbox{position:relative;display:block;text-align:center;font-weight:700;font-size:13px;color:var(--ink);border:2px solid var(--accent);border-radius:8px;padding:4px 10px;background:var(--accent-bg);animation:fadein .6s ease-out}
+.colarrow{position:absolute;left:50%;top:100%;transform:translateX(-50%);font-size:26px;line-height:1;color:var(--accent);animation:arrowgo 2.8s ease-in-out forwards;pointer-events:none}
+@keyframes arrowgo{0%{opacity:0;margin-top:-6px}15%{opacity:1}30%{margin-top:6px}45%{margin-top:-2px}60%{margin-top:6px;opacity:1}100%{opacity:0;margin-top:10px}}
+.bg.hl{color:var(--actif);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;font-size:12.5px}
+.bl-side.p .bg.hl{color:var(--passif)}
+.bl-side.dim,.bl-head.dim{opacity:.3}
+.t-head{white-space:normal !important;line-height:1.2;overflow:visible !important;text-overflow:clip !important;hyphens:auto;-webkit-hyphens:auto}
+
+/* --- Salaires --- */
+.taux{border:3px solid var(--accent);border-radius:14px;padding:12px 16px;background:#fffdf6}
+.taux h3{margin:0 0 8px;font-family:Fraunces,Georgia,serif;color:var(--accent);display:flex;justify-content:space-between;align-items:baseline}
+.taux h3 small{font-family:Inter,sans-serif;font-size:12px;color:var(--muted);font-weight:500}
+.tt{width:100%;border-collapse:collapse;font-size:13.5px}
+.tt th{text-align:left;color:var(--muted);font-weight:500;border-bottom:2px solid var(--ink);padding:5px 8px}
+.tt td{padding:5px 8px;border-bottom:1px dashed var(--line)}
+.tt td.n,.tt th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tt tr.hl td{background:var(--accent-bg);font-weight:600}
+.lpp{border:3px solid var(--res);border-radius:14px;padding:12px 16px;background:#faf8fe}
+.lpp h3{margin:0 0 8px;font-family:Fraunces,Georgia,serif;color:var(--res)}
+.warn2{font-size:12.5px;color:var(--charge);background:var(--charge-bg);border-radius:8px;padding:6px 10px;margin-top:8px}
+.slip{width:100%;max-width:720px;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.slip td{padding:6px 10px;border-bottom:1px dashed var(--line)}
+.slip td.n{text-align:right;white-space:nowrap}
+.slip td.calc2{color:var(--muted);font-size:12.5px}
+.slip tr.add td:first-child{border-left:4px solid var(--produit)}
+.slip tr.sub td:first-child{border-left:4px solid var(--charge)}
+.slip tr.pay td:first-child{border-left:4px solid var(--actif)}
+.slip tr.add td.n{color:var(--produit)}.slip tr.sub td.n{color:var(--charge)}.slip tr.pay td.n{color:var(--actif)}
+.slip tr.tot td{font-weight:700;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
+.slip tr.hide td{opacity:0}
+.slip tr.cur td{background:var(--accent-bg)}
+.chip{display:inline-block;padding:2px 9px;border-radius:7px;font-weight:600;font-size:13px}
+.chip.charge{background:var(--charge-bg);color:var(--charge)}
+.chip.passif{background:var(--passif-bg);color:var(--passif)}
+.chip.actif{background:var(--actif-bg);color:var(--actif)}
+.jl2{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.jl2 th{text-align:left;color:var(--muted);font-weight:500;border-bottom:2px solid var(--ink);padding:6px 8px}
+.jl2 th.n,.jl2 td.n{text-align:right}
+.jl2 td{padding:6px 8px;border-bottom:1px dashed var(--line)}
+.jl2 tr.cur td{background:var(--accent-bg)}
+.jl2 tr.new td{animation:pop 1.6s ease-out}
+.jl2 tr.hide td{opacity:0}
+.jl2 tr.tot td{font-weight:700;border-top:2px solid var(--ink)}
+.jl2 td.why{color:var(--muted);font-size:12.5px}
+.flow{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:0;align-items:center;max-width:820px;margin:10px auto}
+.node{border:2px solid var(--line);border-radius:14px;padding:14px 10px;text-align:center;font-weight:700;font-size:16px;background:#fff;position:relative;z-index:1}
+.node small{display:block;font-weight:500;font-size:12px;color:var(--muted)}
+.node.alfa{border-color:var(--res);color:var(--res)}.node.ent{border-color:var(--bilan);color:var(--bilan)}.node.emp{border-color:var(--produit);color:var(--produit)}
+.arrows{grid-column:1/-1;display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.arw{display:grid;grid-template-columns:1fr 1.2fr 1fr;align-items:center;font-size:13.5px;transition:opacity .4s}
+.arw.off{opacity:.12}
+.arw .line{height:4px;border-radius:2px;position:relative}
+.arw .line::after{content:"";position:absolute;top:-6px;border:8px solid transparent}
+.arw.r .line::after{right:-4px;border-left-color:inherit;border-left-width:12px;border-right-width:0}
+.arw.l .line::after{left:-4px;border-right-color:inherit;border-right-width:12px;border-left-width:0}
+.arw .lab{text-align:center;font-weight:600}
+.arw .amt{font-variant-numeric:tabular-nums;font-weight:700}
+.arw.new{animation:pop 1.6s ease-out}
+.bal{display:flex;flex-direction:column;gap:6px;max-width:520px;margin:14px auto 0;font-size:14px}
+.bal .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;padding:4px 10px;border-radius:6px}
+.bal .row.tot{font-weight:700;border-top:2px solid var(--ink)}
+.dues{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.due{border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.due h4{margin:0 0 6px;font-size:14px;color:var(--passif)}
+.due .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;font-size:13.5px}
+.due .row.tot{font-weight:700;border-top:1px solid var(--ink);margin-top:4px;padding-top:4px}
+.lk{display:inline-block;padding:1px 8px;border-radius:7px;border:1.5px solid;font-weight:700}
+.trap{margin-top:10px;border:2px solid var(--charge);background:var(--charge-bg);border-radius:10px;padding:10px 12px;font-size:13.5px;animation:blink 1.4s ease-in-out 2}
+.trap b:first-child{display:block;color:var(--charge);font-size:14.5px;margin-bottom:4px}
+.due.on{box-shadow:0 0 0 2px var(--accent)}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="panel">
+      <h1>Les salaires</h1>
+      <p class="sub">Décompte de salaire · assurances sociales · journal · montants en CHF</p>
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <div class="panel" id="explain"></div>
+
+    <div class="nav-wrap">
+      <div class="nav">
+        <button class="btn" id="prev">← Précédent</button>
+        <button class="btn primary" id="next">Suite →</button>
+      </div>
+    </div>
+
+    <div class="nav exit">
+      <!-- *** Liens des exercices *** -->
+      <a class="btn quiz" href="La_Compta_SalairesDcpte.html" target="_blank">Exercices de décompte</a>
+      <a class="btn quiz" href="La_Compta_Salaires.html" target="_blank">Exercices de journalisation</a>
+    </div>
+    <div class="nav exit">
+      <!-- *** Lien du quiz *** -->
+      <a class="btn quiz" href="La_Compta_Salaires_quiz.html" target="_blank">Quiz</a>
+      <button class="btn quit" id="quit">Quitter</button>
+    </div>
+    <p class="note" id="quit-msg" style="display:none;color:#fff">Le navigateur ne permet pas de fermer cette fenêtre automatiquement : fermer l'onglet.</p>
+  </aside>
+
+  <main class="stage" id="stage"></main>
+</div>
+<div class="zoombar"><button id="zm" title="Réduire la taille" aria-label="Réduire la taille">A−</button><button id="zp" title="Agrandir la taille" aria-label="Agrandir la taille">A+</button></div>
+
+<script>
+/* ╔══════════════════════════════════════════════════════════════════════╗
+   ║  *** TAUX ET MONTANTS LPP ***  — À METTRE À JOUR CHAQUE ANNÉE          ║
+   ║  Sources : OFAS (montants-limites), caisse de compensation, assureur. ║
+   ╚══════════════════════════════════════════════════════════════════════╝ */
+const TAUX = {
+  annee:      2026,     // année de validité des taux ci-dessous
+  avs:        5.3,      // AVS/AI/APG, part de l'employé en % (l'employeur paie autant)
+  ac:         1.1,      // AC, part de l'employé en % (l'employeur paie autant)
+  acPlafond:  12350,    // AC : salaire mensuel maximal soumis (148'200 par an)
+  aanp:       1.47,     // AA non professionnelle, en % : varie selon l'assureur (env. 1 à 2 %)
+  /* --- LPP (2e pilier) --- */
+  lppCoord:   2205,     // déduction de coordination par mois (26'460 par an)
+  lppSeuil:   22680,    // seuil d'entrée, salaire AVS annuel minimal
+  lppMinCoord:3780,     // salaire coordonné minimal par an
+  lppMaxAssure:64260,   // salaire coordonné maximal par an (LPP obligatoire)
+  lppAge: [             // bonifications de vieillesse LPP minimales (total employeur + employé)
+    ['25 à 34 ans', 7], ['35 à 44 ans', 10], ['45 à 54 ans', 15], ['55 à 65 ans', 18]],
+  lppExemple: 5         // taux de l'employé dans l'exemple (35 à 44 ans : 10 % ÷ 2)
+};
+/* ═══════════════════════ fin des taux ═══════════════════════════════════ */
+
+/* ---------- Exemple du cours (montants du classeur) ---------- */
+const EX = {brut:6500, alloc:483, avance:1000, aa:17800, fraisAVS:51, cotisALFA:600};
+const r2 = x => Math.round(x*100)/100;
+const C = (()=>{                                // calculs du décompte
+  const avs = r2(EX.brut*TAUX.avs/100), ac = r2(Math.min(EX.brut,TAUX.acPlafond)*TAUX.ac/100);
+  const coord = EX.brut - TAUX.lppCoord, lpp = r2(coord*TAUX.lppExemple/100);
+  const aanp = r2(Math.min(EX.brut,TAUX.acPlafond)*TAUX.aanp/100);
+  const net = r2(EX.brut + EX.alloc - avs - ac - lpp - aanp);
+  const banque = r2(net - EX.avance);
+  return {avs, ac, coord, lpp, aanp, net, banque, dAVS:r2(avs+ac)};
+})();
+
+const Y = new Date().getFullYear();
+const ANS = {};
+const fmt = n => { const neg=n<0; n=Math.abs(Math.round(n*100)/100); const [i,d]=n.toFixed(2).split('.');
+  return (neg?'−':'') + i.replace(/\B(?=(\d{3})+(?!\d))/g,"'") + (d!=='00' ? '.'+d : ''); };
+const pc = x => `${x}&nbsp;%`;
+const $ = id => document.getElementById(id);
+const KIND = {'Salaires':'charge','Charges sociales':'charge','Dettes AVS':'passif','Dettes LPP':'passif','Dettes caisse ALFA':'passif',
+  'Avances de salaires':'actif','Banque':'actif'};
+const chip = a => `<span class="chip ${KIND[a]}">${a}</span>`;
+
+/* ---------- Écriture composée : une ligne par compte ---------- */
+function jlHTML(rows, upto, cur, total){
+  const sd = rows.filter((r,i)=>i<upto && r.d).reduce((s,r)=>s+r.amt,0), sc = rows.filter((r,i)=>i<upto && r.c).reduce((s,r)=>s+r.amt,0);
+  const am = r => r.lk ? pill(r.lk, fmt(r.amt)) : fmt(r.amt);
+  return `<table class="jl2"><tr><th>Compte débité</th><th>Compte crédité</th><th class="n">Débit</th><th class="n">Crédit</th><th>Pourquoi</th></tr>
+    ${rows.map((r,i)=>`<tr class="${i>=upto?'hide':''} ${i===cur?'cur new':''}"><td>${r.d?chip(r.d):''}</td><td>${r.c?chip(r.c):''}</td><td class="n">${r.d?am(r):''}</td><td class="n">${r.c?am(r):''}</td><td class="why">${r.why||''}</td></tr>`).join('')}
+    ${total?`<tr class="tot"><td colspan="2">Total ${Math.abs(sd-sc)<0.01?'<span style="color:var(--produit)">✓ débit = crédit</span>':''}</td><td class="n">${fmt(sd)}</td><td class="n">${fmt(sc)}</td><td></td></tr>`:''}</table>`;
+}
+
+/* ---------- Couleurs de liaison décompte ↔ journal ---------- */
+const LINK = {brut:'#1f7a4d', alloc:'#6d48b3', avs:'#2a52be', lpp:'#a3333d', aanp:'#b7790b', avance:'#0e7c86', banque:'#4b5563'};
+const pill = (key, txt) => key ? `<span class="lk" style="color:${LINK[key]};background:${LINK[key]}1f;border-color:${LINK[key]}">${txt}</span>` : txt;
+
+/* ---------- Le décompte de l'exemple ---------- */
+const SLIP = [
+  {k:'add', lb:'Salaire brut', amt:EX.brut, g:0, lk:'brut'},
+  {k:'add', lb:'+ Allocations familiales', amt:EX.alloc, g:0, lk:'alloc', calc:'versées par l\'entreprise pour la caisse ALFA'},
+  {k:'sub', lb:'− AVS/AI/APG', amt:C.avs, g:1, lk:'avs', calc:`${pc(TAUX.avs)} de ${fmt(EX.brut)}`},
+  {k:'sub', lb:'− AC', amt:C.ac, g:1, lk:'avs', calc:`${pc(TAUX.ac)} de ${fmt(EX.brut)}`},
+  {k:'sub', lb:'− LPP', amt:C.lpp, g:2, lk:'lpp', calc:`${pc(TAUX.lppExemple)} du salaire coordonné : ${fmt(EX.brut)} − ${fmt(TAUX.lppCoord)} = ${fmt(C.coord)}`},
+  {k:'sub', lb:'− AANP', amt:C.aanp, g:3, lk:'aanp', calc:`${pc(TAUX.aanp)} de ${fmt(EX.brut)}`},
+  {k:'tot', lb:'= Salaire net', amt:C.net, g:4},
+  {k:'pay', lb:'Retenue de l\'avance de salaire', amt:EX.avance, g:5, lk:'avance'},
+  {k:'pay', lb:'Versé par banque', amt:C.banque, g:5, lk:'banque', calc:`${fmt(C.net)} − ${fmt(EX.avance)}`}];
+const slipHTML = (g, col, curKey) => `<table class="slip">${SLIP.map(l=>`<tr class="${l.k} ${l.g>g?'hide':''} ${l.g===g||(curKey&&l.lk===curKey)?'cur':''}"><td>${l.lb}</td><td class="calc2">${l.calc||''}</td><td class="n">${col&&l.lk?pill(l.lk,fmt(l.amt)):fmt(l.amt)}</td></tr>`).join('')}</table>`;
+
+/* ---------- Écritures ---------- */
+const J_SAL = [
+  {d:'Salaires', amt:EX.brut, lk:'brut', why:'le salaire brut est une charge'},
+  {d:'Dettes caisse ALFA', amt:EX.alloc, lk:'alloc', why:'les allocations seront remboursées par la caisse ALFA'},
+  {c:'Dettes AVS', amt:C.dAVS, lk:'avs', why:`AVS/AI/APG ${fmt(C.avs)} + AC ${fmt(C.ac)} retenus, à verser à la caisse`},
+  {c:'Dettes LPP', amt:C.lpp, lk:'lpp', why:'LPP retenue, à verser à la caisse de pension'},
+  {c:'Charges sociales', amt:C.aanp, lk:'aanp', why:'AANP récupérée : l\'entreprise avait payé toute l\'AA en janvier'},
+  {c:'Avances de salaires', amt:EX.avance, lk:'avance', why:'l\'avance déjà versée est remboursée'},
+  {c:'Banque', amt:C.banque, lk:'banque', why:'solde versé sur le compte de l\'employé'}];
+const PAT_AVS = r2(C.dAVS + EX.fraisAVS), PAT_TOT = r2(PAT_AVS + C.lpp + EX.cotisALFA);
+const J_PAT = [
+  {d:'Charges sociales', amt:PAT_TOT, why:'total des parts patronales'},
+  {c:'Dettes AVS', amt:PAT_AVS, why:`part paritaire ${fmt(C.dAVS)} + frais d'administration ${fmt(EX.fraisAVS)}`},
+  {c:'Dettes LPP', amt:C.lpp, why:'part paritaire : le même montant que l\'employé'},
+  {c:'Dettes caisse ALFA', amt:EX.cotisALFA, why:'cotisation due à la caisse ALFA'}];
+const DUE = {avs:r2(C.dAVS+PAT_AVS), lpp:r2(C.lpp*2), alfa:r2(EX.cotisALFA-EX.alloc)};
+const J_PAY = [
+  {d:'Dettes AVS', amt:DUE.avs, why:`${fmt(C.dAVS)} (employé) + ${fmt(PAT_AVS)} (employeur)`},
+  {d:'Dettes LPP', amt:DUE.lpp, why:`${fmt(C.lpp)} (employé) + ${fmt(C.lpp)} (employeur)`},
+  {d:'Dettes caisse ALFA', amt:DUE.alfa, why:`cotisation ${fmt(EX.cotisALFA)} − allocations avancées ${fmt(EX.alloc)}`},
+  {c:'Banque', amt:r2(DUE.avs+DUE.lpp+DUE.alfa), why:'paiement total'}];
+
+const STEPS = [
+ { title:'Le décompte de salaire',
+   ph:[{btn:'Les déductions →', text:`Chaque mois, l'employé reçoit un <b>décompte de salaire</b>. On part du salaire brut et on ajoute les éléments en sa faveur.`},
+       {btn:'Suite →', text:`On retire ensuite les <b>cotisations aux assurances sociales</b> payées par l'employé. On ajoute enfin les frais remboursés : on obtient le <b>salaire net</b>.`}],
+   stage: ph => `<section class="sec"><h2><span class="n">1</span>La structure du décompte</h2><table class="slip">
+     <tr class="add"><td>Salaire brut</td><td></td></tr>
+     ${['+ Primes / bonus','+ Commissions','+ 13<sup>e</sup> salaire','+ Allocations patronales','+ Allocations familiales'].map(x=>`<tr class="add"><td>${x}</td><td></td></tr>`).join('')}
+     ${ph>=1?`${[['− AVS/AI/APG','montant calculé sur le salaire AVS'],['− AC','montant calculé sur le salaire AVS, jusqu\'à '+fmt(TAUX.acPlafond)+' par mois'],['− AANP','montant calculé sur le salaire AVS, jusqu\'à '+fmt(TAUX.acPlafond)+' par mois'],['− LPP','montant calculé sur le salaire coordonné']].map(([a,b])=>`<tr class="sub"><td>${a}</td><td class="calc2">${b}</td></tr>`).join('')}
+       <tr class="add"><td>+ Frais</td><td class="calc2">remboursement de dépenses</td></tr><tr class="tot"><td>= Salaire net</td><td></td></tr>`:''}</table></section>` },
+
+ { title:'Les taux',
+   ph:[{btn:'Suite →', text:`Les taux sont fixés par la loi, par les caisses ou par les assureurs. Ils peuvent changer chaque année.<br><br>Pour l'AVS et l'AC, l'<b>employeur paie le même montant</b> que l'employé.`}],
+   stage: () => `<section class="sec"><div class="taux"><h3>Taux de cotisation <small>valables en ${TAUX.annee}</small></h3><table class="tt">
+       <tr><th>Assurance</th><th class="n">Employé</th><th class="n">Employeur</th><th>Calculé sur</th></tr>
+       <tr><td>AVS/AI/APG</td><td class="n">${pc(TAUX.avs)}</td><td class="n">${pc(TAUX.avs)} + frais</td><td>salaire AVS</td></tr>
+       <tr><td>AC (chômage)</td><td class="n">${pc(TAUX.ac)}</td><td class="n">${pc(TAUX.ac)}</td><td>salaire AVS, jusqu'à ${fmt(TAUX.acPlafond)} par mois</td></tr>
+       <tr><td>AANP (accident non professionnel)</td><td class="n">env. ${pc(TAUX.aanp)}</td><td class="n">—</td><td>salaire AVS, jusqu'à ${fmt(TAUX.acPlafond)} par mois · taux selon l'assureur</td></tr>
+       <tr><td>AAP (accident professionnel)</td><td class="n">—</td><td class="n">selon l'assureur</td><td>payée par l'entreprise seule</td></tr>
+       <tr class="hl"><td>LPP (2<sup>e</sup> pilier)</td><td class="n">au moins la moitié</td><td class="n">au moins la moitié</td><td>salaire coordonné · voir ci-dessous</td></tr></table>
+       ${Y>TAUX.annee?`<div class="warn2">Attention : ces taux datent de ${TAUX.annee}. Ils doivent être vérifiés pour ${Y}.</div>`:''}</div></section>
+     <section class="sec"><div class="lpp"><h3>Informations LPP ${TAUX.annee}</h3><table class="tt">
+       <tr><td>Déduction de coordination</td><td class="n"><b>${fmt(TAUX.lppCoord)}</b> par mois</td><td class="n">${fmt(TAUX.lppCoord*12)} par an</td></tr>
+       <tr><td>Seuil d'entrée (salaire AVS minimal)</td><td class="n">${fmt(TAUX.lppSeuil/12)} par mois</td><td class="n">${fmt(TAUX.lppSeuil)} par an</td></tr>
+       <tr><td>Salaire coordonné minimal</td><td class="n">${fmt(TAUX.lppMinCoord/12)} par mois</td><td class="n">${fmt(TAUX.lppMinCoord)} par an</td></tr>
+       <tr><td>Salaire coordonné maximal (obligatoire)</td><td class="n">${fmt(TAUX.lppMaxAssure/12)} par mois</td><td class="n">${fmt(TAUX.lppMaxAssure)} par an</td></tr></table>
+       <div style="margin:10px 0 4px;font-weight:600">Salaire coordonné = salaire AVS − déduction de coordination</div>
+       <table class="tt"><tr><th>Âge</th><th class="n">Taux total minimal</th><th class="n">dont employé (moitié)</th></tr>
+       ${TAUX.lppAge.map(([a,t])=>`<tr class="${t/2===TAUX.lppExemple?'hl':''}"><td>${a}</td><td class="n">${pc(t)}</td><td class="n">${pc(t/2)}</td></tr>`).join('')}</table>
+       <p class="note">Ce sont les minimums légaux. Chaque caisse de pension peut prévoir des taux plus élevés.</p></div></section>` },
+
+ { title:'Les assurances sociales',
+   ph:[{btn:'Suite →', text:`Qui paie quoi ? Trois cas différents.`}],
+   stage: () => `<section class="sec"><h2><span class="n">1</span>Le fonctionnement des assurances</h2><div class="cards">
+     <div class="card"><h4>1<sup>er</sup> pilier · caisse de compensation</h4><div class="ex">AVS/AI/APG et AC</div>L'entreprise paie de sa poche un montant <b>égal</b> à celui de l'employé, <b>+ les frais</b> d'administration.</div>
+     <div class="card"><h4>2<sup>e</sup> pilier · caisse de retraite</h4><div class="ex">LPP</div>L'entreprise paie de sa poche un montant <b>égal</b> à celui de l'employé (montant <b>paritaire</b>).</div>
+     <div class="card"><h4>Assurance accidents · AA</h4><div class="ex">AAP et AANP</div>L'entreprise paie <b>toute la prime annuelle d'avance</b> : AAP (accidents professionnels) et AANP (non professionnels).<br>Elle <b>récupère l'AANP</b> chaque mois sur le salaire de l'employé.</div>
+     </div></section>` },
+
+ { title:'Les allocations familiales',
+   ph:[{btn:'Étape ① →', text:`Les <b>allocations familiales</b> (pour les enfants) sont payées par la <b>caisse ALFA</b>. Mais l'argent ne va pas directement de la caisse aux parents : c'est l'<b>entreprise</b> qui sert d'intermédiaire.<br><br>Exemple : un mois, l'entreprise verse 1'200 d'allocations. Sa cotisation à la caisse ALFA est de 1'450.`},
+       {btn:'Étape ② →', text:`<b>① L'entreprise verse les allocations</b> aux employés, avec le salaire : 1'200.<br><br>Cet argent appartient à la caisse ALFA : l'entreprise le lui « <b>facture</b> ». La caisse ALFA lui doit 1'200.`},
+       {btn:'Étape ③ →', text:`<b>② L'entreprise doit sa cotisation</b> à la caisse ALFA : 1'450. C'est une charge pour l'entreprise.`,
+        q:{text:'Qui doit de l\'argent à l\'autre ?', opts:[['ent','l\'entreprise doit à la caisse'],['alfa','la caisse doit à l\'entreprise']], ok:'ent',
+           fb:'l\'entreprise doit 1\'450 mais la caisse lui doit 1\'200 : il reste <b>250 à payer par l\'entreprise</b>.'}},
+       {btn:'L\'autre cas →', text:`<b>③ Seule la différence est payée</b> : 1'450 − 1'200 = <b>250</b>. On ne fait pas deux paiements, on compense.`},
+       {btn:'Suite →', text:`Si les allocations versées sont <b>plus grandes</b> que la cotisation (p. ex. 1'200 versés, cotisation 900), c'est la <b>caisse ALFA qui rembourse</b> la différence (300) à l'entreprise.<br><br>Dans la comptabilité, tout passe par un seul compte : <b>Dettes caisse ALFA</b>.`}],
+   stage: ph => {
+     const two = ph===4;
+     const v = two ? {all:1200, cot:900} : {all:1200, cot:1450};
+     const dif = v.cot - v.all;
+     const arrows = `<div class="arrows" style="max-width:820px;margin:16px auto 0">
+       <div class="arw r ${two||ph>=1?'':'off'} ${!two&&ph===1?'new':''}"><div></div><div><div class="lab" style="color:var(--produit)">① allocations versées aux employés</div><div class="line" style="background:var(--produit);border-color:var(--produit);margin:6px 0"></div><div class="lab amt" style="color:var(--produit)">${fmt(v.all)}</div></div><div></div></div>
+       <div class="arw l ${two||ph>=1?'':'off'} ${!two&&ph===1?'new':''}"><div><div class="lab" style="color:var(--produit)">① « facturées » à la caisse</div><div class="line" style="background:var(--produit);border-color:var(--produit);margin:6px 0"></div><div class="lab amt" style="color:var(--produit)">${fmt(v.all)}</div></div><div></div><div></div></div>
+       <div class="arw l ${two||ph>=2?'':'off'} ${!two&&ph===2?'new':''}"><div><div class="lab" style="color:var(--charge)">② cotisation due par l'entreprise</div><div class="line" style="background:var(--charge);border-color:var(--charge);margin:6px 0"></div><div class="lab amt" style="color:var(--charge)">${fmt(v.cot)}</div></div><div></div><div></div></div>
+       <div class="arw ${dif>0?'l':'r'} ${two||ph>=3?'':'off'} ${ph>=3?'new':''}"><div><div class="lab" style="color:var(--res)">③ ${dif>0?'l\'entreprise paie la différence':'la caisse rembourse la différence'}</div><div class="line" style="background:var(--res);border-color:var(--res);margin:6px 0"></div><div class="lab amt" style="color:var(--res)">${fmt(Math.abs(dif))}</div></div><div></div><div></div></div></div>`;
+     const bal = (two||ph>=2) ? `<div class="bal"><div class="row" style="background:var(--charge-bg)"><span>② Cotisation due par l'entreprise</span><span>${fmt(v.cot)}</span></div>
+       <div class="row" style="background:var(--produit-bg)"><span>① − Allocations avancées par l'entreprise</span><span>−${fmt(v.all)}</span></div>
+       ${two||ph>=3?`<div class="row tot" style="color:var(--res)"><span>③ = ${dif>0?'À payer à la caisse':'À recevoir de la caisse'}</span><span>${fmt(Math.abs(dif))}</span></div>`:''}</div>` : '';
+     return `<section class="sec"><h2><span class="n">1</span>${two?'Autre cas : la caisse rembourse':'Le circuit des allocations familiales'}</h2>
+       <div class="flow"><div class="node alfa">Caisse ALFA<small>allocations familiales</small></div><div class="node ent">Entreprise<small>intermédiaire</small></div><div class="node emp">Employés<small>parents</small></div></div>
+       ${arrows}${bal}</section>`; } },
+
+ { title:'Le décompte de l\'exemple',
+   ph:[{btn:'Les déductions →', text:`Un employé de 40 ans gagne ${fmt(EX.brut)} brut par mois. Il reçoit ${fmt(EX.alloc)} d'allocations familiales.`},
+       {btn:'La LPP →', text:`AVS/AI/APG et AC se calculent sur le <b>salaire AVS</b> (ici le salaire brut).`},
+       {btn:'L\'AANP →', text:`La LPP se calcule sur le <b>salaire coordonné</b> : salaire AVS − déduction de coordination.<br>${fmt(EX.brut)} − ${fmt(TAUX.lppCoord)} = ${fmt(C.coord)}. À 40 ans, l'employé paie ${pc(TAUX.lppExemple)}.`},
+       {btn:'Le net →', text:`L'AANP : ${pc(TAUX.aanp)} du salaire AVS.`},
+       {btn:'Le versement →', text:`Salaire net : <b>${fmt(C.net)}</b>.`},
+       {btn:'Suite →', text:`L'employé avait reçu une <b>avance</b> de ${fmt(EX.avance)} : elle est retenue. Le reste est versé par banque.`}],
+   stage: ph => `<section class="sec"><h2><span class="n">1</span>Décompte de salaire · janvier ${Y}</h2>${slipHTML(ph)}</section>` },
+
+ { title:'Les comptes utilisés',
+   ph:[{btn:'Suite →', text:`Pour comptabiliser les salaires, on utilise des comptes de <b>charges</b>, de <b>passif</b> (les dettes envers les assurances) et d'<b>actif</b>.`}],
+   stage: () => `<section class="sec"><h2><span class="n">1</span>Les comptes</h2><div class="cards">
+     <div class="card"><h4 style="color:var(--charge)">Charges</h4>${chip('Salaires')}<div class="ex">les salaires bruts</div>${chip('Charges sociales')}<div class="ex">les cotisations payées par l'entreprise</div></div>
+     <div class="card"><h4 style="color:var(--passif)">Passif</h4>${chip('Dettes AVS')}<div class="ex">envers la caisse de compensation</div>${chip('Dettes LPP')}<div class="ex">envers la caisse de pension</div>${chip('Dettes caisse ALFA')}<div class="ex">envers la caisse d'allocations familiales</div></div>
+     <div class="card"><h4 style="color:var(--actif)">Actif</h4>${chip('Avances de salaires')}<div class="ex">les avances versées aux employés</div></div></div></section>` },
+
+ { title:'Janvier : la prime AA',
+   ph:[{btn:'Comptabiliser →', text:`En janvier, l'entreprise paie par banque la <b>prime annuelle d'assurance accidents</b> : ${fmt(EX.aa)}. Elle comprend l'AAP et l'AANP de toute l'année.`,
+        q:{text:'Cette prime est…', opts:[['ch','une charge de l\'entreprise'],['av','une avance aux employés']], ok:'ch',
+           fb:'l\'entreprise paie la prime : c\'est une <b>charge sociale</b>. Elle récupérera la part AANP chaque mois sur les salaires.'}},
+       {btn:'Suite →', text:`<b>Charges sociales / Banque</b> ${fmt(EX.aa)}.`}],
+   stage: ph => `<section class="sec"><h2><span class="n">1</span>Dans la comptabilité · journal</h2>${jlHTML([{d:'Charges sociales', amt:EX.aa, why:'prime AA annuelle'},{c:'Banque', amt:EX.aa, why:'paiement'}], ph>=1?2:0, -1)}</section>` },
+
+ { title:'Comptabiliser le salaire',
+   ph:[{btn:'Ligne suivante →', text:`On comptabilise le décompte en <b>une seule écriture composée</b>. On commence par les débits.<br><br>Le <b>salaire brut</b> est une charge : <b>Salaires</b> au débit.`},
+       {btn:'Ligne suivante →', text:`Les <b>allocations familiales</b> versées à l'employé ne sont pas une charge de l'entreprise : la caisse ALFA les remboursera. On diminue la dette envers elle : <b>Dettes caisse ALFA</b> au débit.`},
+       {btn:'Ligne suivante →', text:`Les crédits maintenant. Les retenues AVS/AI/APG et AC appartiennent à la caisse de compensation : on lui doit ${fmt(C.dAVS)}.`},
+       {btn:'Ligne suivante →', text:`La retenue LPP est due à la caisse de pension.`},
+       {btn:'Ligne suivante →', text:`L'<b>AANP</b> retenue à l'employé.<div class="trap"><b>⚠ Le piège</b>Il n'y a <b>pas de dette LAA</b> ! L'entreprise a déjà payé toute la prime AA en janvier (Charges sociales / Banque). En retenant l'AANP sur le salaire, elle <b>récupère une partie de cette charge</b>.<br><br>D'où le crédit : <b>Charges sociales</b> diminue de ${fmt(C.aanp)}.</div>`},
+       {btn:'Ligne suivante →', text:`L'avance de salaire est remboursée : l'actif <b>Avances de salaires</b> diminue.`},
+       {btn:'Vérifier →', text:`Enfin, le solde est versé par banque : ${fmt(C.banque)}.`},
+       {btn:'Suite →', text:`Total des débits = total des crédits : l'écriture est juste.`}],
+   stage: ph => { const n = J_SAL.length, upto = Math.min(ph+1, n), cur = ph<n ? ph : -1;
+     const curKey = cur>=0 ? J_SAL[cur].lk : null;
+     return `<section class="sec"><h2><span class="n">1</span>Le décompte · d'où viennent les montants</h2>${slipHTML(9, true, curKey)}</section>
+       <section class="sec"><h2><span class="n">2</span>Dans la comptabilité · journal</h2>${jlHTML(J_SAL, upto, cur, ph===n)}</section>`; } },
+     
+ { title:'Les parts patronales',
+   ph:[{btn:'Comptabiliser →', text:`L'entreprise doit aussi payer <b>sa part</b> des assurances sociales. C'est une charge pour elle.`,
+        q:{text:'La part patronale AVS/AC, comparée à celle de l\'employé, est…', opts:[['m','plus petite'],['e','égale + frais'],['p','le double']], ok:'e',
+           fb:`l'entreprise paie le <b>même montant</b> que l'employé (${fmt(C.dAVS)}) <b>+ les frais d'administration</b> (${fmt(EX.fraisAVS)}).`}},
+       {btn:'Suite →', text:`<b>Charges sociales</b> au débit pour le total. Au crédit, chaque dette augmente :<br>• AVS : ${fmt(C.dAVS)} + frais ${fmt(EX.fraisAVS)} = ${fmt(PAT_AVS)}<br>• LPP : le même montant que l'employé<br>• caisse ALFA : la cotisation de l'entreprise`}],
+   stage: ph => `<section class="sec"><h2><span class="n">1</span>Dans la comptabilité · journal</h2>${jlHTML(J_PAT, ph>=1?4:0, -1, ph>=1)}</section>` },
+
+ { title:'Payer les assurances',
+   ph:[{btn:'AVS →', text:`À la fin du mois, l'entreprise paie les assurances sociales. Combien doit-elle à chacune ?`},
+       {btn:'LPP →', text:`<b>Dettes AVS</b> : la part de l'employé + la part de l'employeur.`},
+       {btn:'ALFA →', text:`<b>Dettes LPP</b> : la part de l'employé + la part de l'employeur.`},
+       {btn:'Payer →', text:`<b>Dettes caisse ALFA</b> : on a avancé ${fmt(EX.alloc)} d'allocations et on doit ${fmt(EX.cotisALFA)} de cotisation.`,
+        q:{text:'Combien faut-il payer à la caisse ALFA ?', opts:[['a',fmt(EX.cotisALFA)],['b',fmt(DUE.alfa)],['c',fmt(EX.cotisALFA+EX.alloc)]], ok:'b',
+           fb:`on compense : ${fmt(EX.cotisALFA)} − ${fmt(EX.alloc)} = <b>${fmt(DUE.alfa)}</b>.`}},
+       {btn:'Suite →', text:`Un seul paiement par banque solde les trois dettes.`}],
+   stage: ph => `<section class="sec"><h2><span class="n">1</span>Ce que l'entreprise doit</h2><div class="dues">
+       <div class="due ${ph===1?'on':''}"><h4>Dettes AVS</h4>${ph>=1?`<div class="row"><span>employé</span><span>${fmt(C.dAVS)}</span></div><div class="row"><span>employeur</span><span>${fmt(PAT_AVS)}</span></div><div class="row tot"><span>À payer</span><span>${fmt(DUE.avs)}</span></div>`:''}</div>
+       <div class="due ${ph===2?'on':''}"><h4>Dettes LPP</h4>${ph>=2?`<div class="row"><span>employé</span><span>${fmt(C.lpp)}</span></div><div class="row"><span>employeur</span><span>${fmt(C.lpp)}</span></div><div class="row tot"><span>À payer</span><span>${fmt(DUE.lpp)}</span></div>`:''}</div>
+       <div class="due ${ph===3?'on':''}"><h4>Dettes caisse ALFA</h4>${ph>=3?`<div class="row"><span>cotisation</span><span>${fmt(EX.cotisALFA)}</span></div><div class="row"><span>− allocations avancées</span><span>−${fmt(EX.alloc)}</span></div>${ANS['9.3']||ph>=4?`<div class="row tot"><span>À payer</span><span>${fmt(DUE.alfa)}</span></div>`:''}`:''}</div></div></section>
+     ${ph>=4?`<section class="sec"><h2><span class="n">2</span>Dans la comptabilité · journal</h2>${jlHTML(J_PAY, 4, -1, true)}</section>`:''}` }
+];
+const LAST = STEPS.length-1;
+
+/* ---------- Actions ---------- */
+const A = [];
+STEPS.forEach((s,i)=>s.ph.forEach((_,p)=>A.push({step:i, ph:p})));
+let pos = 0;
+
+/* ---------- Rendu ---------- */
+function qBox(key, q){
+  const ch = ANS[key];
+  const btn = (a,lb) => `<button class="ch ${ch===a?(a===q.ok?'ok':'ko'):''} ${ch?'':'blink'}" data-a="${a}" ${ch?'disabled':''}>${lb}</button>`;
+  const fb = ch ? `<div class="fb ${ch===q.ok?'ok':'ko'}">${ch===q.ok?'✓ En effet':'✗ En fait'}, ${q.fb}</div>` : `<div class="hint">Cliquer sur la bonne réponse.</div>`;
+  return `<div class="calc q"><div style="font-weight:600;margin-bottom:4px">La question à se poser</div>${q.text}
+    <div class="choices" style="flex-wrap:wrap">${q.opts.map(([a,lb])=>btn(a,lb)).join('')}</div>${fb}</div>`;
+}
+function render(){
+  pos = Math.max(0, Math.min(A.length-1, pos));
+  const {step, ph} = A[pos], S = STEPS[step], P = S.ph[ph], key = step+'.'+ph;
+  document.querySelectorAll('.dot').forEach((b,i)=>{ b.classList.toggle('cur', i===step); b.classList.toggle('done', i<step); });
+  $('prev').disabled = pos===0;
+  $('next').disabled = pos===A.length-1 || (P.q && !ANS[key]);
+  $('next').textContent = pos===A.length-1 ? 'Terminé ✓' : P.btn;
+  const prog = S.ph.length>1 ? `<div class="progress" style="font-size:12px;color:var(--muted);margin:2px 0 8px">Phase ${ph+1} sur ${S.ph.length}</div>` : '';
+  $('explain').innerHTML = `<div class="stepno">Étape ${step} / ${LAST}</div><h2 class="steptitle">${S.title}</h2>${prog}
+    <p class="steptext">${P.text}</p>${P.q?qBox(key,P.q):''}`;
+  $('stage').innerHTML = S.stage(ph);
+}
+
+/* ---------- Navigation ---------- */
+function goTo(p){ pos = p; render(); }
+function goStep(s){ goTo(A.findIndex(a=>a.step===s)); }
+let Z = 1;
+try { Z = +localStorage.getItem('salaires-zoom') || 1; } catch(e){}
+function applyZoom(){
+  Z = Math.round(Math.max(0.8, Math.min(1.6, Z))*10)/10;
+  document.documentElement.style.setProperty('--z', Z);
+  try { localStorage.setItem('salaires-zoom', Z); } catch(e){}
+}
+$('dots').innerHTML = STEPS.map((s,i)=>`<button class="dot" data-s="${i}" title="Étape ${i} : ${s.title}" aria-label="Étape ${i}"></button>`).join('');
+$('zm').addEventListener('click', ()=>{ Z -= 0.1; applyZoom(); });
+$('zp').addEventListener('click', ()=>{ Z += 0.1; applyZoom(); });
+$('next').addEventListener('click', ()=>goTo(pos+1));
+$('prev').addEventListener('click', ()=>goTo(pos-1));
+$('explain').addEventListener('click', e=>{ const b=e.target.closest('.ch'); if (!b || b.disabled) return; const {step,ph}=A[pos]; ANS[step+'.'+ph] = b.dataset.a; render(); });
+$('quit').addEventListener('click', ()=>{ window.close(); setTimeout(()=>{ $('quit-msg').style.display='block'; }, 300); });
+$('dots').addEventListener('click', e=>{ const b=e.target.closest('.dot'); if (b) goStep(+b.dataset.s); });
+document.addEventListener('keydown', e=>{
+  if (e.key==='ArrowRight' && !$('next').disabled) goTo(pos+1);
+  if (e.key==='ArrowLeft') goTo(pos-1);
+});
+render();
+applyZoom();
+</script>
+</body>
+</html>

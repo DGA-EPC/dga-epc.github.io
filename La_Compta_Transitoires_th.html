@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Les opérations transitoires – théorie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f3ee; --card:#fff; --ink:#1e2226; --muted:#6a6f76; --line:#e2ddd2; --soft:#efebe3;
+  --charge:#c2671f; --charge-bg:#fcefe3;
+  --produit:#2b8352; --produit-bg:#e6f4eb;
+  --res:#6d48b3; --res-bg:#efe9f9;
+  --passif:#a3333d; --passif-bg:#f8e8ea;
+  --bilan:#20394f; --bilan-bg:#e6ecf1;
+  --actif:#2a52be; --actif-bg:#e8eefb;
+  --accent:#c98a10; --accent-bg:#fff3d6;
+  --y1:#e8eefb; --y2:#fff3d6;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  /* *** Couleur fond *** */
+  background:#052035;
+  color:var(--ink);font:14px/1.45 Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+.app{zoom:var(--z,1);display:grid;grid-template-columns:370px minmax(0,1fr);gap:24px;max-width:1520px;margin:0 auto;padding:20px}
+aside{position:sticky;top:calc(20px / var(--z,1));align-self:start;max-height:calc((100vh - 40px) / var(--z,1));overflow:auto;display:flex;flex-direction:column;gap:14px;padding-bottom:4px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+h1{font-family:Fraunces,Georgia,serif;font-size:26px;line-height:1.15;margin:0 0 4px;font-weight:700}
+.sub{color:var(--muted);font-size:13px;margin:0}
+.dots{display:flex;gap:6px;margin:14px 0 2px}
+.dot{flex:1;height:6px;border-radius:3px;background:var(--soft);border:0;padding:0;cursor:pointer}
+.dot.done{background:#cbbfa6}.dot.cur{background:var(--accent)}
+.stepno{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.steptitle{font-family:Fraunces,Georgia,serif;font-size:21px;line-height:1.2;margin:0 0 8px}
+.steptext{margin:0 0 10px}
+.calc{background:var(--accent-bg);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:13.5px}
+.calc .row{display:flex;justify-content:space-between;gap:8px}
+.calc .row.big{font-weight:700;border-top:1px solid #e8d49f;margin-top:6px;padding-top:6px;font-size:15px}
+.calc.q{background:var(--bilan-bg)}
+.choices{display:flex;gap:8px;margin-top:10px}
+.ch{flex:1;font:inherit;font-weight:600;border-radius:10px;border:2px solid var(--bilan);background:#fff;color:var(--bilan);padding:9px 10px;cursor:pointer}
+.ch:not(:disabled):hover{background:var(--bilan);color:#fff}
+.ch:disabled{cursor:default;opacity:.45}
+.ch.ok{background:var(--produit);border-color:var(--produit);color:#fff;opacity:1}
+.ch.ko{background:var(--charge);border-color:var(--charge);color:#fff;opacity:1}
+.fb{margin-top:10px;padding:8px 10px;border-radius:8px;background:#fff;animation:pop 1.2s ease-out}
+.fb.ok{border-left:4px solid var(--produit)}.fb.ko{border-left:4px solid var(--charge)}
+.hint{font-size:12px;color:var(--muted);margin-top:8px;font-style:italic}
+.tag{display:inline-block;padding:2px 9px;border-radius:999px;font-weight:600;font-size:12.5px}
+.tag.good{background:var(--produit-bg);color:var(--produit)}
+.tag.bad{background:var(--charge-bg);color:var(--charge)}
+.tag.neutral{background:var(--soft);color:var(--muted)}
+.tag.at{background:var(--actif-bg);color:var(--actif)}
+.tag.pt{background:var(--passif-bg);color:var(--passif)}
+.journal{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+.journal caption{text-align:left;font-weight:600;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding-bottom:4px}
+.journal th{text-align:left;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding:4px 4px}
+.journal td{padding:4px 4px;border-bottom:1px dashed var(--line)}
+.journal td.am,.journal th.am{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.journal td.dt{color:var(--muted);white-space:nowrap}
+.journal tr.todo td{opacity:0}
+.journal tr.cur td{background:var(--accent-bg);font-weight:600}
+.nav{display:flex;gap:8px}
+.btn{flex:1;font:inherit;font-weight:600;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:11px 12px;cursor:pointer}
+.btn.primary{background:#256015;color:#fff;border-color:var(--ink)}
+.btn.quiz{background:#037DFF;color:#fff;border-color:#037DFF;text-align:center;text-decoration:none}
+.btn.quit{background:#ff4747;color:#fff;border-color:#ff4747}
+.btn:disabled{opacity:.4;cursor:default}
+.btn:not(:disabled):hover{filter:brightness(1.5)}
+details summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"＋";color:var(--muted)}
+details[open] summary::after{content:"－"}
+.note{font-size:12px;color:var(--muted);margin:10px 0 0}
+
+.stage{display:flex;flex-direction:column;gap:18px;min-width:0}
+section.sec{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px 16px}
+section.sec h2{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 12px;font-weight:600;display:flex;align-items:center;gap:8px}
+section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--soft);color:var(--ink);font-size:11px}
+.story{font-size:15px;background:var(--soft);border-radius:10px;padding:10px 14px;margin-bottom:14px}
+.story b{font-variant-numeric:tabular-nums}
+
+/* Ligne du temps */
+.tl-years{display:grid;grid-template-columns:1fr 1fr;text-align:center;font-family:Fraunces,Georgia,serif;font-weight:700;font-size:18px;margin-bottom:4px}
+.tl-years div:first-child{color:var(--actif)}.tl-years div:last-child{color:var(--accent)}
+.tl-track{position:relative;height:124px;border-radius:10px;background:linear-gradient(90deg,var(--y1) 50%,var(--y2) 50%)}
+.tl-cut{position:absolute;left:50%;top:-8px;bottom:-8px;border-left:3px dashed var(--passif);z-index:3}
+.tl-cut span{position:absolute;bottom:-4px;left:6px;font-size:11px;font-weight:700;color:var(--passif);white-space:nowrap;background:#fff;padding:0 5px;border-radius:5px}
+.tl-months{position:absolute;left:0;right:0;bottom:4px;display:grid;grid-template-columns:repeat(24,1fr);font-size:10px;color:var(--muted);text-align:center}
+.tl-bar{position:absolute;top:58px;height:28px;border-radius:6px;color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;padding:0 4px;z-index:2;font-variant-numeric:tabular-nums}
+.tl-bar.b1{background:var(--actif)}.tl-bar.b2{background:var(--accent)}
+.tl-bar.fix{outline:3px solid #ffe08a;outline-offset:1px;animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{outline-color:transparent}}
+.tl-mk{position:absolute;top:6px;height:84px;border-left:2px solid var(--ink);z-index:4}
+.tl-mk span{position:absolute;top:0;left:4px;font-size:11.5px;font-weight:600;background:#fff;padding:1px 6px;border-radius:5px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.tl-mk.left span{left:auto;right:4px}
+
+/* Exercices et comptes en T */
+.years{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.yr{border:2px solid var(--y1);border-radius:12px;padding:10px 12px;transition:opacity .4s}
+.yr.y2{border-color:var(--y2)}
+.yr.off{opacity:.3}
+.yr h3{margin:0 0 8px;font-family:Fraunces,Georgia,serif;font-size:17px}
+.yr.y1 h3{color:var(--actif)}.yr.y2 h3{color:var(--accent)}
+.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;align-items:start}
+.t{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 9px 8px;position:relative;min-width:0}
+.t-head{font-weight:700;font-size:13.5px;text-align:center;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.k-charge .t-head{color:var(--charge)}.k-produit .t-head{color:var(--produit)}.k-passif .t-head{color:var(--passif)}.k-actif .t-head{color:var(--actif)}
+.t-sides{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:baseline;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--ink);padding:0 0 2px}
+.t-body{display:grid;grid-template-columns:1fr 1fr;min-height:46px}
+.col{padding:4px 4px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.col.d{border-right:2px solid var(--ink)}
+.ln{display:flex;flex-wrap:wrap;justify-content:space-between;gap:3px;font-size:11.5px;border-radius:4px;padding:1px 2px}
+.ln .lb{color:var(--muted);line-height:1.25;min-width:0}
+.ln .am{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:500;margin-left:auto}
+.ln.ext .lb{font-style:italic}
+.ln.fresh{animation:pop 1.8s ease-out;background:#ffe08a33}
+@keyframes pop{0%{background:#ffe08a}100%{background:#ffe08a33}}
+.t.focus{box-shadow:0 0 0 2px var(--accent),0 6px 18px rgba(0,0,0,.08)}
+.eff{font-size:12px;margin-top:6px;text-align:center}
+.eff .tag{font-size:11.5px}
+
+/* Introduction et résumé */
+.yrs3{display:grid;grid-template-columns:1fr 1.6fr 1fr;gap:10px;text-align:center}
+.yrs3 div{border-radius:12px;padding:14px 8px;background:var(--soft);color:var(--muted)}
+.yrs3 div.on{background:var(--y1);color:var(--actif);box-shadow:0 0 0 2px var(--actif)}
+.yrs3 b{display:block;font-family:Fraunces,Georgia,serif;font-size:22px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.box{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.box h4{margin:0 0 6px;font-size:14px}
+.quad{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.quad .hd{text-align:center;font-family:Fraunces,Georgia,serif;font-size:19px;font-weight:700;padding:8px;border-radius:10px}
+.quad .hd.at{background:var(--actif-bg);color:var(--actif)}.quad .hd.pt{background:var(--passif-bg);color:var(--passif)}
+.qc{border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;transition:box-shadow .2s}
+.qc:hover{box-shadow:0 0 0 2px var(--accent)}
+.qc h4{margin:0 0 4px;font-size:15px}
+.qc .ex{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
+.qc .ecr{display:flex;justify-content:space-between;font-size:13px;background:var(--soft);border-radius:8px;padding:6px 10px;font-weight:600}
+.qc .ecr span:last-child{color:var(--muted);font-weight:500}
+
+.zoombar{position:fixed;top:8px;right:10px;z-index:60;display:flex;gap:2px;opacity:.55;transition:opacity .2s}
+.zoombar:hover{opacity:1}
+.zoombar button{font:600 13px Inter,system-ui,sans-serif;color:var(--muted);background:rgba(255,255,255,.85);border:1px solid var(--line);border-radius:7px;padding:3px 8px;cursor:pointer}
+.zoombar button:hover{color:var(--ink)}
+
+@media (max-width:1100px){ .years{grid-template-columns:1fr} }
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;padding:12px 12px 90px}
+  aside{position:static;max-height:none;overflow:visible}
+  .nav-wrap{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(245,243,238,.95);backdrop-filter:blur(6px);padding:10px 12px;border-top:1px solid var(--line)}
+  .two,.quad{grid-template-columns:1fr}
+}
+
+.jr-stage{max-width:640px;margin-bottom:16px}
+.jr-stage .journal{font-size:13.5px}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="panel">
+      <h1>Les opérations transitoires</h1>
+      <p class="sub"><span id="subyrs"></span></p>
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <div class="panel" id="explain"></div>
+
+    <div class="nav-wrap">
+      <div class="nav">
+        <button class="btn" id="prev">← Précédent</button>
+        <button class="btn primary" id="next">Suivant →</button>
+      </div>
+    </div>
+
+
+    <div class="nav exit">
+      <!-- *** Lien du quiz *** : remplacer La_Compta_Transitoires.html par le lien voulu -->
+      <a class="btn quiz" href="La_Compta_Transitoires.html" target="_blank">Quiz</a>
+      <button class="btn quit" id="quit">Quitter</button>
+    </div>
+    <p class="note" id="quit-msg" style="display:none;color:#fff">Le navigateur ne permet pas de fermer cette fenêtre automatiquement : ferme l'onglet.</p>
+  </aside>
+
+  <main class="stage" id="stage"></main>
+</div>
+<div class="zoombar"><button id="zm" title="Réduire la taille" aria-label="Réduire la taille">A−</button><button id="zp" title="Agrandir la taille" aria-label="Agrandir la taille">A+</button></div>
+
+<script>
+/* ---------- Données modifiables ---------- */
+const V0 = {hon:18000, ass:6000, int:240, rep:600, loyer:4200, lDeb:9, lN:6, cap:40000, taux:6, echJ:30, echM:10, typ:'dette'};
+const V = {...V0};
+const Y2 = new Date().getFullYear(), Y1 = Y2-1, Y0 = Y1-1;   // années : l'exercice précédent et l'année en cours
+const ANS = {};                                              // réponses choisies (par étape)
+
+const AT='Actifs transitoires', PT='Passifs transitoires';
+const KIND = {'Honoraires':'produit','Produits financiers':'produit','Assurances':'charge','Frais de véhicules':'charge','Loyers':'charge','Charges financières':'charge',
+  [AT]:'actif','Banque':'actif','Créances clients':'actif',[PT]:'passif','Dettes fournisseurs':'passif'};
+const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+const INI = 'JFMAMJJASOND';
+const TITLES = ['Le problème','Produit à recevoir','Charge payée d\'avance','Produit reçu d\'avance','Charge à payer',
+                'Résumé des 4 situations','À cheval sur deux exercices','Les intérêts courus'];
+const LAST = TITLES.length-1;
+
+const fmt = n => { const neg=n<0; n=Math.abs(Math.round(n*100)/100); const [i,d]=n.toFixed(2).split('.');
+  return (neg?'−':'') + i.replace(/\B(?=(\d{3})+(?!\d))/g,"'") + (d!=='00' ? '.'+d : ''); };
+const $ = id => document.getElementById(id);
+const d30 = (j,m) => (12-m)*30 + (30-Math.min(j,30));          // jours commerciaux jusqu'au 31.12
+const r05 = x => Math.round(x*20)/20;                           // arrondi aux 5 centimes
+
+/* ---------- Les cas ----------
+   J : écritures {ph, y, d, c, amt, dt, ext}  ·  open : report à nouveau dans un compte au 1.1
+   cp : compte de charge/produit corrigé · want : montant correct dans le résultat Y1    */
+function rawCase(step){
+  switch(step){
+  case 1: { const a=V.hon; return {
+    cp:'Honoraires', tr:AT, want:a,
+    story:`Nous avons effectué des travaux de comptabilité en <b>décembre ${Y1}</b>. Ils seront facturés en <b>janvier ${Y2}</b> : CHF <b>${fmt(a)}</b>.`,
+    q:`Au 31.12.${Y1}, manque-t-il ou y a-t-il en trop ${fmt(a)} d'honoraires dans ma compta ${Y1} ?`,
+    what:`${fmt(a)} d'honoraires`, ansTag:'manque',
+    tl:{bars:[{from:11,to:12,label:'Travaux'}], marks:[{at:12.5,label:'Facture janv.'}], fix:Y1},
+    J:[{ph:1,y:Y1,d:AT,c:'Honoraires',amt:a,dt:'31.12'},
+       {ph:2,y:Y2,open:AT,side:'d',amt:a},
+       {ph:2,y:Y2,d:'Honoraires',c:AT,amt:a,dt:'1.1',ext:1},
+       {ph:3,y:Y2,d:'Créances clients',c:'Honoraires',amt:a,dt:'janv.'}],
+    ph:[
+      {btn:'Corriger au 31.12 →', text:`Le travail est fait en ${Y1}, mais rien n'est comptabilisé : la facture ne partira qu'en janvier.`},
+      {btn:'Passer au 1.1 →', text:`Il <b>manque</b> du produit : on l'ajoute au <b>crédit des Honoraires</b>. <p>Le compte en contrepartie étant au débit, c'est un <b>Actifs transitoires</b>.`},
+      {btn:'Saisir la facture →', text:`Le compte Honoraires ${Y2} contient maintenant ${fmt(a)} au <b>débit</b>, comme si le produit avait été « enlevé » de ${Y2}. Il attend la facture de janvier.`},
+      {btn:'Étape suivante →', text:`En janvier, la facture est saisie normalement. Elle compense l'extourne : pour ces travaux, les Honoraires ${Y2} restent à <b>0</b>. Le produit est compté une seule fois, en ${Y1}.`}]};}
+  case 2: { const a=V.ass; return {
+    cp:'Assurances', tr:AT, want:0,
+    story:`Le <b>20 décembre ${Y1}</b>, nous avons payé l'assurance RC pour <b>${Y2}</b> : CHF <b>${fmt(a)}</b>.`,
+    q:`Au 31.12.${Y1}, manque-t-il ou y a-t-il en trop ${fmt(a)} d'assurances dans ma compta ${Y1} ?`,
+    what:`${fmt(a)} d'assurances`, ansTag:'trop',
+    tl:{bars:[{from:12,to:24,label:`Couverture RC ${Y2}`}], marks:[{at:11.65,label:'Paiement 20.12'}], fix:Y2},
+    J:[{ph:0,y:Y1,d:'Assurances',c:'Banque',amt:a,dt:'20.12'},
+       {ph:1,y:Y1,d:AT,c:'Assurances',amt:a,dt:'31.12'},
+       {ph:2,y:Y2,open:AT,side:'d',amt:a},
+       {ph:2,y:Y2,d:'Assurances',c:AT,amt:a,dt:'1.1',ext:1}],
+    ph:[
+      {btn:'Corriger au 31.12 →', text:`Le paiement a été comptabilisé en décembre (Assurances / Banque).`},
+      {btn:'Passer au 1.1 →', text:`Il y a de la charge <b>en trop</b> : on la sort au <b>crédit des Assurances</b>.<p>La contrepartie étant au débit c'est de nouveau un <b>Actifs transitoires</b>.`},
+      {btn:'Étape suivante →', text:`La charge revient dans l'exercice qu'elle concerne : les Assurances ${Y2} contiennent ${fmt(a)} au débit.`}]};}
+  case 3: { const a=V.int; return {
+    cp:'Produits financiers', tr:PT, want:0,
+    story:`Nous avons prêté une somme à un employé. En <b>décembre ${Y1}</b>, il nous a versé les intérêts pour <b>${Y2}</b> : CHF <b>${fmt(a)}</b>.`,
+    q:`Au 31.12.${Y1}, manque-t-il ou y a-t-il en trop ${fmt(a)} d'intérêts dans ma compta ${Y1} ?`,
+    what:`${fmt(a)} d'intérêts`, ansTag:'trop',
+    tl:{bars:[{from:12,to:24,label:`Intérêts ${Y2}`}], marks:[{at:11.6,label:'Encaissement déc.'}], fix:Y2},
+    J:[{ph:0,y:Y1,d:'Banque',c:'Produits financiers',amt:a,dt:'déc.'},
+       {ph:1,y:Y1,d:'Produits financiers',c:PT,amt:a,dt:'31.12'},
+       {ph:2,y:Y2,open:PT,side:'c',amt:a},
+       {ph:2,y:Y2,d:PT,c:'Produits financiers',amt:a,dt:'1.1',ext:1}],
+    ph:[
+      {btn:'Corriger au 31.12 →', text:`L'encaissement a été comptabilisé (Banque / Produits financiers).`},
+      {btn:'Passer au 1.1 →', text:`Il y a du produit <b>en trop</b> : on le sort au <b>débit des Produits financiers</b>.<p>La contrepartie est au crédit, c'est donc un <b>Passifs transitoires</b>.`},
+      {btn:'Étape suivante →', text:`Le produit revient dans l'exercice qu'il concerne : les Produits financiers ${Y2} contiennent ${fmt(a)} au crédit.`}]};}
+  case 4: { const a=V.rep; return {
+    cp:'Frais de véhicules', tr:PT, want:a,
+    story:`Nous avons fait réparer notre véhicule en <b>décembre ${Y1}</b>. La facture, estimée à CHF <b>${fmt(a)}</b>, nous parviendra en <b>janvier ${Y2}</b>.`,
+    q:`Au 31.12.${Y1}, manque-t-il ou y a-t-il en trop ${fmt(a)} de charges dans ma compta ${Y1} ?`,
+    what:`${fmt(a)} de frais de véhicules`, ansTag:'manque',
+    tl:{bars:[{from:11.3,to:11.9,label:'Rép.'}], marks:[{at:12.5,label:'Facture janv.'}], fix:Y1},
+    J:[{ph:1,y:Y1,d:'Frais de véhicules',c:PT,amt:a,dt:'31.12'},
+       {ph:2,y:Y2,open:PT,side:'c',amt:a},
+       {ph:2,y:Y2,d:PT,c:'Frais de véhicules',amt:a,dt:'1.1',ext:1},
+       {ph:3,y:Y2,d:'Frais de véhicules',c:'Dettes fournisseurs',amt:a,dt:'janv.'}],
+    ph:[
+      {btn:'Corriger au 31.12 →', text:`La réparation a eu lieu en ${Y1}, mais la facture n'est pas arrivée : rien n'est comptabilisé. On connaît seulement une <b>estimation</b>.`},
+      {btn:'Passer au 1.1 →', text:`Il <b>manque</b> de la charge : on l'ajoute au <b>débit des Frais de véhicules</b>.<p>La contrepartie est de nouveau au crédit, c'est donc un <b>Passifs transitoires</b> (pas Dettes fournisseurs : la facture n'est pas encore reçue et le montant n'est qu'estimé).`},
+      {btn:'Saisir la facture →', text:`Le compte Frais de véhicules ${Y2} contient maintenant ${fmt(a)} au <b>crédit</b>. Il attend la facture de janvier.`},
+      {btn:'Étape suivante →', text:`En janvier, la facture est saisie normalement et compense l'extourne. Si la facture réelle est différente de l'estimation (p. ex. ${fmt(a+50)}), la différence (${fmt(50)}) tombe dans ${Y2}.`}]};}
+  case 6: {
+    const n=Math.max(1,V.lN), s=V.lDeb, fin=s-1+n, m26=Math.max(0,Math.min(n,fin-12)), pm=V.loyer/n, a=r05(pm*m26);
+    return {
+    cp:'Loyers', tr:AT, want:V.loyer-a, 
+    story:`En octobre ${Y1}, nous avons payé le loyer de <b>${n} mois</b>, de ${MOIS[(s-1)%12]} à ${MOIS[(fin-1)%12]} : CHF <b>${fmt(V.loyer)}</b>.`,
+    q:`Au 31.12.${Y1}, manque-t-il ou y a-t-il en trop des loyers dans ma compta ${Y1} ? Combien ?`,
+    what:`${m26} mois de loyer`, ansTag:'trop',
+    calc:`<div class="calc"><div style="font-weight:600;margin-bottom:4px">Part qui concerne ${Y2}</div>
+      <div class="row"><span>Loyer mensuel : ${fmt(V.loyer)} ÷ ${n}</span><span>${fmt(pm)}</span></div>
+      <div class="row"><span>× mois en ${Y2}</span><span>${m26}</span></div>
+      <div class="row big"><span>= Loyer payé d'avance</span><span>${fmt(a)}</span></div></div>`,
+    tl:{bars:[{from:s-1,to:fin,label:'Loyer', l25:fmt(V.loyer-a), l26:fmt(a)}], marks:[{at:9.5,label:'Paiement oct.'}], fix:Y2},
+    J:[{ph:0,y:Y1,d:'Loyers',c:'Banque',amt:V.loyer,dt:'oct.'},
+       {ph:1,y:Y1,d:AT,c:'Loyers',amt:a,dt:'31.12'},
+       {ph:2,y:Y2,open:AT,side:'d',amt:a},
+       {ph:2,y:Y2,d:'Loyers',c:AT,amt:a,dt:'1.1',ext:1}],
+    ph:[
+      {btn:'Calculer et corriger →', text:`Certaines charges ou produits couvrent une période <b>à cheval sur deux exercices</b>. Le paiement a été comptabilisé en entier en ${Y1} (Loyers / Banque).`},
+      {btn:'Passer au 1.1 →', text:`On répartit au <b>prorata</b> du temps : seule la part qui concerne ${Y2} est corrigée. C'est une charge payée d'avance → <b>Actifs transitoires / Loyers</b>.`},
+      {btn:'Étape suivante →', text:`Les ${m26} mois payés d'avance reviennent dans les Loyers ${Y2}, l'exercice qu'ils concernent.`}]};}
+  case 7: {
+    const pret = V.typ==='pret', j=d30(V.echJ,V.echM), a=r05(V.cap*V.taux*j/36000), an=r05(V.cap*V.taux/100);
+    const cp = pret?'Produits financiers':'Charges financières', tr = pret?AT:PT, x=(V.echM-1)+(Math.min(V.echJ,30))/30;
+    return {
+    cp, tr, want:a,
+    story: pret ? `Nous avons accordé un prêt de CHF <b>${fmt(V.cap)}</b> à <b>${V.taux} %</b>. Les intérêts sont encaissés une fois par an, à l'échéance du <b>${V.echJ}.${V.echM}</b>.`
+                : `Nous avons une dette bancaire de CHF <b>${fmt(V.cap)}</b> à <b>${V.taux} %</b>. Les intérêts sont payés une fois par an, à l'échéance du <b>${V.echJ}.${V.echM}</b>.`,
+    q:`Au 31.12.${Y1}, manque-t-il ou y a-t-il en trop des intérêts dans ma compta ${Y1} ? Combien ?`,
+    what:`les intérêts du ${V.echJ}.${V.echM} au 31.12 (${j} jours)`, ansTag:'manque',
+    calc:`<div class="calc"><div style="font-weight:600;margin-bottom:4px">Intérêts courus</div>
+      <div class="row"><span>i = c × t × j ÷ 36'000</span><span></span></div>
+      <div class="row"><span>${fmt(V.cap)} × ${V.taux} × ${j} ÷ 36'000</span><span></span></div>
+      <div class="row big"><span>= Intérêts courus</span><span>${fmt(a)}</span></div>
+      <div style="margin-top:6px;font-size:12.5px">j = jours de la dernière échéance à la clôture, mois de 30 jours (année de 360 jours).</div></div>`,
+    tl:{bars:[{from:x,to:12,label:`${j} j · ${fmt(a)}`},{from:12,to:12+x,label:''}], marks:[{at:x,label:`Échéance ${V.echJ}.${V.echM}`},{at:12+x,label:`Échéance ${V.echJ}.${V.echM}`}], fix:Y1},
+    J: pret ? [{ph:1,y:Y1,d:AT,c:cp,amt:a,dt:'31.12'},{ph:2,y:Y2,open:AT,side:'d',amt:a},{ph:2,y:Y2,d:cp,c:AT,amt:a,dt:'1.1',ext:1}]
+            : [{ph:1,y:Y1,d:cp,c:PT,amt:a,dt:'31.12'},{ph:2,y:Y2,open:PT,side:'c',amt:a},{ph:2,y:Y2,d:PT,c:cp,amt:a,dt:'1.1',ext:1}],
+    ph:[
+      {btn:'Calculer et corriger →', text:`Entre la dernière échéance et la clôture, des intérêts se sont accumulés sans être ${pret?'encaissés':'payés'} : ce sont les <b>intérêts courus</b>.`},
+      {btn:'Passer au 1.1 →', text: pret ? `C'est un <b>produit à recevoir</b> → <b>Actifs transitoires / Produits financiers</b>.` : `C'est une <b>charge à payer</b> → <b>Charges financières / Passifs transitoires</b>.`},
+      {btn:'Étape suivante →', text:`Le compte ${cp} ${Y2} contient maintenant ${fmt(a)} au ${pret?'débit':'crédit'}. À l'échéance de ${Y2}, la banque ${pret?'versera':'débitera'} les intérêts d'une année entière (${fmt(an)}). Grâce à l'extourne, seule la part ${Y2} (${fmt(an-a)}) restera dans le compte de ${Y2}.`}]};}
+  }
+  return null;
+}
+
+/* Ajoute la phase « Situation au 1.1 » avant l'extourne */
+function getCase(step){
+  const c = rawCase(step); if (!c) return c;
+  c.J.forEach(e=>{ if (!e.open && e.ph>=2) e.ph++; });
+  let k = 1; c.J.forEach(e=>{ if (!e.open) e.n = k++; });   // N° du journal
+  const x = c.J.find(e=>e.ext), side = c.tr===AT ? 'débit' : 'crédit';
+  c.ph.splice(2, 0, {btn:'Extourner →', text:`Le <b>1.1.${Y2}</b>, un nouvel exercice commence.<br><br>
+    • Le compte <b>${c.tr}</b> est un compte du bilan : il est rouvert avec son <b>solde à nouveau</b> (sàn) de ${fmt(x.amt)} au ${side}.<br>
+    • Le compte <b>${c.cp}</b> est un compte de gestion : il a été viré au compte de résultat ${Y1}, il repart donc <b>vide</b>.<br><br>
+    Le transitoire a fait son travail : <b>corriger le résultat ${Y1}.</b> Il faut maintenant l'extourner.`});
+  c.ph[3].text = `L'<b>extourne</b> est l'écriture <b>inverse</b> de celle du 31.12 : <b>${x.d} / ${x.c}</b> ${fmt(x.amt)}.<br><br>
+    Elle solde le compte ${c.tr} (sàn ${fmt(x.amt)} − extourne ${fmt(x.amt)} = 0). ` + c.ph[3].text;
+  return c;
+}
+
+/* ---------- Actions (un clic = une phase) ---------- */
+let A = [], pos = 0;
+function buildActions(){
+  A = [];
+  for (let s=0; s<=LAST; s++){ const c=getCase(s); const n = c ? c.ph.length : 1; for (let p=0;p<n;p++) A.push({step:s, ph:p}); }
+}
+buildActions();
+
+/* ---------- Comptes en T ---------- */
+function postings(c, acc, y, ph){
+  const P = {d:[], c:[]};
+  c.J.forEach(e=>{
+    if (e.y!==y || e.ph>ph) return;
+    const fresh = e.ph===ph;
+    if (e.open){ if (e.open===acc) P[e.side].push({lb:'sàn', amt:e.amt, fresh}); return; }
+    if (e.d===acc) P.d.push({lb: e.n, amt:e.amt, fresh, ext:e.ext});
+    if (e.c===acc) P.c.push({lb: e.n, amt:e.amt, fresh, ext:e.ext});
+  });
+  return P;
+}
+function accountsOf(c, y){
+  const L = [c.cp, c.tr];
+  c.J.forEach(e=>{ if (e.y!==y) return; [e.d,e.c,e.open].forEach(a=>{ if (a && !L.includes(a)) L.push(a); }); });
+  return L;
+}
+const bal = (P,k) => { const sd=P.d.reduce((s,l)=>s+l.amt,0), sc=P.c.reduce((s,l)=>s+l.amt,0); return (k==='charge'||k==='actif') ? sd-sc : sc-sd; };
+function tHTML(acc, P, focus, eff){
+  const col = arr => arr.map(l=>`<div class="ln ${l.fresh?'fresh':''} ${l.ext?'ext':''}"><span class="lb">${l.lb}</span><span class="am">${fmt(l.amt)}</span></div>`).join('');
+  return `<div class="t k-${KIND[acc]} ${focus?'focus':''}">
+    <div class="t-sides"><span>D</span><span class="t-head" title="${acc}">${acc}</span><span>C</span></div>
+    <div class="t-body"><div class="col d">${col(P.d)}</div><div class="col c">${col(P.c)}</div></div>
+    ${eff?`<div class="eff">${eff}</div>`:''}</div>`;
+}
+
+/* ---------- Ligne du temps (0 = 1.1 de Y1, 12 = 31.12 de Y1, 24 = 31.12 de Y2) ---------- */
+function timeline(tl, ph){
+  const pc = x => (Math.max(0,Math.min(24,x))/24*100)+'%';
+  let bars = '';
+  tl.bars.forEach(b=>{
+    const segs = [];
+    if (b.from<12) segs.push({f:b.from, t:Math.min(12,b.to), y:Y1, lb: b.to>12 ? (b.l25??b.label) : b.label});
+    if (b.to>12)  segs.push({f:Math.max(12,b.from), t:b.to, y:Y2, lb: b.from<12 ? (b.l26??'') : b.label});
+    segs.forEach(s=>{ bars += `<div class="tl-bar ${s.y===Y1?'b1':'b2'} ${ph>=1 && tl.fix===s.y ? 'fix':''}" style="left:${pc(s.f)};width:calc(${pc(s.t)} - ${pc(s.f)})" title="${s.lb}">${s.lb}</div>`; });
+  });
+  const marks = tl.marks.map(m=>`<div class="tl-mk ${m.at>18?'left':''}" style="left:${pc(m.at)}"><span>${m.label}</span></div>`).join('');
+  return `<div class="tl-years"><div>${Y1}</div><div>${Y2}</div></div>
+    <div class="tl-track">${bars}${marks}<div class="tl-cut"><span>31.12 · clôture</span></div>
+    <div class="tl-months">${(INI+INI).split('').map(m=>`<span>${m}</span>`).join('')}</div></div>`;
+}
+
+/* ---------- Rendu ---------- */
+function render(){
+  pos = Math.max(0, Math.min(A.length-1, pos));
+  const {step, ph} = A[pos];
+  const c = getCase(step);
+  document.querySelectorAll('.dot').forEach((b,i)=>{ b.classList.toggle('cur', i===step); b.classList.toggle('done', i<step); });
+  $('prev').disabled = pos===0;
+  $('next').disabled = pos===A.length-1 || (!!c && ph===0 && !ANS[step]);
+  $('next').textContent = pos===A.length-1 ? 'Terminé ✓' : c ? c.ph[ph].btn : 'Suivant →';
+  if (step===0) renderIntro(); else if (step===5) renderResume(); else renderCase(c, step, ph);
+}
+
+function renderCase(c, step, ph){
+  const last = c.ph.length-1;
+  // Panneau d'explication
+  const ok = c.ansTag, ch = ANS[step];
+  const core = ok==='manque' ? `il manque ${c.what} en ${Y1}` : `il y a ${c.what} en trop en ${Y1}`;
+  const act = `il faut donc <b>${ok==='manque'?'AJOUTER':'ENLEVER'}</b> ${KIND[c.cp]==='produit'?'le produit':'la charge'}.`;
+  const btn = (a,lb) => `<button class="ch ${ch===a?(a===ok?'ok':'ko'):''}" data-a="${a}" ${ch?'disabled':''}>${lb}</button>`;
+  const choices = (ph===0 || ch) ? `<div class="choices">${btn('manque','manque')}${btn('trop','est en trop')}</div>` : '';
+  const fb = ch ? `<div class="fb ${ch===ok?'ok':'ko'}">${ch===ok?'✓ En effet':'✗ En fait'}, ${core} : ${act}</div>`
+           : ph>=1 ? `<div class="fb">Réponse : ${core} : ${act}</div>`
+           : `<div class="hint">Clique sur ta réponse pour continuer.</div>`;
+  const qBox = ph>=1 ? '' : `<div class="calc q"><div style="font-weight:600;margin-bottom:4px">La question à se poser</div>${c.q}${choices}${fb}</div>`;
+  const rows = c.J.filter(e=>!e.open);
+  const jr = `<table class="journal"><caption>Journal</caption><tr><th>N°</th><th>Date</th><th>Débit</th><th>Crédit</th><th class="am">Montant</th></tr>
+    ${rows.map(e=>`<tr class="${e.ph===ph?'cur':e.ph>ph?'todo':''}"><td>${e.n}</td><td class="dt">${e.dt}${e.ext?' · extourne':''}</td><td>${e.d}</td><td>${e.c}</td><td class="am">${fmt(e.amt)}</td></tr>`).join('')}</table>`;
+  const trTag = c.tr===AT ? '<span class="tag at">Actif transitoire</span>' : '<span class="tag pt">Passif transitoire</span>';
+  $('explain').innerHTML = `<div class="stepno">Étape ${step} / ${LAST}</div><h2 class="steptitle">${TITLES[step]}</h2>
+    <div class="progress" style="font-size:12px;color:var(--muted);margin:2px 0 8px">Phase ${ph+1} sur ${last+1} · ${trTag}</div>
+    <p class="steptext">${c.ph[ph].text}</p>${qBox}${ph>=1 && c.calc ? c.calc : ''}`;
+
+  // Scène
+  const yearCol = y => {
+    const on = y===Y1 || ph>=2;
+    const accs = accountsOf(c, y);
+    const ts = accs.map(acc=>{
+      const P = postings(c, acc, y, on?ph:-1);
+      const k = KIND[acc], b = bal(P,k);
+      let eff = '';
+      if (acc===c.cp && on){
+        const ok = Math.abs(b - (y===Y1?c.want:b))<0.01;
+        eff = y===Y1 ? `Dans le résultat ${Y1} : <span class="tag ${ok?'good':'bad'}">${fmt(b)} ${ok?'✓':'✗'}</span>${ok?'':`<br><span style="color:var(--muted)">attendu : ${fmt(c.want)}</span>`}`
+                       : (ph===last ? `Solde ${Y2} : <span class="tag neutral">${fmt(b)}</span>` : '');
+      }
+      if (y===Y2 && ph===2 && acc===c.cp) eff = `<span class="tag neutral">vide au 1.1</span>`;
+      if (y===Y2 && ph===2 && acc===c.tr) eff = `sàn au 1.1 : <span class="tag ${c.tr===AT?'at':'pt'}">${fmt(b)}</span>`;
+      if (acc===c.tr && on && (y===Y1 ? ph>=1 : ph===last)) eff = y===Y1 ? `Au bilan du 31.12 : <span class="tag ${c.tr===AT?'at':'pt'}">${fmt(b)}</span>` : `<span class="tag good">soldé ✓</span>`;
+      const focus = on && c.J.some(e=>e.y===y && e.ph===ph && (e.d===acc||e.c===acc||e.open===acc));
+      return tHTML(acc, P, focus, eff);
+    }).join('');
+    return `<div class="yr ${y===Y1?'y1':'y2'} ${on?'':'off'}"><h3>Exercice ${y}${y===Y2&&!on?' · dès le 1.1':''}</h3><div class="tg">${ts}</div></div>`;
+  };
+  $('stage').innerHTML = `
+    <section class="sec"><h2><span class="n">1</span>La situation</h2><div class="story">${c.story}</div>${timeline(c.tl, ph)}</section>
+    <section class="sec"><h2><span class="n">2</span>Dans la comptabilité</h2><div class="jr-stage">${jr}</div><div class="years">${yearCol(Y1)}${yearCol(Y2)}</div></section>`;
+}
+
+function renderIntro(){
+  $('explain').innerHTML = `<div class="stepno">Étape 0 / ${LAST}</div><h2 class="steptitle">${TITLES[0]}</h2>
+    <p class="steptext">Le <b>bilan</b> indique la valeur des comptes à la clôture.<br><br>
+    Le <b>compte de résultat</b> indique le bénéfice (ou la perte) de l'exercice, p. ex. de ${Y1}. Il ne contient donc que les charges et les produits <b>de ${Y1}</b>, et rien de ${Y0} ou de ${Y2}.<br><br>
+    Les opérations transitoires :</p>
+    <div class="calc"><div class="row"><span>• au <b>31.12</b> : on corrige les comptes de charges et de produits</span></div>
+    <div class="row" style="margin-top:4px"><span>• au <b>1.1</b> suivant : on <b>extourne</b> (écriture inverse)</span></div></div>
+    <p class="steptext">Il y a <b>4 situations</b> à corriger en fin d'exercice. Pour chacune, une seule question :</p>
+    <div class="calc q">Au 31.12, manque-t-il ou y a-t-il <b>en trop</b> ce montant dans ma compta de l'exercice ?</div>`;
+  const sit = [[1,'Produit à recevoir',`Travail fait en ${Y1}, facturé en ${Y2}`],[2,'Charge payée d\'avance',`Payé en ${Y1}, concerne ${Y2}`],
+               [3,'Produit reçu d\'avance',`Encaissé en ${Y1}, concerne ${Y2}`],[4,'Charge à payer',`Consommé en ${Y1}, facture en ${Y2}`]];
+  $('stage').innerHTML = `
+    <section class="sec"><h2><span class="n">1</span>Un exercice = une année</h2>
+      <div class="yrs3"><div><b>${Y0}</b>exercice précédent</div><div class="on"><b>${Y1}</b>le compte de résultat ne contient que les charges et produits de ${Y1}</div><div><b>${Y2}</b>exercice suivant</div></div></section>
+    <section class="sec"><h2><span class="n">2</span>Les deux documents de clôture</h2>
+      <div class="two"><div class="box"><h4 style="color:var(--bilan)">Bilan au 31.12.${Y1}</h4>Une « photo » : la valeur des comptes le jour de la clôture.</div>
+      <div class="box"><h4 style="color:var(--res)">Compte de résultat ${Y1}</h4>Un « film » de l'année : toutes les charges et tous les produits de ${Y1}, et seulement ceux-là.</div></div></section>
+    <section class="sec"><h2><span class="n">3</span>Les 4 situations à corriger</h2>
+      <div class="quad">${sit.map(([s,t,e])=>`<div class="qc" data-go="${s}"><h4>${s}) ${t}</h4><div class="ex">${e}</div></div>`).join('')}</div></section>
+    <section class="sec"><h2><span class="n">4</span>A maîtriser pour bien comptabiliser</h2>
+      <div class="steptext">Le fonctionnement des comptes!<p>Rappel : Charges : + | - et Produits : - | +</div></section>	  
+	  `;
+	  
+}
+
+function renderResume(){
+  $('explain').innerHTML = `<div class="stepno">Étape 5 / ${LAST}</div><h2 class="steptitle">${TITLES[5]}</h2>
+    <p class="note">Cliquer sur une carte pour revoir le cas.</p>`;
+  const card = (s,t,ex,d,c) => `<div class="qc" data-go="${s}"><h4>${t}</h4><div class="ex">${ex}</div>
+    <div class="ecr"><span>${d} / ${c}</span><span>31.12</span></div></div>`;
+  $('stage').innerHTML = `<section class="sec"><h2><span class="n">1</span>Actifs ou passifs transitoires ?</h2>
+    <div class="quad">
+      <div class="hd at">Actifs transitoires</div><div class="hd pt">Passifs transitoires</div>
+      ${card(1,'Produits à recevoir','Le produit manque : on l\'ajoute.','Actifs transitoires','Produit')}
+      ${card(3,'Produits reçus d\'avance','Le produit est en trop : on l\'enlève.','Produit','Passifs transitoires')}
+      ${card(2,'Charges payées d\'avance','La charge est en trop : on l\'enlève.','Actifs transitoires','Charge')}
+      ${card(4,'Charges à payer','La charge manque : on l\'ajoute.','Charge','Passifs transitoires')}
+    </div></section>
+    <section class="sec"><h2><span class="n">2</span>Moyen mnémotechnique</h2>
+      <div class="two"><div class="box"><h4>Le montant <span class="tag neutral">manque</span></h4>On l'ajoute dans la charge ou le produit : produit à recevoir (AT), charge à payer (PT).</div>
+      <div class="box"><h4>Le montant est <span class="tag neutral">en trop</span></h4>On l'enlève de la charge ou du produit : charge payée d'avance (AT), produit reçu d'avance (PT).</div></div></section>`;
+}
+
+/* ---------- Navigation ---------- */
+function goTo(p){ pos = p; render(); }
+function goStep(s){ goTo(A.findIndex(a=>a.step===s)); }
+
+let Z = 1;
+try { Z = +localStorage.getItem('transitoires-zoom') || 1; } catch(e){}
+function applyZoom(){
+  Z = Math.round(Math.max(0.8, Math.min(1.6, Z))*10)/10;
+  document.documentElement.style.setProperty('--z', Z);
+  try { localStorage.setItem('transitoires-zoom', Z); } catch(e){}
+}
+
+$('dots').innerHTML = TITLES.map((t,i)=>`<button class="dot" data-s="${i}" title="Étape ${i} : ${t}" aria-label="Étape ${i}"></button>`).join('');
+$('zm').addEventListener('click', ()=>{ Z -= 0.1; applyZoom(); });
+$('zp').addEventListener('click', ()=>{ Z += 0.1; applyZoom(); });
+$('next').addEventListener('click', ()=>goTo(pos+1));
+$('explain').addEventListener('click', e=>{ const b=e.target.closest('.ch'); if (!b || b.disabled) return; ANS[A[pos].step] = b.dataset.a; render(); });
+$('prev').addEventListener('click', ()=>goTo(pos-1));
+$('quit').addEventListener('click', ()=>{ window.close(); setTimeout(()=>{ $('quit-msg').style.display='block'; }, 300); });
+$('dots').addEventListener('click', e=>{ const b=e.target.closest('.dot'); if (b) goStep(+b.dataset.s); });
+$('stage').addEventListener('click', e=>{ const q=e.target.closest('[data-go]'); if (q) goStep(+q.dataset.go); });
+
+document.addEventListener('keydown', e=>{
+    if (e.key==='ArrowRight' && !$('next').disabled) goTo(pos+1);
+  if (e.key==='ArrowLeft') goTo(pos-1);
+});
+$('subyrs').textContent = `Clôture au 31.12.${Y1} · extourne au 1.1.${Y2}`;
+render();
+applyZoom();
+</script>
+</body>
+</html>
