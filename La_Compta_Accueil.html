@@ -1,727 +1,354 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finances & comptabilité</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: black;
-            color: #333;
-        }
-        
-        .container {
-            max-width: 1210px; /* Augmenté pour 3 colonnes */
-            margin: 0 auto;
-            background: #ceccff;
-            border-radius: 18px;
-            padding: 0;
-            overflow: hidden;
-            border-bottom: 5px solid #ff0000;
-        }
-        
-        .header {
-             background-color: #6a0dad; /* Violet foncé */
-            color: white;
-            padding: 15px 10px 0px;
-            text-align: center;
-            border-top: 5px solid #51FF46; 
-            border-bottom: 5px solid #FDCF00; 
-			text-shadow: 2px 3px 4px rgba(0,0,0,1);
-            margin-bottom: 5px;
-            position: relative;
-            border-radius: 8px;
-			max-width: 1200px;
-			margin: 0px auto;
-            box-shadow: 0 4px 12px rgba(106, 13, 173, 0.4);           
-            /* Animation d'ouverture */
-            animation: zoomIn 1s ease-out forwards;
-            transform-origin: center;
-            opacity: 0;
-        }
-        
-        /* Définition de l'animation */
-        @keyframes zoomIn {
-            0% {
-                transform: scale(3);
-                opacity: 0;
-            }
-            70% {
-                transform: scale(1.05);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-        
-        .supertitle {
-            font-size: 1.2em;
-            font-weight: 300;
-            color:  #FFC7FA;
-            margin-bottom: 8px;
-            font-weight: bold;
-            opacity: 0.9;
-        }
-        
-        .title {
-            font-size: 1.8em;
-            font-weight: 600;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .emoji {
-            font-size: 1.5em;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finances & comptabilité</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0b1f;
+  --y1:#ff5fa2; --y2:#38bdf8; --y3:#4ade80;      /* *** Couleurs des 3 années *** */
+  --card:rgba(255,255,255,.07); --line:rgba(255,255,255,.14); --ink:#f4f2ff; --muted:#b9b4d6;
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Poppins,'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg);overflow-x:hidden}
 
-        .h3 {
-            color:  black;
-            font-weight: 400;
-            text-align: center;
-        }		
-        
-        .content {
-            padding: 10px 25px;
-            display: flex; /* Ajout pour les 3 colonnes */
-            gap: 20px; /* Espace entre les colonnes */
-			margin-top: 20px;
-            /* Animation d'ouverture */
-            animation: rotateIn 1s ease-out forwards;
-            transform-origin: center;
-            opacity: 0;
-        }
-        
-        @keyframes rotateIn {
-            0% {
-                transform: rotate(-180deg) scale(0.1);
-                opacity: 0;
-            }
-            100% {
-                transform: rotate(0) scale(1);
-                opacity: 1;
-            }
-        }
-        
-        .year-section {
-            flex: 1; /* Chaque colonne prend une part égale */
-            margin-bottom: 15px;
-            background-color: #f9f9f9;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 4px 6px 4px rgba(0,0,0,0.6);
-			border-bottom: 5px solid #8e44ad;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        /* Couleurs pastelles différentes pour chaque année */
-        .year-section:nth-child(1) {
-            background-color: #FFE6F2; /* Rose pastel */
-        }
-        
-        .year-section:nth-child(2) {
-            background-color: #E6F7FF; /* Bleu pastel */
-        }
-        
-        .year-section:nth-child(3) {
-            background-color: #F0FFE6; /* Vert pastel */
-        }
-        
-        /* Animation du trait de séparation */
-        .year-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background: linear-gradient(90deg, #ff0000, #ff9900, #ffff00, #33cc33, #3399ff, #cc66ff);
-            background-size: 400% 100%;
-            animation: gradientMove 3s linear infinite;
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
-        }
-        
-        @keyframes gradientMove {
-            0% {
-                background-position: 0% 50%;
-            }
-            100% {
-                background-position: 400% 50%;
-            }
-        }
-        
-        .year-section:hover {
-            transform: scale(1.05);
-            box-shadow: 6px 8px 15px rgba(0,0,0,0.5);
-            z-index: 1;
-        }
-        
-        .year-section:hover::before {
-            transform: scaleX(1);
-        }
-        
-        .year-title {
-            font-size: 1.4em;
-            color: #7b1fa2;
-            border-bottom: 2px solid #e1bee7;
-            padding-bottom: 8px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        
-        .chapters {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 6px;
-        }
-        
-        .chapter {
-            padding: 5px 10px 5px;
-            background-color: #f3e5f5;
-            border-radius: 6px;
-            border-radius: 8px;
-            border-left: 4px solid #8e44ad;
-			margin-bottom: 10px;
-			transition: all 0.3s ease;
-            box-shadow: 4px 4px 6px rgba(0,0,0,0.5);
-        }
-        
-        .chapter:hover:not(.no-link) {
-            background-color: #e1bee7;
-            transform: translateY(-4px);
-            box-shadow: 6px 6px 10px rgba(0,0,0,0.5);
-        }
-        
-        .chapter a {
-            color: #333;
-            text-decoration: none;
-            font-weight: bold;
-            display: block;
-        }
+/* Fond animé : bulles de couleur floues */
+.blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.45;z-index:0;animation:float 18s ease-in-out infinite alternate}
+.blob.a{width:520px;height:520px;background:#7c3aed;top:-140px;left:-120px}
+.blob.b{width:460px;height:460px;background:#ec4899;bottom:-160px;right:-100px;animation-delay:-6s}
+.blob.c{width:380px;height:380px;background:#06b6d4;top:40%;left:45%;animation-delay:-12s}
+@keyframes float{to{transform:translate(60px,-40px) scale(1.15)}}
 
-        .chapter a:hover {
-            color: #7b1fa2;
-        }
-        
-        .quote {
-            text-align: center;
-            font-style: italic;
-            margin-top: 30px;
-            padding: 15px;
-            color: #7b1fa2;
-            border-top: 1px solid #e1bee7;
-            font-size: 1.1em;
-        }
-        
-        /* Styles pour la modale */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modal-content {
-            background-color: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e1bee7;
-        }
-        
-        .modal-title {
-            color: #7b1fa2;
-            margin: 0;
-            font-size: 1.5em;
-        }
-        
-        .close-modal {
-            background: none;
-            border: none;
-            font-size: 1.5em;
-            cursor: pointer;
-            color: #7b1fa2;
-        }
-        
-        .subchapters {
-            list-style-type: none;
-            padding: 0;
-        }
-        
-        .subchapter {
-            padding: 5px 10px;
-            margin-bottom: 10px;
-            background-color: #f3e5f5;
-            transition: all 0.3s ease;
-            border-radius: 8px;
-			margin-bottom: 20px;
-            border-left: 4px solid #8e44ad;
-			transition: all 0.3s ease;
-            box-shadow: 4px 4px 6px rgba(0,0,0,0.5);
-        }
+.wrap{position:relative;z-index:1;max-width:1260px;margin:0 auto;padding:28px 20px 40px}
 
-        .chapter.has-subchapters {
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        .subchapter:hover {
-            background-color: #e1bee7;
-            transform: translateY(-4px);
-            box-shadow: 6px 6px 10px rgba(0,0,0,0.5);
-        }
-        
-        .subchapter a {
-            color: #333;
-            text-decoration: none;
-            font-weight: bold;
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-        
-        .subchapter a:hover {
-            color: #7b1fa2;
-        }
-        
-		.close-button {
-			display: block;
-			margin: 20px auto;
-			background-color: #ff4d4d;
-			color: white;
-			border: none;
-			border-radius: 50%;
-			width: 60px;
-			height: 60px;
-			font-size: 1.2em;
-			font-weight: bold;
-			cursor: pointer;
-			box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-			transition: all 0.3s ease;
-			position: relative; 
-			/* Animation d'ouverture */
-			animation: rotateIn 1s ease-out forwards;
-		}
-        .close-button:hover {
-            background-color: #ff1a1a;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.6);
-        }
-        
-        /* Modale de confirmation de fermeture */
-        #closeConfirmModal .modal-content {
-            text-align: center;
-			font-weight: bold;
-            max-width: 400px;
-			background-color: #D2FCF8;
-        }
-        
-        .modal-emoji {
-            font-size: 4em;
-            margin: 10px 0;
-        }
-        
-        .modal-message {
-            font-size: 1.2em;
-            margin: 20px 0;
-            line-height: 1.5;
-        }
-        
-        .modal-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .modal-button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            font-size: 1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-			box-shadow: 4px 4px 6px rgba(0,0,0,0.6);
-        }
-        
-        .modal-button.yes {
-            background-color: #ff4d4d;
-            color: white;
-		}
-        
-        .modal-button.no {
-            background-color: #4CAF50;
-            color: white;
-        }
-        
-        .modal-button.no:hover {
-            transform: scale(1.5);
-        }
-        .modal-button.yes:hover {
-            transform: scale(1.1);
-			transform: translateX(-75px);
-        }
-        
-        /* Animation du NON tremblotant */
-        .no-drip {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            background-color: rgba(0,0,0,0.8);
-            z-index: 2000;
-            font-size: 15em;
-            font-weight: bold;
-            color: #ff4d4d;
-            text-shadow: 0 0 20px rgba(255,0,0,0.7);
-            animation: drip 3s ease-in-out forwards;
-        }
-        
-        @keyframes drip {
-            0% {
-                transform: translateY(-100%) scale(0.5);
-                opacity: 0;
-            }
-            20% {
-                transform: translateY(0) scale(1.2);
-                opacity: 1;
-            }
-            30% {
-                transform: translateY(0) scale(1) rotate(0deg);
-            }
-            40% {
-                transform: translateY(0) scale(1) rotate(5deg);
-            }
-            50% {
-                transform: translateY(0) scale(1) rotate(-5deg);
-            }
-            60% {
-                transform: translateY(0) scale(1) rotate(3deg);
-            }
-            70% {
-                transform: translateY(0) scale(1) rotate(-3deg);
-            }
-            80% {
-                transform: translateY(0) scale(1) rotate(0deg);
-            }
-            90% {
-                transform: translateY(0) scale(1);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(100vh) scale(0.5);
-                opacity: 0;
-            }
-        }
+/* En-tête */
+header{text-align:center;padding:10px 0 30px;animation:drop .9s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes drop{from{opacity:0;transform:translateY(-40px) scale(.9)}}
+.super{display:inline-block;font-weight:600;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#e9d5ff;background:rgba(255,255,255,.08);border:1px solid var(--line);padding:6px 14px;border-radius:999px}
+h1{margin:14px 0 6px;font-size:clamp(28px,4.4vw,52px);font-weight:800;line-height:1.1}
+.grad{background:linear-gradient(90deg,#fde047,#fb7185,#c084fc,#38bdf8,#4ade80,#fde047);background-size:300% 100%;
+   -webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 8s linear infinite}
+@keyframes shine{to{background-position:300% 0}}
+.smile{display:inline-block;animation:bounce 2.2s ease-in-out infinite}
+.smile.r{animation-delay:-1.1s}
+@keyframes bounce{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-10px) rotate(12deg)}}
 
-    </style>
+
+/* Colonnes des années */
+.years{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.year{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px 16px 20px;backdrop-filter:blur(10px);
+      animation:rise .7s ease-out both;position:relative;overflow:hidden}
+.year:nth-child(2){animation-delay:.12s}.year:nth-child(3){animation-delay:.24s}
+@keyframes rise{from{opacity:0;transform:translateY(40px)}}
+.year::before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:var(--c)}
+.year h2{margin:2px 0 14px;font-size:20px;display:flex;align-items:center;gap:10px}
+.year h2 .num{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:var(--c);color:#14102b;font-weight:800}
+.year h2 small{margin-left:auto;font-size:12px;font-weight:500;color:var(--muted)}
+
+/* Cartes de chapitre */
+.chap{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:var(--ink);text-decoration:none;
+      background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:10px;cursor:pointer;
+      transition:transform .2s,background .2s,border-color .2s,box-shadow .2s}
+.chap:hover{transform:translateY(-3px) scale(1.02);background:rgba(255,255,255,.11);border-color:var(--c);box-shadow:0 10px 26px rgba(0,0,0,.35)}
+.chap .em{font-size:24px;width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:rgba(255,255,255,.08);flex:none;transition:transform .3s}
+.chap:hover .em{transform:rotate(-10deg) scale(1.15)}
+.chap .tx{flex:1;min-width:0}
+.chap .no{font-size:11.5px;font-weight:700;color:var(--c);letter-spacing:.05em}
+.chap .ti{font-weight:600;font-size:14.5px;line-height:1.25}
+.chap .bd{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+.b{font-size:11px;font-weight:600;padding:2px 7px;border-radius:999px;background:rgba(255,255,255,.1);color:var(--muted)}
+.b.th{background:rgba(56,189,248,.18);color:#7dd3fc}.b.ex{background:rgba(74,222,128,.16);color:#86efac}.b.qz{background:rgba(250,204,21,.18);color:#fde047}
+.chap .go{color:var(--muted);font-size:18px;transition:transform .2s}
+.chap:hover .go{transform:translateX(4px);color:var(--ink)}
+.chap.soon{opacity:.45;cursor:default}
+.chap.soon:hover{transform:none;box-shadow:none;border-color:var(--line);background:rgba(255,255,255,.05)}
+.chap.lucky{background:linear-gradient(135deg,rgba(253,224,71,.18),rgba(251,146,60,.18));border-color:rgba(253,224,71,.5)}
+.gap{height:14px}
+
+/* Fenêtre des parties */
+.modal{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(8,6,20,.7);backdrop-filter:blur(6px);padding:20px}
+.modal.open{display:flex}
+.panel{width:min(520px,100%);background:#1a1636;border:1px solid var(--line);border-radius:22px;padding:20px 20px 16px;box-shadow:0 30px 80px rgba(0,0,0,.6);animation:pop .35s cubic-bezier(.2,1.5,.4,1)}
+@keyframes pop{from{opacity:0;transform:scale(.85) translateY(20px)}}
+.panel::before{content:"";display:block;height:5px;border-radius:5px;background:var(--c);margin:-6px 0 14px}
+.ph{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.ph .em{font-size:30px}
+.ph h3{margin:0;font-size:19px;flex:1}
+.x{background:rgba(255,255,255,.08);border:0;color:var(--ink);width:36px;height:36px;border-radius:12px;font-size:18px;cursor:pointer}
+.x:hover{background:rgba(255,255,255,.18)}
+.parts{list-style:none;margin:0;padding:0}
+.parts a{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);padding:12px 14px;margin-bottom:9px;border-radius:14px;
+         background:rgba(255,255,255,.06);border:1px solid var(--line);transition:transform .2s,background .2s;animation:slide .4s ease-out both}
+.parts a:hover{transform:translateX(6px);background:rgba(255,255,255,.13)}
+@keyframes slide{from{opacity:0;transform:translateX(-20px)}}
+.parts .ic{font-size:22px}
+.parts .pt{flex:1;font-weight:600;font-size:14.5px}
+
+/* Pied de page */
+.foot{display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:30px}
+.quote{max-width:720px;text-align:center;font-style:italic;color:#e9d5ff;font-size:16px;opacity:.9}
+.quit{font:inherit;font-weight:700;color:#fff;background:linear-gradient(135deg,#f43f5e,#e11d48);border:0;border-radius:999px;padding:12px 26px;cursor:pointer;box-shadow:0 8px 24px rgba(244,63,94,.35);transition:transform .2s}
+.quit:hover{transform:scale(1.06)}
+
+/* Confirmation de fermeture (conservée) */
+.confirm{text-align:center}
+.confirm .big{font-size:64px;margin:6px 0}
+.confirm p{font-size:17px;font-weight:600;line-height:1.5}
+.cbtn{display:flex;justify-content:center;gap:16px;margin-top:14px}
+.cbtn button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:10px 24px;cursor:pointer;transition:transform .25s}
+.cbtn .yes{background:#f43f5e;color:#fff}.cbtn .yes:hover{transform:translateX(-80px)}
+.cbtn .no{background:#22c55e;color:#fff}.cbtn .no:hover{transform:scale(1.4)}
+.nodrip{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.85);font-size:clamp(60px,14vw,200px);font-weight:800;color:#f43f5e;text-shadow:0 0 30px rgba(244,63,94,.7);animation:drip 3s ease-in-out forwards}
+@keyframes drip{0%{transform:translateY(-100%) scale(.5);opacity:0}20%{transform:none scale(1.2);opacity:1}40%{transform:rotate(5deg)}50%{transform:rotate(-5deg)}60%{transform:rotate(3deg)}70%{transform:rotate(-3deg)}90%{transform:none;opacity:1}100%{transform:translateY(100vh) scale(.5);opacity:0}}
+
+
+/* --- Version intermédiaire --- */
+.wrap{max-width:1500px;padding:20px 22px 22px}
+header{padding:6px 0 20px}
+.super{font-size:12px;padding:5px 13px}
+h1{margin:10px 0 0;font-size:clamp(24px,3.4vw,44px)}
+.years{gap:20px}
+.year{padding:15px 14px 14px;border-radius:20px}
+.year h2{margin:0 0 12px;font-size:18.5px}
+.year h2 .num{width:32px;height:32px;border-radius:10px;font-size:15px}
+.chap{padding:9px 12px;margin-bottom:9px;border-radius:13px;gap:11px}
+.chap .em{font-size:21px;width:37px;height:37px;border-radius:11px}
+.chap .ti{font-size:14.5px}
+.chap .no{display:inline-block;margin-right:6px;font-size:12px}
+.chap .bd{margin-top:4px}
+.b{font-size:11px;padding:2px 8px;text-decoration:none}
+.b.go1{cursor:pointer;transition:transform .15s,filter .15s}
+.b.go1:hover{transform:scale(1.1);filter:brightness(1.35);box-shadow:0 0 0 1px currentColor}
+.gap{height:8px}
+.foot{flex-direction:row;justify-content:center;gap:24px;margin-top:22px;flex-wrap:wrap}
+.quote{font-size:15px;max-width:700px}
+.quit{padding:10px 24px}
+
+@media (max-width:960px){ .years{grid-template-columns:1fr} }
+</style>
 </head>
 <body>
+<div class="blob a"></div><div class="blob b"></div><div class="blob c"></div>
 
-    <div class="header">
-        <div class="supertitle">Tout le programme de Finances & Comptabilité</div>
-        <h1 class="title">
-            <span class="emoji">😊</span>
-            <strong>Je fais de la compta et c'est ma joie!</strong>
-            <span class="emoji">😊</span>
-        </h1>
-    </div>
-    <div>
-    <br>
-    </div>
-    <div class="container">
-        
-                <div class="content" id="programme">
-            <!-- Les années et chapitres sont construits à partir de PROGRAMME (dans le script, en bas) -->
-        </div>
+<div class="wrap">
+  <header>
+    <span class="super">Tout le programme de Finances & Comptabilité</span>
+    <h1><span class="smile">😊</span> <span class="grad">Je fais de la compta et c'est ma joie !</span> <span class="smile r">😊</span></h1>
+  </header>
 
-    <!-- Bouton fermer -->
-    <button class="close-button" onclick="openCloseConfirmModal()">X</button>
+  <div class="years" id="programme"></div>
 
-        <div class="quote">
-            « Celui qui veut faire quelque chose trouve un moyen, celui qui ne veut rien faire trouve des excuses ! » Proverbe arabe
-        </div>
-    </div>
+  <div class="foot">
+    <div class="quote">« Celui qui veut faire quelque chose trouve un moyen, celui qui ne veut rien faire trouve des excuses ! » · Proverbe arabe</div>
+    <button class="quit" onclick="openClose()">✕ Quitter</button>
+  </div>
+</div>
 
-    <!-- Animation du NON tremblotant -->
-    <div id="noDrip" class="no-drip">Nooooooon!!!!!</div>
+<!-- Fenêtre des parties d'un chapitre -->
+<div class="modal" id="parts"><div class="panel">
+  <div class="ph"><span class="em" id="p-em"></span><h3 id="p-ti"></h3><button class="x" onclick="closeModal('parts')">✕</button></div>
+  <ul class="parts" id="p-list"></ul>
+</div></div>
 
-        <!-- Fenêtre des sous-chapitres (remplie automatiquement à partir de PROGRAMME) -->
-    <div id="subchapterModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title"></h3>
-                <button class="close-modal" onclick="closeModal()">&times;</button>
-            </div>
-            <ul class="subchapters"></ul>
-        </div>
-    </div>
+<!-- Confirmation de fermeture -->
+<div class="modal" id="closeConfirm"><div class="panel confirm" style="--c:linear-gradient(90deg,#f43f5e,#fb923c)">
+  <div class="ph"><h3>Sérieux là ?</h3><button class="x" onclick="closeModal('closeConfirm')">✕</button></div>
+  <div class="big" id="closeEmoji">😱</div>
+  <p id="closeMessage"></p>
+  <div class="cbtn"><button class="yes" onclick="confirmClose()">OUI</button><button class="no" onclick="closeModal('closeConfirm')">NON</button></div>
+</div></div>
+<div class="nodrip" id="noDrip">Nooooooon !!!!!</div>
 
-<!-- Modal de confirmation de fermeture -->
-    <div id="closeConfirmModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Sérieux là?</h3>
-                <button class="close-modal" onclick="closeCloseConfirmModal()">&times;</button>
-            </div>
-            <div class="modal-emoji" id="closeEmoji">😱</div>
-            <div class="modal-message" id="closeMessage">QUOI ???? COMMENT ???? Tu oses me quitter! C'est vraiment ce que tu veux ?</div>
-            <div class="modal-buttons">
-                <button class="modal-button yes" onclick="confirmClose()">OUI</button>
-                <button class="modal-button no" onclick="closeCloseConfirmModal()">NON</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-
+<script>
 document.addEventListener('keydown', function(e) {
-    if (e.keyCode == 123 || // F12
-        (e.ctrlKey && e.shiftKey && e.keyCode == 73) || // Ctrl+Shift+I
-        (e.ctrlKey && e.keyCode == 85)) { // Ctrl+U
-        e.preventDefault();
-    }
+  if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73) || (e.ctrlKey && e.keyCode == 85)) e.preventDefault();
 });
-	
-        // Messages aléatoires pour la fermeture
-        const closeMessages = [
-            {
-                emoji: "😱",
-                message: "Tu oses me quitter! C'est vraiment ce que tu veux ?"
-            },
-            {
-                emoji: "👻",
-                message: "Me quitter peut avoir des conséquences sur 5 GENERATIONS! Réfléchis, c'est bien ce que tu veux ?"
-            },
-            {
-                emoji: "😢",
-                message: "Déjà, on vient à peine de commencer. Tu confirmes ?"
-            },
-            {
-                emoji: "😇",
-                message: "Si tu as la conscience tranquille, alors soit! Sinon, il vaut mieux renoncer. As-tu la conscience tranquille ?"
-            },
-            {
-                emoji: "😠",
-                message: "Ben quoi ?!? Alors ?!? Je fais de la compta et c'est plus ma joie ?!? Tu renonces déjà ?"
-            },
-            {
-                emoji: "🤬",
-                message: "Pardon ? Je crois que j'ai dû mal comprendre. Tu t'en vas ?"
-            }
-        ];
 
-        function openCloseConfirmModal() {
-            // Choisir un message aléatoire
-            const randomMessage = closeMessages[Math.floor(Math.random() * closeMessages.length)];
-            document.getElementById('closeEmoji').textContent = randomMessage.emoji;
-            document.getElementById('closeMessage').textContent = randomMessage.message;
-            
-            document.getElementById('closeConfirmModal').style.display = 'flex';
-        }
+// =====================================================================
+//  LE PROGRAMME — c'est ici qu'on ajoute ou modifie chapitres et sous-chapitres
+// ---------------------------------------------------------------------
+//  Chapitre simple :          { titre: "14 TVA", lien: "La_Compta_TVA.html" },
+//  Chapitre sans page :       { titre: "57 Tableau des flux" },            (affiché « bientôt »)
+//  Chapitre avec sous-chapitres (s'ouvrent dans une fenêtre) :
+//      { titre: "25 Salaires", fenetre: "25 Salaires - Parties", sous: [
+//          { titre: "1. Etablir un décompte", lien: "La_Compta_SalairesDcpte.html" },
+//          { titre: "2. Comptabiliser",       lien: "La_Compta_Salaires.html" },
+//      ]},
+//  ("fenetre" = titre de la fenêtre ; facultatif, sinon on reprend "titre")
+//  Facultatif : emoji: "🧾"  pour choisir l'icône (sinon elle est trouvée automatiquement)
+//  Espace vide entre deux chapitres :   { espace: true },
+//  Le type de chaque partie (théorie, exercice, quiz) est reconnu tout seul :
+//      lien qui finit par _th.html → 📘 théorie · lien ou titre avec « quiz » → 🎯 quiz · sinon ✏️ exercice
+//  Sur la carte, chaque étiquette est cliquable : s'il n'y a qu'une page de ce type, elle s'ouvre directement ;
+//  s'il y en a plusieurs, la fenêtre s'ouvre avec la liste complète. Un clic ailleurs sur la carte ouvre aussi la fenêtre.
+// =====================================================================
+const PROGRAMME = [
+    { annee: "1ère année", chapitres: [
+        { titre: "1.1 Introduction (Bilan, compte et journal)", fenetre: "1 Introduction à la comptabilité", sous: [
+            { titre: "1. Rappels théoriques", lien: "La_Compta_Bilan_Journal_th.html" },
+            { titre: "2. Exercices : Etablir un bilan", lien: "La_Compta_Bilan.html" },
+            { titre: "3. Exercices de journalisation", lien: "La_Compta_Journal.html" },
+            { titre: "4. Exercice : la nature des comptes", lien: "La_Compta_Nature.html" },
+        ]},
+        { titre: "1.2 Clôture des comptes", lien: "La_Compta_cloture_th.html" },
+        { titre: "2 et 3 Les intérêts et l'impôt anticipé", fenetre: "2 Intérêts - Parties", sous: [
+            { titre: "1. Calculer les jours", lien: "La_Compta_Jours.html" },
+            { titre: "2. Calculer les intérêts", lien: "La_Compta_Interets.html" },
+            { titre: "3. Journaliser", lien: "La_Compta_InteretsJrnl.html" },
+        ]},
+        { titre: "12 Marchandises", fenetre: "12 Marchandises - Chapitres", sous: [
+            { titre: "1. Comptabilisation", lien: "La_Compta_Marchandises.html" },
+            { titre: "2. Calcul du CAN, PRAMV, BB et BN", lien: "La_Compta_CAN.html" },
+            { titre: "3. Schéma des prix", lien: "La_Compta_Prix.html" },
+            { titre: "4. Etablir un Compte de résultat à 2 degrés", lien: "La_Compta_Resultat2.html" },
+        ]},
+        { titre: "13 Change", lien: "La_Compta_Change.html" },
+        { titre: "14 TVA", lien: "La_Compta_TVA.html" },
+    ]},
 
-        function closeCloseConfirmModal() {
-            document.getElementById('closeConfirmModal').style.display = 'none';
-        }
+    { annee: "2ème année", chapitres: [
+        { titre: "22 Pertes sur créances et provisions", sous: [
+            { titre: "1. Rappels théoriques", lien: "La_Compta_Provisions_th.html" },
+            { titre: "2. Exercices de comptabilisation", lien: "La_Compta_Provisions.html" },
+        ]},
+        { titre: "23 Les amortissements", sous: [
+            { titre: "1. Rappels théoriques", lien: "La_Compta_Amortissements_th.html" },
+            { titre: "2. Exercices de comptabilisation", lien: "La_Compta_Amortissements.html" },
+        ]},
+        { titre: "24 Les transitoires", sous: [
+            { titre: "1. Rappels théoriques", lien: "La_Compta_Transitoires_th.html" },
+            { titre: "2. Exercices de comptabilisation", lien: "La_Compta_Transitoires.html" },
+        ]},
+        { titre: "25 Salaires", fenetre: "25 Salaires - Parties", sous: [
+            { titre: "1. Rappels théoriques", lien: "La_Compta_Salaires_th.html" },
+            { titre: "2. Quiz", lien: "La_Compta_Salaires_quiz.html" },
+            { titre: "3. Etablir un décompte", lien: "La_Compta_SalairesDcpte.html" },
+            { titre: "4. Comptabiliser les écritures", lien: "La_Compta_Salaires.html" },
+        ]},
+        { titre: "35 Clôture d'une raison individuelle", sous: [
+            { titre: "1. Rappels théoriques", lien: "La_Compta_cloture_th.html" },
+            { titre: "2. Exercices de comptabilisation", lien: "La_Compta_ClotureRI.html" },
+            { titre: "3. Quiz de révision", lien: "La_Compta_cloture_quiz.html" },
+        ]},
+        { titre: "36 La SA (Société anonyme)", fenetre: "36 Les SA - Parties", sous: [
+            { titre: "1. Journalisation", lien: "La_Compta_SA-Journal.html" },
+            { titre: "2. Etablir un tableau de répartition du bénéfice", lien: "La_Compta_SA-BN.html" },
+        ]},
+        { titre: "54 Titres", fenetre: "54 Les titres - Parties", sous: [
+            { titre: "1. Rappels théoriques", lien: "La_Compta_Titres_th.html" },
+            { titre: "2. Journalisation", lien: "La_Compta_Titres.html" },
+            { titre: "3. Calcul du rendement des titres", lien: "La_Compta_Titres-Rdmt.html" },
+        ]},
+        { titre: "55 Immeubles", fenetre: "55 Immeubles - Parties", sous: [
+            { titre: "1. Journalisation", lien: "La_Compta_Immeubles.html" },
+            { titre: "2. Calcul de rendement", lien: "La_Compta_ImmeubleRdmt.html" },
+        ]},
+    ]},
 
-        function confirmClose() {
-            // Afficher l'animation du NON tremblotant
-            const noDrip = document.getElementById('noDrip');
-            noDrip.style.display = 'flex';
-            
-            // Fermer la page après l'animation
-            setTimeout(() => {
-                window.close();
-                // Si la fenêtre ne se ferme pas (pour des raisons de sécurité), rediriger
-                window.location.href = 'about:blank';
-            }, 3000);
-        }
+    { annee: "3ème année", chapitres: [
+        { titre: "37 Règles d'évaluation et réserves latentes", fenetre: "37 Règles d'évaluation et réserves latentes - Parties", sous: [
+            { titre: "1. Tableau des réserves latentes", lien: "La_Compta_RL-Tableau.html" },
+            { titre: "2. Journalisation de création/dissolution de réserves latentes", lien: "La_Compta_RL-Journal.html" },
+        ]},
+        { titre: "44 Seuil de rentabilité (point mort)", sous: [
+            { titre: "1. Lecture d'un graphique", lien: "La_Compta_PM_Graphique.html" },
+            { titre: "2. Réalisation d'un graphique", lien: "La_Compta_PM_GraphAFaire.html" },
+            { titre: "3. Problèmes mathématiques", lien: "La_Compta_PM_Calculs.html" },
+        ]},
+        { titre: "51 Analyse financière", lien: "La_Compta_Analyse_FaireleBilan.html" },
+        { titre: "56 Compte de résultat à 3/4 degrés", fenetre: "56 Comptes de résultat - Parties", sous: [
+            { titre: "1. Etablir un Compte de résultat à 2 degrés (Révision)", lien: "La_Compta_Resultat2.html" },
+            { titre: "2. Etablir un compte de résultat à 3 degrés", lien: "La_Compta_Resultat3.html" },
+            { titre: "3. Etablir un compte de résultat à 4 degrés", lien: "La_Compta_Resultat4.html" },
+            { titre: "4. Etablir un compte de résultat avec EBITDA, EBIT, etc.", lien: "La_Compta_EBIT.html" },
+        ]},
+        { titre: "57 Tableau des flux de trésorerie" },
+        { titre: "59 Comptabilité analytique d'exploitation" },
+        { espace: true },
+        { titre: "Laisser le sort décider de la révision!", lien: "La_Compta_Loterie.html" },
+    ]},
+];
 
+// ----- Icônes trouvées automatiquement d'après le titre (on peut en ajouter) -----
+const ICONES = [
+  ['introduction','📒'],['clôture','🔒'],['intérêt','💰'],['marchandise','📦'],['change','💱'],['tva','🧾'],
+  ['pertes','💸'],['amortissement','📉'],['transitoire','⏳'],['salaire','👷'],['sa ','🏢'],['société','🏢'],['titres','📈'],
+  ['immeuble','🏠'],['évaluation','🔍'],['seuil','⚖️'],['analyse','🔬'],['compte de résultat','📊'],['flux','🌊'],
+  ['analytique','🧮'],['sort','🎲']];
 
-        // =====================================================================
-        //  LE PROGRAMME — c'est ici qu'on ajoute ou modifie chapitres et sous-chapitres
-        // ---------------------------------------------------------------------
-        //  Chapitre simple :          { titre: "14 TVA", lien: "La_Compta_TVA.html" },
-        //  Chapitre sans page :       { titre: "57 Tableau des flux" },
-        //  Chapitre avec sous-chapitres (s'ouvrent dans une fenêtre) :
-        //      { titre: "25 Salaires", fenetre: "25 Salaires - Parties", sous: [
-        //          { titre: "1. Etablir un décompte", lien: "La_Compta_SalairesDcpte.html" },
-        //          { titre: "2. Comptabiliser",       lien: "La_Compta_Salaires.html" },
-        //      ]},
-        //  ("fenetre" = titre de la fenêtre ; facultatif, sinon on reprend "titre")
-        //  Espace vide entre deux chapitres :   { espace: true },
-        // =====================================================================
-        const PROGRAMME = [
-            { annee: "1ère année", chapitres: [
-                { titre: "1.1 Introduction (Bilan, compte et journal)", fenetre: "1 Introduction à la comptabilité", sous: [
-                    { titre: "1. Rappels théoriques", lien: "La_Compta_Bilan_Journal_th.html" },
-                    { titre: "2. Exercices : Etablir un bilan", lien: "La_Compta_Bilan.html" },
-                    { titre: "3. Exercices de journalisation", lien: "La_Compta_Journal.html" },
-					{ titre: "4. Exercice : la nature des comptes", lien: "La_Compta_Nature.html" },
-				]},
-                { titre: "1.2 Clôture des comptes", lien: "La_Compta_cloture_th.html" },
-                { titre: "2 et 3 Les intérêts et l'impôt anticipé", fenetre: "2 Intérêts - Parties", sous: [
-                    { titre: "1. Calculer les jours", lien: "La_Compta_Jours.html" },
-                    { titre: "2. Calculer les intérêts", lien: "La_Compta_Interets.html" },
-                    { titre: "3. Journaliser", lien: "La_Compta_InteretsJrnl.html" },
-                ]},
-                { titre: "12 Marchandises", fenetre: "12 Marchandises - Chapitres", sous: [
-                    { titre: "1. Comptabilisation", lien: "La_Compta_Marchandises.html" },
-                    { titre: "2. Calcul du CAN, PRAMV, BB et BN", lien: "La_Compta_CAN.html" },
-                    { titre: "3. Schéma des prix", lien: "La_Compta_Prix.html" },
-                    { titre: "4. Etablir un Compte de résultat à 2 degrés", lien: "La_Compta_Resultat2.html" },
-                ]},
-                { titre: "13 Change", lien: "La_Compta_Change.html" },
-                { titre: "14 TVA", lien: "La_Compta_TVA.html" },
-            ]},
+// ----- Construction de la page (pas besoin d'y toucher) -----
+const COUL = ['var(--y1)','var(--y2)','var(--y3)'];
+const icone = ch => ch.emoji || (ICONES.find(([k])=>(ch.titre+' ').toLowerCase().includes(k)) || [,'📘'])[1];
+const typeDe = s => /_th\.html$/i.test(s.lien||'') ? ['📘','théorie','th'] : /quiz/i.test((s.lien||'')+s.titre) ? ['🎯','quiz','qz'] : ['✏️','exercice','ex'];
+const decoupe = t => { const m = t.match(/^([\d.]+(?:\s+et\s+[\d.]+)?)\s+(.*)$/); return m ? [m[1], m[2]] : ['', t]; };
 
-            { annee: "2ème année", chapitres: [
-                { titre: "22 Pertes sur créances et provisions", sous: [
-                    { titre: "1. Rappels théoriques", lien: "La_Compta_Provisions_th.html" },
-                    { titre: "2. Exercices de comptabilisation", lien: "La_Compta_Provisions.html" },
-                ]},
-                { titre: "23 Les amortissements", sous: [
-                    { titre: "1. Rappels théoriques", lien: "La_Compta_Amortissements_th.html" },
-                    { titre: "2. Exercices de comptabilisation", lien: "La_Compta_Amortissements.html" },
-                ]},
-                { titre: "24 Les transitoires", sous: [
-                    { titre: "1. Rappels théoriques", lien: "La_Compta_Transitoires_th.html" },
-                    { titre: "2. Exercices de comptabilisation", lien: "La_Compta_Transitoires.html" },
-                ]},
-                { titre: "25 Salaires", fenetre: "25 Salaires - Parties", sous: [
-                    { titre: "1. Rappels théoriques", lien: "La_Compta_Salaires_th.html" },
-					{ titre: "2. Quiz", lien: "La_Compta_Salaires_quiz.html" },
-					{ titre: "3. Etablir un décompte", lien: "La_Compta_SalairesDcpte.html" },
-                    { titre: "4. Comptabiliser les écritures", lien: "La_Compta_Salaires.html" },
-                ]},
-                { titre: "35 Clôture d'une raison individuelle", sous: [
-                    { titre: "1. Rappels théoriques", lien: "La_Compta_cloture_th.html" },
-                    { titre: "2. Exercices de comptabilisation", lien: "La_Compta_ClotureRI.html" },
-					{ titre: "3. Quiz de révision", lien: "La_Compta_cloture_quiz.html" },
-                ]},
-                { titre: "36 La SA (Société anonyme)", fenetre: "36 Les SA - Parties", sous: [
-                    { titre: "1. Journalisation", lien: "La_Compta_SA-Journal.html" },
-                    { titre: "2. Etablir un tableau de répartition du bénéfice", lien: "La_Compta_SA-BN.html" },
-                ]},
-                { titre: "54 Titres", fenetre: "54 Les titres - Parties", sous: [
-                    { titre: "1. Rappels théoriques", lien: "La_Compta_Titres_th.html" },
-					{ titre: "2. Journalisation", lien: "La_Compta_Titres.html" },
-                    { titre: "3. Calcul du rendement des titres", lien: "La_Compta_Titres-Rdmt.html" },
-                ]},
-                { titre: "55 Immeubles", fenetre: "55 Immeubles - Parties", sous: [
-                    { titre: "1. Journalisation", lien: "La_Compta_Immeubles.html" },
-                    { titre: "2. Calcul de rendement", lien: "La_Compta_ImmeubleRdmt.html" },
-                ]},
-            ]},
+(function construirePage(){
+  const zone = document.getElementById('programme');
+  PROGRAMME.forEach((bloc, iy) => {
+    const col = document.createElement('section');
+    col.className = 'year'; col.style.setProperty('--c', COUL[iy % 3]);
+    const nb = bloc.chapitres.filter(c=>!c.espace).length;
+    col.innerHTML = `<h2><span class="num">${iy+1}</span>${bloc.annee}<small>${nb} thèmes</small></h2>`;
+    bloc.chapitres.forEach(ch => {
+      if (ch.espace) { col.insertAdjacentHTML('beforeend','<div class="gap"></div>'); return; }
+      const [no, ti] = decoupe(ch.titre);
+      let badges = '';
+      if (ch.sous) {
+        const g = {th:[], ex:[], qz:[]}; ch.sous.forEach(sb => g[typeDe(sb)[2]].push(sb));
+        // un seul élément du type → lien direct ; plusieurs → la fenêtre s'ouvre (liste complète)
+        const bdg = (k, txt) => !g[k].length ? '' : g[k].length===1
+          ? `<a class="b ${k} go1" href="${g[k][0].lien}" target="_blank" title="${g[k][0].titre}">${txt}</a>`
+          : `<span class="b ${k} go1" data-win="1" title="Voir la liste">${txt}</span>`;
+        badges = bdg('th','📘 théorie') + bdg('ex',`✏️ ${g.ex.length} exercice${g.ex.length>1?'s':''}`) + bdg('qz','🎯 quiz');
+      } else if (/sort/i.test(ch.titre)) { badges = `<span class="b qz">🎲 révision au hasard</span>`;
+      } else if (ch.lien) { const t = typeDe(ch); badges = `<span class="b ${t[2]}">${t[0]} ${t[1]}</span>`; }
+      else badges = `<span class="b">🚧 bientôt</span>`;
+      const el = document.createElement(ch.lien ? 'a' : 'div');
+      el.className = 'chap' + (ch.lien||ch.sous ? '' : ' soon') + (/sort/i.test(ch.titre) ? ' lucky' : '');
+      if (ch.lien) { el.href = ch.lien; el.target = '_blank'; }
+      if (ch.sous) { el.setAttribute('role','button'); el.tabIndex = 0;
+        el.onclick = e => { const a = e.target.closest('a.go1'); if (a) return; ouvrir(ch, COUL[iy % 3]); }; }
+      el.innerHTML = `<span class="em">${icone(ch)}</span><span class="tx"><div class="ti">${no?`<span class="no">${no}</span>`:''}${ti}</div><div class="bd">${badges}</div></span><span class="go">${ch.lien||ch.sous?'›':''}</span>`;
+      col.appendChild(el);
+    });
+    zone.appendChild(col);
+  });
+})();
 
-            { annee: "3ème année", chapitres: [
-                { titre: "37 Règles d'évaluation et réserves latentes", fenetre: "37 Règles d'évaluation et réserves latentes - Parties", sous: [
-                    { titre: "1. Tableau des réserves latentes", lien: "La_Compta_RL-Tableau.html" },
-                    { titre: "2. Journalisation de création/dissolution de réserves latentes", lien: "La_Compta_RL-Journal.html" },
-                ]},
-                { titre: "44 Seuil de rentabilité (point mort)", sous: [
-                    { titre: "1. Lecture d'un graphique", lien: "La_Compta_PM_Graphique.html" },
-                    { titre: "2. Réalisation d'un graphique", lien: "La_Compta_PM_GraphAFaire.html" },
-                    { titre: "3. Problèmes mathématiques", lien: "La_Compta_PM_Calculs.html" },
-                ]},
-                { titre: "51 Analyse financière", lien: "La_Compta_Analyse_FaireleBilan.html" },
-                { titre: "56 Compte de résultat à 3/4 degrés", fenetre: "56 Comptes de résultat - Parties", sous: [
-                    { titre: "1. Etablir un Compte de résultat à 2 degrés (Révision)", lien: "La_Compta_Resultat2.html" },
-                    { titre: "2. Etablir un compte de résultat à 3 degrés", lien: "La_Compta_Resultat3.html" },
-                    { titre: "3. Etablir un compte de résultat à 4 degrés", lien: "La_Compta_Resultat4.html" },
-                    { titre: "4. Etablir un compte de résultat avec EBITDA, EBIT, etc.", lien: "La_Compta_EBIT.html" },
-                ]},
-                { titre: "57 Tableau des flux de trésorerie" },
-                { titre: "59 Comptabilité analytique d'exploitation" },
-                { espace: true },
-                { titre: "Laisser le sort décider de la révision!", lien: "La_Compta_Loterie.html" },
-            ]},
-        ];
+function ouvrir(ch, c){
+  const m = document.getElementById('parts');
+  m.querySelector('.panel').style.setProperty('--c', c);
+  document.getElementById('p-em').textContent = icone(ch);
+  document.getElementById('p-ti').textContent = ch.fenetre || ch.titre;
+  document.getElementById('p-list').innerHTML = ch.sous.map((s,i) => { const t = typeDe(s);
+    return `<li><a href="${s.lien}" target="_blank" style="animation-delay:${i*70}ms"><span class="ic">${t[0]}</span><span class="pt">${s.titre}</span><span class="b ${t[2]}">${t[1]}</span></a></li>`; }).join('');
+  m.classList.add('open');
+}
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.addEventListener('click', e => { if (e.target.classList.contains('modal')) e.target.classList.remove('open'); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open')); });
 
-        // ----- Construction de la page à partir de PROGRAMME (pas besoin d'y toucher) -----
-        (function construirePage() {
-            const zone = document.getElementById('programme');
-            const fenetre = document.getElementById('subchapterModal');
-
-            PROGRAMME.forEach(bloc => {
-                const section = document.createElement('div');
-                section.className = 'year-section';
-                section.innerHTML = `<h2 class="year-title">${bloc.annee}</h2><div class="chapters"></div>`;
-                const liste = section.querySelector('.chapters');
-
-                bloc.chapitres.forEach(ch => {
-                    if (ch.espace) { liste.appendChild(document.createElement('br')); return; }
-                    const div = document.createElement('div');
-                    if (ch.sous) {
-                        div.className = 'chapter has-subchapters';
-                        div.textContent = ch.titre;
-                        div.onclick = () => ouvrirFenetre(ch);
-                    } else if (ch.lien) {
-                        div.className = 'chapter';
-                        div.innerHTML = `<a href="${ch.lien}" target="_blank">${ch.titre}</a>`;
-                    } else {
-                        div.className = 'chapter no-link';
-                        div.textContent = ch.titre;
-                    }
-                    liste.appendChild(div);
-                });
-                zone.appendChild(section);
-            });
-
-            function ouvrirFenetre(ch) {
-                fenetre.querySelector('.modal-title').textContent = ch.fenetre || ch.titre;
-                fenetre.querySelector('.subchapters').innerHTML = ch.sous.map(s =>
-                    `<li class="subchapter"><a href="${s.lien}" target="_blank">${s.titre}</a></li>`
-                ).join('');
-                fenetre.style.display = 'flex';
-            }
-        })();
-
-        function closeModal() {
-            document.getElementById('subchapterModal').style.display = 'none';
-        }
-
-        // Fermer n'importe quelle modale en cliquant à l'extérieur
-        document.addEventListener('click', function(event) {
-            const modals = document.querySelectorAll('.modal');
-            modals.forEach(function(modal) {
-                if (event.target === modal) {
-                    modal.style.display = 'none';
-                }
-            });
-        });
-    </script>
+// ----- Fermeture (messages conservés) -----
+const closeMessages = [
+  {emoji:"😱", message:"Tu oses me quitter! C'est vraiment ce que tu veux ?"},
+  {emoji:"👻", message:"Me quitter peut avoir des conséquences sur 5 GENERATIONS! Réfléchis, c'est bien ce que tu veux ?"},
+  {emoji:"😢", message:"Déjà, on vient à peine de commencer. Tu confirmes ?"},
+  {emoji:"😇", message:"Si tu as la conscience tranquille, alors soit! Sinon, il vaut mieux renoncer. As-tu la conscience tranquille ?"},
+  {emoji:"😠", message:"Ben quoi ?!? Alors ?!? Je fais de la compta et c'est plus ma joie ?!? Tu renonces déjà ?"},
+  {emoji:"🤬", message:"Pardon ? Je crois que j'ai dû mal comprendre. Tu t'en vas ?"}];
+function openClose(){
+  const r = closeMessages[Math.floor(Math.random()*closeMessages.length)];
+  document.getElementById('closeEmoji').textContent = r.emoji;
+  document.getElementById('closeMessage').textContent = r.message;
+  document.getElementById('closeConfirm').classList.add('open');
+}
+function confirmClose(){
+  document.getElementById('noDrip').style.display = 'flex';
+  setTimeout(() => { window.close(); window.location.href = 'about:blank'; }, 3000);
+}
+</script>
 </body>
 </html>
