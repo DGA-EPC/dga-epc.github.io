@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>L'analyse financière – théorie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+<style>
+
+
+
+:root{
+  --bg:#f5f3ee; --card:#fff; --ink:#1e2226; --muted:#6a6f76; --line:#e2ddd2; --soft:#efebe3;
+  --charge:#c2671f; --charge-bg:#fcefe3;
+  --produit:#2b8352; --produit-bg:#e6f4eb;
+  --res:#6d48b3; --res-bg:#efe9f9;
+  --passif:#a3333d; --passif-bg:#f8e8ea;
+  --bilan:#20394f; --bilan-bg:#e6ecf1;
+  --actif:#2a52be; --actif-bg:#e8eefb;
+  --accent:#c98a10; --accent-bg:#fff3d6;
+  --y1:#e8eefb; --y2:#fff3d6;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  /* *** Couleur fond *** */
+  background:#052035;
+  color:var(--ink);font:14px/1.45 Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+.app{zoom:var(--z,1);display:grid;grid-template-columns:370px minmax(0,1fr);gap:24px;max-width:1520px;margin:0 auto;padding:20px}
+aside{position:sticky;top:calc(20px / var(--z,1));align-self:start;max-height:calc((100vh - 40px) / var(--z,1));overflow:auto;display:flex;flex-direction:column;gap:14px;padding-bottom:4px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+h1{font-family:Fraunces,Georgia,serif;font-size:26px;line-height:1.15;margin:0 0 4px;font-weight:700}
+.sub{color:var(--muted);font-size:13px;margin:0}
+.dots{display:flex;gap:6px;margin:14px 0 2px}
+.dot{flex:1;height:6px;border-radius:3px;background:var(--soft);border:0;padding:0;cursor:pointer}
+.dot.done{background:#cbbfa6}.dot.cur{background:var(--accent)}
+.stepno{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.steptitle{font-family:Fraunces,Georgia,serif;font-size:21px;line-height:1.2;margin:0 0 8px}
+.steptext{margin:0 0 10px}
+.calc{background:var(--accent-bg);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:13.5px}
+.calc .row{display:flex;justify-content:space-between;gap:8px}
+.calc .row.big{font-weight:700;border-top:1px solid #e8d49f;margin-top:6px;padding-top:6px;font-size:15px}
+.calc.q{background:var(--bilan-bg)}
+.choices{display:flex;gap:8px;margin-top:10px}
+.ch{flex:1;font:inherit;font-weight:600;border-radius:10px;border:2px solid var(--bilan);background:#fff;color:var(--bilan);padding:9px 10px;cursor:pointer}
+.ch:not(:disabled):hover{background:var(--bilan);color:#fff}
+.ch:disabled{cursor:default;opacity:.45}
+.ch.ok{background:var(--produit);border-color:var(--produit);color:#fff;opacity:1}
+.ch.ko{background:var(--charge);border-color:var(--charge);color:#fff;opacity:1}
+.fb{margin-top:10px;padding:8px 10px;border-radius:8px;background:#fff;animation:pop 1.2s ease-out}
+.fb.ok{border-left:4px solid var(--produit)}.fb.ko{border-left:4px solid var(--charge)}
+.ch.blink{animation:blink 1.4s ease-in-out 2}
+@keyframes blink{0%,100%{box-shadow:0 0 0 0 rgba(32,57,79,0)}50%{box-shadow:0 0 0 5px rgba(201,138,16,.75);background:var(--accent-bg)}}
+.hint{font-size:12px;color:var(--muted);margin-top:8px;font-style:italic}
+.tag{display:inline-block;padding:2px 9px;border-radius:999px;font-weight:600;font-size:12.5px}
+.tag.good{background:var(--produit-bg);color:var(--produit)}
+.tag.bad{background:var(--charge-bg);color:var(--charge)}
+.tag.neutral{background:var(--soft);color:var(--muted)}
+.tag.at{background:var(--actif-bg);color:var(--actif)}
+.tag.pt{background:var(--passif-bg);color:var(--passif)}
+.journal{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+.journal caption{text-align:left;font-weight:600;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding-bottom:4px}
+.journal th{text-align:left;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding:4px 4px}
+.journal td{padding:4px 4px;border-bottom:1px dashed var(--line)}
+.journal td.am,.journal th.am{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.journal td.dt{color:var(--muted);white-space:nowrap}
+.journal tr.todo td{opacity:.38}
+.journal tr.cur td{background:var(--accent-bg);font-weight:600}
+.nav{display:flex;gap:8px}
+.btn{flex:1;font:inherit;font-weight:600;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:11px 12px;cursor:pointer}
+.btn.primary{background:#256015;color:#fff;border-color:var(--ink)}
+.btn.quiz{display:flex;align-items:center;justify-content:center;background:#037DFF;color:#fff;border-color:#037DFF;text-align:center;text-decoration:none}
+.btn.quit{background:#ff4747;color:#fff;border-color:#ff4747}
+.btn:disabled{opacity:.4;cursor:default}
+.btn:not(:disabled):hover{filter:brightness(1.5)}
+details summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"＋";color:var(--muted)}
+details[open] summary::after{content:"－"}
+.note{font-size:12px;color:var(--muted);margin:10px 0 0}
+
+.stage{display:flex;flex-direction:column;gap:18px;min-width:0}
+section.sec{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px 16px}
+section.sec h2{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 12px;font-weight:600;display:flex;align-items:center;gap:8px}
+section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--soft);color:var(--ink);font-size:11px}
+.story{font-size:15px;background:var(--soft);border-radius:10px;padding:10px 14px;margin-bottom:14px}
+.story b{font-variant-numeric:tabular-nums}
+
+/* Ligne du temps */
+.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;align-items:start}
+.t{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 9px 8px;position:relative;min-width:0}
+.t-head{font-weight:700;font-size:13.5px;text-align:center;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.k-charge .t-head{color:var(--charge)}.k-produit .t-head{color:var(--produit)}.k-passif .t-head{color:var(--passif)}.k-actif .t-head{color:var(--actif)}
+.t-sides{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:baseline;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--ink);padding:0 0 2px}
+.t-body{display:grid;grid-template-columns:1fr 1fr;min-height:46px}
+.col{padding:4px 4px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.col.d{border-right:2px solid var(--ink)}
+.ln{display:flex;flex-wrap:wrap;justify-content:space-between;gap:3px;font-size:11.5px;border-radius:4px;padding:1px 2px}
+.ln .lb{color:var(--muted);line-height:1.25;min-width:0}
+.ln .am{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:500;margin-left:auto}
+.ln.ext .lb{font-style:italic}
+.ln.fresh{animation:pop 1.8s ease-out;background:#ffe08a33}
+@keyframes pop{0%{background:#ffe08a}100%{background:#ffe08a33}}
+.t.focus{box-shadow:0 0 0 2px var(--accent),0 6px 18px rgba(0,0,0,.08)}
+.eff{font-size:12px;margin-top:6px;text-align:center}
+.eff .tag{font-size:11.5px}
+
+/* Introduction et résumé */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.box{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.box h4{margin:0 0 6px;font-size:14px}
+.quad{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.quad .hd{text-align:center;font-family:Fraunces,Georgia,serif;font-size:19px;font-weight:700;padding:8px;border-radius:10px}
+.quad .hd.at{background:var(--actif-bg);color:var(--actif)}.quad .hd.pt{background:var(--passif-bg);color:var(--passif)}
+.qc{border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;transition:box-shadow .2s}
+.qc:hover{box-shadow:0 0 0 2px var(--accent)}
+.qc h4{margin:0 0 4px;font-size:15px}
+.qc .ex{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
+.qc .ecr{display:flex;justify-content:space-between;font-size:13px;background:var(--soft);border-radius:8px;padding:6px 10px;font-weight:600}
+.qc .ecr span:last-child{color:var(--muted);font-weight:500}
+
+.zoombar{position:fixed;top:8px;right:10px;z-index:60;display:flex;gap:2px;opacity:.55;transition:opacity .2s}
+.zoombar:hover{opacity:1}
+.zoombar button{font:600 13px Inter,system-ui,sans-serif;color:var(--muted);background:rgba(255,255,255,.85);border:1px solid var(--line);border-radius:7px;padding:3px 8px;cursor:pointer}
+.zoombar button:hover{color:var(--ink)}
+
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;padding:12px 12px 90px}
+  aside{position:static;max-height:none;overflow:visible}
+  .nav-wrap{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(245,243,238,.95);backdrop-filter:blur(6px);padding:10px 12px;border-top:1px solid var(--line)}
+  .two,.quad{grid-template-columns:1fr}
+}
+
+/* --- Amortissements --- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s,box-shadow .3s}
+.card.on{box-shadow:0 0 0 2px var(--accent)}
+.card.off{opacity:.45}
+.card .lt{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--soft);font-weight:700;font-size:12px;margin-right:6px}
+.card h4{margin:0 0 4px;font-size:15px;display:flex;align-items:center}
+.card .ex{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
+.ecr{display:flex;justify-content:space-between;gap:8px;font-size:13px;background:var(--soft);border-radius:8px;padding:6px 10px;font-weight:600}
+.ecr span:last-child{color:var(--muted);font-weight:500}
+.ico{font-size:26px;line-height:1;margin-bottom:6px}
+.vocab{width:100%;border-collapse:collapse;font-size:13.5px}
+.vocab td{padding:7px 8px;border-bottom:1px dashed var(--line);vertical-align:top}
+.vocab td:first-child{font-weight:600;white-space:nowrap}
+.vocab tr.cur td{background:var(--accent-bg)}
+.vbar{display:flex;height:42px;border-radius:8px;overflow:hidden;margin:26px 0 8px;font-size:12.5px;font-weight:600;color:#fff;position:relative}
+.vbar div{display:flex;align-items:center;justify-content:center;white-space:nowrap}
+.tab{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+.tab th{color:var(--muted);font-weight:500;border-bottom:2px solid var(--ink);padding:6px 8px;text-align:right}
+.tab th:first-child,.tab td:first-child{text-align:left}
+.tab td{padding:6px 8px;border-bottom:1px dashed var(--line);text-align:right}
+.tab tr.todo td{color:transparent}
+.tab tr.cur td{background:var(--accent-bg);font-weight:700}
+.tab tr.cur td.am{color:var(--charge)}
+.tab td.am{color:var(--charge)}.tab td.vr{color:var(--actif)}
+.chart{width:100%;height:auto;display:block}
+.chart text{font:11px Inter,system-ui,sans-serif;fill:var(--muted)}
+.chart .lg text{fill:var(--ink);font-weight:600}
+.bil{border:1px solid var(--line);border-radius:12px;padding:10px 14px;max-width:420px}
+.bil h4{margin:0 0 6px;font-family:Fraunces,Georgia,serif;color:var(--bilan)}
+.bil .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;padding:2px 0}
+.bil .row.sub{color:var(--passif)}
+.bil .row.tot{font-weight:700;border-top:1px solid var(--ink);margin-top:4px;padding-top:4px}
+.bil .grp{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:4px}
+.k-fac .t-head{color:var(--passif)}
+.t-head{white-space:normal !important;line-height:1.2;overflow:visible !important;text-overflow:clip !important;hyphens:auto;-webkit-hyphens:auto}
+.split{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:1100px){ .split{grid-template-columns:1fr} }
+
+/* --- Bilan et journal --- */
+.inv{width:100%;border-collapse:collapse;font-size:14px}
+.inv td{padding:8px 8px;border-bottom:1px dashed var(--line);vertical-align:middle}
+.inv td.am{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+.inv td.tg2,.inv td.acc{width:1%;white-space:nowrap}
+.inv tr.hl td{background:var(--accent-bg)}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-weight:600;font-size:12.5px;animation:fadein .6s ease-out}
+@keyframes fadein{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
+.pill.a{background:var(--actif-bg);color:var(--actif)}.pill.p{background:var(--passif-bg);color:var(--passif)}
+.pill.acc{background:var(--soft);color:var(--ink)}
+.bl{display:grid;grid-template-columns:1fr 1fr;max-width:720px;margin:0 auto}
+.bl-title{grid-column:1/-1;text-align:center;font-family:Fraunces,Georgia,serif;font-weight:700;font-size:18px;padding-bottom:4px}
+.bl-head{font-weight:700;padding:4px 12px;border-bottom:3px solid var(--ink)}
+.bl-head small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.bl-head.a{color:var(--actif)}.bl-head.p{color:var(--passif);text-align:right}
+.bl-side{padding:6px 12px 8px;display:flex;flex-direction:column;gap:2px;min-height:60px}
+.bl-side.a{border-right:3px solid var(--ink)}
+.br{display:flex;justify-content:space-between;gap:10px;font-variant-numeric:tabular-nums;padding:2px 4px;border-radius:4px}
+.br.new{animation:pop 1.6s ease-out}
+.br.cap{color:var(--res);font-weight:700}
+.br.dec{color:var(--charge);font-weight:700}
+.bg{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:8px;padding:0 4px}
+.bg:first-child{margin-top:0}
+.bt{display:flex;justify-content:space-between;font-weight:700;border-top:2px solid var(--ink);padding:4px 16px;font-variant-numeric:tabular-nums}
+.bt.bad{color:var(--charge)}
+.order{font-size:12px;font-weight:600;color:var(--accent);padding:2px 4px}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.qa{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s}
+.qa.off{opacity:.25}
+.qa h4{margin:0 0 6px;font-size:15px}
+.acct{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px}
+.acct caption{text-align:left;font-weight:700;padding-bottom:4px}
+.acct th{color:var(--muted);font-weight:500;border-bottom:2px solid var(--ink);padding:4px 6px;text-align:left}
+.acct td{padding:4px 6px;border-bottom:1px dashed var(--line)}
+.acct td.n{text-align:right;font-variant-numeric:tabular-nums}
+.acct th.n{text-align:right}
+.rules{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rule{border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:center}
+.rule h4{margin:0 0 6px}
+.rule .pm{display:grid;grid-template-columns:1fr 1fr;border-top:2px solid var(--ink);font-size:22px;font-weight:700}
+.rule .pm span:first-child{border-right:2px solid var(--ink)}
+.rule .pm small{display:block;font-size:11px;color:var(--muted);font-weight:500}
+.plus{color:var(--produit)}.minus{color:var(--charge)}
+.case{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s,box-shadow .3s}
+.case.on{box-shadow:0 0 0 2px var(--accent)}.case.off{opacity:.4}
+.case p{margin:0 0 8px;font-size:14.5px}
+.t-sides .sg{font-weight:700}
+.inv tr.invhead td{border-bottom:0;padding-bottom:2px}
+.colbox{position:relative;display:block;text-align:center;font-weight:700;font-size:13px;color:var(--ink);border:2px solid var(--accent);border-radius:8px;padding:4px 10px;background:var(--accent-bg);animation:fadein .6s ease-out}
+.colarrow{position:absolute;left:50%;top:100%;transform:translateX(-50%);font-size:26px;line-height:1;color:var(--accent);animation:arrowgo 2.8s ease-in-out forwards;pointer-events:none}
+@keyframes arrowgo{0%{opacity:0;margin-top:-6px}15%{opacity:1}30%{margin-top:6px}45%{margin-top:-2px}60%{margin-top:6px;opacity:1}100%{opacity:0;margin-top:10px}}
+.bg.hl{color:var(--actif);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;font-size:12.5px}
+.bl-side.p .bg.hl{color:var(--passif)}
+.bl-side.dim,.bl-head.dim{opacity:.3}
+.t-head{white-space:normal !important;line-height:1.2;overflow:visible !important;text-overflow:clip !important;hyphens:auto;-webkit-hyphens:auto}
+
+/* --- Salaires --- */
+.taux{border:3px solid var(--accent);border-radius:14px;padding:12px 16px;background:#fffdf6}
+.taux h3{margin:0 0 8px;font-family:Fraunces,Georgia,serif;color:var(--accent);display:flex;justify-content:space-between;align-items:baseline}
+.taux h3 small{font-family:Inter,sans-serif;font-size:12px;color:var(--muted);font-weight:500}
+.tt{width:100%;border-collapse:collapse;font-size:13.5px}
+.tt th{text-align:left;color:var(--muted);font-weight:500;border-bottom:2px solid var(--ink);padding:5px 8px}
+.tt td{padding:5px 8px;border-bottom:1px dashed var(--line)}
+.tt td.n,.tt th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tt tr.hl td{background:var(--accent-bg);font-weight:600}
+.lpp{border:3px solid var(--res);border-radius:14px;padding:12px 16px;background:#faf8fe}
+.lpp h3{margin:0 0 8px;font-family:Fraunces,Georgia,serif;color:var(--res)}
+.warn2{font-size:12.5px;color:var(--charge);background:var(--charge-bg);border-radius:8px;padding:6px 10px;margin-top:8px}
+.slip{width:100%;max-width:720px;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.slip td{padding:6px 10px;border-bottom:1px dashed var(--line)}
+.slip td.n{text-align:right;white-space:nowrap}
+.slip td.calc2{color:var(--muted);font-size:12.5px}
+.slip tr.add td:first-child{border-left:4px solid var(--produit)}
+.slip tr.sub td:first-child{border-left:4px solid var(--charge)}
+.slip tr.pay td:first-child{border-left:4px solid var(--actif)}
+.slip tr.add td.n{color:var(--produit)}.slip tr.sub td.n{color:var(--charge)}.slip tr.pay td.n{color:var(--actif)}
+.slip tr.tot td{font-weight:700;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
+.slip tr.hide td{opacity:0}
+.slip tr.cur td{background:var(--accent-bg)}
+.chip{display:inline-block;padding:2px 9px;border-radius:7px;font-weight:600;font-size:13px}
+.chip.charge{background:var(--charge-bg);color:var(--charge)}
+.chip.passif{background:var(--passif-bg);color:var(--passif)}
+.chip.actif{background:var(--actif-bg);color:var(--actif)}
+.jl2{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.jl2 th{text-align:left;color:var(--muted);font-weight:500;border-bottom:2px solid var(--ink);padding:6px 8px}
+.jl2 th.n,.jl2 td.n{text-align:right}
+.jl2 td{padding:6px 8px;border-bottom:1px dashed var(--line)}
+.jl2 tr.cur td{background:var(--accent-bg)}
+.jl2 tr.new td{animation:pop 1.6s ease-out}
+.jl2 tr.hide td{opacity:0}
+.jl2 tr.tot td{font-weight:700;border-top:2px solid var(--ink)}
+.jl2 td.why{color:var(--muted);font-size:12.5px}
+.flow{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:0;align-items:center;max-width:820px;margin:10px auto}
+.node{border:2px solid var(--line);border-radius:14px;padding:14px 10px;text-align:center;font-weight:700;font-size:16px;background:#fff;position:relative;z-index:1}
+.node small{display:block;font-weight:500;font-size:12px;color:var(--muted)}
+.node.alfa{border-color:var(--res);color:var(--res)}.node.ent{border-color:var(--bilan);color:var(--bilan)}.node.emp{border-color:var(--produit);color:var(--produit)}
+.arrows{grid-column:1/-1;display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.arw{display:grid;grid-template-columns:1fr 1.2fr 1fr;align-items:center;font-size:13.5px;transition:opacity .4s}
+.arw.off{opacity:.12}
+.arw .line{height:4px;border-radius:2px;position:relative}
+.arw .line::after{content:"";position:absolute;top:-6px;border:8px solid transparent}
+.arw.r .line::after{right:-4px;border-left-color:inherit;border-left-width:12px;border-right-width:0}
+.arw.l .line::after{left:-4px;border-right-color:inherit;border-right-width:12px;border-left-width:0}
+.arw .lab{text-align:center;font-weight:600}
+.arw .amt{font-variant-numeric:tabular-nums;font-weight:700}
+.arw.new{animation:pop 1.6s ease-out}
+.bal{display:flex;flex-direction:column;gap:6px;max-width:520px;margin:14px auto 0;font-size:14px}
+.bal .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;padding:4px 10px;border-radius:6px}
+.bal .row.tot{font-weight:700;border-top:2px solid var(--ink)}
+.dues{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.due{border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.due h4{margin:0 0 6px;font-size:14px;color:var(--passif)}
+.due .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;font-size:13.5px}
+.due .row.tot{font-weight:700;border-top:1px solid var(--ink);margin-top:4px;padding-top:4px}
+.due.on{box-shadow:0 0 0 2px var(--accent)}
+/* --- Analyse financière --- */
+:root{--liq:#DCEDD5;--cre:#B8DCAB;--sto:#95CA82;--circ:#3A7D23;--imm:#A9CBF5;--dct:#FBE3D6;--dlt:#FFFFCC;--csoc:#FFF3AB;--ccr:#FFEC79;--perm:#FFCC66}
+.parts{display:flex;gap:6px;margin-top:12px}
+.parts button{flex:1;font:inherit;font-size:12px;font-weight:600;border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 4px;cursor:pointer;line-height:1.2}
+.parts button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.parts button small{display:block;font-weight:500;font-size:10.5px;opacity:.75}
+.dots .sep{width:8px;flex:none}
+.bc{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+.bc td{padding:4px 8px;border-bottom:1px solid #fff;transition:background .4s}
+.bc td.n{text-align:right;white-space:nowrap}
+.bc tr.pend td{background:#fff;outline:2px dashed var(--accent);outline-offset:-2px}
+.bc th{text-align:left;font-size:12px;color:var(--muted);font-weight:600;padding:4px 8px;border-bottom:2px solid var(--ink)}
+.two2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.ba{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.ba .gh{display:flex;justify-content:space-between;font-weight:700;padding:6px 10px;font-size:13.5px;font-variant-numeric:tabular-nums}
+.ba .gh.new{animation:ghin .7s ease-out}
+@keyframes ghin{from{opacity:0;transform:translateX(16px)}}
+.ba .gi{display:flex;justify-content:space-between;padding:2px 10px 2px 22px;font-size:12px;color:#444;font-variant-numeric:tabular-nums}
+.ba .tot{display:flex;justify-content:space-between;font-weight:800;padding:7px 10px;border-top:2px solid var(--ink);font-variant-numeric:tabular-nums}
+.blocks{display:grid;grid-template-columns:1fr 1fr;gap:0;max-width:640px;margin:0 auto;position:relative}
+.bcol{display:flex;flex-direction:column;border:2px solid var(--ink)}
+.bcol.p{border-left:0}
+.blk{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;font-size:12.5px;font-weight:700;border-bottom:1px solid rgba(0,0,0,.25);transition:opacity .3s,box-shadow .3s;position:relative;overflow:hidden;min-height:24px}
+.blk:last-child{border-bottom:0}
+.blk small{font-weight:500;font-size:11.5px}
+.blk.dim{opacity:.22}
+.blk.num{box-shadow:inset 0 0 0 4px #1f7a4d;opacity:1}
+.blk.den{box-shadow:inset 0 0 0 4px #2a52be;opacity:1}
+.blk.num.den{box-shadow:inset 0 0 0 4px #1f7a4d,inset 0 0 0 8px #2a52be}
+.bhead{display:grid;grid-template-columns:1fr 1fr;max-width:640px;margin:0 auto 4px;font-weight:700;font-size:13px}
+.bhead div:last-child{text-align:right}
+.brace{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px;font-size:12.5px}
+.brace span{padding:3px 10px;border-radius:999px;font-weight:600}
+.frac{display:inline-flex;flex-direction:column;align-items:stretch;text-align:center;vertical-align:middle;margin:0 6px}
+.frac .nu{padding:0 4px 4px;border-bottom:4px solid var(--ink)}
+.frac .de{padding:3px 4px 0}
+.gchip{display:inline-block;padding:1px 8px;border-radius:7px;font-weight:700;font-size:13px;margin:1px;border:2px solid transparent}
+.gchip.n{border-color:#1f7a4d}.gchip.d{border-color:#2a52be}
+.ratio{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:15px}
+.ratio .eq{font-weight:800;font-size:22px}
+.gauge{position:relative;height:16px;border-radius:8px;background:#f1d4d4;margin:40px 0 26px;max-width:560px}
+.gauge .ok{position:absolute;top:0;bottom:0;background:#bfe3c9;border-radius:8px}
+.gauge .mk{position:absolute;top:-8px;width:4px;height:32px;background:var(--ink);border-radius:2px;transform:translateX(-50%);transition:left .6s}
+.gauge .mk span{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-weight:800;font-size:13px;white-space:nowrap}
+.gauge .lb{position:absolute;top:20px;font-size:11px;color:var(--muted);transform:translateX(-50%);white-space:nowrap}
+.verdict{display:inline-block;margin-top:4px;padding:4px 12px;border-radius:999px;font-weight:700;font-size:13px}
+.verdict.ok{background:var(--produit-bg);color:var(--produit)}.verdict.warn{background:var(--charge-bg);color:var(--charge)}.verdict.info{background:var(--soft);color:var(--muted)}
+.casc{width:100%;max-width:760px;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.casc td{padding:5px 8px}
+.casc td.n{text-align:right;width:110px;white-space:nowrap}
+.casc td.bar{width:44%}
+.casc .bx{height:16px;border-radius:4px;transition:width .6s}
+.casc tr.sub td:first-child{padding-left:22px;color:#444}
+.casc tr.res td{font-weight:800;border-top:2px solid var(--ink)}
+.casc tr.hide{visibility:hidden}
+.casc tr.hl td{background:var(--accent-bg)}
+.casc tr.nu td:first-child{box-shadow:inset 4px 0 0 #1f7a4d}.casc tr.de td:first-child{box-shadow:inset 4px 0 0 #2a52be}
+.dtab{border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+.dtab th,.dtab td{padding:4px 10px;border-bottom:1px dashed var(--line);text-align:right}
+.dtab th:first-child,.dtab td:first-child{text-align:left}
+.dtab tr.hl td{background:var(--accent-bg);font-weight:700}
+.legend{font-size:12px;color:var(--muted);margin-top:8px}
+.legend b.n{color:#1f7a4d}.legend b.d{color:#2a52be}
+.anab{width:100%;max-width:760px;margin:0 auto;border-collapse:collapse;font-size:15px;font-variant-numeric:tabular-nums}
+.anab td{width:50%;border:1px solid #fff;padding:6px 12px;font-weight:700;vertical-align:middle;transition:background .5s}
+.anab .rb{display:flex;justify-content:space-between;gap:10px}
+.anab td.grow{animation:cellin .9s ease-out}
+@keyframes cellin{from{opacity:.2}}
+.anab tr.t td{background:#fff;border-top:2px solid var(--ink);font-weight:800}
+.rubg{display:grid;grid-template-columns:130px 1fr 1fr 130px;gap:0 6px;max-width:820px;margin:0 auto}
+.rcol,.rside{display:flex;flex-direction:column;gap:3px}
+.rside{padding-top:27px}
+.rhead{font-weight:700;font-size:13px;height:24px}
+.rcol:nth-child(3) .rhead{text-align:right}
+.rub{height:46px;display:flex;align-items:center;padding:0 14px;font-weight:700;font-size:15px;border-radius:4px;transition:background .4s}
+.rub.tall{height:95px}
+.rub.new{animation:rubin .8s cubic-bezier(.2,1.4,.4,1);box-shadow:0 0 0 3px var(--accent)}
+@keyframes rubin{from{opacity:0;transform:scale(.85)}}
+.rgap{height:16px;flex:none}
+.rgrp{height:144px;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:14px;border-radius:4px;padding:0 8px;opacity:0;transition:opacity .8s}
+.rgrp.on{opacity:1}
+.rfill{height:95px}
+.rubd{border-radius:12px;padding:12px 16px;max-width:560px;animation:cellin .8s ease-out}
+.rubt{font-weight:800;font-size:16px;margin-bottom:6px}
+.rubt small{font-weight:500;font-size:13px}
+.ruba{font-size:14.5px;padding:2px 0 2px 14px}
+.bil2{display:grid;grid-template-columns:1fr 1fr;font-size:12.5px;font-variant-numeric:tabular-nums}
+.bcl{display:flex;flex-direction:column;padding-right:12px}
+.bcl.r{padding:0 0 0 12px;border-left:2px solid var(--ink)}
+.br2{display:flex;justify-content:space-between;gap:10px;padding:2px 8px;border-bottom:1px solid #fff;transition:background-color .5s}
+.br2.nw{animation:cellin .9s ease-out;font-weight:700}
+.bcl .sp{height:10px;flex:none}
+.bt2{display:flex;justify-content:space-between;margin-top:auto;padding:4px 8px 0;font-weight:800;border-top:2px solid var(--ink)}
+.bcl .br2:last-of-type{margin-bottom:6px}
+.rlist{display:flex;flex-direction:column;gap:8px}
+.rrow{display:grid;grid-template-columns:1fr 170px;gap:18px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:8px 14px}
+.rnm{font-weight:700;font-size:14.5px;margin-bottom:6px}
+.rnm small{font-weight:500;color:var(--muted);font-size:12.5px;margin-left:10px}
+.rrow .ratio{font-size:14px}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:0 3px;width:170px}
+.mc{display:flex;flex-direction:column;gap:2px}
+.mb{height:21px;border-radius:2px;background:#e4e1da}
+.mb.t{height:44px}
+.mg{height:8px}
+.rrow3{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) 170px;gap:6px 18px;align-items:start;border:1px solid var(--line);border-radius:12px;padding:6px 14px 10px}
+.rrow3 .rnm{margin:0 0 4px;color:#2a52be;font-size:15.5px}
+section.sec h2{color:#c0262d}
+.cycf{font-size:15px;margin-bottom:10px;line-height:1.6}
+.chart.cyc text{font-size:14px}
+.chart.cyc .cyin{animation:cellin .8s ease-out}
+.rgold{color:#c0262d;font-weight:800}
+section.sec h2 span:not(.n){color:var(--muted)}
+.rrow3>div:nth-child(2){padding-top:24px}
+.rrow3.cur{box-shadow:0 0 0 2px var(--accent);animation:cellin .7s ease-out}
+.rrow3 .ratio{font-size:14px;gap:6px}
+.rrow3 .ratio .eq{font-size:19px}
+.rnorm{font-size:12.5px;color:var(--muted);margin-top:8px}
+.rnorm .verdict{margin:0 0 0 6px;padding:2px 9px;font-size:12px}
+.rtxt{grid-column:1/-1;font-size:14px;border-top:1px dashed var(--line);padding-top:7px}
+@media (max-width:1100px){ .two2{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="panel">
+      <h1>L'analyse financière</h1>
+      <p class="sub">Bilan analytique · ratios · EBIT et EBITDA</p>
+      <div class="parts" id="parts"></div>
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <div class="panel" id="explain"></div>
+
+    <div class="nav-wrap">
+      <div class="nav">
+        <button class="btn" id="prev">← Précédent</button>
+        <button class="btn primary" id="next">Suite →</button>
+      </div>
+    </div>
+
+    <div class="nav exit">
+      <!-- *** Liens des exercices *** -->
+      <a class="btn quiz" href="La_Compta_Analyse_FaireleBilan.html" target="_blank">Exercices d'analyse</a>
+      <a class="btn quiz" href="La_Compta_EBIT.html" target="_blank">Exercices EBIT / EBITDA</a>
+    </div>
+    <div class="nav exit">
+      <button class="btn quit" id="quit">Quitter</button>
+    </div>
+    <p class="note" id="quit-msg" style="display:none;color:#fff">Le navigateur ne permet pas de fermer cette fenêtre automatiquement : fermer l'onglet.</p>
+  </aside>
+
+  <main class="stage" id="stage"></main>
+</div>
+<div class="zoombar"><button id="zm" title="Réduire la taille" aria-label="Réduire la taille">A−</button><button id="zp" title="Agrandir la taille" aria-label="Agrandir la taille">A+</button></div>
+
+<script>
+/* ---------- Réglages ---------- */
+const Y = new Date().getFullYear() - 1;          // exercice analysé : l'année précédente
+const ANS = {};
+const fmt = n => { const neg=n<0; n=Math.abs(Math.round(n*100)/100); const [i,d]=n.toFixed(2).split('.');
+  return (neg?'−':'') + i.replace(/\B(?=(\d{3})+(?!\d))/g,"'") + (d!=='00' ? '.'+d : ''); };
+const pc = (x, d=1) => (Math.round(x*Math.pow(10,d))/Math.pow(10,d)).toFixed(d) + '&nbsp;%';
+const $ = id => document.getElementById(id);
+
+/* ---------- Les groupes du bilan analytique (couleurs du classeur) ---------- */
+const G = {
+  liq: {lb:'Liquidités',            c:'var(--liq)', s:'A'},
+  cre: {lb:'Créances',              c:'var(--cre)', s:'A'},
+  sto: {lb:'Stocks',                c:'var(--sto)', s:'A'},
+  imm: {lb:'Immobilisés',           c:'var(--imm)', s:'A'},
+  dct: {lb:'Dettes à court terme',  c:'var(--dct)', s:'P'},
+  dlt: {lb:'Dettes à long terme',   c:'var(--dlt)', s:'P'},
+  csoc:{lb:'Capital social',        c:'var(--csoc)',s:'P'},
+  ccr: {lb:'Capital de croissance', c:'var(--ccr)', s:'P'}};
+const ORDER = ['liq','cre','sto','imm','dct','dlt','csoc','ccr'];
+
+/* ---------- Le bilan comptable de l'exemple ---------- */
+const ACT = [['Caisse',2000,'liq'],['Poste',4000,'liq'],['Banque',8000,'liq'],['Titres (considérés comme liquidités)',3000,'liq'],
+  ['Créances clients',48000,'cre'],['− Ducroire',-2400,'cre'],['Actifs transitoires',3400,'cre'],['Stock de marchandises',42000,'sto'],
+  ['Mobilier',20000,'imm'],['Véhicules',30000,'imm'],['Immeuble',400000,'imm'],['− FAC s/Immeuble',-40000,'imm'],
+  ['Actionnaires',10000,'csoc',-1]];           // 4e valeur −1 : compte de l'actif DÉDUIT de sa rubrique du passif
+const PAS = [['Dettes fournisseurs',46000,'dct'],['Autres dettes',8000,'dct'],['Passifs transitoires',4000,'dct'],['Provision à court terme',2000,'dct'],
+  ['Dette hypothécaire',240000,'dlt'],['Dette bancaire à long terme',30000,'dlt'],['Provision à long terme',6000,'dlt'],
+  ['Capital-actions',150000,'csoc'],['Réserve légale issue du capital',10000,'csoc'],
+  ['Réserve légale issue du bénéfice',14000,'ccr'],['Bénéfice reporté',18000,'ccr']];
+const BT = ACT.reduce((t,x)=>t+x[1],0);       // total du bilan comptable
+const T = {}; ORDER.forEach(g=>T[g]=0); [...ACT,...PAS].forEach(([,v,g,sg])=>T[g]+=v*(sg||1));
+const CIRC = T.liq+T.cre+T.sto, TA = CIRC+T.imm, DET = T.dct+T.dlt, CP = T.csoc+T.ccr, TP = DET+CP, PERM = T.dlt+CP;
+
+/* Compte de résultat et données de l'année */
+const CR = {can:600000, pramv:360000, pers:120000, ace:45000, amort:30000, chfin:14000, prfin:1000, imp:6000};
+CR.bb = CR.can-CR.pramv; CR.ebitda = CR.bb-CR.pers-CR.ace; CR.ebit = CR.ebitda-CR.amort; CR.rai = CR.ebit-CR.chfin+CR.prfin; CR.bn = CR.rai-CR.imp;
+const GE = {sto:[38000,42000], cli:[44000,48000], fou:[42000,46000], canCredit:552000, pramaCredit:352000};
+const MOY = {fe:[364000,DET], ac:[522000,TA], fp:[168000,CP]};
+const avg = a => (a[0]+a[1])/2;
+
+/* ---------- Briques d'affichage ---------- */
+const chipG = (g, cls='') => `<span class="gchip ${cls}" style="background:${G[g]?G[g].c:'#eee'}">${G[g]?G[g].lb:g}</span>`;
+const frac = (nu, de) => `<span class="frac"><span class="nu">${nu}</span><span class="de">${de}</span></span>`;
+
+// Bilan analytique en blocs proportionnels ; hl = {num:[groupes], den:[groupes]}
+function blocks(hl, opts={}){
+  const H = opts.h || 460, sc = v => Math.min(72, Math.max(34, v/TA*H));   // pas proportionnel : on plafonne les grandes rubriques
+  const cls = g => !hl ? '' : (hl.num.includes(g) ? 'num' : '') + ' ' + (hl.den.includes(g) ? 'den' : '') + ((hl.num.includes(g)||hl.den.includes(g)) ? '' : ' dim');
+  // Les deux colonnes ont la même hauteur : les immobilisés et les dettes à long terme prennent la place qui reste
+  const COLH = Math.max(...[['liq','cre','sto','imm'],['dct','dlt','csoc','ccr']].map(c=>c.reduce((t,g)=>t+sc(T[g]),0)));
+  const hgt = g => g==='imm' ? COLH-['liq','cre','sto'].reduce((t,x)=>t+sc(T[x]),0) : g==='dlt' ? COLH-['dct','csoc','ccr'].reduce((t,x)=>t+sc(T[x]),0) : sc(T[g]);
+  const blk = g => hgt(g)<48 ? `<div class="blk ${cls(g)}" style="height:${hgt(g)}px;background:${G[g].c}"><span>${G[g].lb} <small>· ${fmt(T[g])} · ${pc(T[g]/TA*100,1)}</small></span></div>`
+    : `<div class="blk ${cls(g)}" style="height:${hgt(g)}px;background:${G[g].c}">${G[g].lb}<small>${fmt(T[g])} · ${pc(T[g]/TA*100,1)}</small></div>`;
+  return `<div class="bhead"><div>ACTIF</div><div>PASSIF</div></div>
+    <div class="blocks"><div class="bcol a">${['liq','cre','sto','imm'].map(blk).join('')}</div><div class="bcol p">${['dct','dlt','csoc','ccr'].map(blk).join('')}</div></div>
+    ${opts.brace?`<div class="brace"><span style="background:var(--circ);color:#fff">Circulants ${fmt(CIRC)}</span><span style="background:var(--dct)">Fonds étrangers ${fmt(DET)}</span>
+      <span style="background:var(--csoc)">Capitaux propres ${fmt(CP)}</span><span style="background:var(--perm)">Capital permanent ${fmt(PERM)}</span></div>`:''}
+    ${hl?`<div class="legend"><b class="n">▬ vert</b> : numérateur · <b class="d">▬ bleu</b> : dénominateur</div>`:''}`;
+}
+
+// Petit schéma du bilan analytique : rubriques utilisées en couleur, les autres en gris, sans chiffres
+function mini(num, den, pale){
+  // rubriques utilisées en couleur ; pale = true : celles qui ne sont qu'en bas de la division (un total) sont en couleur claire
+  const b = (g, tall) => { const n = num.includes(g), d = den.includes(g);
+    return `<div class="mb ${tall?'t':''}" title="${G[g].lb}" style="${n||(d&&!pale)?`background:${G[g].c}`:''}"></div>`; };
+  return `<div class="mini"><div class="mc">${b('liq')}${b('cre')}${b('sto')}<div class="mg"></div>${b('imm',true)}</div>
+    <div class="mc">${b('dct',true)}<div class="mg"></div>${b('dlt')}${b('csoc')}${b('ccr')}</div></div>`;
+}
+
+// Jauge : position de la valeur par rapport à la norme
+function gauge(v, lo, hi, max, unit='%'){
+  const p = x => Math.min(100, Math.max(0, x/max*100));
+  return `<div class="gauge"><div class="ok" style="left:${p(lo)}%;width:${p(hi)-p(lo)}%"></div>
+    <div class="mk" style="left:${p(v)}%"><span>${unit==='%'?pc(v,1):fmt(v)}</span></div>
+    <div class="lb" style="left:${p(lo)}%">${lo}${unit}</div><div class="lb" style="left:${p(hi)}%">${hi}${unit}</div></div>`;
+}
+
+/* ---------- Les ratios du bilan ---------- */
+const R = {
+  intC:{nm:'Intensité de l\'actif circulant', num:['liq','cre','sto'], den:'TA', v:CIRC/TA*100, nl:'Circulants', dl:'Total de l\'actif', st:'info',
+        txt:'Part de l\'actif qui deviendra vite de l\'argent. Dépend de la branche : élevée dans le commerce, faible dans l\'industrie. Souhaité : dans la norme de la branche ou plus.'},
+  intI:{nm:'Intensité de l\'actif immobilisé', num:['imm'], den:'TA', v:T.imm/TA*100, nl:'Immobilisés', dl:'Total de l\'actif', st:'info',
+        txt:'Part de l\'actif bloquée à long terme. Elle diminue avec les amortissements et augmente après des investissements. Souhaité : dans la norme ou moins.'},
+  end:{nm:'Degré d\'endettement', num:['dct','dlt'], den:'TP', v:DET/TP*100, nl:'Fonds étrangers', dl:'Total du passif', lo:0, hi:60, max:100, st:DET/TP*100<=60?'ok':'warn',
+        txt:'Part du financement qui vient des créanciers. Trop élevé : l\'entreprise dépend des banques, qui refuseront de nouveaux crédits. Souhaité : dans la norme ou moins.'},
+  finP:{nm:'Degré de financement propre', num:['csoc','ccr'], den:'TP', v:CP/TP*100, nl:'Capitaux propres', dl:'Total du passif', lo:40, hi:100, max:100, st:CP/TP*100>=40?'ok':'warn',
+        txt:'Part du financement apportée par les propriétaires. Plus il est élevé, plus l\'entreprise est indépendante et solide. Souhaité : dans la norme ou plus.'},
+  auto:{nm:'Ratio d\'autofinancement', num:['ccr'], den:['csoc','ccr'], v:T.ccr/CP*100, nl:'Réserves + bénéfice', dl:'Capitaux propres', st:'info',
+        txt:'Part des capitaux propres que l\'entreprise a gagnée elle-même. Pas de norme : il doit augmenter chaque année et dépend de l\'âge de l\'entreprise.'},
+  liq1:{nm:'Liquidité I (trésorerie)', num:['liq'], den:['dct'], v:T.liq/T.dct*100, nl:'Liquidités', dl:'Dettes à court terme', lo:20, hi:40, max:100, st:'',
+        txt:'Capacité à payer les dettes immédiates (à 30 jours). Norme : environ 30 %.<br>• <b>Trop bas</b> : risque d\'insolvabilité, à terme la faillite.<br>• <b>Trop haut</b> : de l\'argent qui dort et ne rapporte rien.'},
+  liq2:{nm:'Liquidité II', num:['liq','cre'], den:['dct'], v:(T.liq+T.cre)/T.dct*100, nl:'Liquidités + créances', dl:'Dettes à court terme', lo:100, hi:200, max:300, st:'',
+        txt:'Capacité à faire face à ses engagements. Norme : 100 à 200 %. 80 % reste acceptable si les stocks tournent vite.'},
+  liq3:{nm:'Liquidité III (fonds de roulement)', num:['liq','cre','sto'], den:['dct'], v:CIRC/T.dct*100, nl:'Circulants', dl:'Dettes à court terme', lo:150, hi:200, max:300, st:'',
+        txt:'Vérifie la <b>règle d\'or</b> : les dettes à court terme doivent être couvertes par les circulants. Norme : 150 à 200 %. Trop haut : trop de stock, rentabilité faible.'},
+  cou1:{nm:'Degré de couverture 1', num:['csoc','ccr'], den:['imm'], v:CP/T.imm*100, nl:'Capitaux propres', dl:'Immobilisés', st:'info',
+        txt:'Part des immobilisés financée par les propriétaires. Souhaité : dans la norme de la branche ou plus.'},
+  cou2:{nm:'Degré de couverture 2', num:['dlt','csoc','ccr'], den:['imm'], v:PERM/T.imm*100, nl:'Capital permanent', dl:'Immobilisés', lo:100, hi:200, max:250, st:'',
+        txt:'Vérifie la <b>règle d\'or</b> : ce qui reste longtemps dans l\'entreprise (immobilisés) doit être financé par des capitaux à long terme. Norme : plus de 100 %.<br>• <b>Moins de 100 %</b> : danger, des dettes à court terme financent des machines ou des immeubles.'}};
+Object.values(R).forEach(r=>{ if (!r.st) r.st = (r.v>=r.lo && r.v<=r.hi) ? 'ok' : 'warn'; });
+const VERD = {ok:'✓ dans la norme', warn:'⚠ hors de la norme', info:'pas de norme fixe : comparer avec la branche et les années précédentes'};
+
+const NRM = {intC:'dans la norme de la branche ou plus', intI:'dans la norme de la branche ou moins', end:'60 % au maximum', finP:'40 % au minimum', auto:'doit augmenter chaque année',
+  liq1:'environ 30 %', liq2:'100 à 200 %', liq3:'150 à 200 %', cou1:'dans la norme de la branche ou plus', cou2:'plus de 100 %'};
+// Explication sous chaque ratio : e = explication, n = norme (si mentionnée), s = « souhaité » (si mentionné)
+const EXPL = {
+  intC:{e:'Part de l\'actif qui deviendra vite de l\'argent. Elle dépend de la branche : élevée dans le commerce, faible dans l\'industrie.', s:'Souhaité : dans la norme de la branche ou plus.'},
+  intI:{e:'Part de l\'actif bloquée à long terme. Elle diminue avec les amortissements et augmente après des investissements.', s:'Souhaité : dans la norme de la branche ou moins.'},
+  end: {e:'Part du financement qui vient des créanciers. Trop élevé : l\'entreprise dépend des banques, qui refuseront de nouveaux crédits.', n:'Norme : 60 % au maximum.', s:'Souhaité : dans la norme ou moins.'},
+  finP:{e:'Part du financement apportée par les propriétaires. Plus il est élevé, plus l\'entreprise est indépendante et solide.', n:'Norme : 40 % au minimum.', s:'Souhaité : dans la norme ou plus.'},
+  auto:{e:'Part des capitaux propres que l\'entreprise a gagnée elle-même. Il dépend de l\'âge de l\'entreprise.', n:'Pas de norme.', s:'Souhaité : qu\'il augmente chaque année.'},
+  liq1:{e:'Capacité à payer les dettes immédiates (à 30 jours). Trop bas : risque d\'insolvabilité, à terme la faillite. Trop haut : de l\'argent qui dort et ne rapporte rien.', n:'Norme : environ 30 %.'},
+  liq2:{e:'Capacité à faire face à ses engagements. 80 % reste acceptable si les stocks tournent vite.', n:'Norme : 100 à 200 %.'},
+  liq3:{e:'Vérifie la <b class="rgold">règle d\'or</b> : les dettes à court terme doivent être couvertes par les circulants. Trop haut : trop de stock, rentabilité faible.', n:'Norme : 150 à 200 %.'},
+  cou1:{e:'Part des immobilisés financée par les propriétaires.', s:'Souhaité : dans la norme de la branche ou plus.'},
+  cou2:{e:'Vérifie la <b class="rgold">règle d\'or</b> : ce qui reste longtemps dans l\'entreprise (immobilisés) doit être financé par des capitaux à long terme. Moins de 100 % : danger, des dettes à court terme financent des machines ou des immeubles.', n:'Norme : plus de 100 %.'}};
+const explHTML = x => `<div class="rtxt">${x.e}${x.n?`<div>${x.n}</div>`:''}${x.s?`<div><b>${x.s}</b></div>`:''}</div>`;
+const denOf = r => r.den==='TA' ? ['liq','cre','sto','imm'] : r.den==='TP' ? ['dct','dlt','csoc','ccr'] : r.den;
+// Une ligne de ratio : formule | chiffres de l'exemple | schéma, puis l'explication
+function ratioRow(k, cur){
+  const r = R[k], den = denOf(r), tot = r.den==='TA' || r.den==='TP';
+  return `<div class="rrow3 ${cur?'cur':''}">
+    <div><div class="rnm">${r.nm}</div><div class="ratio">${frac(r.num.map(g=>chipG(g)).join(' + '), r.den==='TA'?`<b>Total de l'actif</b>`:r.den==='TP'?`<b>Total du passif</b>`:den.map(g=>chipG(g)).join(' + '))}</div></div>
+    <div><div class="ratio">${frac(r.num.map(g=>fmt(T[g])).join(' + '), tot ? fmt(TA) : den.map(g=>fmt(T[g])).join(' + '))}<span class="eq">= ${pc(r.v,1)}</span></div>
+      ${r.st!=='info'?`<div class="rnorm"><span class="verdict ${r.st}">${VERD[r.st]}</span></div>`:''}</div>
+    ${mini(r.num, den, tot)}
+    ${explHTML(EXPL[k])}</div>`;
+}
+const FAMQ = {'a':'Comment l\'actif et le passif sont-ils composés ?', 'b':'L\'entreprise peut-elle payer ses dettes à court terme ?', 'c':'Les immobilisés sont-ils financés à long terme ?'};
+function catStage(S, ph){
+  return `<section class="sec"><h2>${S.title}<span style="text-transform:none;letter-spacing:0;font-weight:500"> · exemple : bilan analytique au 31.12.${Y}</span></h2>
+    <div class="rlist">${S.keys.slice(0, ph+1).map((k,i)=>ratioRow(k, i===ph)).join('')}</div></section>`;
+}
+
+/* ---------- Les étapes ---------- */
+const PARTS = [['A','Bilan analytique'],['B','Les ratios'],['C','Compte de résultat']];
+const A1_PH = ['liq','cre','sto','imm','dct','dlt','csoc','ccr'];
+const A1_TXT = {
+  liq:'Les <b>liquidités</b> : l\'argent disponible tout de suite (caisse, poste, banque) et les titres considérés comme liquidités.',
+  cre:'Les <b>créances</b> : les factures des clients, <b>moins le Ducroire</b>, et les actifs transitoires.',
+  sto:'Les <b>stocks</b> (moins les avances de clients, plus les avances aux fournisseurs).',
+  imm:'Les <b>immobilisés</b> : on retire les comptes FAC pour obtenir leur valeur nette.',
+  dct:'Les <b>dettes à court terme</b> (jusqu\'à 12 mois) : fournisseurs, autres dettes, dette bancaire à court terme, passifs transitoires, provisions à court terme.',
+  dlt:'Les <b>dettes à long terme</b> (plus de 12 mois) : dette hypothécaire, dette bancaire à long terme, provisions à long terme.',
+  csoc:'Le <b>capital social</b> : capital-actions ou capital-participation et réserve légale issue du capital (moins les actionnaires qui n\'ont pas encore payé).',
+  ccr:'Le <b>capital de croissance</b> : ce que l\'entreprise a gagné et gardé. Réserve légale issue du bénéfice, bénéfice reporté (ou − perte reportée) et réserves latentes.'};
+const A1_RQ = {
+  cre:'le <b>Ducroire</b> est <b>déduit</b> des créances : il corrige la valeur des créances clients.',
+  imm:'le <b>FAC</b> est <b>déduit</b> de l\'immeuble : on garde la valeur nette des immobilisés.',
+  dlt:'la <b>provision à long terme</b> est comptée comme une dette : c\'est une dette probable, à plus de 12 mois.',
+  csoc:'le compte <b>Actionnaires</b>, à l\'actif, est <b>déduit</b> du capital social : c\'est du capital que les actionnaires n\'ont pas encore versé.',
+  ccr:'la <b>réserve légale issue du bénéfice</b> va dans le capital de croissance, alors que celle issue du capital va dans le capital social.'};
+const RUB = {
+  liq: {txt:'L\'argent disponible tout de suite.', acc:['Caisse, poste, banque (avoir)','Titres (si considérés comme liquidités)']},
+  cre: {txt:'L\'argent qui va rentrer bientôt.', acc:['Créances clients','− Ducroire','Actifs transitoires','Titres (si considérés comme placement)']},
+  sto: {txt:'Les marchandises à vendre.', acc:['Stocks','− avances de clients','+ avances aux fournisseurs']},
+  imm: {txt:'Ce que l\'entreprise utilise pendant plusieurs années, à sa valeur nette.', acc:['Les immobilisés (mobilier, véhicules, machines, immeubles…)','− les comptes FAC']},
+  dct: {sub:'jusqu\'à 12 mois', txt:'Ce qu\'il faut payer dans l\'année.', acc:['Dettes fournisseurs, autres dettes','Dette bancaire (à court terme)','Passifs transitoires','Provisions à court terme']},
+  dlt: {sub:'plus de 12 mois', txt:'Ce qu\'il faudra rembourser plus tard.', acc:['Dette hypothécaire','Dette bancaire à long terme','Provision à long terme']},
+  csoc:{txt:'Ce que les propriétaires ont apporté.', acc:['Capital-actions, capital-participation','Réserve légale sur capital','− Actionnaires']},
+  ccr: {txt:'Ce que l\'entreprise a gagné et gardé.', acc:['Réserve légale sur bénéfice','Bénéfice reporté (ou − perte reportée)','Réserves latentes']}};
+const STEPS = [
+ /* ===== PARTIE A ===== */
+ { part:'A', title:'Les rubriques du bilan analytique',
+   ph:[{btn:'Liquidités →', text:`Pour analyser un bilan, il faut d'abord le <b>simplifier</b> : on regroupe les comptes en <b>8 rubriques</b>. C'est le <b>bilan analytique</b>.<br><br>Chaque rubrique a sa couleur : on la retrouvera dans les ratios.`},
+       ...A1_PH.map((g,i)=>({btn: i<7 ? `${G[A1_PH[i+1]].lb} →` : 'Les regroupements →', text:`Rubrique ${i+1} sur 8, ${G[g].s==='A'?'à l\'actif':'au passif'} : <b>${G[g].lb}</b>${RUB[g].sub?` (${RUB[g].sub})`:''}.<br><br>${RUB[g].txt}`})),
+       {btn:'Suite →', text:`Deux regroupements complètent le bilan analytique :<br><br>• les <b>circulants</b> = liquidités + créances + stocks ;<br>• le <b>capital permanent</b> = dettes à long terme + capital social + capital de croissance. C'est l'argent qui reste longtemps dans l'entreprise.<br><br>Capital social + capital de croissance = <b>capitaux propres</b>.`}],
+   stage: ph => { const shown = A1_PH.slice(0, Math.min(ph,8)), cur = ph>=1 && ph<=8 ? A1_PH[ph-1] : null, end = ph>=9;
+     const box = (g, tall) => { const on = shown.includes(g);
+       return `<div class="rub ${tall?'tall':''} ${g===cur?'new':''}" style="background:${on?G[g].c:'#f6f4ef'};${on?'':'color:transparent;outline:2px dashed #e2ddd2;outline-offset:-2px'}">${G[g].lb}</div>`; };
+     const detail = cur ? `<section class="sec"><h2><span class="n">2</span>Quels comptes du bilan ?</h2>
+         <div class="rubd" style="background:${G[cur].c}"><div class="rubt">${G[cur].lb}${RUB[cur].sub?` <small>(${RUB[cur].sub})</small>`:''}</div>
+         ${RUB[cur].acc.map(x=>`<div class="ruba">${x}</div>`).join('')}</div></section>`
+       : end ? `<section class="sec"><h2><span class="n">2</span>Les regroupements</h2><div class="brace" style="justify-content:flex-start">
+           <span style="background:var(--circ);color:#fff">Circulants = liquidités + créances + stocks</span>
+           <span style="background:var(--perm)">Capital permanent = dettes à long terme + capital social + capital de croissance</span>
+           <span style="background:var(--csoc)">Capitaux propres = capital social + capital de croissance</span></div></section>` : '';
+     return `<section class="sec"><h2><span class="n">1</span>Le bilan analytique</h2>
+       <div class="rubg">
+         <div class="rside"><div class="rgrp ${end?'on':''}" style="background:var(--circ);color:#fff">Circulants</div><div class="rgap"></div><div class="rfill"></div></div>
+         <div class="rcol"><div class="rhead">ACTIF</div>${box('liq')}${box('cre')}${box('sto')}<div class="rgap"></div>${box('imm',true)}</div>
+         <div class="rcol"><div class="rhead">PASSIF</div>${box('dct',true)}<div class="rgap"></div>${box('dlt')}${box('csoc')}${box('ccr')}</div>
+         <div class="rside"><div class="rfill"></div><div class="rgap"></div><div class="rgrp ${end?'on':''}" style="background:var(--perm)">Capital permanent</div></div>
+       </div></section>${detail}`; } },
+
+ { part:'A', title:'Du bilan au bilan analytique',
+   ph:[{btn:'Liquidités →', text:`Voici le bilan d'une PME commerciale au 31.12.${Y}. On construit son bilan analytique, rubrique par rubrique.`},
+       ...A1_PH.flatMap((g,i)=>{ const it = [...PAS,...ACT].filter(x=>x[2]===g);
+         const calc = it.map((x,j)=>{ const v = x[1]*(x[3]||1); return (j===0 ? (v<0?'− ':'') : (v<0?' − ':' + ')) + fmt(Math.abs(v)); }).join('');
+         return [
+           {btn:'Quels comptes ? →', text:`Rubrique ${i+1} sur 8 : <b>${G[g].lb}</b>${RUB[g].sub?` (${RUB[g].sub})`:''}.<br><br>${RUB[g].txt}<br><br>Quels comptes du bilan faut-il y additionner ?`},
+           {btn: i<7 ? `${G[A1_PH[i+1]].lb} →` : 'Les totaux →', text:`${A1_TXT[g]}<div class="calc"><div class="row big" style="border:0;margin:0;padding:0"><span>${calc}</span><span>= ${fmt(T[g])}</span></div></div>${A1_RQ[g]?`<div class="calc q"><div style="font-weight:600;margin-bottom:4px">Avez-vous remarqué ?</div>${A1_RQ[g][0].toUpperCase()+A1_RQ[g].slice(1)}</div>`:''}`}]; }),
+       {btn:'Suite →', text:`Le bilan analytique est complet : total de l'actif = total du passif = <b>${fmt(TA)}</b>.<div class="calc q"><div style="font-weight:600;margin-bottom:4px">Avez-vous remarqué ?</div>Le total du bilan analytique (${fmt(TA)}) est plus petit que celui du bilan (${fmt(BT)}) : le compte Actionnaires (${fmt(BT-TA)}) a été déduit du capital social au lieu de rester à l'actif.</div>`}],
+   stage: ph => {
+     const ci = ph>=1 && ph<=16 ? Math.floor((ph-1)/2) : -1, sub = ph>=1 && ph<=16 ? (ph-1)%2 : -1;
+     const rubOn = g => ph >= 2*A1_PH.indexOf(g)+1, accOn = g => ph >= 2*A1_PH.indexOf(g)+2;
+     const row = ([nm,v,g], i) => { const on = accOn(g), nw = on && sub===1 && A1_PH[ci]===g;
+       return `<div class="br2 ${i%2?'z':''} ${nw?'nw':''}" style="background-color:${on?G[g].c:'#f6f4ef'}"><span>${nm}</span><span>${fmt(v)}</span></div>`; };
+     const cell = (g, extra='') => { const on = rubOn(g);
+       return `<td ${extra} class="${on&&sub===0&&A1_PH[ci]===g?'grow':''}" style="background:${on?G[g].c:'#f6f4ef'};${on?'':'color:#c9c4b8'}"><div class="rb"><span>${G[g].lb}</span><span>${accOn(g)?fmt(T[g]):''}</span></div></td>`; };
+     const end = ph>=17;
+     return `<section class="sec"><h2><span class="n">1</span>Bilan au 31.12.${Y}</h2><div class="bil2">
+         <div class="bcl">${ACT.slice(0,8).map(row).join('')}<div class="sp"></div>${ACT.slice(8).map(row).join('')}<div class="bt2"><span>Total</span><span>${fmt(BT)}</span></div></div>
+         <div class="bcl r">${PAS.slice(0,7).map(row).join('')}<div class="sp"></div>${PAS.slice(7).map(row).join('')}<div class="bt2"><span>Total</span><span>${fmt(BT)}</span></div></div></div></section>
+       <section class="sec"><h2><span class="n">2</span>Bilan analytique au 31.12.${Y}</h2><table class="anab">
+         <tr>${cell('liq')}${cell('dct','rowspan="2"')}</tr>
+         <tr>${cell('cre')}</tr>
+         <tr>${cell('sto')}${cell('dlt')}</tr>
+         <tr>${cell('imm','rowspan="2"')}${cell('csoc')}</tr>
+         <tr>${cell('ccr')}</tr>
+         <tr class="t"><td><div class="rb"><span>Total</span><span>${end?fmt(TA):''}</span></div></td><td><div class="rb"><span>Total</span><span>${end?fmt(TP):''}</span></div></td></tr></table></section>`; } },
+
+ { part:'A', title:'Le bilan analytique',
+   ph:[{btn:'Les totaux →', text:`Le bilan analytique est prêt. La hauteur de chaque bloc est proportionnelle à son montant : on voit d'un coup d'œil comment l'entreprise est construite.`},
+       {btn:'Suite →', text:`Quatre totaux sont utiles pour les ratios :<br>• <b>Circulants</b> = liquidités + créances + stocks<br>• <b>Fonds étrangers</b> = dettes à court et à long terme<br>• <b>Capitaux propres</b> = capital social + capital de croissance<br>• <b>Capital permanent</b> = dettes à long terme + capitaux propres`}],
+   stage: ph => `<section class="sec"><h2><span class="n">1</span>Bilan analytique au 31.12.${Y} · total ${fmt(TA)}</h2>${blocks(null,{brace:ph>=1})}</section>` },
+
+ /* ===== PARTIE B ===== */
+ { part:'B', title:'Les ratios',
+   ph:[{btn:'Ratios de structure →', text:`Pour analyser un bilan, on calcule des <b>ratios</b> : une division entre des rubriques du bilan analytique. On les compare à une <b>norme</b>, à la branche ou aux années précédentes.<br><br>Quatre familles : structure, liquidité, couverture et gestion.<br><br>Pour chaque ratio : la <b>formule</b>, le <b>calcul</b> avec les chiffres de l'exemple, et un <b>schéma</b> du bilan analytique où les rubriques utilisées sont en couleur.`}],
+   stage: () => `<section class="sec"><h2><span class="n">1</span>Quatre familles de ratios</h2><div class="cards">
+     <div class="card"><h4>a) Structure</h4><div class="ex">Comment l'actif et le passif sont-ils composés ?</div></div>
+     <div class="card"><h4>b) Liquidité</h4><div class="ex">L'entreprise peut-elle payer ses dettes à court terme ?</div></div>
+     <div class="card"><h4>c) Couverture</h4><div class="ex">Les immobilisés sont-ils financés à long terme ?</div></div>
+     <div class="card"><h4>d) Gestion</h4><div class="ex">En combien de jours tournent le stock, les clients, les fournisseurs ?</div></div></div></section>
+     <section class="sec"><h2><span class="n">2</span>Le bilan analytique de l'exemple</h2>${blocks(null)}</section>` },
+
+ { part:'B', title:'a) Ratios de structure', keys:['intC','intI','end','finP','auto'] },
+ { part:'B', title:'b) Ratios de liquidité', keys:['liq1','liq2','liq3'],
+   q2:{at:0, text:'Liquidité I trop haute : est-ce un problème ?', opts:[['n','non, jamais'],['o','oui : l\'argent dort']], ok:'o',
+       fb:'trop de liquidités ne rapporte rien : la <b>rentabilité</b> diminue.'}},
+ { part:'B', title:'c) Ratios de couverture', keys:['cou1','cou2'] },
+
+ { part:'B', title:'d) Ratios de gestion', unit:'Ratio', nUnit:3, 
+   ph:[{btn:'Les clients →', text:`<b>Le stock</b> : combien de fois tourne-t-il dans l'année, et combien de jours reste-t-il en magasin ?<br><br>Stock moyen = (stock au 1.1 + stock au 31.12) ÷ 2<br>Rotation = PRAMV ÷ stock moyen<br>Durée = 360 ÷ rotation`},
+       {btn:'Les fournisseurs →', text:`<b>Les clients</b> : en combien de jours paient-ils ?<br><br>Clients moyens = (clients au 1.1 + au 31.12) ÷ 2<br>Vitesse = CAN à crédit ÷ clients moyens<br>Durée = 360 ÷ vitesse`},
+       {btn:'Le cycle →', text:`<b>Les fournisseurs</b> : en combien de jours les paie-t-on ?<br><br>Fournisseurs moyens = (dettes fournisseurs au 1.1 + au 31.12) ÷ 2<br>Vitesse = PRAMA à crédit ÷ fournisseurs moyens<br>Durée = 360 ÷ vitesse`},
+       {btn:'− fournisseurs →', text:`Le <b>cycle des liquidités</b> : pendant combien de jours l'entreprise doit-elle <b>financer elle-même</b> ses marchandises ?<br><br>On part de l'achat. La marchandise reste en stock <b>40 jours</b> avant d'être vendue.`},
+       {btn:'+ clients →', text:`Mais l'entreprise ne paie pas son fournisseur tout de suite : elle le paie après <b>45 jours</b>. On les <b>retire</b>.`},
+       {btn:'Résultat →', text:`Après la vente, le client met encore <b>30 jours</b> à payer. On les <b>ajoute</b> : l'argent ne rentre qu'au jour 70.`},
+       {btn:'Suite →', text:`Entre le paiement au fournisseur (jour 45) et l'encaissement du client (jour 70), l'entreprise finance elle-même ses marchandises pendant <b>25 jours</b>. Plus ce cycle est court, mieux c'est.`,
+        q:{text:'Payer les fournisseurs plus tard, c\'est…', opts:[['b','bon pour la trésorerie'],['m','mauvais pour la trésorerie']], ok:'b',
+           fb:'le cycle raccourcit : l\'entreprise doit financer moins longtemps son stock. Mais attention à ne pas perdre les escomptes des fournisseurs.'}}],
+   stage: ph => {
+     const rot = CR.pramv/avg(GE.sto), dS = 360/rot, vC = GE.canCredit/avg(GE.cli), dC = 360/vC, vF = GE.pramaCredit/avg(GE.fou), dF = 360/vF, cyc = dS-dF+dC;
+     const grow = (nm, lab, top, moy, a2, v, d, grp, txt, cur) => `<div class="rrow3 ${cur?'cur':''}">
+       <div><div class="rnm">${nm}</div><div class="ratio">${lab} = ${frac(top, 'Ø '+moy)}<span style="margin:0 6px">puis</span>${frac('360', lab)}</div></div>
+       <div><div class="ratio">${frac(fmt(a2[0]), fmt(a2[1]))}<span class="eq" style="font-size:16px">= ${fmt(v)} fois</span>${frac('360', fmt(v))}<span class="eq">= ${fmt(d)} jours</span></div>
+         <div class="rnorm">Ø = (${fmt(a2[2][0])} + ${fmt(a2[2][1])}) ÷ 2 = ${fmt(a2[1])}</div></div>
+       ${mini([], [grp])}${explHTML({e:txt})}</div>`;
+     const rows = [
+       grow('Durée moyenne du stock','Rotation','PRAMV', chipG('sto'), [CR.pramv, avg(GE.sto), GE.sto], rot, dS, 'sto', 'Nombre de jours pendant lesquels la marchandise reste en stock. Plus c\'est court, moins l\'argent est bloqué dans le stock.', ph===0),
+       grow('Durée de paiement des clients','Vitesse','CAN à crédit','Créances clients', [GE.canCredit, avg(GE.cli), GE.cli], vC, dC, 'cre', 'Nombre de jours que les clients mettent à payer. Trop long : l\'argent tarde à rentrer.', ph===1),
+       grow('Durée de paiement aux fournisseurs','Vitesse','PRAMA à crédit','Dettes fournisseurs', [GE.pramaCredit, avg(GE.fou), GE.fou], vF, dF, 'dct', 'Nombre de jours avant de payer les fournisseurs. Plus c\'est long, plus l\'entreprise garde son argent, mais elle risque de perdre les escomptes.', ph===2)];
+     const W=820, x = d => 60 + d*9, AX = 76;
+     const cp = ph-3;   // 0 : stock · 1 : − fournisseurs · 2 : + clients · 3 : résultat
+     const mk = [[0,'Achat','#555',0,0],[dS,'Vente','#555',0,0],[dF,'Paiement au fournisseur','#c2671f',1,1],[dS+dC,'Encaissement du client','#2b8352',1,2]].filter(m=>cp>=m[4]);
+     const svg = `<svg viewBox="0 0 ${W} 180" class="chart cyc" style="max-width:${W}px">
+       <defs><marker id="arr" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#1e2226"/></marker></defs>
+       <line x1="${x(0)}" x2="${x(dS)}" y1="${AX-34}" y2="${AX-34}" stroke="#3A7D23" stroke-width="7" stroke-linecap="round"/>
+       <text x="${x(dS/2)}" y="${AX-46}" text-anchor="middle" style="fill:#3A7D23;font-weight:700">Durée moyenne du stock : ${fmt(dS)} jours</text>
+       <line x1="40" x2="${W-24}" y1="${AX}" y2="${AX}" stroke="#1e2226" stroke-width="2" marker-end="url(#arr)"/>
+       <text x="${W-20}" y="${AX-14}" text-anchor="end">jours</text>
+       ${mk.map(([d,l,c,low,st])=>`<line x1="${x(d)}" x2="${x(d)}" y1="${low?AX-8:AX-12}" y2="${low?AX+18:AX+8}" stroke="${c}" stroke-width="3"/>
+         <text x="${x(d)+(l.startsWith('Paiement')?6:0)}" y="${low?AX+38:AX-16}" text-anchor="${l.startsWith('Paiement')?'end':'middle'}" style="fill:${c};font-weight:700">${l} (${fmt(d)} jours)</text>`).join('')}
+       ${cp>=3?`<line class="cyin" x1="${x(dF)}" x2="${x(dS+dC)}" y1="${AX+62}" y2="${AX+62}" stroke="#6d48b3" stroke-width="7" stroke-linecap="round"/>
+       <text class="cyin" x="${x((dF+dS+dC)/2)}" y="${AX+88}" text-anchor="middle" style="fill:#6d48b3;font-weight:700">Durée du cycle des liquidités : ${fmt(cyc)} jours</text>`:''}</svg>`;
+     return `<section class="sec"><h2>d) Ratios de gestion<span style="text-transform:none;letter-spacing:0;font-weight:500"> · exemple : année ${Y}</span></h2><div class="rlist">${rows.slice(0, Math.min(ph+1,3)).join('')}</div></section>
+       ${ph>=3?`<section class="sec" data-scroll><h2><span class="n">2</span>Le cycle des liquidités</h2><div class="cycf">Durée du cycle des liquidités = <span style="color:#3A7D23">durée du stock</span>${cp>=1?' <span style="color:#c2671f">− durée des fournisseurs</span>':''}${cp>=2?' <span style="color:#2b8352">+ durée des clients</span>':''}<br><b><span style="color:#3A7D23">${fmt(dS)}</span>${cp>=1?` <span style="color:#c2671f">− ${fmt(dF)}</span>`:''}${cp>=2?` <span style="color:#2b8352">+ ${fmt(dC)}</span>`:''}${cp>=3?` <span style="color:#6d48b3">= ${fmt(cyc)} jours</span>`:''}</b></div>${svg}</section>`:''}`; } },
+
+ /* ===== PARTIE C ===== */
+ { part:'C', title:'Le compte de résultat en cascade',
+   ph:[{btn:'EBITDA →', text:`Le compte de résultat est présenté en <b>cascade</b> : on part du chiffre d'affaires et on retire les charges, étape par étape. Chaque étape donne un résultat intermédiaire.<br><br>D'abord le <b>bénéfice brut</b> : CAN − PRAMV.`},
+       {btn:'EBIT →', text:`On retire les charges du personnel (salaires + charges sociales) et les autres charges d'exploitation (ACE).<br><br><b>EBITDA</b> : <i>Earnings Before Interest, Taxes, Depreciation and Amortization</i>, le gain avant intérêts, impôts et amortissements.`},
+       {btn:'Résultat avant impôts →', text:`On retire les amortissements.<br><br><b>EBIT</b> : <i>Earnings Before Interest and Taxes</i>, le gain avant intérêts et impôts. C'est le résultat de l'<b>activité</b> de l'entreprise, sans tenir compte de la façon dont elle est financée.`,
+        q:{text:'Les amortissements sont-ils une sortie d\'argent ?', opts:[['o','oui'],['n','non']], ok:'n',
+           fb:'un amortissement est une charge, mais aucun argent ne sort. C\'est pourquoi l\'EBITDA donne une idée de l\'argent produit par l\'activité.'}},
+       {btn:'Résultat net →', text:`On ajoute le résultat financier : − charges financières + produits financiers.`},
+       {btn:'Suite →', text:`Enfin, on retire les impôts : on obtient le <b>résultat net</b> (le bénéfice).`}],
+   stage: ph => cascade(ph) },
+
+ { part:'C', title:'Les taux de marge',
+   ph:[{btn:'Marge nette →', text:`<b>Taux de marge brute</b> = bénéfice brut × 100 ÷ CAN<br><br>Sur 100 francs de ventes, combien restent après le prix d'achat des marchandises ?`},
+       {btn:'Marge économique →', text:`<b>Taux de marge nette</b> = bénéfice net × 100 ÷ CAN<br><br>Sur 100 francs de ventes, combien de bénéfice reste-t-il à la fin ?`},
+       {btn:'Suite →', text:`<b>Taux de marge économique</b> = EBIT × 100 ÷ CAN<br><br>La rentabilité de l'activité seule, sans les intérêts ni les impôts. Utile pour comparer des entreprises financées différemment.`}],
+   stage: ph => { const k = [['bb','Taux de marge brute'],['bn','Taux de marge nette'],['ebit','Taux de marge économique']][ph];
+     return `<section class="sec"><h2><span class="n">1</span>${k[1]}</h2><div class="ratio">${frac(`<span class="gchip n">${k[0]==='bb'?'Bénéfice brut':k[0]==='bn'?'Bénéfice net':'EBIT'}</span> × 100`, `<span class="gchip d">CAN</span>`)}
+       <span class="eq">=</span>${frac(fmt(CR[k[0]])+' × 100', fmt(CR.can))}<span class="eq">= ${pc(CR[k[0]]/CR.can*100,2)}</span></div></section>${cascade(5, k[0])}`; } },
+
+ { part:'C', title:'La rentabilité',
+   ph:[{btn:'ROI →', text:`<b>Taux d'intérêt moyen des fonds étrangers (t)</b> = charges financières × 100 ÷ fonds étrangers moyens.<br><br>Ce que coûtent, en moyenne, les dettes de l'entreprise.`},
+       {btn:'ROE →', text:`<b>ROI</b> (<i>Return on Investment</i>, rentabilité du capital investi) = EBIT × 100 ÷ actifs moyens.<br><br>Ce que rapporte chaque franc investi dans l'entreprise, quelle que soit son origine.`},
+       {btn:'Effet de levier →', text:`<b>ROE</b> (<i>Return on Equity</i>, rentabilité des fonds propres) = bénéfice net × 100 ÷ fonds propres moyens.<br><br>Ce que rapporte chaque franc des propriétaires.`},
+       {btn:'Suite →', text:`<b>Effet de levier</b> = (ROI − t) × fonds étrangers moyens ÷ fonds propres moyens.<br><br>Si l'investissement rapporte <b>plus</b> que ce que coûtent les dettes (ROI > t), s'endetter augmente la rentabilité des fonds propres.`,
+        q:{text:`Ici, ROI ${pc(CR.ebit/avg(MOY.ac)*100,2)} et t ${pc(CR.chfin/avg(MOY.fe)*100,2)}. L'effet de levier est…`, opts:[['p','positif'],['n','négatif']], ok:'p',
+           fb:'ROI > t : l\'effet de levier est <b>positif</b>. Il est préférable de se financer par des fonds étrangers, tant que ce reste vrai.'}}],
+   stage: ph => {
+     const fe = avg(MOY.fe), ac = avg(MOY.ac), fp = avg(MOY.fp), t = CR.chfin/fe*100, roi = CR.ebit/ac*100, roe = CR.bn/fp*100, lev = (roi-t)*fe/fp;
+     const L = [
+       ['Taux d\'intérêt moyen (t)', frac('Charges financières × 100','Fonds étrangers Ø'), frac(fmt(CR.chfin)+' × 100', fmt(fe)), t],
+       ['ROI', frac('EBIT × 100','Actifs Ø'), frac(fmt(CR.ebit)+' × 100', fmt(ac)), roi],
+       ['ROE', frac('Bénéfice net × 100','Fonds propres Ø'), frac(fmt(CR.bn)+' × 100', fmt(fp)), roe],
+       ['Effet de levier', `(ROI − t) ×${frac('Fonds étrangers Ø','Fonds propres Ø')}`, `(${pc(roi,2)} − ${pc(t,2)}) × ${frac(fmt(fe), fmt(fp))}`, lev]];
+     const hlRow = [['fe'],['ac'],['fp'],['fe','fp']][ph];
+     return `<section class="sec"><h2><span class="n">1</span>Les montants moyens (Ø = (1.1 + 31.12) ÷ 2)</h2><table class="dtab">
+         <tr><th></th><th>1.1.${Y}</th><th>31.12.${Y}</th><th>Moyenne Ø</th></tr>
+         ${[['fe','Fonds étrangers'],['ac','Actifs'],['fp','Fonds propres']].map(([k,l])=>`<tr class="${hlRow.includes(k)?'hl':''}"><td>${l}</td><td>${fmt(MOY[k][0])}</td><td>${fmt(MOY[k][1])}</td><td>${fmt(avg(MOY[k]))}</td></tr>`).join('')}</table></section>
+       <section class="sec"><h2><span class="n">2</span>${L[ph][0]}</h2>${L.slice(0,ph+1).map((l,i)=>`<div class="ratio" style="margin-bottom:14px;" ${i===ph?'data-scroll':''}><b style="min-width:200px">${l[0]}</b>${l[1]}<span class="eq">=</span>${l[2]}<span class="eq">= ${pc(l[3],2)}</span></div>`).join('')}
+       ${ph===3 && ANS['10.3'] ? `<span class="verdict ok">✓ positif : s'endetter augmente la rentabilité des fonds propres</span>`:''}</section>`; } }
+];
+
+/* Compte de résultat en cascade (upto = nombre de paliers visibles ; hl = résultat mis en évidence) */
+function cascade(upto, hl){
+  const rows = [
+    ['CAN', CR.can, 'sub0', 0], ['− PRAMV', -CR.pramv, 'sub', 0], ['Bénéfice brut', CR.bb, 'res', 0, 'bb'],
+    ['− Charges du personnel', -CR.pers, 'sub', 1], ['− Autres charges d\'exploitation (ACE)', -CR.ace, 'sub', 1], ['EBITDA', CR.ebitda, 'res', 1, 'ebitda'],
+    ['− Amortissements', -CR.amort, 'sub', 2], ['EBIT', CR.ebit, 'res', 2, 'ebit'],
+    ['− Charges financières', -CR.chfin, 'sub', 3], ['+ Produits financiers', CR.prfin, 'sub', 3], ['Résultat avant impôts', CR.rai, 'res', 3, 'rai'],
+    ['− Impôts', -CR.imp, 'sub', 4], ['Résultat net', CR.bn, 'res', 4, 'bn']];
+  const colr = {bb:'#2a52be', ebitda:'#6d48b3', ebit:'#0e7c86', rai:'#c98a10', bn:'#2b8352'};
+  return `<section class="sec"><h2><span class="n">${hl?2:1}</span>Compte de résultat ${Y}</h2><table class="casc">
+    ${rows.map(([l,v,k,p,key])=>`<tr class="${k==='res'?'res':k==='sub'?'sub':''} ${p>upto?'hide':''} ${hl&&key===hl?'nu hl':''} ${hl&&l==='CAN'?'de hl':''}"><td>${l}</td><td class="n">${fmt(v)}</td>
+      <td class="bar"><div class="bx" style="width:${Math.abs(v)/CR.can*100}%;background:${k==='res'?colr[key]:v<0?'#e7a59a':'#9cc4e8'}"></div></td></tr>`).join('')}</table>
+    ${hl?`<div class="legend"><b class="n">▬ vert</b> : numérateur · <b class="d">▬ bleu</b> : dénominateur</div>`:''}</section>`;
+}
+
+/* Étapes de ratios : une phase par ratio */
+STEPS.forEach(s=>{ if (s.keys){ const fq = FAMQ[s.title[0]];
+  s.ph = s.keys.map((k,i)=>({btn: i<s.keys.length-1 ? `${R[s.keys[i+1]].nm} →` : 'Suite →',
+    text:`${fq}<br><br><b>${R[k].nm}</b> = ${R[k].nl} ÷ ${R[k].dl}.`}));
+  s.unit = 'Ratio';
+  if (s.q2) s.ph[s.q2.at].q = s.q2; s.stage = ph => catStage(s, ph); } });
+const LAST = STEPS.length-1;
+
+/* ---------- Actions ---------- */
+const A = [];
+STEPS.forEach((s,i)=>s.ph.forEach((_,p)=>A.push({step:i, ph:p})));
+let pos = 0;
+
+/* ---------- Rendu ---------- */
+function qBox(key, q){
+  const ch = ANS[key];
+  const btn = (a,lb) => `<button class="ch ${ch===a?(a===q.ok?'ok':'ko'):''} ${ch?'':'blink'}" data-a="${a}" ${ch?'disabled':''}>${lb}</button>`;
+  const fb = ch ? `<div class="fb ${ch===q.ok?'ok':'ko'}">${ch===q.ok?'✓ En effet':'✗ En fait'}, ${q.fb}</div>` : `<div class="hint">Cliquer sur la bonne réponse.</div>`;
+  return `<div class="calc q"><div style="font-weight:600;margin-bottom:4px">La question à se poser</div>${q.text}
+    <div class="choices" style="flex-wrap:wrap">${q.opts.map(([a,lb])=>btn(a,lb)).join('')}</div>${fb}</div>`;
+}
+function render(){
+  pos = Math.max(0, Math.min(A.length-1, pos));
+  const {step, ph} = A[pos], S = STEPS[step], P = S.ph[ph], key = step+'.'+ph;
+  document.querySelectorAll('.dot').forEach(b=>{ const i=+b.dataset.s; b.classList.toggle('cur', i===step); b.classList.toggle('done', i<step); });
+  document.querySelectorAll('#parts button').forEach(b=>b.classList.toggle('on', b.dataset.p===S.part));
+  $('prev').disabled = pos===0;
+  $('next').disabled = pos===A.length-1 || (P.q && !ANS[key]);
+  $('next').textContent = pos===A.length-1 ? 'Terminé ✓' : P.btn;
+  const nU = S.nUnit || S.ph.length, lab = S.unit ? (ph<nU ? `${S.unit} ${ph+1} sur ${nU}` : 'Le cycle des liquidités') : `Phase ${ph+1} sur ${S.ph.length}`;
+  const prog = S.ph.length>1 ? `<div class="progress" style="font-size:12px;color:var(--muted);margin:2px 0 8px">${lab}</div>` : '';
+  const pn = PARTS.find(p=>p[0]===S.part);
+  $('explain').innerHTML = `<div class="stepno">Partie ${pn[0]} · ${pn[1]}</div><h2 class="steptitle">${S.title}</h2>${prog}
+    <p class="steptext">${P.text.replace(/ ([?!;])/g,'&nbsp;$1')}</p>${P.q?qBox(key,P.q):''}`;
+  $('stage').innerHTML = S.stage(ph);
+  // Défilement automatique vers le nouvel élément (ratio, ligne de calcul…) s'il sort de l'écran
+  const nw = $('stage').querySelector('[data-scroll]') || $('stage').querySelector('.rrow3.cur');
+  if (nw) requestAnimationFrame(()=>nw.scrollIntoView({behavior:'smooth', block:'nearest'}));
+  else window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ---------- Navigation ---------- */
+function goTo(p){ pos = p; render(); }
+function goStep(s){ goTo(A.findIndex(a=>a.step===s)); }
+let Z = 1;
+try { Z = +localStorage.getItem('analyse-zoom') || 1; } catch(e){}
+function applyZoom(){
+  Z = Math.round(Math.max(0.8, Math.min(1.6, Z))*10)/10;
+  document.documentElement.style.setProperty('--z', Z);
+  try { localStorage.setItem('analyse-zoom', Z); } catch(e){}
+}
+$('parts').innerHTML = PARTS.map(([p,l])=>`<button data-p="${p}">Partie ${p}<small>${l}</small></button>`).join('');
+$('dots').innerHTML = STEPS.map((s,i)=>(i>0 && s.part!==STEPS[i-1].part ? '<span class="sep"></span>' : '') + `<button class="dot" data-s="${i}" title="${s.part} · ${s.title}" aria-label="${s.title}"></button>`).join('');
+$('parts').addEventListener('click', e=>{ const b=e.target.closest('button'); if (b) goStep(STEPS.findIndex(s=>s.part===b.dataset.p)); });
+$('zm').addEventListener('click', ()=>{ Z -= 0.1; applyZoom(); });
+$('zp').addEventListener('click', ()=>{ Z += 0.1; applyZoom(); });
+$('next').addEventListener('click', ()=>goTo(pos+1));
+$('prev').addEventListener('click', ()=>goTo(pos-1));
+$('explain').addEventListener('click', e=>{ const b=e.target.closest('.ch'); if (!b || b.disabled) return; const {step,ph}=A[pos]; ANS[step+'.'+ph] = b.dataset.a; render(); });
+$('quit').addEventListener('click', ()=>{ window.close(); setTimeout(()=>{ $('quit-msg').style.display='block'; }, 300); });
+$('dots').addEventListener('click', e=>{ const b=e.target.closest('.dot'); if (b) goStep(+b.dataset.s); });
+document.addEventListener('keydown', e=>{
+  if (e.key==='ArrowRight' && !$('next').disabled) goTo(pos+1);
+  if (e.key==='ArrowLeft') goTo(pos-1);
+});
+render();
+applyZoom();
+</script>
+</body>
+</html>

@@ -50,7 +50,7 @@ h1{font-family:Fraunces,Georgia,serif;font-size:26px;line-height:1.15;margin:0 0
 .ch.ko{background:var(--charge);border-color:var(--charge);color:#fff;opacity:1}
 .fb{margin-top:10px;padding:8px 10px;border-radius:8px;background:#fff;animation:pop 1.2s ease-out}
 .fb.ok{border-left:4px solid var(--produit)}.fb.ko{border-left:4px solid var(--charge)}
-.ch.blink{animation:blink 1.4s ease-in-out 2}
+.ch.blink{animation:blink 1.4s ease-in-out infinite}
 @keyframes blink{0%,100%{box-shadow:0 0 0 0 rgba(32,57,79,0)}50%{box-shadow:0 0 0 5px rgba(201,138,16,.75);background:var(--accent-bg)}}
 .hint{font-size:12px;color:var(--muted);margin-top:8px;font-style:italic}
 .tag{display:inline-block;padding:2px 9px;border-radius:999px;font-weight:600;font-size:12.5px}
@@ -82,7 +82,7 @@ details[open] summary::after{content:"－"}
 
 .stage{display:flex;flex-direction:column;gap:18px;min-width:0}
 section.sec{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px 16px}
-section.sec h2{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 12px;font-weight:600;display:flex;align-items:center;gap:8px}
+section.sec h2{font-size:14px;text-transform:uppercase;letter-spacing:.07em;color:#ff0000;margin:0 0 12px;font-weight:600;display:flex;align-items:center;gap:8px}
 section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--soft);color:var(--ink);font-size:11px}
 .story{font-size:15px;background:var(--soft);border-radius:10px;padding:10px 14px;margin-bottom:14px}
 .story b{font-variant-numeric:tabular-nums}
@@ -240,13 +240,27 @@ section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;
 .lpp h3{margin:0 0 8px;font-family:Fraunces,Georgia,serif;color:var(--res)}
 .warn2{font-size:12.5px;color:var(--charge);background:var(--charge-bg);border-radius:8px;padding:6px 10px;margin-top:8px}
 .slip{width:100%;max-width:720px;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
-.slip td{padding:6px 10px;border-bottom:1px dashed var(--line)}
+.slip td{padding:3px 10px;border-bottom:1px dashed var(--line)}
 .slip td.n{text-align:right;white-space:nowrap}
 .slip td.calc2{color:var(--muted);font-size:12.5px}
 .slip tr.add td:first-child{border-left:4px solid var(--produit)}
-.slip tr.sub td:first-child{border-left:4px solid var(--charge)}
+.slip tr.sub td:first-child{border-left:4px solid var(--ink)}
 .slip tr.pay td:first-child{border-left:4px solid var(--actif)}
-.slip tr.add td.n{color:var(--produit)}.slip tr.sub td.n{color:var(--charge)}.slip tr.pay td.n{color:var(--actif)}
+.slip tr.add td.n{color:var(--produit)}.slip tr.sub td.n{color:var(--ink)}.slip tr.pay td.n{color:var(--actif)}
+/* Salaire AVS / salaire coordonné */
+.kw{font-weight:700;padding:0 4px;border-radius:4px}
+.kw.avs{color:var(--actif);background:var(--actif-bg)}
+.kw.coo{color:var(--res);background:var(--res-bg)}
+.slip tr.inavs td:first-child{color:var(--actif);font-weight:700;background:var(--actif-bg)}
+.formula{max-width:720px;margin:12px 0 0;border:2px solid;border-radius:10px;padding:10px 14px;font-size:15px;animation:fadein .6s ease-out}
+.formula.avs{border-color:var(--actif);background:var(--actif-bg)}.formula.avs b{color:var(--actif)}
+.formula.coo{border-color:var(--res);background:var(--res-bg)}.formula.coo b{color:var(--res)}
+.formula .fx{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+/* Récapitulation */
+.jl2.recap{font-size:13px}
+.jl2.recap td{padding:3px 8px}
+.jl2 tr.grp td{background:var(--soft);font-weight:700;color:var(--bilan);border-bottom:0;padding-top:7px;padding-bottom:5px}
+.rn{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--bilan);color:#fff;font-size:11px;margin-right:8px}
 .slip tr.tot td{font-weight:700;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
 .slip tr.hide td{opacity:0}
 .slip tr.cur td{background:var(--accent-bg)}
@@ -257,7 +271,7 @@ section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;
 .jl2{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
 .jl2 th{text-align:left;color:var(--muted);font-weight:500;border-bottom:2px solid var(--ink);padding:6px 8px}
 .jl2 th.n,.jl2 td.n{text-align:right}
-.jl2 td{padding:6px 8px;border-bottom:1px dashed var(--line)}
+.jl2 td{padding:3px 8px;border-bottom:1px dashed #9c9282}
 .jl2 tr.cur td{background:var(--accent-bg)}
 .jl2 tr.new td{animation:pop 1.6s ease-out}
 .jl2 tr.hide td{opacity:0}
@@ -285,7 +299,7 @@ section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;
 .due h4{margin:0 0 6px;font-size:14px;color:var(--passif)}
 .due .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;font-size:13.5px}
 .due .row.tot{font-weight:700;border-top:1px solid var(--ink);margin-top:4px;padding-top:4px}
-.lk{display:inline-block;padding:1px 8px;border-radius:7px;border:1.5px solid;font-weight:700}
+.lk{display:inline-block;padding:0 7px;border-radius:7px;border:1.5px solid;font-weight:700}
 .trap{margin-top:10px;border:2px solid var(--charge);background:var(--charge-bg);border-radius:10px;padding:10px 12px;font-size:13.5px;animation:blink 1.4s ease-in-out 2}
 .trap b:first-child{display:block;color:var(--charge);font-size:14.5px;margin-bottom:4px}
 .due.on{box-shadow:0 0 0 2px var(--accent)}
@@ -296,7 +310,7 @@ section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;
   <aside>
     <div class="panel">
       <h1>Les salaires</h1>
-      <p class="sub">Décompte de salaire · assurances sociales · journal · montants en CHF</p>
+      <p class="sub">Décompte de salaire et journalisation</p>
       <div class="dots" id="dots"></div>
     </div>
 
@@ -349,7 +363,7 @@ const TAUX = {
 /* ═══════════════════════ fin des taux ═══════════════════════════════════ */
 
 /* ---------- Exemple du cours (montants du classeur) ---------- */
-const EX = {brut:6500, alloc:483, avance:1000, aa:17800, fraisAVS:51, cotisALFA:600};
+const EX = {brut:6500.00, alloc:480.00, avance:1000, aa:17800, fraisAVS:51, cotisALFA:600};
 const r2 = x => Math.round(x*100)/100;
 const C = (()=>{                                // calculs du décompte
   const avs = r2(EX.brut*TAUX.avs/100), ac = r2(Math.min(EX.brut,TAUX.acPlafond)*TAUX.ac/100);
@@ -364,6 +378,8 @@ const Y = new Date().getFullYear();
 const ANS = {};
 const fmt = n => { const neg=n<0; n=Math.abs(Math.round(n*100)/100); const [i,d]=n.toFixed(2).split('.');
   return (neg?'−':'') + i.replace(/\B(?=(\d{3})+(?!\d))/g,"'") + (d!=='00' ? '.'+d : ''); };
+const f2 = n => { const neg=n<0; const [i,d]=Math.abs(Math.round(n*100)/100).toFixed(2).split('.');
+  return (neg?'−':'') + i.replace(/\B(?=(\d{3})+(?!\d))/g,"'") + '.'+d; };   // toujours 2 décimales
 const pc = x => `${x}&nbsp;%`;
 const $ = id => document.getElementById(id);
 const KIND = {'Salaires':'charge','Charges sociales':'charge','Dettes AVS':'passif','Dettes LPP':'passif','Dettes caisse ALFA':'passif',
@@ -371,36 +387,37 @@ const KIND = {'Salaires':'charge','Charges sociales':'charge','Dettes AVS':'pass
 const chip = a => `<span class="chip ${KIND[a]}">${a}</span>`;
 
 /* ---------- Écriture composée : une ligne par compte ---------- */
-function jlHTML(rows, upto, cur, total){
-  const sd = rows.filter((r,i)=>i<upto && r.d).reduce((s,r)=>s+r.amt,0), sc = rows.filter((r,i)=>i<upto && r.c).reduce((s,r)=>s+r.amt,0);
-  const am = r => r.lk ? pill(r.lk, fmt(r.amt)) : fmt(r.amt);
+function jlHTML(rows, upto, cur, total, ord){
+  const rk = i => ord ? ord[i] : i;   // rang d'apparition de la ligne
+  const sd = rows.filter((r,i)=>rk(i)<upto && r.d).reduce((s,r)=>s+r.amt,0), sc = rows.filter((r,i)=>rk(i)<upto && r.c).reduce((s,r)=>s+r.amt,0);
+  const am = r => r.lk ? pill(r.lk, f2(r.amt)) : f2(r.amt);
   return `<table class="jl2"><tr><th>Compte débité</th><th>Compte crédité</th><th class="n">Débit</th><th class="n">Crédit</th><th>Pourquoi</th></tr>
-    ${rows.map((r,i)=>`<tr class="${i>=upto?'hide':''} ${i===cur?'cur new':''}"><td>${r.d?chip(r.d):''}</td><td>${r.c?chip(r.c):''}</td><td class="n">${r.d?am(r):''}</td><td class="n">${r.c?am(r):''}</td><td class="why">${r.why||''}</td></tr>`).join('')}
-    ${total?`<tr class="tot"><td colspan="2">Total ${Math.abs(sd-sc)<0.01?'<span style="color:var(--produit)">✓ débit = crédit</span>':''}</td><td class="n">${fmt(sd)}</td><td class="n">${fmt(sc)}</td><td></td></tr>`:''}</table>`;
+    ${rows.map((r,i)=>`<tr class="${rk(i)>=upto?'hide':''} ${rk(i)===cur?'cur new':''}"><td>${r.d||''}</td><td>${r.c||''}</td><td class="n">${r.d?am(r):''}</td><td class="n">${r.c?am(r):''}</td><td class="why">${r.why||''}</td></tr>`).join('')}
+    ${total?`<tr class="tot"><td colspan="2">Total ${Math.abs(sd-sc)<0.01?'<span style="color:var(--produit)">✓ débit = crédit</span>':''}</td><td class="n">${f2(sd)}</td><td class="n">${f2(sc)}</td><td></td></tr>`:''}</table>`;
 }
 
 /* ---------- Couleurs de liaison décompte ↔ journal ---------- */
-const LINK = {brut:'#1f7a4d', alloc:'#6d48b3', avs:'#2a52be', lpp:'#a3333d', aanp:'#b7790b', avance:'#0e7c86', banque:'#4b5563'};
+const LINK = {brut:'#1f7a4d', alloc:'#b7790b', avs:'#2a52be', lpp:'#a3333d', aanp:'#6d48b3', avance:'#0e7c86', banque:'#4b5563'};
 const pill = (key, txt) => key ? `<span class="lk" style="color:${LINK[key]};background:${LINK[key]}1f;border-color:${LINK[key]}">${txt}</span>` : txt;
 
 /* ---------- Le décompte de l'exemple ---------- */
 const SLIP = [
   {k:'add', lb:'Salaire brut', amt:EX.brut, g:0, lk:'brut'},
   {k:'add', lb:'+ Allocations familiales', amt:EX.alloc, g:0, lk:'alloc', calc:'versées par l\'entreprise pour la caisse ALFA'},
-  {k:'sub', lb:'− AVS/AI/APG', amt:C.avs, g:1, lk:'avs', calc:`${pc(TAUX.avs)} de ${fmt(EX.brut)}`},
-  {k:'sub', lb:'− AC', amt:C.ac, g:1, lk:'avs', calc:`${pc(TAUX.ac)} de ${fmt(EX.brut)}`},
-  {k:'sub', lb:'− LPP', amt:C.lpp, g:2, lk:'lpp', calc:`${pc(TAUX.lppExemple)} du salaire coordonné : ${fmt(EX.brut)} − ${fmt(TAUX.lppCoord)} = ${fmt(C.coord)}`},
-  {k:'sub', lb:'− AANP', amt:C.aanp, g:3, lk:'aanp', calc:`${pc(TAUX.aanp)} de ${fmt(EX.brut)}`},
+  {k:'sub', lb:'− AVS/AI/APG', amt:C.avs, g:1, lk:'avs', calc:`${pc(TAUX.avs)} de ${f2(EX.brut)}`},
+  {k:'sub', lb:'− AC', amt:C.ac, g:1, lk:'avs', calc:`${pc(TAUX.ac)} de ${f2(EX.brut)}`},
+  {k:'sub', lb:'− LPP', amt:C.lpp, g:2, lk:'lpp', calc:`${pc(TAUX.lppExemple)} du salaire coordonné : ${f2(EX.brut)} − ${f2(TAUX.lppCoord)} = ${f2(C.coord)}`},
+  {k:'sub', lb:'− AANP', amt:C.aanp, g:3, lk:'aanp', calc:`${pc(TAUX.aanp)} de ${f2(EX.brut)}`},
   {k:'tot', lb:'= Salaire net', amt:C.net, g:4},
   {k:'pay', lb:'Retenue de l\'avance de salaire', amt:EX.avance, g:5, lk:'avance'},
-  {k:'pay', lb:'Versé par banque', amt:C.banque, g:5, lk:'banque', calc:`${fmt(C.net)} − ${fmt(EX.avance)}`}];
-const slipHTML = (g, col, curKey) => `<table class="slip">${SLIP.map(l=>`<tr class="${l.k} ${l.g>g?'hide':''} ${l.g===g||(curKey&&l.lk===curKey)?'cur':''}"><td>${l.lb}</td><td class="calc2">${l.calc||''}</td><td class="n">${col&&l.lk?pill(l.lk,fmt(l.amt)):fmt(l.amt)}</td></tr>`).join('')}</table>`;
+  {k:'pay', lb:'Versé par banque', amt:C.banque, g:5, lk:'banque', calc:`${f2(C.net)} − ${f2(EX.avance)}`}];
+const slipHTML = (g, col, curKey) => `<table class="slip">${SLIP.map(l=>`<tr class="${l.k} ${l.g>g?'hide':''} ${l.g===g||(curKey&&l.lk===curKey)?'cur':''}"><td>${l.lb}</td><td class="calc2">${l.calc||''}</td><td class="n">${col&&l.lk?pill(l.lk,f2(l.amt)):f2(l.amt)}</td></tr>`).join('')}</table>`;
 
 /* ---------- Écritures ---------- */
 const J_SAL = [
   {d:'Salaires', amt:EX.brut, lk:'brut', why:'le salaire brut est une charge'},
   {d:'Dettes caisse ALFA', amt:EX.alloc, lk:'alloc', why:'les allocations seront remboursées par la caisse ALFA'},
-  {c:'Dettes AVS', amt:C.dAVS, lk:'avs', why:`AVS/AI/APG ${fmt(C.avs)} + AC ${fmt(C.ac)} retenus, à verser à la caisse`},
+  {c:'Dettes AVS', amt:C.dAVS, lk:'avs', why:`AVS/AI/APG ${f2(C.avs)} + AC ${f2(C.ac)} retenus, à verser à la caisse`},
   {c:'Dettes LPP', amt:C.lpp, lk:'lpp', why:'LPP retenue, à verser à la caisse de pension'},
   {c:'Charges sociales', amt:C.aanp, lk:'aanp', why:'AANP récupérée : l\'entreprise avait payé toute l\'AA en janvier'},
   {c:'Avances de salaires', amt:EX.avance, lk:'avance', why:'l\'avance déjà versée est remboursée'},
@@ -408,25 +425,34 @@ const J_SAL = [
 const PAT_AVS = r2(C.dAVS + EX.fraisAVS), PAT_TOT = r2(PAT_AVS + C.lpp + EX.cotisALFA);
 const J_PAT = [
   {d:'Charges sociales', amt:PAT_TOT, why:'total des parts patronales'},
-  {c:'Dettes AVS', amt:PAT_AVS, why:`part paritaire ${fmt(C.dAVS)} + frais d'administration ${fmt(EX.fraisAVS)}`},
-  {c:'Dettes LPP', amt:C.lpp, why:'part paritaire : le même montant que l\'employé'},
-  {c:'Dettes caisse ALFA', amt:EX.cotisALFA, why:'cotisation due à la caisse ALFA'}];
+  {c:'Dettes AVS', amt:PAT_AVS, lk:'avs', why:`part paritaire ${f2(C.dAVS)} + frais d'administration ${f2(EX.fraisAVS)}`},
+  {c:'Dettes LPP', amt:C.lpp, lk:'lpp', why:'part paritaire : le même montant que l\'employé'},
+  {c:'Dettes caisse ALFA', amt:EX.cotisALFA, lk:'alloc', why:'cotisation due à la caisse ALFA'}];
 const DUE = {avs:r2(C.dAVS+PAT_AVS), lpp:r2(C.lpp*2), alfa:r2(EX.cotisALFA-EX.alloc)};
 const J_PAY = [
-  {d:'Dettes AVS', amt:DUE.avs, why:`${fmt(C.dAVS)} (employé) + ${fmt(PAT_AVS)} (employeur)`},
-  {d:'Dettes LPP', amt:DUE.lpp, why:`${fmt(C.lpp)} (employé) + ${fmt(C.lpp)} (employeur)`},
-  {d:'Dettes caisse ALFA', amt:DUE.alfa, why:`cotisation ${fmt(EX.cotisALFA)} − allocations avancées ${fmt(EX.alloc)}`},
+  {d:'Dettes AVS', amt:DUE.avs, lk:'avs', why:`${f2(C.dAVS)} (employé) + ${f2(PAT_AVS)} (employeur)`},
+  {d:'Dettes LPP', amt:DUE.lpp, lk:'lpp', why:`${f2(C.lpp)} (employé) + ${f2(C.lpp)} (employeur)`},
+  {d:'Dettes caisse ALFA', amt:DUE.alfa, lk:'alloc', why:`cotisation ${f2(EX.cotisALFA)} − allocations avancées ${f2(EX.alloc)}`},
   {c:'Banque', amt:r2(DUE.avs+DUE.lpp+DUE.alfa), why:'paiement total'}];
 
 const STEPS = [
  { title:'Le décompte de salaire',
    ph:[{btn:'Les déductions →', text:`Chaque mois, l'employé reçoit un <b>décompte de salaire</b>. On part du salaire brut et on ajoute les éléments en sa faveur.`},
-       {btn:'Suite →', text:`On retire ensuite les <b>cotisations aux assurances sociales</b> payées par l'employé. On ajoute enfin les frais remboursés : on obtient le <b>salaire net</b>.`}],
-   stage: ph => `<section class="sec"><h2><span class="n">1</span>La structure du décompte</h2><table class="slip">
-     <tr class="add"><td>Salaire brut</td><td></td></tr>
-     ${['+ Primes / bonus','+ Commissions','+ 13<sup>e</sup> salaire','+ Allocations patronales','+ Allocations familiales'].map(x=>`<tr class="add"><td>${x}</td><td></td></tr>`).join('')}
-     ${ph>=1?`${[['− AVS/AI/APG','montant calculé sur le salaire AVS'],['− AC','montant calculé sur le salaire AVS, jusqu\'à '+fmt(TAUX.acPlafond)+' par mois'],['− AANP','montant calculé sur le salaire AVS, jusqu\'à '+fmt(TAUX.acPlafond)+' par mois'],['− LPP','montant calculé sur le salaire coordonné']].map(([a,b])=>`<tr class="sub"><td>${a}</td><td class="calc2">${b}</td></tr>`).join('')}
-       <tr class="add"><td>+ Frais</td><td class="calc2">remboursement de dépenses</td></tr><tr class="tot"><td>= Salaire net</td><td></td></tr>`:''}</table></section>` },
+       {btn:'Le salaire AVS →', text:`On retire ensuite les <b>cotisations aux assurances sociales</b> payées par l'employé. On ajoute enfin les frais remboursés : on obtient le <b>salaire net</b>.`},
+       {btn:'Le salaire coordonné →', text:`Les cotisations AVS/AI/APG, AC et AANP se calculent sur le <span class="kw avs">salaire AVS</span>.<br><br>Le salaire AVS comprend <b>tous les revenus</b>, sauf les allocations familiales et les frais.`},
+       {btn:'Suite →', text:`La LPP se calcule sur le <span class="kw coo">salaire coordonné</span> : on retire du salaire AVS la <b>déduction de coordination</b>, fixée chaque année.`}],
+   stage: ph => {
+     const avs = ph>=2, coo = ph>=3;
+     const kA = t => avs ? `<span class="kw avs">${t}</span>` : t, kC = t => coo ? `<span class="kw coo">${t}</span>` : t;
+     const out = avs ? '<i>pas dans le salaire AVS</i>' : '';
+     const gains = [['Salaire brut',1],['+ Primes / bonus',1],['+ Commissions',1],['+ 13<sup>e</sup> salaire',1],['+ Allocations patronales',1],['+ Allocations familiales',0]];
+     const plafond = ', jusqu\'à '+fmt(TAUX.acPlafond)+' par mois';
+     return `<section class="sec"><h2>La structure du décompte</h2><table class="slip">
+     ${gains.map(([x,inc])=>`<tr class="add ${avs&&inc?'inavs':''}"><td>${x}</td><td class="calc2">${inc?'':out}</td></tr>`).join('')}
+     ${ph>=1?`${[['− AVS/AI/APG',`montant calculé sur le ${kA('salaire AVS')}`],['− AC',`montant calculé sur le ${kA('salaire AVS')}${plafond}`],['− AANP',`montant calculé sur le ${kA('salaire AVS')}${plafond}`],['− LPP',`montant calculé sur le ${kC('salaire coordonné')}`]].map(([a,b])=>`<tr class="sub"><td>${a}</td><td class="calc2">${b}</td></tr>`).join('')}
+       <tr class="add"><td>+ Frais</td><td class="calc2">remboursement de dépenses${avs?' · '+out:''}</td></tr><tr class="tot"><td>= Salaire net</td><td></td></tr>`:''}</table>
+     ${avs?`<div class="formula avs"><b>Salaire AVS</b> = tous les revenus, sauf les allocations familiales et les frais</div>`:''}
+     ${coo?`<div class="formula coo"><b>Salaire coordonné</b> = Salaire AVS − déduction de coordination<span class="fx">Déduction de coordination en ${TAUX.annee} : ${fmt(TAUX.lppCoord)} par mois (${fmt(TAUX.lppCoord*12)} par an)</span></div>`:''}</section>`; } },
 
  { title:'Les taux',
    ph:[{btn:'Suite →', text:`Les taux sont fixés par la loi, par les caisses ou par les assureurs. Ils peuvent changer chaque année.<br><br>Pour l'AVS et l'AC, l'<b>employeur paie le même montant</b> que l'employé.`}],
@@ -434,23 +460,23 @@ const STEPS = [
        <tr><th>Assurance</th><th class="n">Employé</th><th class="n">Employeur</th><th>Calculé sur</th></tr>
        <tr><td>AVS/AI/APG</td><td class="n">${pc(TAUX.avs)}</td><td class="n">${pc(TAUX.avs)} + frais</td><td>salaire AVS</td></tr>
        <tr><td>AC (chômage)</td><td class="n">${pc(TAUX.ac)}</td><td class="n">${pc(TAUX.ac)}</td><td>salaire AVS, jusqu'à ${fmt(TAUX.acPlafond)} par mois</td></tr>
-       <tr><td>AANP (accident non professionnel)</td><td class="n">env. ${pc(TAUX.aanp)}</td><td class="n">—</td><td>salaire AVS, jusqu'à ${fmt(TAUX.acPlafond)} par mois · taux selon l'assureur</td></tr>
-       <tr><td>AAP (accident professionnel)</td><td class="n">—</td><td class="n">selon l'assureur</td><td>payée par l'entreprise seule</td></tr>
-       <tr class="hl"><td>LPP (2<sup>e</sup> pilier)</td><td class="n">au moins la moitié</td><td class="n">au moins la moitié</td><td>salaire coordonné · voir ci-dessous</td></tr></table>
+       <tr><td>LAA : AANP (accident non professionnel)</td><td class="n">env. ${pc(TAUX.aanp)}</td><td class="n">—</td><td>salaire AVS, jusqu'à ${fmt(TAUX.acPlafond)} par mois · taux selon l'assureur</td></tr>
+       <tr><td>LAA : AAP (accident professionnel)</td><td class="n">—</td><td class="n">selon l'assureur</td><td>payée par l'entreprise seule</td></tr>
+       <tr class="hl"><td>LPP (2<sup>e</sup> pilier)</td><td class="n">maximum la moitié</td><td class="n">au moins la moitié</td><td>salaire coordonné · voir ci-dessous</td></tr></table>
        ${Y>TAUX.annee?`<div class="warn2">Attention : ces taux datent de ${TAUX.annee}. Ils doivent être vérifiés pour ${Y}.</div>`:''}</div></section>
      <section class="sec"><div class="lpp"><h3>Informations LPP ${TAUX.annee}</h3><table class="tt">
-       <tr><td>Déduction de coordination</td><td class="n"><b>${fmt(TAUX.lppCoord)}</b> par mois</td><td class="n">${fmt(TAUX.lppCoord*12)} par an</td></tr>
-       <tr><td>Seuil d'entrée (salaire AVS minimal)</td><td class="n">${fmt(TAUX.lppSeuil/12)} par mois</td><td class="n">${fmt(TAUX.lppSeuil)} par an</td></tr>
-       <tr><td>Salaire coordonné minimal</td><td class="n">${fmt(TAUX.lppMinCoord/12)} par mois</td><td class="n">${fmt(TAUX.lppMinCoord)} par an</td></tr>
-       <tr><td>Salaire coordonné maximal (obligatoire)</td><td class="n">${fmt(TAUX.lppMaxAssure/12)} par mois</td><td class="n">${fmt(TAUX.lppMaxAssure)} par an</td></tr></table>
        <div style="margin:10px 0 4px;font-weight:600">Salaire coordonné = salaire AVS − déduction de coordination</div>
+	   <tr><td>Déduction de coordination</td><td class="n"><b>${fmt(TAUX.lppCoord)}</b> par mois</td><td class="n">${fmt(TAUX.lppCoord*12)} par an</td></tr>
+       <tr><td>Seuil d'entrée (salaire AVS minimal)</td><td class="n"><b>${fmt(TAUX.lppSeuil/12)}</b> par mois</td><td class="n">${fmt(TAUX.lppSeuil)} par an</td></tr>
+       <tr><td>Salaire coordonné minimal</td><td class="n"><b>${fmt(TAUX.lppMinCoord/12)}</b> par mois</td><td class="n">${fmt(TAUX.lppMinCoord)} par an</td></tr>
+       <tr><td>Salaire coordonné maximal (obligatoire)</td><td class="n"><b>${fmt(TAUX.lppMaxAssure/12)}</b> par mois</td><td class="n">${fmt(TAUX.lppMaxAssure)} par an</td></tr></table>
        <table class="tt"><tr><th>Âge</th><th class="n">Taux total minimal</th><th class="n">dont employé (moitié)</th></tr>
        ${TAUX.lppAge.map(([a,t])=>`<tr class="${t/2===TAUX.lppExemple?'hl':''}"><td>${a}</td><td class="n">${pc(t)}</td><td class="n">${pc(t/2)}</td></tr>`).join('')}</table>
        <p class="note">Ce sont les minimums légaux. Chaque caisse de pension peut prévoir des taux plus élevés.</p></div></section>` },
 
  { title:'Les assurances sociales',
    ph:[{btn:'Suite →', text:`Qui paie quoi ? Trois cas différents.`}],
-   stage: () => `<section class="sec"><h2><span class="n">1</span>Le fonctionnement des assurances</h2><div class="cards">
+   stage: () => `<section class="sec"><h2>En résumé : Le financement des assurances sociales</h2><div class="cards">
      <div class="card"><h4>1<sup>er</sup> pilier · caisse de compensation</h4><div class="ex">AVS/AI/APG et AC</div>L'entreprise paie de sa poche un montant <b>égal</b> à celui de l'employé, <b>+ les frais</b> d'administration.</div>
      <div class="card"><h4>2<sup>e</sup> pilier · caisse de retraite</h4><div class="ex">LPP</div>L'entreprise paie de sa poche un montant <b>égal</b> à celui de l'employé (montant <b>paritaire</b>).</div>
      <div class="card"><h4>Assurance accidents · AA</h4><div class="ex">AAP et AANP</div>L'entreprise paie <b>toute la prime annuelle d'avance</b> : AAP (accidents professionnels) et AANP (non professionnels).<br>Elle <b>récupère l'AANP</b> chaque mois sur le salaire de l'employé.</div>
@@ -476,69 +502,90 @@ const STEPS = [
      const bal = (two||ph>=2) ? `<div class="bal"><div class="row" style="background:var(--charge-bg)"><span>② Cotisation due par l'entreprise</span><span>${fmt(v.cot)}</span></div>
        <div class="row" style="background:var(--produit-bg)"><span>① − Allocations avancées par l'entreprise</span><span>−${fmt(v.all)}</span></div>
        ${two||ph>=3?`<div class="row tot" style="color:var(--res)"><span>③ = ${dif>0?'À payer à la caisse':'À recevoir de la caisse'}</span><span>${fmt(Math.abs(dif))}</span></div>`:''}</div>` : '';
-     return `<section class="sec"><h2><span class="n">1</span>${two?'Autre cas : la caisse rembourse':'Le circuit des allocations familiales'}</h2>
+     return `<section class="sec"><h2>${two?'Autre cas : la caisse rembourse':'Le fonctionnement des allocations familiales'}</h2>
        <div class="flow"><div class="node alfa">Caisse ALFA<small>allocations familiales</small></div><div class="node ent">Entreprise<small>intermédiaire</small></div><div class="node emp">Employés<small>parents</small></div></div>
        ${arrows}${bal}</section>`; } },
 
- { title:'Le décompte de l\'exemple',
-   ph:[{btn:'Les déductions →', text:`Un employé de 40 ans gagne ${fmt(EX.brut)} brut par mois. Il reçoit ${fmt(EX.alloc)} d'allocations familiales.`},
+ { title:'Exemple',
+   ph:[{btn:'Les déductions →', text:`Un employé de 40 ans gagne ${f2(EX.brut)} brut par mois. Il reçoit ${f2(EX.alloc)} d'allocations familiales.`},
        {btn:'La LPP →', text:`AVS/AI/APG et AC se calculent sur le <b>salaire AVS</b> (ici le salaire brut).`},
-       {btn:'L\'AANP →', text:`La LPP se calcule sur le <b>salaire coordonné</b> : salaire AVS − déduction de coordination.<br>${fmt(EX.brut)} − ${fmt(TAUX.lppCoord)} = ${fmt(C.coord)}. À 40 ans, l'employé paie ${pc(TAUX.lppExemple)}.`},
+       {btn:'L\'AANP →', text:`La LPP se calcule sur le <b>salaire coordonné</b> : salaire AVS − déduction de coordination.<br>${f2(EX.brut)} − ${f2(TAUX.lppCoord)} = ${f2(C.coord)}. À 40 ans, l'employé paie ${pc(TAUX.lppExemple)}.`},
        {btn:'Le net →', text:`L'AANP : ${pc(TAUX.aanp)} du salaire AVS.`},
-       {btn:'Le versement →', text:`Salaire net : <b>${fmt(C.net)}</b>.`},
-       {btn:'Suite →', text:`L'employé avait reçu une <b>avance</b> de ${fmt(EX.avance)} : elle est retenue. Le reste est versé par banque.`}],
-   stage: ph => `<section class="sec"><h2><span class="n">1</span>Décompte de salaire · janvier ${Y}</h2>${slipHTML(ph)}</section>` },
+       {btn:'Le versement →', text:`Salaire net : <b>${f2(C.net)}</b>.`},
+       {btn:'Suite →', text:`L'employé avait reçu une <b>avance</b> de ${f2(EX.avance)} : elle est retenue. Le reste est versé par banque.`}],
+   stage: ph => `<section class="sec"><h2>Décompte de salaire · janvier ${Y}</h2>${slipHTML(ph)}</section>` },
 
  { title:'Les comptes utilisés',
    ph:[{btn:'Suite →', text:`Pour comptabiliser les salaires, on utilise des comptes de <b>charges</b>, de <b>passif</b> (les dettes envers les assurances) et d'<b>actif</b>.`}],
-   stage: () => `<section class="sec"><h2><span class="n">1</span>Les comptes</h2><div class="cards">
+   stage: () => `<section class="sec"><h2>Les comptes</h2><div class="cards">
      <div class="card"><h4 style="color:var(--charge)">Charges</h4>${chip('Salaires')}<div class="ex">les salaires bruts</div>${chip('Charges sociales')}<div class="ex">les cotisations payées par l'entreprise</div></div>
      <div class="card"><h4 style="color:var(--passif)">Passif</h4>${chip('Dettes AVS')}<div class="ex">envers la caisse de compensation</div>${chip('Dettes LPP')}<div class="ex">envers la caisse de pension</div>${chip('Dettes caisse ALFA')}<div class="ex">envers la caisse d'allocations familiales</div></div>
      <div class="card"><h4 style="color:var(--actif)">Actif</h4>${chip('Avances de salaires')}<div class="ex">les avances versées aux employés</div></div></div></section>` },
 
  { title:'Janvier : la prime AA',
-   ph:[{btn:'Comptabiliser →', text:`En janvier, l'entreprise paie par banque la <b>prime annuelle d'assurance accidents</b> : ${fmt(EX.aa)}. Elle comprend l'AAP et l'AANP de toute l'année.`,
+   ph:[{btn:'Comptabiliser →', text:`En janvier, l'entreprise paie par banque la <b>prime annuelle d'assurance accidents</b> : ${f2(EX.aa)}. Elle comprend l'AAP et l'AANP de toute l'année.`,
         q:{text:'Cette prime est…', opts:[['ch','une charge de l\'entreprise'],['av','une avance aux employés']], ok:'ch',
            fb:'l\'entreprise paie la prime : c\'est une <b>charge sociale</b>. Elle récupérera la part AANP chaque mois sur les salaires.'}},
-       {btn:'Suite →', text:`<b>Charges sociales / Banque</b> ${fmt(EX.aa)}.`}],
-   stage: ph => `<section class="sec"><h2><span class="n">1</span>Dans la comptabilité · journal</h2>${jlHTML([{d:'Charges sociales', amt:EX.aa, why:'prime AA annuelle'},{c:'Banque', amt:EX.aa, why:'paiement'}], ph>=1?2:0, -1)}</section>` },
+       {btn:'Suite →', text:`<b>Charges sociales / Banque</b> ${f2(EX.aa)}.`}],
+   stage: ph => `<section class="sec"><h2>Journalisation de la prime LAA</h2>${jlHTML([{d:'Charges sociales', amt:EX.aa, why:'prime AA annuelle'},{c:'Banque', amt:EX.aa, why:'paiement'}], ph>=1?2:0, -1)}</section>` },
 
  { title:'Comptabiliser le salaire',
    ph:[{btn:'Ligne suivante →', text:`On comptabilise le décompte en <b>une seule écriture composée</b>. On commence par les débits.<br><br>Le <b>salaire brut</b> est une charge : <b>Salaires</b> au débit.`},
        {btn:'Ligne suivante →', text:`Les <b>allocations familiales</b> versées à l'employé ne sont pas une charge de l'entreprise : la caisse ALFA les remboursera. On diminue la dette envers elle : <b>Dettes caisse ALFA</b> au débit.`},
-       {btn:'Ligne suivante →', text:`Les crédits maintenant. Les retenues AVS/AI/APG et AC appartiennent à la caisse de compensation : on lui doit ${fmt(C.dAVS)}.`},
+       {btn:'Ligne suivante →', text:`Les crédits maintenant. Les retenues AVS/AI/APG et AC appartiennent à la caisse de compensation : on lui doit ${f2(C.dAVS)}.`},
        {btn:'Ligne suivante →', text:`La retenue LPP est due à la caisse de pension.`},
-       {btn:'Ligne suivante →', text:`L'<b>AANP</b> retenue à l'employé.<div class="trap"><b>⚠ Le piège</b>Il n'y a <b>pas de dette LAA</b> ! L'entreprise a déjà payé toute la prime AA en janvier (Charges sociales / Banque). En retenant l'AANP sur le salaire, elle <b>récupère une partie de cette charge</b>.<br><br>D'où le crédit : <b>Charges sociales</b> diminue de ${fmt(C.aanp)}.</div>`},
+       {btn:'Ligne suivante →', text:`L'<b>AANP</b> retenue à l'employé.<div class="trap"><b>⚠ Le piège</b>Il n'y a <b>pas de dette LAA</b> ! L'entreprise a déjà payé toute la prime AA en janvier (Charges sociales / Banque). En retenant l'AANP sur le salaire, elle <b>récupère une partie de cette charge</b>.<br><br>D'où le crédit : <b>Charges sociales</b> diminue de ${f2(C.aanp)}.</div>`},
        {btn:'Ligne suivante →', text:`L'avance de salaire est remboursée : l'actif <b>Avances de salaires</b> diminue.`},
-       {btn:'Vérifier →', text:`Enfin, le solde est versé par banque : ${fmt(C.banque)}.`},
+       {btn:'Vérifier →', text:`Enfin, le solde est versé par banque : ${f2(C.banque)}.`},
        {btn:'Suite →', text:`Total des débits = total des crédits : l'écriture est juste.`}],
    stage: ph => { const n = J_SAL.length, upto = Math.min(ph+1, n), cur = ph<n ? ph : -1;
      const curKey = cur>=0 ? J_SAL[cur].lk : null;
-     return `<section class="sec"><h2><span class="n">1</span>Le décompte · d'où viennent les montants</h2>${slipHTML(9, true, curKey)}</section>
-       <section class="sec"><h2><span class="n">2</span>Dans la comptabilité · journal</h2>${jlHTML(J_SAL, upto, cur, ph===n)}</section>`; } },
+     return `<section class="sec"><h2>Journalisation du salaire</h2>${slipHTML(9, true, curKey)}</section>
+       <section class="sec"><h2>Journal</h2>${jlHTML(J_SAL, upto, cur, ph===n)}</section>`; } },
      
  { title:'Les parts patronales',
-   ph:[{btn:'Comptabiliser →', text:`L'entreprise doit aussi payer <b>sa part</b> des assurances sociales. C'est une charge pour elle.`,
+   ph:[{btn:'Ligne suivante →', text:`L'entreprise doit aussi payer <b>sa part</b> des assurances sociales. C'est une charge pour elle.`,
         q:{text:'La part patronale AVS/AC, comparée à celle de l\'employé, est…', opts:[['m','plus petite'],['e','égale + frais'],['p','le double']], ok:'e',
-           fb:`l'entreprise paie le <b>même montant</b> que l'employé (${fmt(C.dAVS)}) <b>+ les frais d'administration</b> (${fmt(EX.fraisAVS)}).`}},
-       {btn:'Suite →', text:`<b>Charges sociales</b> au débit pour le total. Au crédit, chaque dette augmente :<br>• AVS : ${fmt(C.dAVS)} + frais ${fmt(EX.fraisAVS)} = ${fmt(PAT_AVS)}<br>• LPP : le même montant que l'employé<br>• caisse ALFA : la cotisation de l'entreprise`}],
-   stage: ph => `<section class="sec"><h2><span class="n">1</span>Dans la comptabilité · journal</h2>${jlHTML(J_PAT, ph>=1?4:0, -1, ph>=1)}</section>` },
+           fb:`l'entreprise paie le <b>même montant</b> que l'employé (${f2(C.dAVS)}) <b>+ les frais d'administration</b> (${f2(EX.fraisAVS)}).`}},
+       {btn:'Ligne suivante →', text:`On commence par les dettes, au <b>crédit</b> : chacune augmente.<br><br><b>Dettes AVS</b> : part paritaire ${f2(C.dAVS)} + frais ${f2(EX.fraisAVS)} = ${f2(PAT_AVS)}.`},
+       {btn:'Ligne suivante →', text:`<b>Dettes LPP</b> : le même montant que l'employé, ${f2(C.lpp)}.`},
+       {btn:'Ligne suivante →', text:`<b>Dettes caisse ALFA</b> : la cotisation de l'entreprise, ${f2(EX.cotisALFA)}.`},
+       {btn:'Payer les assurances →', text:`Enfin, le total au <b>débit</b> de <b>Charges sociales</b> : ${f2(PAT_TOT)}. Il s'écrit en début d'écriture.`},
+       {btn:'Ligne suivante →', text:`À la fin du mois, l'entreprise paie les assurances sociales : la part de l'employé + la part de l'employeur. Les dettes diminuent, au <b>débit</b>.<br><br><b>Dettes AVS</b> : ${f2(C.dAVS)} + ${f2(PAT_AVS)} = ${f2(DUE.avs)}.`},
+       {btn:'Ligne suivante →', text:`<b>Dettes LPP</b> : ${f2(C.lpp)} + ${f2(C.lpp)} = ${f2(DUE.lpp)}.`},
+       {btn:'Ligne suivante →', text:`<b>Dettes caisse ALFA</b> : on a avancé ${f2(EX.alloc)} d'allocations et on doit ${f2(EX.cotisALFA)} de cotisation.`,
+        q:{text:'Combien faut-il payer à la caisse ALFA ?', opts:[['a',f2(EX.cotisALFA)],['b',f2(DUE.alfa)],['c',f2(EX.cotisALFA+EX.alloc)]], ok:'b',
+           fb:`on compense : ${f2(EX.cotisALFA)} − ${f2(EX.alloc)} = <b>${f2(DUE.alfa)}</b>.`}},
+       {btn:'Ligne suivante →', text:`<b>Dettes caisse ALFA</b> au débit : ${f2(DUE.alfa)}.`},
+       {btn:'Suite →', text:`Un seul paiement par banque solde les trois dettes : <b>Banque</b> au crédit, ${f2(DUE.avs+DUE.lpp+DUE.alfa)}.`}],
+   stage: ph => { const np = Math.min(ph,4), npay = [0,0,0,0,0,1,2,2,3,4][ph];
+     return `<section class="sec"><h2>Journalisation du salaire</h2>${slipHTML(9, true)}</section>
+     <section class="sec"><h2>Journal</h2>${jlHTML(J_SAL, J_SAL.length, -1, true)}</section>
+     <section class="sec"><h2>La part patronale (les cotisations à charge de l'entreprise)</h2>${jlHTML(J_PAT, np, ph>=1&&ph<=4?np-1:-1, ph>=4, [3,0,1,2])}</section>
+     ${ph>=5?`<section class="sec"><h2>Paiement des assurances sociales</h2>${jlHTML(J_PAY, npay, ph===7?-1:npay-1, ph>=9)}</section>`:''}`; },
+   scroll:true },
 
- { title:'Payer les assurances',
-   ph:[{btn:'AVS →', text:`À la fin du mois, l'entreprise paie les assurances sociales. Combien doit-elle à chacune ?`},
-       {btn:'LPP →', text:`<b>Dettes AVS</b> : la part de l'employé + la part de l'employeur.`},
-       {btn:'ALFA →', text:`<b>Dettes LPP</b> : la part de l'employé + la part de l'employeur.`},
-       {btn:'Payer →', text:`<b>Dettes caisse ALFA</b> : on a avancé ${fmt(EX.alloc)} d'allocations et on doit ${fmt(EX.cotisALFA)} de cotisation.`,
-        q:{text:'Combien faut-il payer à la caisse ALFA ?', opts:[['a',fmt(EX.cotisALFA)],['b',fmt(DUE.alfa)],['c',fmt(EX.cotisALFA+EX.alloc)]], ok:'b',
-           fb:`on compense : ${fmt(EX.cotisALFA)} − ${fmt(EX.alloc)} = <b>${fmt(DUE.alfa)}</b>.`}},
-       {btn:'Suite →', text:`Un seul paiement par banque solde les trois dettes.`}],
-   stage: ph => `<section class="sec"><h2><span class="n">1</span>Ce que l'entreprise doit</h2><div class="dues">
-       <div class="due ${ph===1?'on':''}"><h4>Dettes AVS</h4>${ph>=1?`<div class="row"><span>employé</span><span>${fmt(C.dAVS)}</span></div><div class="row"><span>employeur</span><span>${fmt(PAT_AVS)}</span></div><div class="row tot"><span>À payer</span><span>${fmt(DUE.avs)}</span></div>`:''}</div>
-       <div class="due ${ph===2?'on':''}"><h4>Dettes LPP</h4>${ph>=2?`<div class="row"><span>employé</span><span>${fmt(C.lpp)}</span></div><div class="row"><span>employeur</span><span>${fmt(C.lpp)}</span></div><div class="row tot"><span>À payer</span><span>${fmt(DUE.lpp)}</span></div>`:''}</div>
-       <div class="due ${ph===3?'on':''}"><h4>Dettes caisse ALFA</h4>${ph>=3?`<div class="row"><span>cotisation</span><span>${fmt(EX.cotisALFA)}</span></div><div class="row"><span>− allocations avancées</span><span>−${fmt(EX.alloc)}</span></div>${ANS['9.3']||ph>=4?`<div class="row tot"><span>À payer</span><span>${fmt(DUE.alfa)}</span></div>`:''}`:''}</div></div></section>
-     ${ph>=4?`<section class="sec"><h2><span class="n">2</span>Dans la comptabilité · journal</h2>${jlHTML(J_PAY, 4, -1, true)}</section>`:''}` }
+ { title:'Récapitulation',
+   ph:[{btn:'Suite →', text:`Toutes les écritures de l'exemple sur une seule page.<br><br>Les montants des <b>avances</b> et des <b>dettes</b> sont en couleur : on suit chaque dette depuis sa naissance jusqu'à son paiement.`}],
+   stage: () => `<section class="sec"><h2>Récapitulation des écritures</h2>${recapHTML()}</section>` }
 ];
+
+/* ---------- Récapitulation : toutes les écritures ---------- */
+const ACC_LK = {'Dettes AVS':'avs','Dettes LPP':'lpp','Dettes caisse ALFA':'alloc','Avances de salaires':'avance'};
+const RECAP = [
+  {t:'Janvier · paiement de la prime annuelle LAA', rows:[{d:'Charges sociales', c:'Banque', amt:EX.aa}]},
+  {t:'Pendant le mois · versement d\'une avance de salaire', rows:[{d:'Avances de salaires', c:'Banque', amt:EX.avance}]},
+  {t:'Fin du mois · versement du salaire', rows:J_SAL},
+  {t:'Fin du mois · parts patronales', rows:J_PAT},
+  {t:'Versement aux assurances sociales', rows:J_PAY}];
+function recapHTML(){
+  const am = (a, r) => pill(ACC_LK[a], f2(r.amt));
+  return `<table class="jl2 recap"><tr><th>Compte débité</th><th>Compte crédité</th><th class="n">Débit</th><th class="n">Crédit</th></tr>
+    ${RECAP.map((e,i)=>`<tr class="grp"><td colspan="4"><span class="rn">${i+1}</span>${e.t}</td></tr>
+      ${e.rows.map(r=>`<tr><td>${r.d||''}</td><td>${r.c||''}</td><td class="n">${r.d?am(r.d,r):''}</td><td class="n">${r.c?am(r.c,r):''}</td></tr>`).join('')}`).join('')}</table>`;
+}
 const LAST = STEPS.length-1;
+const LET = i => String.fromCharCode(65+i);   // A, B, C…
 
 /* ---------- Actions ---------- */
 const A = [];
@@ -560,10 +607,10 @@ function render(){
   $('prev').disabled = pos===0;
   $('next').disabled = pos===A.length-1 || (P.q && !ANS[key]);
   $('next').textContent = pos===A.length-1 ? 'Terminé ✓' : P.btn;
-  const prog = S.ph.length>1 ? `<div class="progress" style="font-size:12px;color:var(--muted);margin:2px 0 8px">Phase ${ph+1} sur ${S.ph.length}</div>` : '';
-  $('explain').innerHTML = `<div class="stepno">Étape ${step} / ${LAST}</div><h2 class="steptitle">${S.title}</h2>${prog}
+  $('explain').innerHTML = `<h2 class="steptitle">${LET(step)}. ${S.title}</h2>
     <p class="steptext">${P.text}</p>${P.q?qBox(key,P.q):''}`;
   $('stage').innerHTML = S.stage(ph);
+  if (S.scroll) { const secs = $('stage').querySelectorAll('section.sec'); requestAnimationFrame(()=>secs[secs.length-1].scrollIntoView({block:'end', behavior:'smooth'})); }
 }
 
 /* ---------- Navigation ---------- */
@@ -576,7 +623,7 @@ function applyZoom(){
   document.documentElement.style.setProperty('--z', Z);
   try { localStorage.setItem('salaires-zoom', Z); } catch(e){}
 }
-$('dots').innerHTML = STEPS.map((s,i)=>`<button class="dot" data-s="${i}" title="Étape ${i} : ${s.title}" aria-label="Étape ${i}"></button>`).join('');
+$('dots').innerHTML = STEPS.map((s,i)=>`<button class="dot" data-s="${i}" title="${LET(i)}. ${s.title}" aria-label="${LET(i)}. ${s.title}"></button>`).join('');
 $('zm').addEventListener('click', ()=>{ Z -= 0.1; applyZoom(); });
 $('zp').addEventListener('click', ()=>{ Z += 0.1; applyZoom(); });
 $('next').addEventListener('click', ()=>goTo(pos+1));

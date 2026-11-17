@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Les amortissements</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Réglages propres à cette page (le reste est dans style.css) -->
+    <style>
+        header, footer { border-top: 5px solid yellow; border-bottom: 5px solid blue; }
+        .question { font-size: 1.15em; font-weight: bold; margin-bottom: 15px; }
+        .choix { list-style: none; padding: 0; margin: 0; }
+        .choix li { margin-bottom: 10px; }
+        .choix label { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; }
+        .choix label:hover { background-color: #f4f8fd; }
+        .choix input { width: auto; margin: 0; transform: scale(1.3); }
+        .choix label.bonne { background-color: #d4edda; border-color: #8fd19e; }
+        .choix label.fausse { background-color: #f8d7da; border-color: #f1a5ad; }
+        #validate-btn:disabled { opacity: .45; cursor: default; transform: none; }
+        /* Fenêtre d'explication (mauvaise réponse) */
+        .modal-fond { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; align-items: center; justify-content: center; z-index: 10; padding: 20px; }
+        .modal { background: white; border-radius: 12px; max-width: 520px; width: 100%; padding: 22px 24px; border-top: 6px solid #ff4747; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+        .modal h3 { color: #c0392b; margin-bottom: 10px; }
+        .modal .bonne-rep { background-color: #d4edda; color: #155724; padding: 8px 12px; border-radius: 6px; font-weight: bold; margin-bottom: 10px; }
+        .modal .modal-btn { text-align: right; margin-top: 15px; }
+        #close-btn { background-color: #037DFF; color: white; }
+        #close-btn:hover { background-color: #045BB5; }
+    </style>
+</head>
+<body>
+    <header>
+        <h2>Quiz</h2>
+        <h1>Les amortissements</h1>
+    </header>
+
+    <div class="container">
+        <div class="stats">
+            <span id="progression"></span>
+            <span id="score"></span>
+        </div>
+
+        <div id="zone-question">
+            <div class="entry-description question" id="question"></div>
+            <ul class="choix" id="choix"></ul>
+            <div class="feedback correct" id="feedback">✓ Bonne réponse !</div>
+            <div class="buttons">
+                <button id="quit-btn">Quitter</button>
+                <div>
+                    <button id="validate-btn" disabled>Valider</button>
+                    <button id="next-btn" style="display:none">Suivant</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="completion-message" id="fin"></div>
+        <button id="restart-btn">Recommencer</button>
+        <p id="quit-msg" style="display:none;text-align:center;color:#721c24">Le navigateur ne permet pas de fermer cette fenêtre automatiquement : fermer l'onglet.</p>
+    </div>
+
+    <!-- Fenêtre d'explication en cas de mauvaise réponse -->
+    <div class="modal-fond" id="modal">
+        <div class="modal">
+            <h3>Pas tout à fait…</h3>
+            <div class="bonne-rep" id="modal-reponse"></div>
+            <div id="modal-explication"></div>
+            <div class="modal-btn"><button id="close-btn">Compris</button></div>
+        </div>
+    </div>
+
+    <script>
+    const QUIZ = {
+
+        // ===== Questions (ajouter les nouvelles à la fin, séparées par une virgule) =====
+        // La BONNE réponse est toujours écrite EN PREMIER : l'ordre est mélangé à l'affichage.
+        // Modèle :  { question: "...", reponses: ["bonne réponse", "fausse 1", "fausse 2", "fausse 3"], explication: "..." }
+        questions: [
+
+            {
+                question: "Que veut dire « amortir » ?",
+                reponses: ["Diminuer", "Augmenter", "Payer", "Vendre"],
+                explication: "Amortir signifie diminuer : une dette, une créance, une perte ou la valeur d'une immobilisation."
+            },
+            {
+                question: "Laquelle de ces causes n'explique pas la perte de valeur d'une immobilisation ?",
+                reponses: ["L'inflation", "L'utilisation", "Le temps qui passe (obsolescence)", "L'épuisement des ressources"],
+                explication: "Les trois causes sont l'utilisation (usure), le temps qui passe et l'épuisement des ressources."
+            },
+            {
+                question: "Qu'est-ce que la valeur résiduelle ?",
+                reponses: ["Valeur d'acquisition − cumul des amortissements", "Le prix auquel on pourrait vendre l'objet", "Le prix d'achat", "La valeur matérielle de l'objet"],
+                explication: "C'est la valeur comptable (Buchwert), celle qui figure au bilan."
+            },
+            {
+                question: "Dans l'amortissement constant, le montant de l'amortissement…",
+                reponses: ["est le même chaque année", "diminue chaque année", "augmente chaque année", "dépend du prix de vente"],
+                explication: "On amortit chaque année le même pourcentage de la valeur d'acquisition."
+            },
+            {
+                question: "Une machine de 50'000 est amortie de façon constante sur 5 ans. Quel est l'amortissement annuel ?",
+                reponses: ["10'000", "5'000", "20'000", "25'000"],
+                explication: "50'000 : 5 = 10'000, soit un taux de 20 %."
+            },
+            {
+                question: "Dans l'amortissement dégressif, sur quelle valeur calcule-t-on l'amortissement ?",
+                reponses: ["La valeur résiduelle de l'année précédente", "La valeur d'acquisition", "La valeur vénale", "Le cumul des amortissements"],
+                explication: "Chaque année, on applique le taux à la valeur résiduelle : le montant diminue."
+            },
+            {
+                question: "Comment obtient-on le taux dégressif ?",
+                reponses: ["Taux constant × 2", "Taux constant : 2", "100 : nombre d'années", "Taux constant + 10 %"],
+                explication: "Par exemple : 20 % × 2 = 40 %."
+            },
+            {
+                question: "Pourquoi amortir le plus vite possible ?",
+                reponses: ["Par prudence", "Pour augmenter le bénéfice", "Pour payer moins de TVA", "Parce que la loi l'impose"],
+                explication: "Le principe de prudence pousse à amortir vite. L'AFC fixe des taux maximums."
+            },
+            {
+                question: "Dans l'amortissement direct, quel compte est crédité ?",
+                reponses: ["Le compte de l'immobilisation (p. ex. Véhicules)", "Le FAC", "Banque", "Amortissements"],
+                explication: "L'écriture est Amortissements / Véhicules. Au bilan, on ne voit plus la valeur d'acquisition."
+            },
+            {
+                question: "Quel est l'avantage de l'amortissement indirect ?",
+                reponses: ["On voit au bilan la valeur d'acquisition, le cumul et la valeur résiduelle", "On paie moins d'impôts", "L'écriture est plus simple", "Le compte de l'immobilisation diminue plus vite"],
+                explication: "Le compte de l'immobilisation garde sa valeur d'acquisition et le FAC cumule les amortissements."
+            }
+            /* Ajouter d'autres questions ici par la suite
+            ,
+            {
+                question: "",
+                reponses: ["", "", "", ""],
+                explication: ""
+            }
+            */
+        ]
+    };
+
+    // ===== Fonctionnement du quiz (pas besoin de modifier) =====
+    const $ = id => document.getElementById(id);
+    const melanger = arr => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+    let ordre = [], n = 0, score = 0, bonneTexte = '';
+
+    function demarrer() {
+        ordre = melanger(QUIZ.questions);
+        n = 0; score = 0;
+        $('zone-question').style.display = '';
+        $('fin').style.display = 'none';
+        $('restart-btn').style.display = 'none';
+        afficher();
+    }
+
+    function afficher() {
+        const q = ordre[n];
+        bonneTexte = q.reponses[0];
+        $('progression').textContent = `Question ${n + 1} / ${ordre.length}`;
+        $('score').textContent = `Bonnes réponses : ${score}`;
+        $('question').textContent = q.question;
+        $('choix').innerHTML = melanger(q.reponses).map((r, i) =>
+            `<li><label><input type="radio" name="rep" value="${i}"><span>${r}</span></label></li>`).join('');
+        $('choix').querySelectorAll('input').forEach(inp => inp.addEventListener('change', () => { $('validate-btn').disabled = false; }));
+        $('feedback').style.display = 'none';
+        $('validate-btn').style.display = '';
+        $('validate-btn').disabled = true;
+        $('next-btn').style.display = 'none';
+    }
+
+    function valider() {
+        const coche = $('choix').querySelector('input:checked');
+        if (!coche) return;
+        const q = ordre[n];
+        const labels = [...$('choix').querySelectorAll('label')];
+        labels.forEach(l => {
+            l.querySelector('input').disabled = true;
+            if (l.textContent === bonneTexte) l.classList.add('bonne');
+        });
+        const juste = coche.parentElement.textContent === bonneTexte;
+        if (juste) {
+            score++;
+            $('feedback').style.display = 'block';
+        } else {
+            coche.parentElement.classList.add('fausse');
+            $('modal-reponse').textContent = 'Bonne réponse : ' + bonneTexte;
+            $('modal-explication').textContent = q.explication;
+            $('modal').style.display = 'flex';
+        }
+        $('score').textContent = `Bonnes réponses : ${score}`;
+        $('validate-btn').style.display = 'none';
+        $('next-btn').style.display = '';
+        $('next-btn').textContent = (n === ordre.length - 1) ? 'Voir le résultat' : 'Suivant';
+    }
+
+    function suivant() {
+        n++;
+        if (n < ordre.length) { afficher(); return; }
+        $('zone-question').style.display = 'none';
+        const pct = Math.round(score / ordre.length * 100);
+        const msg = pct === 100 ? 'Parfait, les amortissements sont maîtrisés !' : pct >= 70 ? 'Très bien, encore un petit effort !' : 'Revoir la théorie des amortissements, puis recommencer.';
+        $('fin').innerHTML = `<h3>Quiz terminé</h3><p style="font-size:1.3em"><b>${score} / ${ordre.length}</b> bonnes réponses (${pct} %)</p><p>${msg}</p>`;
+        $('fin').style.display = 'block';
+        $('restart-btn').style.display = 'block';
+        $('progression').textContent = '';
+    }
+
+    $('validate-btn').addEventListener('click', valider);
+    $('next-btn').addEventListener('click', suivant);
+    $('restart-btn').addEventListener('click', demarrer);
+    $('close-btn').addEventListener('click', () => { $('modal').style.display = 'none'; });
+    $('quit-btn').addEventListener('click', () => { window.close(); setTimeout(() => { $('quit-msg').style.display = 'block'; }, 300); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') $('modal').style.display = 'none'; });
+
+    demarrer();
+    </script>
+</body>
+</html>
