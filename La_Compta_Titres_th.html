@@ -6,8 +6,8 @@
 <title>Les titres – théorie</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theorie.css">
 <style>
-
 
 
 :root{
@@ -21,109 +21,31 @@
   --accent:#c98a10; --accent-bg:#fff3d6;
   --y1:#e8eefb; --y2:#fff3d6;
 }
-*{box-sizing:border-box}
-html,body{margin:0}
-body{
-  /* *** Couleur fond *** */
-  background:#052035;
-  color:var(--ink);font:14px/1.45 Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
-.app{zoom:var(--z,1);display:grid;grid-template-columns:370px minmax(0,1fr);gap:24px;max-width:1520px;margin:0 auto;padding:20px}
-aside{position:sticky;top:calc(20px / var(--z,1));align-self:start;max-height:calc((100vh - 40px) / var(--z,1));overflow:auto;display:flex;flex-direction:column;gap:14px;padding-bottom:4px}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
-h1{font-family:Fraunces,Georgia,serif;font-size:26px;line-height:1.15;margin:0 0 4px;font-weight:700}
-.sub{color:var(--muted);font-size:13px;margin:0}
-.dots{display:flex;gap:6px;margin:14px 0 2px}
-.dot{flex:1;height:6px;border-radius:3px;background:var(--soft);border:0;padding:0;cursor:pointer}
-.dot.done{background:#cbbfa6}.dot.cur{background:var(--accent)}
-.stepno{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
-.steptitle{font-family:Fraunces,Georgia,serif;font-size:21px;line-height:1.2;margin:0 0 8px}
-.steptext{margin:0 0 10px}
-.calc{background:var(--accent-bg);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:13.5px}
-.calc .row{display:flex;justify-content:space-between;gap:8px}
-.calc .row.big{font-weight:700;border-top:1px solid #e8d49f;margin-top:6px;padding-top:6px;font-size:15px}
 .calc.q{background:var(--bilan-bg)}
-.choices{display:flex;gap:8px;margin-top:10px}
-.ch{flex:1;font:inherit;font-weight:600;border-radius:10px;border:2px solid var(--bilan);background:#fff;color:var(--bilan);padding:9px 10px;cursor:pointer}
-.ch:not(:disabled):hover{background:var(--bilan);color:#fff}
-.ch:disabled{cursor:default;opacity:.45}
-.ch.ok{background:var(--produit);border-color:var(--produit);color:#fff;opacity:1}
 .ch.ko{background:var(--charge);border-color:var(--charge);color:#fff;opacity:1}
-.fb{margin-top:10px;padding:8px 10px;border-radius:8px;background:#fff;animation:pop 1.2s ease-out}
-.fb.ok{border-left:4px solid var(--produit)}.fb.ko{border-left:4px solid var(--charge)}
-.ch.blink{animation:blink 1.4s ease-in-out 2}
+.fb.ko{border-left:4px solid var(--charge)}
+.ch.blink{animation:blink 1.4s ease-in-out infinite}
 @keyframes blink{0%,100%{box-shadow:0 0 0 0 rgba(32,57,79,0)}50%{box-shadow:0 0 0 5px rgba(201,138,16,.75);background:var(--accent-bg)}}
-.hint{font-size:12px;color:var(--muted);margin-top:8px;font-style:italic}
-.tag{display:inline-block;padding:2px 9px;border-radius:999px;font-weight:600;font-size:12.5px}
-.tag.good{background:var(--produit-bg);color:var(--produit)}
-.tag.bad{background:var(--charge-bg);color:var(--charge)}
-.tag.neutral{background:var(--soft);color:var(--muted)}
 .tag.at{background:var(--actif-bg);color:var(--actif)}
 .tag.pt{background:var(--passif-bg);color:var(--passif)}
-.journal{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
-.journal caption{text-align:left;font-weight:600;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding-bottom:4px}
-.journal th{text-align:left;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding:4px 4px}
-.journal td{padding:4px 4px;border-bottom:1px dashed var(--line)}
-.journal td.am,.journal th.am{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .journal td.dt{color:var(--muted);white-space:nowrap}
 .journal tr.todo td{opacity:.38}
-.journal tr.cur td{background:var(--accent-bg);font-weight:600}
-.nav{display:flex;gap:8px}
-.btn{flex:1;font:inherit;font-weight:600;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:11px 12px;cursor:pointer}
-.btn.primary{background:#256015;color:#fff;border-color:var(--ink)}
 .btn.quiz{display:flex;align-items:center;justify-content:center;background:#037DFF;color:#fff;border-color:#037DFF;text-align:center;text-decoration:none}
-.btn.quit{background:#ff4747;color:#fff;border-color:#ff4747}
-.btn:disabled{opacity:.4;cursor:default}
-.btn:not(:disabled):hover{filter:brightness(1.5)}
-details summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center}
-details summary::-webkit-details-marker{display:none}
-details summary::after{content:"＋";color:var(--muted)}
-details[open] summary::after{content:"－"}
-.note{font-size:12px;color:var(--muted);margin:10px 0 0}
-
-.stage{display:flex;flex-direction:column;gap:18px;min-width:0}
-section.sec{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px 16px}
-section.sec h2{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 12px;font-weight:600;display:flex;align-items:center;gap:8px}
-section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--soft);color:var(--ink);font-size:11px}
-.story{font-size:15px;background:var(--soft);border-radius:10px;padding:10px 14px;margin-bottom:14px}
-.story b{font-variant-numeric:tabular-nums}
 
 /* Ligne du temps */
-.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;align-items:start}
 .t{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 9px 8px;position:relative;min-width:0}
 .t-head{font-weight:700;font-size:13.5px;text-align:center;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.k-charge .t-head{color:var(--charge)}.k-produit .t-head{color:var(--produit)}.k-passif .t-head{color:var(--passif)}.k-actif .t-head{color:var(--actif)}
-.t-sides{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:baseline;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--ink);padding:0 0 2px}
 .t-body{display:grid;grid-template-columns:1fr 1fr;min-height:46px}
 .col{padding:4px 4px;display:flex;flex-direction:column;gap:2px;min-width:0}
-.col.d{border-right:2px solid var(--ink)}
 .ln{display:flex;flex-wrap:wrap;justify-content:space-between;gap:3px;font-size:11.5px;border-radius:4px;padding:1px 2px}
 .ln .lb{color:var(--muted);line-height:1.25;min-width:0}
-.ln .am{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:500;margin-left:auto}
 .ln.ext .lb{font-style:italic}
-.ln.fresh{animation:pop 1.8s ease-out;background:#ffe08a33}
-@keyframes pop{0%{background:#ffe08a}100%{background:#ffe08a33}}
-.t.focus{box-shadow:0 0 0 2px var(--accent),0 6px 18px rgba(0,0,0,.08)}
-.eff{font-size:12px;margin-top:6px;text-align:center}
 .eff .tag{font-size:11.5px}
 
 /* Introduction et résumé */
-.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .box{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .box h4{margin:0 0 6px;font-size:14px}
-.quad{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.quad .hd{text-align:center;font-family:Fraunces,Georgia,serif;font-size:19px;font-weight:700;padding:8px;border-radius:10px}
-.quad .hd.at{background:var(--actif-bg);color:var(--actif)}.quad .hd.pt{background:var(--passif-bg);color:var(--passif)}
-.qc{border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;transition:box-shadow .2s}
-.qc:hover{box-shadow:0 0 0 2px var(--accent)}
-.qc h4{margin:0 0 4px;font-size:15px}
-.qc .ex{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
-.qc .ecr{display:flex;justify-content:space-between;font-size:13px;background:var(--soft);border-radius:8px;padding:6px 10px;font-weight:600}
-.qc .ecr span:last-child{color:var(--muted);font-weight:500}
-
-.zoombar{position:fixed;top:8px;right:10px;z-index:60;display:flex;gap:2px;opacity:.55;transition:opacity .2s}
-.zoombar:hover{opacity:1}
-.zoombar button{font:600 13px Inter,system-ui,sans-serif;color:var(--muted);background:rgba(255,255,255,.85);border:1px solid var(--line);border-radius:7px;padding:3px 8px;cursor:pointer}
-.zoombar button:hover{color:var(--ink)}
+.quad .hd.pt{background:var(--passif-bg);color:var(--passif)}
 
 @media (max-width:860px){
   .app{grid-template-columns:1fr;padding:12px 12px 90px}
@@ -133,7 +55,6 @@ section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;
 }
 
 /* --- Amortissements --- */
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
 .card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s,box-shadow .3s}
 .card.on{box-shadow:0 0 0 2px var(--accent)}
 .card.off{opacity:.45}
@@ -142,87 +63,43 @@ section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;
 .card .ex{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
 .ecr{display:flex;justify-content:space-between;gap:8px;font-size:13px;background:var(--soft);border-radius:8px;padding:6px 10px;font-weight:600}
 .ecr span:last-child{color:var(--muted);font-weight:500}
-.ico{font-size:26px;line-height:1;margin-bottom:6px}
-.vocab{width:100%;border-collapse:collapse;font-size:13.5px}
-.vocab td{padding:7px 8px;border-bottom:1px dashed var(--line);vertical-align:top}
-.vocab td:first-child{font-weight:600;white-space:nowrap}
-.vocab tr.cur td{background:var(--accent-bg)}
-.vbar{display:flex;height:42px;border-radius:8px;overflow:hidden;margin:26px 0 8px;font-size:12.5px;font-weight:600;color:#fff;position:relative}
-.vbar div{display:flex;align-items:center;justify-content:center;white-space:nowrap}
-.tab{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
-.tab th{color:var(--muted);font-weight:500;border-bottom:2px solid var(--ink);padding:6px 8px;text-align:right}
-.tab th:first-child,.tab td:first-child{text-align:left}
-.tab td{padding:6px 8px;border-bottom:1px dashed var(--line);text-align:right}
+.vocab tr.cur td{background:var(--hl)}
 .tab tr.todo td{color:transparent}
-.tab tr.cur td{background:var(--accent-bg);font-weight:700}
+.tab tr.cur td{background:var(--hl);font-weight:700}
 .tab tr.cur td.am{color:var(--charge)}
-.tab td.am{color:var(--charge)}.tab td.vr{color:var(--actif)}
-.chart{width:100%;height:auto;display:block}
-.chart text{font:11px Inter,system-ui,sans-serif;fill:var(--muted)}
-.chart .lg text{fill:var(--ink);font-weight:600}
-.bil{border:1px solid var(--line);border-radius:12px;padding:10px 14px;max-width:420px}
-.bil h4{margin:0 0 6px;font-family:Fraunces,Georgia,serif;color:var(--bilan)}
-.bil .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;padding:2px 0}
+.tab td.am{color:var(--charge)}.bil .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;padding:2px 0}
 .bil .row.sub{color:var(--passif)}
 .bil .row.tot{font-weight:700;border-top:1px solid var(--ink);margin-top:4px;padding-top:4px}
-.bil .grp{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:4px}
 .k-fac .t-head{color:var(--passif)}
 .t-head{white-space:normal !important;line-height:1.2;overflow:visible !important;text-overflow:clip !important;hyphens:auto;-webkit-hyphens:auto}
 .split{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
 @media (max-width:1100px){ .split{grid-template-columns:1fr} }
 
 /* --- Bilan et journal --- */
-.inv{width:100%;border-collapse:collapse;font-size:14px}
-.inv td{padding:8px 8px;border-bottom:1px dashed var(--line);vertical-align:middle}
 .inv td.am{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
 .inv td.tg2,.inv td.acc{width:1%;white-space:nowrap}
-.inv tr.hl td{background:var(--accent-bg)}
-.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-weight:600;font-size:12.5px;animation:fadein .6s ease-out}
 @keyframes fadein{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
 .pill.a{background:var(--actif-bg);color:var(--actif)}.pill.p{background:var(--passif-bg);color:var(--passif)}
 .pill.acc{background:var(--soft);color:var(--ink)}
 .bl{display:grid;grid-template-columns:1fr 1fr;max-width:720px;margin:0 auto}
 .bl-title{grid-column:1/-1;text-align:center;font-family:Fraunces,Georgia,serif;font-weight:700;font-size:18px;padding-bottom:4px}
-.bl-head{font-weight:700;padding:4px 12px;border-bottom:3px solid var(--ink)}
-.bl-head small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 .bl-head.a{color:var(--actif)}.bl-head.p{color:var(--passif);text-align:right}
-.bl-side{padding:6px 12px 8px;display:flex;flex-direction:column;gap:2px;min-height:60px}
 .bl-side.a{border-right:3px solid var(--ink)}
 .br{display:flex;justify-content:space-between;gap:10px;font-variant-numeric:tabular-nums;padding:2px 4px;border-radius:4px}
 .br.new{animation:pop 1.6s ease-out}
 .br.cap{color:var(--res);font-weight:700}
 .br.dec{color:var(--charge);font-weight:700}
-.bg{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:8px;padding:0 4px}
-.bg:first-child{margin-top:0}
-.bt{display:flex;justify-content:space-between;font-weight:700;border-top:2px solid var(--ink);padding:4px 16px;font-variant-numeric:tabular-nums}
 .bt.bad{color:var(--charge)}
-.order{font-size:12px;font-weight:600;color:var(--accent);padding:2px 4px}
-.mini{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.qa{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s}
 .qa.off{opacity:.25}
-.qa h4{margin:0 0 6px;font-size:15px}
-.acct{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px}
-.acct caption{text-align:left;font-weight:700;padding-bottom:4px}
-.acct th{color:var(--muted);font-weight:500;border-bottom:2px solid var(--ink);padding:4px 6px;text-align:left}
-.acct td{padding:4px 6px;border-bottom:1px dashed var(--line)}
 .acct td.n{text-align:right;font-variant-numeric:tabular-nums}
 .acct th.n{text-align:right}
-.rules{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.rule{border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:center}
-.rule h4{margin:0 0 6px}
 .rule .pm{display:grid;grid-template-columns:1fr 1fr;border-top:2px solid var(--ink);font-size:22px;font-weight:700}
 .rule .pm span:first-child{border-right:2px solid var(--ink)}
 .rule .pm small{display:block;font-size:11px;color:var(--muted);font-weight:500}
-.plus{color:var(--produit)}.minus{color:var(--charge)}
-.case{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s,box-shadow .3s}
+.plus{color:var(--produit)}.case{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s,box-shadow .3s}
 .case.on{box-shadow:0 0 0 2px var(--accent)}.case.off{opacity:.4}
 .case p{margin:0 0 8px;font-size:14.5px}
 .t-sides .sg{font-weight:700}
-.inv tr.invhead td{border-bottom:0;padding-bottom:2px}
-.colbox{position:relative;display:block;text-align:center;font-weight:700;font-size:13px;color:var(--ink);border:2px solid var(--accent);border-radius:8px;padding:4px 10px;background:var(--accent-bg);animation:fadein .6s ease-out}
-.colarrow{position:absolute;left:50%;top:100%;transform:translateX(-50%);font-size:26px;line-height:1;color:var(--accent);animation:arrowgo 2.8s ease-in-out forwards;pointer-events:none}
-@keyframes arrowgo{0%{opacity:0;margin-top:-6px}15%{opacity:1}30%{margin-top:6px}45%{margin-top:-2px}60%{margin-top:6px;opacity:1}100%{opacity:0;margin-top:10px}}
-.bg.hl{color:var(--actif);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;font-size:12.5px}
 .bl-side.p .bg.hl{color:var(--passif)}
 .bl-side.dim,.bl-head.dim{opacity:.3}
 .t-head{white-space:normal !important;line-height:1.2;overflow:visible !important;text-overflow:clip !important;hyphens:auto;-webkit-hyphens:auto}
@@ -231,44 +108,24 @@ section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;
 .taux{border:3px solid var(--accent);border-radius:14px;padding:12px 16px;background:#fffdf6}
 .taux h3{margin:0 0 8px;font-family:Fraunces,Georgia,serif;color:var(--accent);display:flex;justify-content:space-between;align-items:baseline}
 .taux h3 small{font-family:Inter,sans-serif;font-size:12px;color:var(--muted);font-weight:500}
-.tt{width:100%;border-collapse:collapse;font-size:13.5px}
-.tt th{text-align:left;color:var(--muted);font-weight:500;border-bottom:2px solid var(--ink);padding:5px 8px}
-.tt td{padding:5px 8px;border-bottom:1px dashed var(--line)}
 .tt td.n,.tt th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-.tt tr.hl td{background:var(--accent-bg);font-weight:600}
-.lpp{border:3px solid var(--res);border-radius:14px;padding:12px 16px;background:#faf8fe}
-.lpp h3{margin:0 0 8px;font-family:Fraunces,Georgia,serif;color:var(--res)}
-.warn2{font-size:12.5px;color:var(--charge);background:var(--charge-bg);border-radius:8px;padding:6px 10px;margin-top:8px}
-.slip{width:100%;max-width:720px;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.tt tr.hl td{background:var(--hl);font-weight:600}
 .slip td{padding:6px 10px;border-bottom:1px dashed var(--line)}
 .slip td.n{text-align:right;white-space:nowrap}
-.slip td.calc2{color:var(--muted);font-size:12.5px}
-.slip tr.add td:first-child{border-left:4px solid var(--produit)}
 .slip tr.sub td:first-child{border-left:4px solid var(--charge)}
-.slip tr.pay td:first-child{border-left:4px solid var(--actif)}
 .slip tr.add td.n{color:var(--produit)}.slip tr.sub td.n{color:var(--charge)}.slip tr.pay td.n{color:var(--actif)}
 .slip tr.tot td{font-weight:700;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
-.slip tr.hide td{opacity:0}
-.slip tr.cur td{background:var(--accent-bg)}
+.slip tr.cur td{background:var(--hl)}
 .chip{display:inline-block;padding:2px 9px;border-radius:7px;font-weight:600;font-size:13px}
 .chip.charge{background:var(--charge-bg);color:var(--charge)}
 .chip.passif{background:var(--passif-bg);color:var(--passif)}
 .chip.actif{background:var(--actif-bg);color:var(--actif)}
-.jl2{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
-.jl2 th{text-align:left;color:var(--muted);font-weight:500;border-bottom:2px solid var(--ink);padding:6px 8px}
 .jl2 th.n,.jl2 td.n{text-align:right}
 .jl2 td{padding:6px 8px;border-bottom:1px dashed var(--line)}
-.jl2 tr.cur td{background:var(--accent-bg)}
+.jl2 tr.cur td{background:var(--hl)}
 .jl2 tr.new td{animation:pop 1.6s ease-out}
-.jl2 tr.hide td{opacity:0}
 .jl2 tr.tot td{font-weight:700;border-top:2px solid var(--ink)}
-.jl2 td.why{color:var(--muted);font-size:12.5px}
-.flow{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:0;align-items:center;max-width:820px;margin:10px auto}
-.node{border:2px solid var(--line);border-radius:14px;padding:14px 10px;text-align:center;font-weight:700;font-size:16px;background:#fff;position:relative;z-index:1}
-.node small{display:block;font-weight:500;font-size:12px;color:var(--muted)}
-.node.alfa{border-color:var(--res);color:var(--res)}.node.ent{border-color:var(--bilan);color:var(--bilan)}.node.emp{border-color:var(--produit);color:var(--produit)}
 .arrows{grid-column:1/-1;display:flex;flex-direction:column;gap:10px;margin-top:14px}
-.arw{display:grid;grid-template-columns:1fr 1.2fr 1fr;align-items:center;font-size:13.5px;transition:opacity .4s}
 .arw.off{opacity:.12}
 .arw .line{height:4px;border-radius:2px;position:relative}
 .arw .line::after{content:"";position:absolute;top:-6px;border:8px solid transparent}
@@ -280,7 +137,6 @@ section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;
 .bal{display:flex;flex-direction:column;gap:6px;max-width:520px;margin:14px auto 0;font-size:14px}
 .bal .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;padding:4px 10px;border-radius:6px}
 .bal .row.tot{font-weight:700;border-top:2px solid var(--ink)}
-.dues{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
 .due{border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .due h4{margin:0 0 6px;font-size:14px;color:var(--passif)}
 .due .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;font-size:13.5px}
@@ -311,7 +167,7 @@ section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;
   <aside>
     <div class="panel">
       <h1>Les titres</h1>
-      <p class="sub">Actions · obligations · bordereaux · clôture · rendement · montants en CHF</p>
+      <p class="sub">Actions · obligations · Calcul de rendement</p>
       <div class="dots" id="dots"></div>
     </div>
 
@@ -324,11 +180,6 @@ section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;
       </div>
     </div>
 
-    <div class="nav exit">
-      <!-- *** Liens des exercices *** -->
-      <a class="btn quiz" href="La_Compta_Titres.html" target="_blank">Exercices de journalisation</a>
-      <a class="btn quiz" href="La_Compta_Titres-Rdmt.html" target="_blank">Exercices de rendement</a>
-    </div>
     <div class="nav exit">
       <button class="btn quit" id="quit">Quitter</button>
     </div>
@@ -394,7 +245,7 @@ function compta(J, accs, ph, eff){
   const ts = accs.map(acc=>{ const P = postings(J, acc, ph);
     const focus = J.some(e=>e.ph===ph && !e.open && (e.d===acc||e.c===acc));
     return tHTML(acc, P, focus, eff ? eff(acc,P,ph) : ''); }).join('');
-  return `<section class="sec"><h2><span class="n">2</span>Dans la comptabilité</h2><div class="jr-stage">${journalHTML(J, ph)}</div><div class="tg">${ts}</div></section>`;
+  return `<section class="sec"><h2>Dans la comptabilité</h2><div class="jr-stage">${journalHTML(J, ph)}</div><div class="tg">${ts}</div></section>`;
 }
 
 /* ---------- Données des exemples ---------- */
@@ -426,9 +277,9 @@ const STEPS = [
         q:{text:'Le cours d\'une action est exprimé…', opts:[['chf','en francs par action'],['pc','en % de la valeur nominale']], ok:'chf',
            fb:'le cours d\'une action est un <b>prix en francs par action</b>.'}},
        {btn:'Suite →', text:`Le <b>dividende</b> est la part du bénéfice versée aux actionnaires. Il est indiqué en CHF par action ou en % de la valeur nominale.`}],
-   stage: ph => `<section class="sec"><h2><span class="n">1</span>Lire un cours d'action</h2>
+   stage: ph => `<section class="sec"><h2>Lire un cours d'action</h2>
        ${decode([['NESN','action Nestlé nominative','#2a52be'],['98','cours : 98 francs par action','#1f7a4d']])}</section>
-     <section class="sec"><h2><span class="n">2</span>Vocabulaire</h2><table class="vocab">
+     <section class="sec"><h2>Vocabulaire</h2><table class="vocab">
        <tr><td>Valeur nominale</td><td>Valeur inscrite sur l'action au départ. Selon la loi, elle doit être supérieure à 0.</td></tr>
        <tr><td>Valeur cotée (cours)</td><td>Valeur d'échange en bourse : le prix en francs d'une action.</td></tr>
        ${ph>=1?`<tr class="cur"><td>Dividende</td><td>En CHF par action, ou en % de la valeur nominale.</td></tr>`:''}</table></section>` },
@@ -438,9 +289,9 @@ const STEPS = [
         q:{text:'Le cours d\'une obligation est exprimé…', opts:[['chf','en francs par obligation'],['pc','en % de la valeur nominale']], ok:'pc',
            fb:'le cours d\'une obligation est un <b>pourcentage de la valeur nominale</b>.'}},
        {btn:'Suite →', text:`La valeur nominale est un montant « rond » : 1'000, 5'000, 10'000…<br><br>Les manuels disent : « On achète 10 obligations à 1'000.- de nominal ». En pratique, on dit : « On achète pour <b>10'000.- d'obligations</b> ».`}],
-   stage: ph => `<section class="sec"><h2><span class="n">1</span>Lire un cours d'obligation</h2>
+   stage: ph => `<section class="sec"><h2>Lire un cours d'obligation</h2>
        ${decode([['2','taux d\'intérêt : 2 %','#6d48b3'],['NES','Nestlé','#2a52be'],['18-28','durée : 2018 à 2028','#c2671f'],['98','cours : 98 % de la valeur nominale','#1f7a4d']])}</section>
-     <section class="sec"><h2><span class="n">2</span>Vocabulaire</h2><table class="vocab">
+     <section class="sec"><h2>Vocabulaire</h2><table class="vocab">
        <tr><td>Valeur nominale</td><td>Valeur inscrite sur le titre, en montant « rond ».</td></tr>
        <tr><td>Cours</td><td>En % de la valeur nominale.</td></tr>
        <tr><td>Intérêts</td><td>En % de la valeur nominale.</td></tr>
@@ -449,7 +300,7 @@ const STEPS = [
  { title:'Les comptes',
    ph:[{btn:'Suite →', text:`Quatre comptes sont utilisés pour les titres.`}],
    stage: () => { const row = (acc, txt) => `<div class="acrow">${tHTML(acc,{d:[],c:[]},false,'')}<div class="acx">${txt}</div></div>`;
-     return `<section class="sec"><h2><span class="n">1</span>Les comptes utilisés</h2>
+     return `<section class="sec"><h2>Les comptes utilisés</h2>
        <div class="acgrp" style="color:var(--actif)">Actif</div>
        ${row('Titres','Les actions et les obligations achetées.')}
        ${row('Créances AFC','L\'impôt anticipé à récupérer auprès de l\'Administration fédérale des contributions.')}
@@ -464,7 +315,7 @@ const STEPS = [
            fb:'l\'entreprise le récupère auprès de l\'AFC : c\'est une <b>créance</b>, le compte <b>Créances AFC</b>.'}},
        {btn:'Suite →', text:`Le produit est enregistré <b>brut</b> : ${fmt(DIV)} au crédit des Produits des titres. La banque reçoit le net, l'AFC doit le reste.`}],
    stage: ph => { const J=[{ph:1,n:1,d:'Banque',amt:DIV_NET},{ph:1,n:1,d:'Créances AFC',amt:DIV_IA},{ph:1,n:1,c:'Produits des titres',amt:DIV}];
-     return `<section class="sec"><h2><span class="n">1</span>Dividende brut de ${fmt(DIV)}</h2>
+     return `<section class="sec"><h2>Dividende brut de ${fmt(DIV)}</h2>
        <div class="vbar"><div style="width:${100-IA}%;background:${LINK['Banque']}">Net ${100-IA}&nbsp;% : ${fmt(DIV_NET)} → Banque</div><div style="width:${IA}%;background:${LINK['Créances AFC']}">Impôt anticipé ${IA}&nbsp;% : ${fmt(DIV_IA)} → Créances AFC</div></div>
        <div style="font-size:12.5px;color:var(--muted)">Brut 100&nbsp;% : ${fmt(DIV)} → Produits des titres</div></section>
        ${ph>=1?compta(J,['Banque','Créances AFC','Produits des titres'],ph):''}`; } },
@@ -474,7 +325,7 @@ const STEPS = [
         q:{text:'Les frais d\'achat…', opts:[['t','s\'ajoutent au prix, dans le compte Titres'],['c','sont une charge des titres']], ok:'t',
            fb:'on enregistre le <b>montant total</b> du bordereau dans le compte Titres.'}},
        {btn:'Suite →', text:`<b>Titres / Banque</b> pour le montant total : ${fmt(ACH_A.tot)}.`}],
-   stage: ph => `<section class="sec"><h2><span class="n">1</span>Le bordereau · d'où viennent les montants</h2>${bordHTML(`Achat · valeur au 10.02.${Y}`,[
+   stage: ph => `<section class="sec"><h2>Le bordereau · d'où viennent les montants</h2>${bordHTML(`Achat · valeur au 10.02.${Y}`,[
        {k:'add', lb:'Prix', calc:`${ACH_A.n} actions × ${ACH_A.cours}`, amt:ACH_A.prix, to:ph>=1?'Titres':null},
        {k:'add', lb:'+ Frais', calc:'courtage, taxes', amt:ACH_A.frais, to:ph>=1?'Titres':null},
        {k:'tot', lb:'= Total débité', amt:ACH_A.tot, to:ph>=1?'Banque':null}])}</section>
@@ -485,7 +336,7 @@ const STEPS = [
         q:{text:'À la vente, les frais…', opts:[['m','se déduisent du prix'],['p','s\'ajoutent au prix']], ok:'m',
            fb:'la banque <b>retient</b> ses frais : on reçoit le prix moins les frais.'}},
        {btn:'Suite →', text:`<b>Banque / Titres</b> pour le montant total reçu : ${fmt(VEN_A.tot)}.`}],
-   stage: ph => `<section class="sec"><h2><span class="n">1</span>Le bordereau · d'où viennent les montants</h2>${bordHTML(`Vente · valeur au 20.11.${Y}`,[
+   stage: ph => `<section class="sec"><h2>Le bordereau · d'où viennent les montants</h2>${bordHTML(`Vente · valeur au 20.11.${Y}`,[
        {k:'add', lb:'Prix', calc:`${VEN_A.n} actions × ${VEN_A.cours}`, amt:VEN_A.prix},
        {k:'sub', lb:'− Frais', calc:'courtage, taxes', amt:VEN_A.frais},
        {k:'tot', lb:'= Total crédité', amt:VEN_A.tot, to:ph>=1?'Banque':null}])}</section>
@@ -498,7 +349,7 @@ const STEPS = [
        {btn:'Suite →', text:`Mais les intérêts du ${OB.ech}.${Y} au ${ACH_O.val}.${Y} reviennent au <b>vendeur</b> : il possédait l'obligation pendant ce temps.<br><br>L'acheteur paie donc au vendeur, en plus du prix, les <b>intérêts courus</b> : de la dernière échéance à la date valeur.`},
        {btn:'Suite →', text:`Calcul des intérêts courus (mois de 30 jours) :<br>du ${OB.ech} au ${ACH_O.val} = <b>${ACH_O.j} jours</b><br>${fmt(OB.nom)} × ${OB.taux} × ${ACH_O.j} ÷ 36'000 = <b>${fmt(ACH_O.ic)}</b>`}],
    stage: ph => { const x1 = ACH_O.j/360*100;
-     return `<section class="sec"><h2><span class="n">1</span>Une année d'intérêts</h2>
+     return `<section class="sec"><h2>Une année d'intérêts</h2>
        <div class="icbar"><div class="ics" style="width:${x1}%;background:${ph>=1?'#c2671f':'#cbd5e1'}">${ph>=1?`vendeur · ${ACH_O.j} jours`:''}</div><div class="ics" style="width:${100-x1}%;background:${ph>=1?'#0e7c86':'#cbd5e1'}">${ph>=1?`acheteur · ${360-ACH_O.j} jours`:''}</div></div>
        <div class="icdates"><span>${OB.ech}.${Y}<br>échéance</span><span style="left:${x1}%">${ACH_O.val}.${Y}<br>achat (valeur)</span><span style="right:0;text-align:right">${OB.ech}.${Y+1}<br>échéance : 1 an d'intérêts</span></div>
        ${ph>=2?`<div class="calc" style="max-width:520px;margin-top:20px">Intérêts courus = nominal × taux × jours ÷ 36'000<div class="row big"><span>${fmt(OB.nom)} × ${OB.taux} × ${ACH_O.j} ÷ 36'000</span><span>${fmt(ACH_O.ic)}</span></div></div>`:''}</section>`; } },
@@ -508,7 +359,7 @@ const STEPS = [
         q:{text:'Les intérêts courus payés au vendeur sont débités…', opts:[['t','au compte Titres'],['p','aux Produits des titres']], ok:'p',
            fb:'ils seront « rendus » à l\'échéance avec l\'intérêt annuel : on les enregistre en <b>diminution des Produits des titres</b> (au débit).'}},
        {btn:'Suite →', text:`Écriture composée :<br>• <b>Titres</b> : prix + frais = ${fmt(ACH_O.prix+ACH_O.frais)}<br>• <b>Produits des titres</b> : intérêts courus ${fmt(ACH_O.ic)}<br>• à <b>Banque</b> : total ${fmt(ACH_O.tot)}`}],
-   stage: ph => `<section class="sec"><h2><span class="n">1</span>Le bordereau · d'où viennent les montants</h2>${bordHTML(`Achat · valeur au ${ACH_O.val}.${Y}`,[
+   stage: ph => `<section class="sec"><h2>Le bordereau · d'où viennent les montants</h2>${bordHTML(`Achat · valeur au ${ACH_O.val}.${Y}`,[
        {k:'add', lb:'Prix', calc:`${fmt(OB.nom)} × ${ACH_O.cours} %`, amt:ACH_O.prix, to:ph>=1?'Titres':null},
        {k:'add', lb:'+ Intérêts courus', calc:`du ${OB.ech} au ${ACH_O.val} : ${ACH_O.j} jours`, amt:ACH_O.ic, to:ph>=1?'Produits des titres':null},
        {k:'add', lb:'+ Frais', calc:'', amt:ACH_O.frais, to:ph>=1?'Titres':null},
@@ -520,7 +371,7 @@ const STEPS = [
         q:{text:'Les intérêts courus reçus de l\'acheteur sont crédités…', opts:[['t','au compte Titres'],['p','aux Produits des titres']], ok:'p',
            fb:'ce sont des intérêts gagnés pendant que nous possédions l\'obligation : un <b>produit des titres</b>.'}},
        {btn:'Suite →', text:`Écriture composée :<br>• <b>Banque</b> : total ${fmt(VEN_O.tot)}<br>• à <b>Titres</b> : prix − frais = ${fmt(VEN_O.prix-VEN_O.frais)}<br>• à <b>Produits des titres</b> : intérêts courus ${fmt(VEN_O.ic)}`}],
-   stage: ph => `<section class="sec"><h2><span class="n">1</span>Le bordereau · d'où viennent les montants</h2>${bordHTML(`Vente · valeur au ${VEN_O.val}.${Y+1}`,[
+   stage: ph => `<section class="sec"><h2>Le bordereau · d'où viennent les montants</h2>${bordHTML(`Vente · valeur au ${VEN_O.val}.${Y+1}`,[
        {k:'add', lb:'Prix', calc:`${fmt(OB.nom)} × ${VEN_O.cours} %`, amt:VEN_O.prix, to:ph>=1?'Titres':null},
        {k:'add', lb:'+ Intérêts courus', calc:`du ${OB.ech} au ${VEN_O.val} : ${VEN_O.j} jours`, amt:VEN_O.ic, to:ph>=1?'Produits des titres':null},
        {k:'sub', lb:'− Frais', calc:'', amt:VEN_O.frais, to:ph>=1?'Titres':null},
@@ -546,7 +397,7 @@ const STEPS = [
        : ph===2 ? [{ph:0,open:'Titres',side:'d',amt:1000,lab:'spb'},{ph:2,n:1,d:'Titres',amt:300},{ph:2,n:1,c:'Produits des titres',amt:300}]
        : [{ph:0,open:'Titres',side:'d',amt:1000,lab:'spb'},{ph:3,n:1,d:'Titres',amt:300},{ph:3,n:1,c:'Produits des titres',amt:300},{ph:3,n:2,d:'Produits des titres',amt:300},{ph:3,n:2,c:'Provision pour fluctuation',amt:300}];
      const accs = ph<2 ? ['Titres'] : ph===2 ? ['Titres','Produits des titres'] : ['Titres','Produits des titres','Provision pour fluctuation'];
-     const cards = `<section class="sec"><h2><span class="n">1</span>Trois possibilités</h2><div class="cards">
+     const cards = `<section class="sec"><h2>Trois possibilités</h2><div class="cards">
        ${[['B1','Aucune écriture','réserve latente de 300'],['B2','Ajuster à la hausse','Titres / Produits des titres'],['B3','Ajuster et provisionner','+ Produits des titres / Provision pour fluctuation']].map(([k,t,x],i)=>`<div class="card ${ph>=1?(ph===i+1?'on':''):'off'}"><h4>${k} · ${t}</h4><div class="ex">${x}</div></div>`).join('')}</div></section>`;
      return cards + compta(J, accs, ph, (acc,P)=> acc==='Titres' ? `Solde : <span class="tag neutral">${fmt(bal(acc,P))}</span> · bourse : <b>1'300</b>` : ''); } },
 
@@ -564,7 +415,7 @@ const STEPS = [
         q:{text:'Pour comparer deux placements, on utilise le gain…', opts:[['t','total'],['a','annualisé']], ok:'a',
            fb:'deux placements de durées différentes ne se comparent que sur <b>une même durée</b> : une année.'}},
        {btn:'Suite →', text:`Taux de rendement = gain annualisé × 100 ÷ capital engagé.`}],
-   stage: ph => `<section class="sec"><h2><span class="n">1</span>Calcul du rendement</h2><div class="steps3">
+   stage: ph => `<section class="sec"><h2>Calcul du rendement</h2><div class="steps3">
        <div class="calc"><b>1. Capital engagé</b><div class="row"><span>${fmt(RA.nb)} × ${RA.achat}</span><span>${fmt(RA_cap)}</span></div></div>
        ${ph>=1?`<div class="calc"><b>2. Gains</b>${RA.div.map((d,i)=>`<div class="row"><span>Dividende an ${i+1} : ${fmt(RA.nb)} × ${String(d)}</span><span>${fmt(d*RA.nb)}</span></div>`).join('')}
          <div class="row"><span>Plus-value : ${fmt(RA.nb)} × (${RA.vente} − ${RA.achat})</span><span>${fmt(RA_pv)}</span></div><div class="row big"><span>Gain total sur ${JOURS} jours</span><span>${fmt(RA_gain)}</span></div></div>`:''}
@@ -576,7 +427,7 @@ const STEPS = [
    ph:[{btn:'Les gains →', text:`Obligations à ${RO.taux}&nbsp;% pour ${fmt(RO.nom)} de nominal, achetées le 5 mars ${Y-4} à ${RO.achat}&nbsp;%, vendues le 15 juin ${Y-1} à ${RO.vente}&nbsp;%.`},
        {btn:'Le taux →', text:`Les gains annuels sont l'intérêt annuel, moins la perte de cours ramenée à une année.`},
        {btn:'Suite →', text:`Le taux de rendement est plus bas que le taux d'intérêt de ${RO.taux}&nbsp;% : l'obligation a été achetée au-dessus du pair (${RO.achat}&nbsp;%) et vendue plus bas.`}],
-   stage: ph => `<section class="sec"><h2><span class="n">1</span>Calcul du rendement</h2><div class="steps3">
+   stage: ph => `<section class="sec"><h2>Calcul du rendement</h2><div class="steps3">
        <div class="calc"><b>1. Capital engagé</b><div class="row"><span>${fmt(RO.nom)} × ${RO.achat} %</span><span>${fmt(RO_cap)}</span></div></div>
        ${ph>=1?`<div class="calc"><b>2. Gains annuels</b><div class="row"><span>Intérêt annuel : ${RO.taux} % de ${fmt(RO.nom)}</span><span>${fmt(RO_int)}</span></div>
          <div class="row"><span>Perte de cours : ${fmt(RO.nom)} × (${RO.vente} − ${RO.achat}) %</span><span>${fmt(RO_pv)}</span></div>
@@ -599,6 +450,7 @@ function qBox(key, q){
   return `<div class="calc q"><div style="font-weight:600;margin-bottom:4px">La question à se poser</div>${q.text}
     <div class="choices" style="flex-wrap:wrap">${q.opts.map(([a,lb])=>btn(a,lb)).join('')}</div>${fb}</div>`;
 }
+const LET = i => String.fromCharCode(65+i);   // A, B, C…
 function render(){
   pos = Math.max(0, Math.min(A.length-1, pos));
   const {step, ph} = A[pos], S = STEPS[step], P = S.ph[ph], key = step+'.'+ph;
@@ -606,8 +458,7 @@ function render(){
   $('prev').disabled = pos===0;
   $('next').disabled = pos===A.length-1 || (P.q && !ANS[key]);
   $('next').textContent = pos===A.length-1 ? 'Terminé ✓' : P.btn;
-  const prog = S.ph.length>1 ? `<div class="progress" style="font-size:12px;color:var(--muted);margin:2px 0 8px">Phase ${ph+1} sur ${S.ph.length}</div>` : '';
-  $('explain').innerHTML = `<div class="stepno">Étape ${step} / ${LAST}</div><h2 class="steptitle">${S.title}</h2>${prog}
+  $('explain').innerHTML = `<h2 class="steptitle">${LET(step)}. ${S.title}</h2>
     <p class="steptext">${P.text}</p>${P.q?qBox(key,P.q):''}`;
   $('stage').innerHTML = S.stage(ph);
 }
@@ -622,7 +473,7 @@ function applyZoom(){
   document.documentElement.style.setProperty('--z', Z);
   try { localStorage.setItem('titres-zoom', Z); } catch(e){}
 }
-$('dots').innerHTML = STEPS.map((s,i)=>`<button class="dot" data-s="${i}" title="Étape ${i} : ${s.title}" aria-label="Étape ${i}"></button>`).join('');
+$('dots').innerHTML = STEPS.map((s,i)=>`<button class="dot" data-s="${i}" title="${LET(i)}. ${s.title}" aria-label="${LET(i)}. ${s.title}"></button>`).join('');
 $('zm').addEventListener('click', ()=>{ Z -= 0.1; applyZoom(); });
 $('zp').addEventListener('click', ()=>{ Z += 0.1; applyZoom(); });
 $('next').addEventListener('click', ()=>goTo(pos+1));
@@ -637,5 +488,6 @@ document.addEventListener('keydown', e=>{
 render();
 applyZoom();
 </script>
+<script src="theorie.js"></script>
 </body>
 </html>

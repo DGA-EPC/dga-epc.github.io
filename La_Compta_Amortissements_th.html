@@ -6,6 +6,7 @@
 <title>Les amortissements – théorie</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theorie.css">
 <style>
 
 :root{
@@ -19,109 +20,31 @@
   --accent:#c98a10; --accent-bg:#fff3d6;
   --y1:#e8eefb; --y2:#fff3d6;
 }
-*{box-sizing:border-box}
-html,body{margin:0}
-body{
-  /* *** Couleur fond *** */
-  background:#052035;
-  color:var(--ink);font:14px/1.45 Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
-.app{zoom:var(--z,1);display:grid;grid-template-columns:370px minmax(0,1fr);gap:24px;max-width:1520px;margin:0 auto;padding:20px}
-aside{position:sticky;top:calc(20px / var(--z,1));align-self:start;max-height:calc((100vh - 40px) / var(--z,1));overflow:auto;display:flex;flex-direction:column;gap:14px;padding-bottom:4px}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
-h1{font-family:Fraunces,Georgia,serif;font-size:26px;line-height:1.15;margin:0 0 4px;font-weight:700}
-.sub{color:var(--muted);font-size:13px;margin:0}
-.dots{display:flex;gap:6px;margin:14px 0 2px}
-.dot{flex:1;height:6px;border-radius:3px;background:var(--soft);border:0;padding:0;cursor:pointer}
-.dot.done{background:#cbbfa6}.dot.cur{background:var(--accent)}
-.stepno{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
-.steptitle{font-family:Fraunces,Georgia,serif;font-size:21px;line-height:1.2;margin:0 0 8px}
-.steptext{margin:0 0 10px}
-.calc{background:var(--accent-bg);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:13.5px}
-.calc .row{display:flex;justify-content:space-between;gap:8px}
-.calc .row.big{font-weight:700;border-top:1px solid #e8d49f;margin-top:6px;padding-top:6px;font-size:15px}
 .calc.q{background:var(--bilan-bg)}
-.choices{display:flex;gap:8px;margin-top:10px}
-.ch{flex:1;font:inherit;font-weight:600;border-radius:10px;border:2px solid var(--bilan);background:#fff;color:var(--bilan);padding:9px 10px;cursor:pointer}
-.ch:not(:disabled):hover{background:var(--bilan);color:#fff}
-.ch:disabled{cursor:default;opacity:.45}
-.ch.ok{background:var(--produit);border-color:var(--produit);color:#fff;opacity:1}
 .ch.ko{background:var(--charge);border-color:var(--charge);color:#fff;opacity:1}
-.fb{margin-top:10px;padding:8px 10px;border-radius:8px;background:#fff;animation:pop 1.2s ease-out}
-.fb.ok{border-left:4px solid var(--produit)}.fb.ko{border-left:4px solid var(--charge)}
+.fb.ko{border-left:4px solid var(--charge)}
 .ch.blink{animation:blink 1.4s ease-in-out infinite}
 @keyframes blink{0%,100%{box-shadow:0 0 0 0 rgba(32,57,79,0)}50%{box-shadow:0 0 0 5px rgba(201,138,16,.75);background:var(--accent-bg)}}
-.hint{font-size:12px;color:var(--muted);margin-top:8px;font-style:italic}
-.tag{display:inline-block;padding:2px 9px;border-radius:999px;font-weight:600;font-size:12.5px}
-.tag.good{background:var(--produit-bg);color:var(--produit)}
-.tag.bad{background:var(--charge-bg);color:var(--charge)}
-.tag.neutral{background:var(--soft);color:var(--muted)}
 .tag.at{background:var(--actif-bg);color:var(--actif)}
 .tag.pt{background:var(--passif-bg);color:var(--passif)}
-.journal{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
-.journal caption{text-align:left;font-weight:600;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding-bottom:4px}
-.journal th{text-align:left;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding:4px 4px}
-.journal td{padding:4px 4px;border-bottom:1px dashed var(--line)}
-.journal td.am,.journal th.am{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .journal td.dt{color:var(--muted);white-space:nowrap}
 .journal tr.todo td{opacity:0}
-.journal tr.cur td{background:var(--accent-bg);font-weight:600}
-.nav{display:flex;gap:8px}
-.btn{flex:1;font:inherit;font-weight:600;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:11px 12px;cursor:pointer}
-.btn.primary{background:#256015;color:#fff;border-color:var(--ink)}
 .btn.quiz{display:flex;align-items:center;justify-content:center;background:#037DFF;color:#fff;border-color:#037DFF;text-align:center;text-decoration:none}
-.btn.quit{background:#ff4747;color:#fff;border-color:#ff4747}
-.btn:disabled{opacity:.4;cursor:default}
-.btn:not(:disabled):hover{filter:brightness(1.5)}
-details summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center}
-details summary::-webkit-details-marker{display:none}
-details summary::after{content:"＋";color:var(--muted)}
-details[open] summary::after{content:"－"}
-.note{font-size:12px;color:var(--muted);margin:10px 0 0}
-
-.stage{display:flex;flex-direction:column;gap:18px;min-width:0}
-section.sec{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px 16px}
-section.sec h2{font-size:14px;text-transform:uppercase;letter-spacing:.07em;color:#ff0000;margin:0 0 12px;font-weight:600;display:flex;align-items:center;gap:8px}
-section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--soft);color:var(--ink);font-size:11px}
-.story{font-size:15px;background:var(--soft);border-radius:10px;padding:10px 14px;margin-bottom:14px}
-.story b{font-variant-numeric:tabular-nums}
 
 /* Ligne du temps */
-.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;align-items:start}
 .t{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 9px 8px;position:relative;min-width:0}
 .t-head{font-weight:700;font-size:13.5px;text-align:center;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.k-charge .t-head{color:var(--charge)}.k-produit .t-head{color:var(--produit)}.k-passif .t-head{color:var(--passif)}.k-actif .t-head{color:var(--actif)}
-.t-sides{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:baseline;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--ink);padding:0 0 2px}
 .t-body{display:grid;grid-template-columns:1fr 1fr;min-height:46px}
 .col{padding:4px 4px;display:flex;flex-direction:column;gap:2px;min-width:0}
-.col.d{border-right:2px solid var(--ink)}
 .ln{display:flex;flex-wrap:wrap;justify-content:space-between;gap:3px;font-size:11.5px;border-radius:4px;padding:1px 2px}
 .ln .lb{color:var(--muted);line-height:1.25;min-width:0}
-.ln .am{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:500;margin-left:auto}
 .ln.ext .lb{font-style:italic}
-.ln.fresh{animation:pop 1.8s ease-out;background:#ffe08a33}
-@keyframes pop{0%{background:#ffe08a}100%{background:#ffe08a33}}
-.t.focus{box-shadow:0 0 0 2px var(--accent),0 6px 18px rgba(0,0,0,.08)}
-.eff{font-size:12px;margin-top:6px;text-align:center}
 .eff .tag{font-size:11.5px}
 
 /* Introduction et résumé */
-.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .box{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .box h4{margin:0 0 6px;font-size:14px}
-.quad{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.quad .hd{text-align:center;font-family:Fraunces,Georgia,serif;font-size:19px;font-weight:700;padding:8px;border-radius:10px}
-.quad .hd.at{background:var(--actif-bg);color:var(--actif)}.quad .hd.pt{background:var(--passif-bg);color:var(--passif)}
-.qc{border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;transition:box-shadow .2s}
-.qc:hover{box-shadow:0 0 0 2px var(--accent)}
-.qc h4{margin:0 0 4px;font-size:15px}
-.qc .ex{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
-.qc .ecr{display:flex;justify-content:space-between;font-size:13px;background:var(--soft);border-radius:8px;padding:6px 10px;font-weight:600}
-.qc .ecr span:last-child{color:var(--muted);font-weight:500}
-
-.zoombar{position:fixed;top:8px;right:10px;z-index:60;display:flex;gap:2px;opacity:.55;transition:opacity .2s}
-.zoombar:hover{opacity:1}
-.zoombar button{font:600 13px Inter,system-ui,sans-serif;color:var(--muted);background:rgba(255,255,255,.85);border:1px solid var(--line);border-radius:7px;padding:3px 8px;cursor:pointer}
-.zoombar button:hover{color:var(--ink)}
+.quad .hd.pt{background:var(--passif-bg);color:var(--passif)}
 
 @media (max-width:860px){
   .app{grid-template-columns:1fr;padding:12px 12px 90px}
@@ -131,7 +54,6 @@ section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;
 }
 
 /* --- Amortissements --- */
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
 .card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s,box-shadow .3s}
 .card.on{box-shadow:0 0 0 2px var(--accent)}
 .card.off{opacity:.45}
@@ -140,30 +62,13 @@ section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;
 .card .ex{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
 .ecr{display:flex;justify-content:space-between;gap:8px;font-size:13px;background:var(--soft);border-radius:8px;padding:6px 10px;font-weight:600}
 .ecr span:last-child{color:var(--muted);font-weight:500}
-.ico{font-size:26px;line-height:1;margin-bottom:6px}
-.vocab{width:100%;border-collapse:collapse;font-size:13.5px}
-.vocab td{padding:7px 8px;border-bottom:1px dashed var(--line);vertical-align:top}
-.vocab td:first-child{font-weight:600;white-space:nowrap}
-.vocab tr.cur td{background:var(--accent-bg)}
-.vbar{display:flex;height:42px;border-radius:8px;overflow:hidden;margin:26px 0 8px;font-size:12.5px;font-weight:600;color:#fff;position:relative}
-.vbar div{display:flex;align-items:center;justify-content:center;white-space:nowrap}
-.tab{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
-.tab th{color:var(--muted);font-weight:500;border-bottom:2px solid var(--ink);padding:6px 8px;text-align:right}
-.tab th:first-child,.tab td:first-child{text-align:left}
-.tab td{padding:6px 8px;border-bottom:1px dashed var(--line);text-align:right}
+.vocab tr.cur td{background:var(--hl)}
 .tab tr.todo td{color:transparent}
-.tab tr.cur td{background:var(--accent-bg);font-weight:700}
+.tab tr.cur td{background:var(--hl);font-weight:700}
 .tab tr.cur td.am{color:var(--charge)}
-.tab td.am{color:var(--charge)}.tab td.vr{color:var(--actif)}
-.chart{width:100%;height:auto;display:block}
-.chart text{font:11px Inter,system-ui,sans-serif;fill:var(--muted)}
-.chart .lg text{fill:var(--ink);font-weight:600}
-.bil{border:1px solid var(--line);border-radius:12px;padding:10px 14px;max-width:420px}
-.bil h4{margin:0 0 6px;font-family:Fraunces,Georgia,serif;color:var(--bilan)}
-.bil .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;padding:2px 0}
+.tab td.am{color:var(--charge)}.bil .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;padding:2px 0}
 .bil .row.sub{color:var(--passif)}
 .bil .row.tot{font-weight:700;border-top:1px solid var(--ink);margin-top:4px;padding-top:4px}
-.bil .grp{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:4px}
 .k-fac .t-head{color:var(--passif)}
 .t-head{white-space:normal !important;line-height:1.2}
 .split{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
@@ -194,7 +99,7 @@ section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;
   <aside>
     <div class="panel">
       <h1>Les amortissements</h1>
-      <p class="sub">Amortir = diminuer · montants en CHF</p>
+      <p class="sub">Perte de valeur des immobilisations</p>
       <div class="dots" id="dots"></div>
     </div>
 
@@ -207,10 +112,6 @@ section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;
       </div>
     </div>
 
-    <div class="nav exit">
-      <!-- *** Lien des exercices *** : remplacer La_Compta_Amortissements.html par le lien voulu -->
-      <a class="btn quiz" href="La_Compta_Amortissements.html" target="_blank">Exercices</a>
-    </div>
     <div class="nav exit">
       <!-- *** Lien du quiz *** -->
       <a class="btn quiz" href="La_Compta_Amortissements_quiz.html" target="_blank">Quiz</a>
@@ -256,7 +157,7 @@ function tableau(mode){
 const TC = tableau('const'), TD = tableau('deg'), TD1 = tableau('deg1');   // deg1 : dégressif dès le 1er janvier
 
 function tabHTML(R, upto){
-  return `<table class="tab"><tr><th>An</th><th>Valeur de calcul</th><th>Amortissement</th><th>Cumul</th><th>Valeur résiduelle</th></tr>
+  return `<table class="tab"><tr><th>Année</th><th>Valeur de calcul</th><th>Amortissement</th><th>Cumul</th><th>Valeur résiduelle</th></tr>
     ${R.map(r=>`<tr class="${r.an===upto?'cur':r.an>upto?'todo':''}"><td>${r.an} · ${Y0+r.an-1}</td><td>${fmt(r.base)}</td><td class="am">${fmt(r.a)}</td><td>${fmt(r.cum)}</td><td class="vr">${fmt(r.vr)}</td></tr>`).join('')}</table>`;
 }
 
@@ -266,10 +167,10 @@ function barChart(R, upto){
   let g = '';
   [0,5000,10000,15000,20000].forEach(v=>{ const y=H-B-sc(v); g+=`<line x1="${L}" x2="${W-6}" y1="${y}" y2="${y}" stroke="#e2ddd2"/><text x="${L-6}" y="${y+4}" text-anchor="end">${fmt(v)}</text>`; });
   R.forEach((r,i)=>{
-    const x = L + i*gw + gw*0.14, bw = gw*0.34, on = r.an<=upto, op = on?1:.12;
+    const x = L + i*gw + gw*0.14, bw = gw*0.34, on = r.an<=upto, op = on?1:0;   // années suivantes : barres invisibles
     g += `<rect x="${x}" y="${H-B-sc(r.a)}" width="${bw}" height="${sc(r.a)}" rx="3" fill="${COL.am}" opacity="${op}"/>`;
     g += `<rect x="${x+bw+3}" y="${H-B-sc(r.vr)}" width="${bw}" height="${Math.max(sc(r.vr),0.5)}" rx="3" fill="${COL.vr}" opacity="${op}"/>`;
-    g += `<text x="${L+i*gw+gw/2}" y="${H-B+16}" text-anchor="middle">An ${r.an}</text>`;
+    g += `<text x="${L+i*gw+gw/2}" y="${H-B+16}" text-anchor="middle">Année ${r.an}</text>`;
     if (r.an===upto) g += `<text x="${x+bw/2}" y="${H-B-sc(r.a)-5}" text-anchor="middle" style="fill:${COL.am};font-weight:700">${fmt(r.a)}</text><text x="${x+bw*1.5+3}" y="${H-B-sc(r.vr)-5}" text-anchor="middle" style="fill:${COL.vr};font-weight:700">${fmt(r.vr)}</text>`;
   });
   g += `<g class="lg"><rect x="${L}" y="4" width="12" height="12" rx="2" fill="${COL.am}"/><text x="${L+18}" y="14">amortissement</text>
@@ -284,7 +185,7 @@ function lineChart(){
   const pts = R => [[0,VA],...R.map(r=>[r.an,r.vr])].map(([i,v])=>`${sx(i)},${sy(v)}`).join(' ');
   let g = '';
   [0,5000,10000,15000,20000].forEach(v=>{ g+=`<line x1="${L}" x2="${W-6}" y1="${sy(v)}" y2="${sy(v)}" stroke="#e2ddd2"/><text x="${L-6}" y="${sy(v)+4}" text-anchor="end">${fmt(v)}</text>`; });
-  for (let i=0;i<=n;i++) g += `<text x="${sx(i)}" y="${H-B+16}" text-anchor="middle">${i===0?'achat':'An '+i}</text>`;
+  for (let i=0;i<=n;i++) g += `<text x="${sx(i)}" y="${H-B+16}" text-anchor="middle">${i===0?'achat':'Année '+i}</text>`;
   g += `<polyline points="${pts(TC)}" fill="none" stroke="${COL.vr}" stroke-width="3"/><polyline points="${pts(TD1)}" fill="none" stroke="${COL.deg}" stroke-width="3" stroke-dasharray="7 5"/>`;
   g += `<g class="lg"><line x1="${L}" x2="${L+22}" y1="10" y2="10" stroke="${COL.vr}" stroke-width="3"/><text x="${L+28}" y="14">constant 20 %</text>
         <line x1="${L+150}" x2="${L+172}" y1="10" y2="10" stroke="${COL.deg}" stroke-width="3" stroke-dasharray="7 5"/><text x="${L+178}" y="14">dégressif 40 %</text></g>
@@ -564,5 +465,6 @@ document.addEventListener('keydown', e=>{
 render();
 applyZoom();
 </script>
+<script src="theorie.js"></script>
 </body>
 </html>

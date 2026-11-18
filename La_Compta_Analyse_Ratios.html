@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse par les ratios</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Réglages propres à cette page (le reste est dans style.css) -->
+    <style>
+        header, footer { border-top: 5px solid #ffa500; border-bottom: 5px solid #24FF7C; }
+        :root{--liq:#DCEDD5;--cre:#B8DCAB;--sto:#95CA82;--imm:#A9CBF5;--dct:#FBE3D6;--dlt:#FFFFCC;--csoc:#FFF3AB;--ccr:#FFEC79}
+        .consigne { background:#e8f4fc; border-left:4px solid #3498db; padding:10px 14px; margin-bottom:18px; }
+        h3.sec { margin:22px 0 10px; color:#78004f; }
+
+        /* Bilan analytique */
+        .ba { display:grid; grid-template-columns:1fr 1fr; max-width:760px; margin:0 auto; border:2px solid #222; }
+        .ba .col { display:flex; flex-direction:column; }
+        .ba .col.a { border-right:2px solid #222; }
+        .ba .hd { text-align:center; font-weight:bold; padding:4px; background:#f0f0f0; border-bottom:2px solid #222; }
+        .ba .r { display:flex; justify-content:space-between; padding:7px 10px; border-bottom:1px solid #fff; font-variant-numeric:tabular-nums; }
+        .ba .r.big { flex:1; align-items:center; }
+        .ba .r span:last-child { font-weight:bold; }
+        .ba .tot { display:flex; justify-content:space-between; padding:6px 10px; border-top:2px solid #222; font-weight:bold; background:#f0f0f0; }
+        .groupes { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:10px; font-size:14px; }
+        .groupes span { background:#f3f3f3; border-radius:12px; padding:3px 10px; }
+
+        /* Ratios */
+        table.rt td, table.rt th { vertical-align:middle; }
+        table.rt th { font-size:14px; }
+        table.rt th:nth-child(1), table.rt td:nth-child(1) { width:24%; }
+        table.rt th:nth-child(2), table.rt td:nth-child(2) { width:18%; }
+        table.rt th:nth-child(3), table.rt td:nth-child(3) { width:10%; }
+        table.rt th:nth-child(4), table.rt td:nth-child(4) { width:48%; text-align:left; }
+        .nm { font-weight:bold; }
+        .frm { font-size:12.5px; color:#666; }
+        .calc { font-size:13px; white-space:nowrap; text-align:center !important; }
+        .res { font-weight:bold; font-size:17px; text-align:center !important; white-space:nowrap; }
+        .norme { font-size:12px; color:#1A6DD9; display:none; }
+        body.aide .norme { display:block; }
+        .app label { display:inline-flex; align-items:center; gap:6px; margin-right:14px; cursor:pointer; white-space:nowrap; }
+        .app input, .raisons input { width:auto; margin:0; transform:scale(1.2); }
+        .raisons { margin-top:8px; padding:8px 10px; background:#fff6e5; border-radius:6px; display:none; }
+        .raisons.on { display:block; }
+        .raisons .q { font-size:13px; font-weight:bold; margin-bottom:4px; }
+        .raisons label { display:flex; align-items:flex-start; gap:8px; font-size:13.5px; padding:3px 0; cursor:pointer; line-height:1.3; }
+        tr.info td { color:#777; background:#fafafa; }
+        tr.info .app { font-size:13px; font-style:italic; }
+        tr.ok td { background:#d4edda; }
+        tr.ko td { background:#f8d7da; }
+        tr.ok .raisons, tr.ko .raisons { background:rgba(255,255,255,.6); }
+        .expl { font-size:13px; margin-top:6px; display:none; line-height:1.35; }
+        tr.ok .expl, tr.ko .expl { display:block; }
+        label.bonne { color:#155724; font-weight:bold; }
+        .outils { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
+        .outils label { display:inline-flex; align-items:center; gap:6px; cursor:pointer; }
+        .outils input { width:auto; transform:scale(1.2); }
+        #new-btn { background-color:#9b59b6; color:white; }
+        #new-btn:hover { background-color:#6D3D80; }
+        #score { font-size:20px; font-weight:bold; text-align:center; padding:12px; border-radius:6px; margin-top:15px; display:none; }
+    </style>
+</head>
+<body>
+    <header>
+        <h2>Analyse financière</h2>
+        <h1>Analyse du bilan par les ratios</h1>
+    </header>
+
+    <div class="container">
+        <div class="consigne">
+            Voici le bilan analytique d'une entreprise commerciale au <b>31.12.<span class="an"></span></b>. Les ratios sont déjà calculés.<br>
+            Pour chaque ratio qui a une norme, cocher <b>bon</b> ou <b>pas bon</b>. Si le ratio n'est pas bon, cocher la <b>raison</b>.
+        </div>
+
+        <div class="outils">
+            <label><input type="checkbox" id="aide"> Afficher les normes (aide)</label>
+            <span id="progression"></span>
+        </div>
+
+        <h3 class="sec">Bilan analytique au 31.12.<span class="an"></span></h3>
+        <div id="bilan"></div>
+
+        <h3 class="sec">Les ratios</h3>
+        <table class="rt">
+            <thead><tr><th>Ratio</th><th>Calcul</th><th>Résultat</th><th>Appréciation</th></tr></thead>
+            <tbody id="ratios"></tbody>
+        </table>
+
+        <div id="score"></div>
+
+        <div class="buttons">
+            <button id="quit-btn">Quitter</button>
+            <div>
+                <button id="new-btn">Nouveau bilan</button>
+                <button id="validate-btn">Valider</button>
+            </div>
+        </div>
+        <p id="quit-msg" style="display:none;text-align:center;color:#721c24">Le navigateur ne permet pas de fermer cette fenêtre automatiquement : fermer l'onglet.</p>
+    </div>
+
+<script>
+/* ======================================================================
+   Réglages
+   ====================================================================== */
+const Y = new Date().getFullYear() - 1;           // exercice analysé : l'année précédente
+const $ = id => document.getElementById(id);
+const fmt = n => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '’');
+const pc  = v => v.toFixed(1).replace('.', ',') + ' %';
+const rnd = (a, b) => a + Math.random() * (b - a);
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const shuffle = arr => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const r1000 = v => Math.max(1000, Math.round(v / 1000) * 1000);
+
+const G = {
+  liq: 'Liquidités', cre: 'Créances', sto: 'Stocks', imm: 'Immobilisés',
+  dct: 'Dettes à court terme', dlt: 'Dettes à long terme', csoc: 'Capital social', ccr: 'Capital de croissance'};
+
+/* ======================================================================
+   Les raisons (tirées de la théorie)
+   ====================================================================== */
+const RAISONS = {
+  insolv: 'Risque d\'insolvabilité : l\'entreprise risque de ne pas pouvoir payer ses dettes à court terme (à terme, la faillite).',
+  dort:   'De l\'argent dort et ne rapporte rien : la rentabilité diminue.',
+  orCT:   'Règle d\'or non respectée : les dettes à court terme ne sont pas assez couvertes par les circulants.',
+  stock:  'Trop de stock : de l\'argent est bloqué dans les marchandises, la rentabilité est faible.',
+  orLT:   'Règle d\'or non respectée : des dettes à court terme financent des immobilisés (machines, immeubles).',
+  dep:    'Trop de fonds étrangers : l\'entreprise dépend de ses créanciers.',
+  fp:     'Pas assez de fonds propres : l\'entreprise est peu indépendante et peu solide.'};
+
+/* ======================================================================
+   Les ratios
+   jug(v) renvoie null si le ratio est bon, sinon le code de la raison.
+   choix : les raisons proposées à l'élève pour ce ratio.
+   ====================================================================== */
+const RATIOS = [
+  {k:'intC', nm:'Intensité de l\'actif circulant', frm:'Circulants ÷ Total de l\'actif', num:['liq','cre','sto'], den:'TA', info:true},
+  {k:'intI', nm:'Intensité de l\'actif immobilisé', frm:'Immobilisés ÷ Total de l\'actif', num:['imm'], den:'TA', info:true},
+  {k:'end',  nm:'Degré d\'endettement', frm:'Fonds étrangers ÷ Total du passif', num:['dct','dlt'], den:'TP',
+     norme:'60 % au maximum', lo:0, hi:60, jug: v => v > 60 ? 'dep' : null, choix:['dep','orLT','dort','stock'],
+     ex:'Part du financement apportée par les créanciers. Plus il est élevé, plus l\'entreprise dépend de ses créanciers.'},
+  {k:'finP', nm:'Degré de financement propre', frm:'Capitaux propres ÷ Total du passif', num:['csoc','ccr'], den:'TP',
+     norme:'40 % au minimum', lo:40, hi:100, jug: v => v < 40 ? 'fp' : null, choix:['fp','insolv','stock','dort'],
+     ex:'Part du financement apportée par les propriétaires. Plus il est élevé, plus l\'entreprise est indépendante et solide.'},
+  {k:'auto', nm:'Ratio d\'autofinancement', frm:'Capital de croissance ÷ Capitaux propres', num:['ccr'], den:['csoc','ccr'], info:true},
+  {k:'liq1', nm:'Liquidité I (trésorerie)', frm:'Liquidités ÷ Dettes à court terme', num:['liq'], den:['dct'],
+     norme:'environ 30 % (20 à 40 %)', lo:20, hi:40, jug: v => v < 20 ? 'insolv' : v > 40 ? 'dort' : null, choix:['insolv','dort','stock','orLT'],
+     ex:'Capacité à payer les dettes immédiates. Trop bas : risque d\'insolvabilité. Trop haut : de l\'argent qui dort et ne rapporte rien.'},
+  {k:'liq2', nm:'Liquidité II', frm:'(Liquidités + créances) ÷ Dettes à court terme', num:['liq','cre'], den:['dct'],
+     norme:'100 à 200 %', lo:100, hi:200, jug: v => v < 100 ? 'insolv' : v > 200 ? 'dort' : null, choix:['insolv','dort','stock','orLT'],
+     ex:'Capacité à faire face à ses engagements à court terme. Trop bas : l\'entreprise risque de ne pas pouvoir payer ses dettes.'},
+  {k:'liq3', nm:'Liquidité III (fonds de roulement)', frm:'Circulants ÷ Dettes à court terme', num:['liq','cre','sto'], den:['dct'],
+     norme:'150 à 200 %', lo:150, hi:200, jug: v => v < 150 ? 'orCT' : v > 200 ? 'stock' : null, choix:['orCT','stock','dort','dep'],
+     ex:'Vérifie la règle d\'or : les dettes à court terme doivent être couvertes par les circulants. Trop haut : trop de stock, rentabilité faible.'},
+  {k:'cou1', nm:'Degré de couverture 1', frm:'Capitaux propres ÷ Immobilisés', num:['csoc','ccr'], den:['imm'], info:true},
+  {k:'cou2', nm:'Degré de couverture 2', frm:'Capital permanent ÷ Immobilisés', num:['dlt','csoc','ccr'], den:['imm'],
+     norme:'plus de 100 %', lo:100, hi:Infinity, jug: v => v < 100 ? 'orLT' : null, choix:['orLT','stock','dort','dep'],
+     ex:'Vérifie la règle d\'or : ce qui reste longtemps dans l\'entreprise (immobilisés) doit être financé par des capitaux à long terme.'}];
+const INFO_TXT = 'Pas de norme fixe : comparer avec la branche et les années précédentes.';
+
+/* ======================================================================
+   Génération aléatoire du bilan analytique
+   On tire d'abord une situation (bonne ou mauvaise) pour chaque ratio,
+   puis on calcule les rubriques qui donnent ces ratios.
+   ====================================================================== */
+function genere(){
+  for (let essai = 0; essai < 500; essai++){
+    const dct = rnd(60000, 220000);
+    // Liquidité I : souvent bonne, parfois trop basse ou trop haute
+    // Une fois sur six : règle d'or non respectée (circulants < dettes à court terme → couverture 2 < 100 %)
+    const orBrisee = Math.random() < 1/6;
+    const l1 = orBrisee ? pick([[5,16],[22,38]]) : pick([[22,38],[22,38],[5,16],[48,90]]);
+    // Liquidité II : bonne ou trop basse (pas de « trop haut » dans la théorie)
+    const l2 = orBrisee ? [45,75] : pick([[110,190],[110,190],[55,85]]);
+    // Liquidité III : bonne, trop basse ou trop haute
+    const l3 = orBrisee ? [72,94] : pick([[158,195],[158,195],[100,140],[215,320]]);
+    const v1 = rnd(...l1), v2 = rnd(Math.max(l2[0], v1 + 25), l2[1]), v3 = rnd(Math.max(l3[0], v2 + 15), l3[1]);
+    if (v2 > l2[1] || v3 > l3[1]) continue;         // il faut un peu de créances et de stock
+    const liq = dct*v1/100, cre = dct*(v2-v1)/100, sto = dct*(v3-v2)/100;
+    const circ = liq + cre + sto;
+    const imm = circ * rnd(0.7, 2.8);
+    const TA = circ + imm;
+    // Degré d'endettement : bon (30-57 %) ou trop élevé (63-82 %)
+    const e = rnd(...pick([[30,57],[30,57],[63,82]])) / 100;
+    const dlt = e*TA - dct;
+    if (dlt < 0.04*TA) continue;
+    const cp = TA - dct - dlt, csoc = cp * rnd(0.5, 0.8), ccr = cp - csoc;
+
+    // Arrondi au millier ; le total du passif est ajusté sur le capital de croissance
+    const B = {liq:r1000(liq), cre:r1000(cre), sto:r1000(sto), imm:r1000(imm), dct:r1000(dct), dlt:r1000(dlt), csoc:r1000(csoc)};
+    B.ccr = B.liq+B.cre+B.sto+B.imm - B.dct-B.dlt-B.csoc;
+    if (B.ccr < 1000) continue;
+
+    // Pas de ratio trop proche d'une limite : sinon l'appréciation serait ambiguë
+    const vals = calcule(B);
+    const limite = RATIOS.some(r => !r.info && [r.lo, r.hi].some(b => isFinite(b) && b > 0 && Math.abs(vals[r.k] - b) < 2));
+    if (limite) continue;
+    return B;
+  }
+  return {liq:15000,cre:60000,sto:70000,imm:300000,dct:80000,dlt:150000,csoc:150000,ccr:65000};   // secours
+}
+
+const tot = (B, gs) => gs.reduce((t,g) => t + B[g], 0);
+function denVal(B, r){ return r.den === 'TA' ? tot(B,['liq','cre','sto','imm']) : r.den === 'TP' ? tot(B,['dct','dlt','csoc','ccr']) : tot(B, r.den); }
+function calcule(B){ const o = {}; RATIOS.forEach(r => o[r.k] = tot(B, r.num) / denVal(B, r) * 100); return o; }
+
+/* ======================================================================
+   Affichage
+   ====================================================================== */
+let B, V;
+
+function afficheBilan(){
+  const TA = tot(B,['liq','cre','sto','imm']);
+  const row = (g, big) => `<div class="r${big?' big':''}" style="background:var(--${g})"><span>${G[g]}</span><span>${fmt(B[g])}</span></div>`;
+  $('bilan').innerHTML = `<div class="ba">
+      <div class="col a"><div class="hd">ACTIF</div>${row('liq')}${row('cre')}${row('sto')}${row('imm',true)}<div class="tot"><span>Total</span><span>${fmt(TA)}</span></div></div>
+      <div class="col"><div class="hd">PASSIF</div>${row('dct')}${row('dlt')}${row('csoc')}${row('ccr')}<div class="tot"><span>Total</span><span>${fmt(TA)}</span></div></div>
+    </div>
+    <div class="groupes">
+      <span>Circulants : ${fmt(tot(B,['liq','cre','sto']))}</span>
+      <span>Fonds étrangers : ${fmt(tot(B,['dct','dlt']))}</span>
+      <span>Capitaux propres : ${fmt(tot(B,['csoc','ccr']))}</span>
+      <span>Capital permanent : ${fmt(tot(B,['dlt','csoc','ccr']))}</span>
+    </div>`;
+}
+
+function afficheRatios(){
+  $('ratios').innerHTML = RATIOS.map(r => {
+    const calc = `${fmt(tot(B, r.num))} × 100 ÷ ${fmt(denVal(B, r))}`;
+    const head = `<td><div class="nm">${r.nm}</div><div class="frm">${r.frm}</div>${r.norme?`<div class="norme">Norme : ${r.norme}</div>`:''}</td>
+                  <td class="calc">${calc}</td><td class="res">${pc(V[r.k])}</td>`;
+    if (r.info) return `<tr class="info">${head}<td class="app">${INFO_TXT}</td></tr>`;
+    return `<tr id="tr-${r.k}">${head}<td>
+        <div class="app">
+          <label><input type="radio" name="a-${r.k}" value="bon"> Bon</label>
+          <label><input type="radio" name="a-${r.k}" value="pas"> Pas bon</label>
+        </div>
+        <div class="raisons" id="rs-${r.k}">
+          <div class="q">Pourquoi ?</div>
+          ${shuffle(r.choix).map(c => `<label><input type="radio" name="r-${r.k}" value="${c}"> ${RAISONS[c]}</label>`).join('')}
+        </div>
+        <div class="expl" id="ex-${r.k}"></div>
+      </td></tr>`;
+  }).join('');
+  // La liste des raisons n'apparaît que si « pas bon » est coché
+  RATIOS.filter(r => !r.info).forEach(r => {
+    document.querySelectorAll(`input[name="a-${r.k}"]`).forEach(inp => inp.addEventListener('change', () => {
+      $('rs-'+r.k).classList.toggle('on', inp.value === 'pas' && inp.checked);
+      majProgression();
+    }));
+    document.querySelectorAll(`input[name="r-${r.k}"]`).forEach(inp => inp.addEventListener('change', majProgression));
+  });
+}
+
+const aJuger = () => RATIOS.filter(r => !r.info);
+const val = name => { const x = document.querySelector(`input[name="${name}"]:checked`); return x ? x.value : null; };
+const complet = r => { const a = val('a-'+r.k); return a === 'bon' || (a === 'pas' && val('r-'+r.k)); };
+function majProgression(){
+  const n = aJuger().filter(complet).length;
+  $('progression').textContent = `Ratios appréciés : ${n} / ${aJuger().length}`;
+}
+
+/* ======================================================================
+   Correction
+   ====================================================================== */
+function valider(){
+  const manque = aJuger().filter(r => !complet(r));
+  if (manque.length){ alerteManque(manque); return; }
+  let pts = 0;
+  aJuger().forEach(r => {
+    const bonne = r.jug(V[r.k]);                // null = bon, sinon le code de la raison
+    const a = val('a-'+r.k), rs = val('r-'+r.k);
+    const juste = bonne === null ? a === 'bon' : (a === 'pas' && rs === bonne);
+    if (juste) pts++;
+    const tr = $('tr-'+r.k);
+    tr.classList.remove('ok','ko'); tr.classList.add(juste ? 'ok' : 'ko');
+    // Montrer la bonne raison en gras
+    document.querySelectorAll(`input[name="r-${r.k}"]`).forEach(i => i.parentElement.classList.toggle('bonne', i.value === bonne));
+    if (bonne) $('rs-'+r.k).classList.add('on');
+    const sens = bonne === null ? 'dans la norme' : (V[r.k] < r.lo ? 'trop bas' : 'trop haut');
+    $('ex-'+r.k).innerHTML = `${juste ? '✓' : '✗'} <b>${pc(V[r.k])} : ${bonne === null ? 'bon' : 'pas bon'}</b> (${sens} ; norme : ${r.norme}).<br>${r.ex}`;
+  });
+  document.querySelectorAll('#ratios input').forEach(i => i.disabled = true);
+  const n = aJuger().length, s = $('score');
+  s.style.display = 'block';
+  s.style.background = pts === n ? '#d4edda' : pts >= n/2 ? '#fff3cd' : '#f8d7da';
+  s.textContent = `Score : ${pts} / ${n}` + (pts === n ? ' — parfait !' : '');
+  $('validate-btn').style.display = 'none';
+}
+function alerteManque(manque){
+  manque.forEach(r => { const tr = $('tr-'+r.k); tr.style.outline = '2px dashed #ffa500'; setTimeout(() => tr.style.outline = '', 1500); });
+  $('progression').textContent = `Il manque encore ${manque.length} appréciation(s).`;
+}
+
+/* ======================================================================
+   Lancement
+   ====================================================================== */
+function nouveau(){
+  B = genere(); V = calcule(B);
+  document.querySelectorAll('.an').forEach(e => e.textContent = Y);
+  afficheBilan(); afficheRatios(); majProgression();
+  $('score').style.display = 'none';
+  $('validate-btn').style.display = '';
+}
+$('aide').addEventListener('change', e => document.body.classList.toggle('aide', e.target.checked));
+$('validate-btn').addEventListener('click', valider);
+$('new-btn').addEventListener('click', nouveau);
+$('quit-btn').addEventListener('click', () => { window.close(); setTimeout(() => { $('quit-msg').style.display = 'block'; }, 300); });
+nouveau();
+</script>
+</body>
+</html>

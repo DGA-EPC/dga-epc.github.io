@@ -19,7 +19,6 @@ body{margin:0;min-height:100vh;font-family:Poppins,'Segoe UI',system-ui,sans-ser
 .blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.45;z-index:0;animation:float 18s ease-in-out infinite alternate}
 .blob.a{width:520px;height:520px;background:#7c3aed;top:-140px;left:-120px}
 .blob.b{width:460px;height:460px;background:#ec4899;bottom:-160px;right:-100px;animation-delay:-6s}
-.blob.c{width:380px;height:380px;background:#06b6d4;top:40%;left:45%;animation-delay:-12s}
 @keyframes float{to{transform:translate(60px,-40px) scale(1.15)}}
 
 .wrap{position:relative;z-index:1;max-width:1260px;margin:0 auto;padding:28px 20px 40px}
@@ -28,7 +27,7 @@ body{margin:0;min-height:100vh;font-family:Poppins,'Segoe UI',system-ui,sans-ser
 header{text-align:center;padding:10px 0 30px;animation:drop .9s cubic-bezier(.2,1.4,.4,1) both}
 @keyframes drop{from{opacity:0;transform:translateY(-40px) scale(.9)}}
 .super{display:inline-block;font-weight:600;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#e9d5ff;background:rgba(255,255,255,.08);border:1px solid var(--line);padding:6px 14px;border-radius:999px}
-h1{margin:14px 0 6px;font-size:clamp(28px,4.4vw,52px);font-weight:800;line-height:1.1}
+h1{margin:14px 0 6px;font-size:calc(clamp(28px,4.4vw,52px) - 2px);font-weight:800;line-height:1.1}
 .grad{background:linear-gradient(90deg,#fde047,#fb7185,#c084fc,#38bdf8,#4ade80,#fde047);background-size:300% 100%;
    -webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 8s linear infinite}
 @keyframes shine{to{background-position:300% 0}}
@@ -46,6 +45,7 @@ h1{margin:14px 0 6px;font-size:clamp(28px,4.4vw,52px);font-weight:800;line-heigh
 .year::before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:var(--c)}
 .year h2{margin:2px 0 14px;font-size:20px;display:flex;align-items:center;gap:10px}
 .year h2 .num{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:var(--c);color:#14102b;font-weight:800}
+.year h2 .yt{display:flex;align-items:center;gap:3px}   /* carré du numéro collé à « ère année » */
 .year h2 small{margin-left:auto;font-size:12px;font-weight:500;color:var(--muted)}
 
 /* Cartes de chapitre */
@@ -109,7 +109,7 @@ h1{margin:14px 0 6px;font-size:clamp(28px,4.4vw,52px);font-weight:800;line-heigh
 .wrap{max-width:1500px;padding:20px 22px 22px}
 header{padding:6px 0 20px}
 .super{font-size:12px;padding:5px 13px}
-h1{margin:10px 0 0;font-size:clamp(24px,3.4vw,44px)}
+h1{margin:10px 0 0;font-size:calc(clamp(24px,3.4vw,44px) - 2px)}
 .years{gap:20px}
 .year{padding:15px 14px 14px;border-radius:20px}
 .year h2{margin:0 0 12px;font-size:18.5px}
@@ -131,7 +131,7 @@ h1{margin:10px 0 0;font-size:clamp(24px,3.4vw,44px)}
 </style>
 </head>
 <body>
-<div class="blob a"></div><div class="blob b"></div><div class="blob c"></div>
+<div class="blob a"></div><div class="blob b"></div>
 
 <div class="wrap">
   <header>
@@ -187,8 +187,8 @@ document.addEventListener('keydown', function(e) {
 // =====================================================================
 const PROGRAMME = [
     { annee: "1ère année", chapitres: [
-        { titre: "1.1 Introduction (Bilan, compte et journal)", fenetre: "1 Introduction à la comptabilité", sous: [
-            { titre: "1. Rappels théoriques", lien: "La_Compta_Bilan_Journal_th.html" },
+        { titre: "1.1 Introduction à la comptabilité", fenetre: "1 Introduction à la comptabilité", sous: [
+            { titre: "1. Rappels théoriques", lien: "La_Compta_Introduction_th.html" },
             { titre: "2. Exercices : Etablir un bilan", lien: "La_Compta_Bilan.html" },
             { titre: "3. Exercices de journalisation", lien: "La_Compta_Journal.html" },
             { titre: "4. Exercice : la nature des comptes", lien: "La_Compta_Nature.html" },
@@ -295,7 +295,7 @@ const decoupe = t => { const m = t.match(/^([\d.]+(?:\s+et\s+[\d.]+)?)\s+(.*)$/)
     const col = document.createElement('section');
     col.className = 'year'; col.style.setProperty('--c', COUL[iy % 3]);
     const nb = bloc.chapitres.filter(c=>!c.espace).length;
-    col.innerHTML = `<h2><span class="num">${iy+1}</span>${bloc.annee}<small>${nb} thèmes</small></h2>`;
+    col.innerHTML = `<h2><span class="yt"><span class="num">${iy+1}</span>${bloc.annee.replace(/^\d+/, '')}</span><small>${nb} thèmes</small></h2>`;
     bloc.chapitres.forEach(ch => {
       if (ch.espace) { col.insertAdjacentHTML('beforeend','<div class="gap"></div>'); return; }
       const [no, ti] = decoupe(ch.titre);
