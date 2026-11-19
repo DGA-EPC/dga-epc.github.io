@@ -108,6 +108,26 @@
 .rule .pm small{display:block;font-size:11px;color:var(--muted);font-weight:500}
 .plus{color:var(--produit)}.case{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s,box-shadow .3s}
 .case.on{box-shadow:0 0 0 2px var(--accent)}.case.off{opacity:.4}
+.rules.kg{margin-top:0}
+.note{font-size:12px;color:var(--muted);margin-top:8px}
+/* Inventaire : lignes plus basses, données ramenées vers le centre */
+.inv-sec h2{margin-bottom:4px}
+.inv{width:auto;margin:0 auto}
+.inv td{padding:3px 8px;border-bottom:1px dashed #9c9282}
+.inv td:first-child{padding-right:36px}
+.inv td.tg2,.inv td.acc{width:auto}
+/* Le problème des factures */
+.fx h3{font-size:14px;margin:0 0 4px}
+.fx .sit{font-size:13.5px;margin:10px 0 6px}
+.fx .tg3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:10px}
+.tnote{font-size:12.5px;font-weight:700;color:var(--passif);margin:4px 4px 0}
+.tg.tw{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+.tt2 .col{min-height:70px}
+.ln.txt{display:block;font-size:13px;line-height:1.35;padding:4px 8px}
+.ln.vf{font-style:italic;color:var(--produit);font-weight:600}
+.ln.df{color:var(--charge)}
+.cards.pv{grid-template-columns:1fr 1fr}
+.cards.pv .card h4{margin:0 0 4px}
 .case p{margin:0 0 8px;font-size:14.5px}
 .t-sides .sg{font-weight:700}
 .tab.jl th{text-align:left}
@@ -177,7 +197,10 @@ AMT['Capital'] = CAP;
 const BA = [['Actifs circulants',['Caisse','Poste','Créances clients']],['Actifs immobilisés',['Machines','Mobilier']]];
 const BP = [['Dettes à court terme',['Autres dettes']],['Dettes à long terme',['Crédit d\'investissement']],['Capitaux propres',['Capital']]];
 const ACCS = ['Caisse','Poste','Créances clients','Machines','Mobilier','Autres dettes','Crédit d\'investissement','Capital'];
-const KIND = a => ['Autres dettes','Crédit d\'investissement','Capital'].includes(a) ? 'passif' : 'actif';
+const KIND = a => ['Autres dettes','Crédit d\'investissement','Capital','Privé'].includes(a) ? 'passif'
+  : ['Loyers','Frais d\'administration','Salaires'].includes(a) ? 'charge'
+  : a.startsWith('Produits') ? 'produit' : 'actif';
+const PLUS_D = a => ['actif','charge'].includes(KIND(a));   // augmente au débit
 
 // Les opérations (N° 1 = solde à nouveau)
 const OPS = [
@@ -213,13 +236,13 @@ function postings(nOps, extra){
   return L;
 }
 function tHTML(acc, L, focus){
-  const act = KIND(acc)==='actif';
+  const act = PLUS_D(acc);
   const col = s => L.filter(l=>l.acc===acc && l.side===s).map(l=>`<div class="ln ${l.fresh?'fresh':''}"><span class="lb">${l.lb}</span><span class="am">${fmt(l.amt)}</span></div>`).join('');
   return `<div class="t k-${KIND(acc)} ${focus?'focus':''}">
     <div class="t-sides"><span>D <b class="sg ${act?'plus':'minus'}">${act?'+':'−'}</b></span><span class="t-head" title="${acc}">${acc}</span><span><b class="sg ${act?'minus':'plus'}">${act?'−':'+'}</b> C</span></div>
     <div class="t-body"><div class="col d">${col('d')}</div><div class="col c">${col('c')}</div></div></div>`;
 }
-const tGrid = (L, focus=[]) => `<div class="tg">${ACCS.map(a=>tHTML(a, L, focus.includes(a))).join('')}</div>`;
+const tGrid = (L, focus=[], accs=ACCS) => `<div class="tg">${accs.map(a=>tHTML(a, L, focus.includes(a))).join('')}</div>`;
 
 function acctTable(acc, nOps){
   const act = KIND(acc)==='actif';
@@ -240,7 +263,7 @@ function journalBig(nOps, cur){
 }
 
 /* Inventaire : ph = degré d'avancement, arrow = flèche animée, hl(i) = ligne surlignée */
-const invHTML = (ph, arrow, hl) => `<section class="sec"><h2>Inventaire au 1.1.${Y}</h2><table class="inv">
+const invHTML = (ph, arrow, hl) => `<section class="sec inv-sec"><h2>Inventaire au 1.1.${Y}</h2><table class="inv">
      ${ph>=3?`<tr class="invhead"><td></td><td></td><td></td><td class="acc"><span class="colbox">Comptes${arrow?'<span class="colarrow">↓</span>':''}</span></td></tr>`:''}
      ${INV.map(i=>`<tr class="${hl(i)?'hl':''}"><td>${i.txt}</td><td class="am">${fmt(i.amt)}</td>
        <td class="tg2">${ph>=2?`<span class="pill ${i.s==='A'?'a':'p'}">${i.s==='A'?'possède · actif':'doit · passif'}</span>`:''}</td>
@@ -253,13 +276,83 @@ const QA = [
   ['Quels documents établir ?','Le <b>bilan</b> et le <b>compte de résultat</b>.'],
   ['À quelle fréquence ?','<b>Une fois par an</b>, généralement pour l\'année civile (du 1.1 au 31.12).']];
 
-const CASES = [
-  {txt:'Nous achetons du mobilier à crédit.', opts:['Mobilier','Autres dettes','Poste'], ok:'Mobilier', c:'Autres dettes',
-   fb:'le mobilier <b>augmente</b> (actif + au débit) et nous avons une nouvelle dette (passif + au crédit).'},
-  {txt:'Nous payons par poste une facture <b>déjà comptabilisée</b> pour un achat de mobilier.', opts:['Mobilier','Autres dettes','Poste'], ok:'Autres dettes', c:'Poste',
-   fb:'la facture est déjà dans les Autres dettes : on <b>diminue la dette</b> (passif − au débit). Le mobilier a déjà été compté.'},
-  {txt:'Nous payons par poste une facture <b>pas encore comptabilisée</b> pour un achat de mobilier.', opts:['Mobilier','Autres dettes','Poste'], ok:'Mobilier', c:'Poste',
-   fb:'aucune dette n\'a été enregistrée : on comptabilise directement l\'<b>achat de mobilier</b> (actif + au débit), payé par poste.'}];
+// Le problème des factures : l'exemple de l'imprimante (Infra. informatique)
+const FX = [
+  {part:'a', dt:'12.02', txt:'Le 12 février, on achète à crédit une imprimante pour un montant de CHF 550.', d:'Infra. informatique', c:'Autres dettes', lib:'Achat à crédit',
+   opts:['Infra. informatique','Autres dettes','Banque'], fb:'l\'imprimante est un <b>actif</b> : l\'avoir augmente au débit. La facture n\'est pas encore payée : la <b>dette augmente</b> au crédit.',
+   notes:{'Infra. informatique':'L\'avoir augmente de 550 ↗','Autres dettes':'La dette augmente de 550 ↗'}},
+  {part:'a', dt:'10.03', txt:'Le 10 mars, on paie par virement bancaire la facture de l\'imprimante, soit CHF 550. <b>La facture est déjà comptabilisée.</b>', d:'Autres dettes', c:'Banque', lib:'Paiement',
+   opts:['Infra. informatique','Autres dettes','Banque'], fb:'l\'imprimante est déjà comptée. La facture est dans les Autres dettes : on <b>diminue la dette</b> au débit. La banque diminue au crédit.',
+   notes:{'Autres dettes':'La dette diminue de 550 ↘','Banque':'L\'avoir en banque diminue de 550 ↘'}},
+  {part:'b', dt:'10.03', txt:'Rappel : le 12 février, achat à crédit d\'une imprimante, CHF 550.<br>Le 10 mars, on paie par virement bancaire la facture de l\'imprimante, soit CHF 550. <b>La facture n\'a pas été comptabilisée.</b>', d:'Infra. informatique', c:'Banque', lib:'Paiement',
+   opts:['Infra. informatique','Autres dettes','Banque'], fb:'aucune dette n\'a été enregistrée : on comptabilise directement l\'<b>achat de l\'imprimante</b> (l\'avoir augmente au débit), payé par la banque.',
+   notes:{'Infra. informatique':'L\'avoir augmente de 550 ↗','Banque':'L\'avoir en banque diminue de 550 ↘'}}];
+const FX_ACC = ['Infra. informatique','Autres dettes','Banque'];
+function fxPart(part, upto, ph){   // upto : nombre d'écritures de cette partie terminées
+  const E = FX.map((e,i)=>({...e, i})).filter(e=>e.part===part);
+  const shown = E.filter(e=>e.i<=ph), done = e => ANS[SI('Le problème des factures')+'.'+e.i];
+  const jr = `<table class="tab jl"><tr><th>Date</th><th>Compte à débiter</th><th>Compte à créditer</th><th>Libellé</th><th>Somme au débit</th><th>Somme au crédit</th></tr>
+    ${shown.map(e=>{ const ok = done(e); return `<tr class="${e.i===ph?'cur':''}"><td>${e.dt}</td><td style="text-align:left">${ok?e.d:'…'}</td><td style="text-align:left">${ok?e.c:'…'}</td><td style="text-align:left">${e.lib}</td><td>${ok?'550':''}</td><td>${ok?'550':''}</td></tr>`; }).join('')}</table>`;
+  const posted = shown.filter(done), last = posted.find(e=>e.i===ph);
+  const L = [];
+  posted.forEach(e=>{ L.push({acc:e.d, side:'d', lb:e.dt, amt:550, fresh:e===last}); L.push({acc:e.c, side:'c', lb:e.dt, amt:550, fresh:e===last}); });
+  const ts = FX_ACC.map(a=>`<div>${tHTML(a, L, last && (last.d===a||last.c===a))}${last && last.notes[a] ? `<div class="tnote">${last.notes[a]}</div>` : ''}</div>`).join('');
+  return `${shown.map(e=>`<p class="sit">${e.txt}</p>`).join('')}${jr}<div style="font-weight:600;font-size:13px;margin-top:10px">Écritures dans les comptes :</div><div class="tg3">${ts}</div>`;
+}
+
+/* ---------- Comptes de gestion ---------- */
+const CHARGES = ['Salaires','Charges sociales','Loyers','Frais d\'administration *','Amortissements **','Frais de véhicules','Entretien et réparations','Autres charges d\'exploitation (ACE)'];
+const PRODUITS = ['Honoraires','Produits financiers (intérêts reçus)'];
+const PRODUITS_ACT = [['Produits des courses','taxi'],['Produits des travaux','menuisier, jardinier'],['Produits du salon','coiffeur'],['Produits des réparations','garage']];
+// K. Journalisation : opérations 5 à 8. first = compte cherché en premier ; dir = le compte augmente (+) ou diminue (−)
+const OPS2 = [
+  {n:5, dt:'31.03', d:'Loyers', c:'Poste', amt:1500, lib:'Loyer de l\'atelier', first:'d',
+   txt:'nous payons par poste le loyer de l\'atelier, CHF 1\'500.',
+   dir:{d:'+', c:'-'}, fb:{d:'nous payons un loyer : c\'est une <b>charge</b>, elle <b>augmente</b>.', c:'l\'argent sort du compte postal : la <b>Poste diminue</b>.'}},
+  {n:6, dt:'10.04', d:'Créances clients', c:'Produits des travaux', amt:2000, lib:'Facture de travaux de menuiserie', first:'c',
+   txt:'nous envoyons à un client une facture pour des travaux de menuiserie, CHF 2\'000.',
+   dir:{d:'+', c:'+'}, fb:{c:'nous avons gagné 2\'000 avec notre travail : le <b>produit augmente</b>.', d:'le client nous doit 2\'000 : les <b>créances clients augmentent</b>.'}},
+  {n:7, dt:'30.06', d:'Poste', c:'Produits financiers', amt:20, lib:'Intérêts reçus', first:'d',
+   txt:'la poste nous verse des intérêts sur notre compte, CHF 20.',
+   dir:{d:'+', c:'+'}, fb:{d:'l\'argent arrive sur le compte postal : la <b>Poste augmente</b>.', c:'les intérêts reçus sont un gain : les <b>produits financiers augmentent</b>.'}},
+  {n:8, dt:'15.07', d:'Frais d\'administration', c:'Caisse', amt:60, lib:'Papier et stylos', first:'c',
+   txt:'nous achetons du papier et des stylos en espèces, CHF 60.',
+   dir:{d:'+', c:'-'}, fb:{c:'l\'argent sort du tiroir-caisse : la <b>caisse diminue</b>.', d:'le matériel de bureau est consommé : la <b>charge augmente</b>.'}}];
+const ACCS2 = ['Caisse','Poste','Créances clients','Loyers','Frais d\'administration','Produits des travaux','Produits financiers'];
+const LAB = {actif:'un <b>actif</b>', passif:'un <b>passif</b>', charge:'une <b>charge</b>', produit:'un <b>produit</b>'};
+// phases de K : 0 = introduction, puis 4 phases par opération
+const K_PH = [{btn:'Nouvelle opération →', text:`Les comptes de charges et de produits s'enregistrent comme les autres : <b>d'abord au journal</b>, <b>puis</b> on reporte dans les comptes.<br><br>Ils n'ont <b>pas de solde à nouveau</b> : au début de l'année, ils commencent à zéro.`}];
+OPS2.forEach((o,i)=>{
+  const f = o.first, g = f==='d'?'c':'d', A1 = o[f], A2 = o[g];
+  const say = (side, acc) => `${acc} est ${LAB[KIND(acc)]} : il ${o.dir[side]==='+'?'augmente':'diminue'} au <b>${side==='d'?'débit':'crédit'}</b>. C'est le <b>compte ${side==='d'?'débité':'crédité'}</b>.`;
+  const q = (n, side, acc) => ({text:`${n} compte touché : le compte <b>${acc}</b> augmente ou diminue ?`, opts:[['+','augmente'],['-','diminue']], ok:o.dir[side], fb:o.fb[side]});
+  K_PH.push({btn:'Suite →', text:`<b>${o.dt}</b> : ${o.txt}<br><br>On cherche d'abord les <b>deux comptes touchés</b>. Ici <b>${A1}</b> et <b>${A2}</b>.`, q:q('1<sup>er</sup>', f, A1)});
+  K_PH.push({btn:'Suite →', text:say(f, A1), q:q('2<sup>e</sup>', g, A2)});
+  K_PH.push({btn:'Reporter →', text:`${say(g, A2)}<br><br>L'écriture est complète dans le journal : <b>${o.d} / ${o.c}</b> ${fmt(o.amt)}.`});
+  K_PH.push({btn: i<OPS2.length-1 ? 'Nouvelle opération →' : 'Suite →', text:`On <b>reporte</b> l'écriture dans les comptes : ${fmt(o.amt)} au débit de ${o.d}, ${fmt(o.amt)} au crédit de ${o.c}.`});
+});
+function kStage(ph){
+  const k = ph===0 ? -1 : Math.floor((ph-1)/4), st = ph===0 ? -1 : (ph-1)%4;   // opération en cours, sous-phase 0-3
+  const doneJ = k<0 ? 0 : k, doneT = k<0 ? 0 : k + (st===3?1:0);              // écritures terminées au journal / reportées
+  const o = OPS2[k];
+  const row = k<0 ? null : {d: (o.first==='d'?st>=1:st>=2) ? o.d : '…', c: (o.first==='c'?st>=1:st>=2) ? o.c : '…'};
+  const L = postings(3).filter(l=>ACCS2.includes(l.acc));
+  OPS2.slice(0,doneT).forEach((x,i)=>{ const fr = st===3 && i===k;
+    L.push({acc:x.d, side:'d', lb:x.n, amt:x.amt, fresh:fr}); L.push({acc:x.c, side:'c', lb:x.n, amt:x.amt, fresh:fr}); });
+  const focus = k<0 ? [] : st===0 ? [] : st===1 ? [o[o.first]] : st===2 ? [o[o.first==='d'?'c':'d']] : [o.d, o.c];
+  const tr = (x, cls='', r=x) => `<tr class="${cls}"><td>${x.n}</td><td style="text-align:left">${x.dt}</td><td style="text-align:left">${r.d}</td><td style="text-align:left">${r.c}</td><td style="text-align:left">${x.lib}</td><td>${fmt(x.amt)}</td></tr>`;
+  const jr = `<table class="tab jl"><tr><th>N°</th><th>Date</th><th>Compte débité</th><th>Compte crédité</th><th>Libellé</th><th>Montant</th></tr>
+    ${OPS2.slice(0,doneJ).map(x=>tr(x)).join('')}${row?tr(o,'cur',row):''}</table>`;
+  return `<section class="sec"><h2>D'abord : le journal</h2>${jr}</section>
+    <section class="sec"><h2>Ensuite : les comptes${k>=0&&st<3?' · pas encore reportée':''}</h2>${tGrid(L, focus, ACCS2)}</section>`;
+}
+
+// L. Le compte privé (comptes en T avec du texte à la place des montants)
+function tTxt(acc, d, c){
+  const plus = PLUS_D(acc), ln = x => `<div class="ln txt ${x.cls||''}">${x.t}</div>`;
+  return `<div class="t tt2 k-${KIND(acc)}"><div class="t-sides"><span>D <b class="sg ${plus?'plus':'minus'}">${plus?'+':'−'}</b></span><span class="t-head">${acc}</span><span><b class="sg ${plus?'minus':'plus'}">${plus?'−':'+'}</b> C</span></div>
+    <div class="t-body"><div class="col d">${d.map(ln).join('')}</div><div class="col c">${c.map(ln).join('')}</div></div></div>`;
+}
 
 const STEPS = [
  { title:'Les règles de base',
@@ -276,23 +369,22 @@ const STEPS = [
        {btn:'Suite →', text:`Chaque élément reçoit un <b>nom de compte</b>.<br><br>Le nom des comptes figure dans un <b>plan comptable</b>. Les entreprises sont libres de l'utiliser.`}],
    stage: ph => invHTML(ph, ph===3, i => ph===1 && i.acc==='Autres dettes') },
 
- { title:'Le bilan',
+ { title:'Le bilan',      // phases 0-3 : de l'inventaire au bilan ; phases 4-6 : l'ordre du bilan
    ph:[{btn:'Placer les actifs →', text:`Le <b>bilan</b> est basé sur l'inventaire. C'est une liste ordonnée de tout ce que l'entreprise <b>possède</b> (à gauche, l'actif) et <b>doit</b> (à droite, le passif).<br><br>Il montre la situation de l'entreprise <b>à un moment donné</b> : c'est une photo.`},
        {btn:'Placer les dettes →', text:`Les <b>actifs</b> vont à gauche. Total : ${fmt(TA)}.`},
        {btn:'Équilibrer →', text:`Les <b>dettes</b> vont à droite. Total : ${fmt(TD)}.<br><br>Les deux côtés ne sont pas égaux : il manque ${fmt(TA-TD)} à droite.`},
-       {btn:'Suite →', text:`La différence, c'est ce qui appartient au propriétaire : le <b>capital</b> (capitaux propres).<br><br>Capital = actifs − dettes = ${fmt(TA)} − ${fmt(TD)} = <b>${fmt(CAP)}</b>.<br><br>Le bilan est <b>toujours équilibré</b> : total de l'actif = total du passif.`}],
-   stage: ph => invHTML(3, false, i => (ph===1 && i.s==='A') || (ph===2 && i.s==='P')) + `<section class="sec"><h2>De l'inventaire au bilan</h2>${bilanHTML({a:ph>=1, p:ph>=2, cap:ph>=3, funds:true, fresh:['', 'a','p','cap'][ph]})}</section>` },
-
- { title:'L\'ordre du bilan',
-   ph:[{btn:'Suite →', text:`Le bilan n'est pas dans le désordre. À l'actif, on suit l'<b>ordre de liquidité</b> : d'abord ce qui est déjà de l'argent ou le deviendra vite.`,
+       {btn:'L\'ordre du bilan →', text:`La différence, c'est ce qui appartient au propriétaire : le <b>capital</b> (capitaux propres).<br><br>Capital = actifs − dettes = ${fmt(TA)} − ${fmt(TD)} = <b>${fmt(CAP)}</b>.<br><br>Le bilan est <b>toujours équilibré</b> : total de l'actif = total du passif.`},
+       {btn:'Suite →', text:`Le bilan n'est pas dans le désordre. À l'actif, on suit l'<b>ordre de liquidité</b> : d'abord ce qui est déjà de l'argent ou le deviendra vite.`,
         q:{text:'Qui vient en premier à l\'actif ?', opts:[['cai','Caisse'],['mac','Machines']], ok:'cai',
            fb:'la <b>caisse</b> est déjà de l\'argent : elle est la plus liquide. Les machines sont utilisées des années.'}},
        {btn:'Le passif →', text:`L'actif est divisé en deux catégories :<br><br>• les <b>actifs circulants</b> : l'argent et ce qui deviendra bientôt de l'argent ;<br>• les <b>actifs immobilisés</b> : ce qui est utilisé pendant plusieurs années.<br><br>Il est <b>obligatoire</b> de ranger les comptes de l'actif dans ces <b>2 catégories</b> : circulants et immobilisés.`},
        {btn:'Suite →', text:`Au passif, on suit l'<b>ordre d'exigibilité</b> : d'abord ce qu'il faut payer vite.<br><br>• les <b>dettes à court terme</b> : à payer dans les 12 mois ;<br>• les <b>dettes à long terme</b> ;<br>• les <b>capitaux propres</b> : ce qui appartient au propriétaire.<br><br>Ces catégories sont aussi <b>obligatoires</b>.`}],
-   extra: ph => ph<1 ? '' : `<div class="calc"><div style="font-weight:600;margin-bottom:4px">Autres comptes du bilan</div>
+   extra: ph => ph<4 ? '' : (ph => ph<1 ? '' : `<div class="calc"><div style="font-weight:600;margin-bottom:4px">Autres comptes du bilan</div>
       <div style="font-size:12.5px"><b>Actifs circulants</b> : Banque (avoir), Stock de marchandises<br><b>Actifs immobilisés</b> : Informatique, Véhicules, Instruments et outillage, Immeubles, Brevet
-      ${ph>=2?`<br><b>Dettes CT</b> : Dettes fournisseurs (marchandises), Banque (dette)<br><b>Dettes LT</b> : Crédit hypothécaire<br><b>Capitaux propres</b> : Privé`:''}</div></div>`,
-   stage: ph => `<section class="sec"><h2>Le bilan ordonné</h2>${bilanHTML({a:true, p:true, cap:true, orderA:true, groupsA:ph>=1, orderP:ph>=2, groupsP:ph>=2, hl:true, dimP:ph<2})}</section>` },
+      ${ph>=2?`<br><b>Dettes CT</b> : Dettes fournisseurs (marchandises), Banque (dette)<br><b>Dettes LT</b> : Crédit hypothécaire<br><b>Capitaux propres</b> : Privé`:''}</div></div>`)(ph-4),
+   stage: ph => ph<4 ? (invHTML(3, false, i => (ph===1 && i.s==='A') || (ph===2 && i.s==='P')) + `<section class="sec"><h2>De l'inventaire au bilan</h2>${bilanHTML({a:ph>=1, p:ph>=2, cap:ph>=3, funds:true, fresh:['', 'a','p','cap'][ph]})}</section>`)
+                     : (ph => `<section class="sec"><h2>Le bilan ordonné</h2>${bilanHTML({a:true, p:true, cap:true, orderA:true, groupsA:ph>=1, orderP:ph>=2, groupsP:ph>=2, hl:true, dimP:ph<2})}</section>`)(ph-4) },
+
 
  { title:'Capital ou découvert ?',
    ph:[{btn:'Suite →', text:`Dans l'atelier, les actifs (${fmt(TA)}) sont plus grands que les dettes (${fmt(TD)}). La différence est le <b>capital</b>, au passif.`},
@@ -307,7 +399,7 @@ const STEPS = [
        ${mk('Actifs > dettes', r('Actifs',fmt(TA)), r('Dettes',fmt(TD))+r('Capital',fmt(CAP),'cap'), fmt(TA))}
        ${ph>=1 ? mk('Actifs < dettes', r('Actifs','6\'000')+r('Découvert','3\'000','dec new'), r('Dettes','9\'000'), '9\'000') : '<div></div>'}</div></section>`; } },
 
- { title:'Les comptes',
+ { title:'Les comptes du bilan',
    ph:[{btn:'Suite →', text:`Le bilan est une photo au 1<sup>er</sup> janvier. Mais pendant l'année, tout bouge : on paie, on achète, on encaisse…<br><br>Pour suivre ces changements, chaque poste du bilan devient un <b>compte</b>. Le compte commence avec son <b>solde à nouveau</b> (sàn) : le montant du bilan.`},
        {btn:'Suite →', text:`Un compte a deux côtés : le <b>débit</b> (à gauche) et le <b>crédit</b> (à droite).<br><br>• <b>Actif</b> : il est à gauche dans le bilan → il <b>augmente au débit</b> (+), diminue au crédit (−).<br>• <b>Passif</b> : il est à droite → il <b>augmente au crédit</b> (+), diminue au débit (−).`,
         q:{text:'Autres dettes est un passif. Son solde à nouveau s\'inscrit…', opts:[['d','au débit'],['c','au crédit']], ok:'c',
@@ -319,9 +411,10 @@ const STEPS = [
          <div class="rule"><h4 style="color:var(--actif)">ACTIFS</h4><div class="pm"><span class="plus">+<small>débit</small></span><span class="minus">−<small>crédit</small></span></div></div>
          <div class="rule"><h4 style="color:var(--passif)">PASSIFS</h4><div class="pm"><span class="minus">−<small>débit</small></span><span class="plus">+<small>crédit</small></span></div></div></div>
          ${ph>=2 ? acctTable('Caisse',0)+acctTable('Machines',0)+acctTable('Autres dettes',0) : ''}</section>`
-     : `<section class="sec"><h2>Les comptes en T au 1.1.${Y}</h2>${tGrid(postings(0))}</section>` },
+     : `<section class="sec"><h2>Le bilan au 1.1.${Y}</h2>${bilanHTML({a:true, p:true, cap:true, groups:true})}</section>
+       <section class="sec"><h2>Les comptes en T au 1.1.${Y}</h2>${tGrid(postings(0))}</section>` },
 
- { title:'Une opération, deux comptes',
+ { title:'Une opération, deux comptes', entry:0,
    ph:[{btn:'Suite →', text:`<b>15 janvier</b> : nous payons en espèces une partie de la facture du garagiste, CHF 200.`,
         q:{text:'Le compte Caisse augmente ou diminue ?', opts:[['+','augmente'],['-','diminue']], ok:'-', fb:'l\'argent sort du tiroir : la <b>caisse diminue</b> de 200.'}},
        {btn:'Suite →', text:`Caisse est un <b>actif</b> : il diminue au <b>crédit</b> (−, à droite).`,
@@ -332,7 +425,7 @@ const STEPS = [
      if (ph>=2) ex.push({acc:'Autres dettes', side:'d', lb:2, amt:200, fresh:true});
      return `<section class="sec"><h2>Les comptes</h2>${tGrid(postings(0,ex), ph===1?['Caisse']:ph===2?['Autres dettes']:[])}</section>`; } },
 
- { title:'Un achat à crédit',
+ { title:'Un achat à crédit', entry:1,
    ph:[{btn:'Suite →', text:`<b>5 mars</b> : nous achetons une machine à crédit (la facture sera payée plus tard), CHF 1'200.`,
         q:{text:'Le compte Machines augmente ou diminue ?', opts:[['+','augmente'],['-','diminue']], ok:'+', fb:'nous avons une machine de plus : les <b>machines augmentent</b> de 1\'200.'}},
        {btn:'Suite →', text:`Machines est un <b>actif</b> : il augmente au <b>débit</b> (+, à gauche).`,
@@ -363,14 +456,68 @@ const STEPS = [
      return `<section class="sec"><h2>D'abord : le journal</h2>${jr}</section>
        <section class="sec"><h2>Ensuite : les comptes${ph>=1&&ph<4?' · pas encore reportée':''}</h2>${tGrid(L, focus)}</section>`; } },
 
- { title:'Les factures',
-   ph: CASES.map((c,i)=>({btn:'Suite →', text: i===0 ? `Les factures reviennent tout le temps. La question clé : la facture est-elle <b>déjà comptabilisée</b> ?` : `Cas ${i+1} sur 3.`,
-        q:{text:c.txt+' Quel compte est débité ?', opts:c.opts.map(o=>[o,o]), ok:c.ok, fb:c.fb}})),
-   stage: ph => `<section class="sec"><h2>Trois situations avec des factures</h2><div class="cards" style="grid-template-columns:1fr">
-     ${CASES.map((c,i)=>{ const done = ANS['9.'+i]; return `<div class="case ${i===ph?'on':i>ph?'off':''}"><p>${i+1}) ${c.txt}</p>
-       ${done?`<div class="ecr"><span>${c.ok} / ${c.c}</span></div>`:''}</div>`; }).join('')}</div></section>` }
+ { title:'Le problème des factures',
+   ph: FX.map((e,i)=>({btn:'Suite →',
+        text: i===0 ? `Les factures reviennent tout le temps. La question clé : la facture est-elle <b>déjà comptabilisée</b> ?<br><br>Exemple : une imprimante, comptabilisée dans <b>Infra. informatique</b> (infrastructure informatique, un actif).`
+            : i===1 ? `Un mois plus tard, on paie la facture.` : `Autre cas : la facture d'achat n'avait <b>pas été comptabilisée</b> le 12 février.`,
+        q:{text:'Quel compte est débité ?', opts:e.opts.map(o=>[o,o]), ok:e.d, fb:e.fb}})),
+   stage: ph => `<section class="sec fx"><h2>a) Écriture déjà comptabilisée</h2>${fxPart('a', 0, ph)}</section>
+     ${ph>=2?`<section class="sec fx"><h2>b) Écriture non comptabilisée</h2>${fxPart('b', 0, ph)}</section>`:''}`,
+   scroll:true },
+
+ { title:'Les comptes de gestion', scroll:true,
+   ph:[{btn:'Suite →', text:`Jusqu'ici, nous avons utilisé les <b>comptes du bilan</b> : les actifs (ce que l'entreprise possède) et les passifs (ce qu'elle doit).<br><br>Rappel : l'<b>actif</b> augmente au <b>débit</b>, le <b>passif</b> augmente au <b>crédit</b>.`},
+       {btn:'Les principaux comptes →', text:`Pendant l'année, l'entreprise a aussi des <b>charges</b> (ce qu'elle consomme : salaires, loyer…) et des <b>produits</b> (ce qu'elle gagne avec son travail). Ce sont les <b>comptes de gestion</b>. Ils forment le <b>compte de résultat</b>.<br><br>• Les <b>charges</b> augmentent au <b>débit</b> (+), à gauche.<br>• Les <b>produits</b> augmentent au <b>crédit</b> (+), à droite.`},
+       {btn:'Suite →', text:`Les principaux comptes de charges sont à gauche.<br><br>À droite, deux produits : les <b>honoraires</b> (ce que gagne une entreprise de services : avocat, fiduciaire, médecin…) et les <b>produits financiers</b> (les intérêts reçus).`},
+       {btn:'Suite →', text:`Les autres comptes de produits dépendent de l'<b>activité</b> de l'entreprise : chacune nomme ses produits selon ce qu'elle fait.`}],
+   stage: ph => {
+     const rule = (t, col, plusD) => `<div class="rule"><h4 style="color:var(--${col})">${t}</h4><div class="pm">${plusD
+       ? '<span class="plus">+<small>débit</small></span><span class="minus">−<small>crédit</small></span>'
+       : '<span class="minus">−<small>débit</small></span><span class="plus">+<small>crédit</small></span>'}</div></div>`;
+     const row = (t, cls='', sub='') => `<div class="br ${cls}"><span>${t}${sub?` <small style="color:var(--muted)">(${sub})</small>`:''}</span></div>`;
+     let h = `<section class="sec"><h2>Les comptes du bilan</h2><div class="rules">${rule('ACTIFS','actif',true)}${rule('PASSIFS','passif',false)}</div>
+       ${ph>=1?`<h2 style="margin-top:16px">Les comptes de gestion</h2><div class="rules kg">${rule('CHARGES','charge',true)}${rule('PRODUITS','produit',false)}</div>`:''}</section>`;
+     if (ph>=2) h += `<section class="sec"><h2>Les principaux comptes de gestion</h2>
+       <div class="bl" style="grid-template-columns:0 1fr 1fr 0"><div class="bl-title">Compte de résultat</div>
+       <div class="bl-head a" style="color:var(--charge)">CHARGES</div><div class="bl-head p" style="color:var(--produit)">PRODUITS</div>
+       <div class="bl-side a">${CHARGES.map(c=>row(c)).join('')}</div>
+       <div class="bl-side p">${PRODUITS.map(c=>row(c)).join('')}
+         ${ph>=3?`<div class="bg" style="margin-top:8px">Selon l'activité de l'entreprise</div>${PRODUITS_ACT.map(([c,a])=>row(c, ph===3?'new':'', a)).join('')}`:''}</div></div>
+       <div class="note">* papier, stylos, matériel de bureau &nbsp;·&nbsp; ** perte de valeur des immobilisations</div></section>`;
+     return h; } },
+
+ { title:'Journalisation', ph:K_PH, stage:kStage },
+
+ { title:'Le compte privé',
+   ph:[{btn:'Suite →', text:`Dans une <b>entreprise individuelle</b>, le patrimoine privé du propriétaire et celui de l'entreprise se mélangent facilement.<br><br>Il faut séparer ses <b>opérations personnelles</b> (p. ex. un prélèvement dans la caisse pour un usage privé) des <b>opérations commerciales</b> (p. ex. l'achat de marchandises destinées à la vente). On utilise pour cela le compte <b>Privé</b>.`},
+       {btn:'Le débit →', text:`Le compte Privé est un <b>compte de passif</b> : c'est un <b>sous-compte du Capital</b>.`,
+        q:{text:'Le compte Privé augmente…', opts:[['d','au débit'],['c','au crédit']], ok:'c',
+           fb:'comme tout passif, il <b>augmente au crédit</b> et diminue au débit.'}},
+       {btn:'Le crédit →', text:`Au <b>débit</b> (−) : tout ce que le propriétaire <b>prend</b> dans l'entreprise.<br><br>• les <b>prélèvements personnels</b>, en liquidités ou en nature (p. ex. il emporte des marchandises) ;<br>• les <b>factures privées</b> payées par l'entreprise.`},
+       {btn:'Le solde →', text:`Au <b>crédit</b> (+) : ce que l'entreprise <b>doit</b> au propriétaire.<br><br>• son <b>salaire</b> : la rémunération de son travail ;<br>• les <b>intérêts sur le capital</b> : la rémunération du capital qu'il a investi ;<br>• le <b>bénéfice</b> : la rémunération du risque d'entreprise.`},
+       {btn:'Le compte Capital →', text:`Le solde du compte Privé s'appelle la <b>variation de fortune</b> (VF).<br><br>À la clôture, il est <b>viré au compte Capital</b>.`},
+       {btn:'Un exemple →', text:`Dans le compte Capital :<br><br>• si le propriétaire a reçu <b>plus</b> qu'il n'a pris, sa fortune augmente : <b>AF</b> (augmentation de fortune), au crédit ;<br>• s'il a pris <b>plus</b> qu'il n'a reçu, sa fortune diminue : <b>DF</b> (diminution de fortune), au débit.`},
+       {btn:'Suite →', text:`Pendant l'année, le propriétaire a prélevé <b>48'000</b>. Au crédit du Privé : salaire 40'000, intérêts 2'000, bénéfice 9'000, soit <b>51'000</b>.`,
+        q:{text:'Sa fortune augmente ou diminue ?', opts:[['+','augmente (AF)'],['-','diminue (DF)']], ok:'+',
+           fb:`il a reçu 51'000 et pris 48'000 : sa fortune <b>augmente de 3'000</b>. Écriture : <b>Privé / Capital</b> 3'000.`}}],
+   stage: ph => {
+     const D = [], C = [], K = {d:[], c:[{t:'Sàn'}]};
+     if (ph>=2) D.push({t:'Prélèvements personnels (en liquidités ou en nature)', cls:ph===2?'fresh':''}, {t:'Factures privées payées par l\'entreprise', cls:ph===2?'fresh':''});
+     if (ph>=3) C.push({t:'Salaire du propriétaire', cls:ph===3?'fresh':''}, {t:'Intérêts sur le capital investi', cls:ph===3?'fresh':''}, {t:'<b>Bénéfice (BN)</b>', cls:ph===3?'fresh':''});
+     if (ph>=4) { D.push({t:'Variation de fortune virée à Capital (VF)', cls:'vf '+(ph===4?'fresh':'')}); C.push({t:'Variation de fortune virée à Capital (VF)', cls:'vf df '+(ph===4?'fresh':'')}); }
+     if (ph>=5) { K.d.push({t:'DF (diminution)', cls:'vf df '+(ph===5?'fresh':'')}, {t:'Spb'}); K.c.push({t:'AF (augmentation)', cls:'vf '+(ph===5?'fresh':'')}); }
+     const ex = ph>=6 ? `<section class="sec"><h2>Exemple</h2><div class="tg tw">
+         ${tHTML('Privé', [{acc:'Privé',side:'d',lb:'prél.',amt:48000},{acc:'Privé',side:'c',lb:'salaire',amt:40000},{acc:'Privé',side:'c',lb:'intérêts',amt:2000},{acc:'Privé',side:'c',lb:'BN',amt:9000},
+           ...(ANS[SI('Le compte privé')+'.6'] ? [{acc:'Privé',side:'d',lb:'VF',amt:3000,fresh:true}] : [])])}
+         ${tHTML('Capital', [{acc:'Capital',side:'c',lb:'sàn',amt:CAP}, ...(ANS[SI('Le compte privé')+'.6'] ? [{acc:'Capital',side:'c',lb:'AF',amt:3000,fresh:true}] : [])])}</div></section>` : '';
+     return `<section class="sec"><h2>Opérations personnelles ou commerciales</h2><div class="cards pv">
+         <div class="card"><h4>Opération personnelle</h4><div class="ex">Salaire du propriétaire.<p>Prélèvement à la caisse pour un usage personnel.</div><div class="ecr"><span>→ compte Privé</span></div></div>
+         <div class="card"><h4>Opération commerciale</h4><div class="ex">Achat de marchandises destinées à la vente.<p>Loyer des locaux commerciaux.</div><div class="ecr"><span>→ comptes de l'entreprise</span></div></div></div></section>
+       ${ph>=1?`<section class="sec"><h2>Le compte privé</h2><div class="tg tw">${tTxt('Privé', D, C)}${ph>=5?tTxt('Capital', K.d, K.c):''}</div></section>`:''}${ex}`; },
+   scroll:true }
 ];
 const LAST = STEPS.length-1;
+const SI = t => STEPS.findIndex(x=>x.title===t);   // index d'une partie d'après son titre
 
 /* ---------- Actions ---------- */
 const A = [];
@@ -394,14 +541,15 @@ function render(){
   $('next').disabled = pos===A.length-1 || (P.q && !ANS[key]);
   $('next').textContent = pos===A.length-1 ? 'Terminé ✓' : P.btn;
   $('explain').innerHTML = `<h2 class="steptitle">${LET(step)}. ${S.title}</h2>
-    <p class="steptext">${P.text}</p>${P.q?qBox(key,P.q):''}${S.extra?S.extra(ph):''}${step===7||step===6 ? lastEntry(step,ph) : ''}`;
+    <p class="steptext">${P.text}</p>${P.q?qBox(key,P.q):''}${S.extra?S.extra(ph):''}${S.entry!==undefined ? lastEntry(S.entry,ph) : ''}`;
   $('stage').innerHTML = S.stage(ph);
+  if (S.scroll && ph>0){ const secs = $('stage').querySelectorAll('section.sec'); requestAnimationFrame(()=>{ const el = secs[secs.length-1]; if (el.getBoundingClientRect().bottom > innerHeight) el.scrollIntoView({block:'end', behavior:'smooth'}); })   /* remonte seulement si le bas est caché */; }
 }
-// Étapes 6 et 7 : l'écriture se construit au fil des réponses
-function lastEntry(step, ph){
-  const o = OPS[step-6];
-  const dd = step===6 ? (ph>=2 ? o.d : '…') : (ph>=1 ? o.d : '…');
-  const cc = step===6 ? (ph>=1 ? o.c : '…') : (ph>=2 ? o.c : '…');
+// « Une opération, deux comptes » et « Un achat à crédit » : l'écriture se construit au fil des réponses
+function lastEntry(k, ph){   // k : 0 = opération 2 (crédit trouvé d'abord), 1 = opération 3 (débit d'abord)
+  const o = OPS[k];
+  const dd = k===0 ? (ph>=2 ? o.d : '…') : (ph>=1 ? o.d : '…');
+  const cc = k===0 ? (ph>=1 ? o.c : '…') : (ph>=2 ? o.c : '…');
   return `<table class="journal"><caption>Écriture</caption><tr><th>N°</th><th>Débit</th><th>Crédit</th><th class="am">Montant</th></tr>
     <tr class="cur"><td>${o.n}</td><td>${dd}</td><td>${cc}</td><td class="am">${fmt(o.amt)}</td></tr></table>`;
 }

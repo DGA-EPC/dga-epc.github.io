@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Les intérêts – théorie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theorie.css">
+<style>
+
+
+:root{
+  --bg:#f5f3ee; --card:#fff; --ink:#1e2226; --muted:#6a6f76; --line:#e2ddd2; --soft:#efebe3;
+  --charge:#c2671f; --charge-bg:#fcefe3;
+  --produit:#2b8352; --produit-bg:#e6f4eb;
+  --res:#6d48b3; --res-bg:#efe9f9;
+  --passif:#a3333d; --passif-bg:#f8e8ea;
+  --bilan:#20394f; --bilan-bg:#e6ecf1;
+  --actif:#2a52be; --actif-bg:#e8eefb;
+  --accent:#c98a10; --accent-bg:#fff3d6;
+  --y1:#e8eefb; --y2:#fff3d6;
+}
+.calc.q{background:var(--bilan-bg)}
+.ch.ko{background:var(--charge);border-color:var(--charge);color:#fff;opacity:1}
+.fb.ko{border-left:4px solid var(--charge)}
+.ch.blink{animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{0%,100%{box-shadow:0 0 0 0 rgba(32,57,79,0)}50%{box-shadow:0 0 0 5px rgba(201,138,16,.75);background:var(--accent-bg)}}
+.tag.at{background:var(--actif-bg);color:var(--actif)}
+.tag.pt{background:var(--passif-bg);color:var(--passif)}
+.journal td.dt{color:var(--muted);white-space:nowrap}
+.journal tr.todo td{opacity:.38}
+.btn.quiz{display:flex;align-items:center;justify-content:center;background:#037DFF;color:#fff;border-color:#037DFF;text-align:center;text-decoration:none}
+
+/* Ligne du temps */
+.t{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 9px 8px;position:relative;min-width:0}
+.t-head{font-weight:700;font-size:13.5px;text-align:center;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t-body{display:grid;grid-template-columns:1fr 1fr;min-height:46px}
+.col{padding:4px 4px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.ln{display:flex;flex-wrap:wrap;justify-content:space-between;gap:3px;font-size:11.5px;border-radius:4px;padding:1px 2px}
+.ln .lb{color:var(--muted);line-height:1.25;min-width:0}
+.ln.ext .lb{font-style:italic}
+.eff .tag{font-size:11.5px}
+
+/* Introduction et résumé */
+.box{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.box h4{margin:0 0 6px;font-size:14px}
+.quad .hd.pt{background:var(--passif-bg);color:var(--passif)}
+
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;padding:12px 12px 90px}
+  aside{position:static;max-height:none;overflow:visible}
+  .nav-wrap{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(245,243,238,.95);backdrop-filter:blur(6px);padding:10px 12px;border-top:1px solid var(--line)}
+  .two,.quad{grid-template-columns:1fr}
+}
+
+/* --- Amortissements --- */
+.card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s,box-shadow .3s}
+.card.on{box-shadow:0 0 0 2px var(--accent)}
+.card.off{opacity:.45}
+.card .lt{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--soft);font-weight:700;font-size:12px;margin-right:6px}
+.card h4{margin:0 0 4px;font-size:15px;display:flex;align-items:center}
+.card .ex{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
+.ecr{display:flex;justify-content:space-between;gap:8px;font-size:13px;background:var(--soft);border-radius:8px;padding:6px 10px;font-weight:600}
+.ecr span:last-child{color:var(--muted);font-weight:500}
+.vocab tr.cur td{background:var(--hl)}
+.tab tr.todo td{color:transparent}
+.tab tr.cur td{background:var(--hl);font-weight:700}
+.tab tr.cur td.am{color:var(--charge)}
+.tab td.am{color:var(--charge)}.bil .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;padding:2px 0}
+.bil .row.sub{color:var(--passif)}
+.bil .row.tot{font-weight:700;border-top:1px solid var(--ink);margin-top:4px;padding-top:4px}
+.k-fac .t-head{color:var(--passif)}
+.t-head{white-space:normal !important;line-height:1.2;overflow:visible !important;text-overflow:clip !important;hyphens:auto;-webkit-hyphens:auto}
+.split{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:1100px){ .split{grid-template-columns:1fr} }
+
+/* --- Bilan et journal --- */
+.inv td.am{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+.inv td.tg2,.inv td.acc{width:1%;white-space:nowrap}
+@keyframes fadein{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
+.pill.a{background:var(--actif-bg);color:var(--actif)}.pill.p{background:var(--passif-bg);color:var(--passif)}
+.pill.acc{background:var(--soft);color:var(--ink)}
+.bl{display:grid;grid-template-columns:1fr 1fr;max-width:720px;margin:0 auto}
+.bl-title{grid-column:1/-1;text-align:center;font-family:Fraunces,Georgia,serif;font-weight:700;font-size:18px;padding-bottom:4px}
+.bl-head.a{color:var(--actif)}.bl-head.p{color:var(--passif);text-align:right}
+.bl-side.a{border-right:3px solid var(--ink)}
+.br{display:flex;justify-content:space-between;gap:10px;font-variant-numeric:tabular-nums;padding:2px 4px;border-radius:4px}
+.br.new{animation:pop 1.6s ease-out}
+.br.cap{color:var(--res);font-weight:700}
+.br.dec{color:var(--charge);font-weight:700}
+.bt.bad{color:var(--charge)}
+.qa.off{opacity:.25}
+.acct td.n{text-align:right;font-variant-numeric:tabular-nums}
+.acct th.n{text-align:right}
+.rule .pm{display:grid;grid-template-columns:1fr 1fr;border-top:2px solid var(--ink);font-size:22px;font-weight:700}
+.rule .pm span:first-child{border-right:2px solid var(--ink)}
+.rule .pm small{display:block;font-size:11px;color:var(--muted);font-weight:500}
+.plus{color:var(--produit)}.case{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s,box-shadow .3s}
+.case.on{box-shadow:0 0 0 2px var(--accent)}.case.off{opacity:.4}
+.case p{margin:0 0 8px;font-size:14.5px}
+.t-sides .sg{font-weight:700}
+.bl-side.p .bg.hl{color:var(--passif)}
+.bl-side.dim,.bl-head.dim{opacity:.3}
+.t-head{white-space:normal !important;line-height:1.2;overflow:visible !important;text-overflow:clip !important;hyphens:auto;-webkit-hyphens:auto}
+
+/* --- Salaires --- */
+.taux{border:3px solid var(--accent);border-radius:14px;padding:12px 16px;background:#fffdf6}
+.taux h3{margin:0 0 8px;font-family:Fraunces,Georgia,serif;color:var(--accent);display:flex;justify-content:space-between;align-items:baseline}
+.taux h3 small{font-family:Inter,sans-serif;font-size:12px;color:var(--muted);font-weight:500}
+.tt td.n,.tt th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tt tr.hl td{background:var(--hl);font-weight:600}
+.slip td{padding:6px 10px;border-bottom:1px dashed var(--line)}
+.slip td.n{text-align:right;white-space:nowrap}
+.slip tr.sub td:first-child{border-left:4px solid var(--charge)}
+.slip tr.add td.n{color:var(--produit)}.slip tr.sub td.n{color:var(--charge)}.slip tr.pay td.n{color:var(--actif)}
+.slip tr.tot td{font-weight:700;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
+.slip tr.cur td{background:var(--hl)}
+.chip{display:inline-block;padding:2px 9px;border-radius:7px;font-weight:600;font-size:13px}
+.chip.charge{background:var(--charge-bg);color:var(--charge)}
+.chip.passif{background:var(--passif-bg);color:var(--passif)}
+.chip.actif{background:var(--actif-bg);color:var(--actif)}
+.jl2 th.n,.jl2 td.n{text-align:right}
+.jl2 td{padding:6px 8px;border-bottom:1px dashed var(--line)}
+.jl2 tr.cur td{background:var(--hl)}
+.jl2 tr.new td{animation:pop 1.6s ease-out}
+.jl2 tr.tot td{font-weight:700;border-top:2px solid var(--ink)}
+.arrows{grid-column:1/-1;display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.arw.off{opacity:.12}
+.arw .line{height:4px;border-radius:2px;position:relative}
+.arw .line::after{content:"";position:absolute;top:-6px;border:8px solid transparent}
+.arw.r .line::after{right:-4px;border-left-color:inherit;border-left-width:12px;border-right-width:0}
+.arw.l .line::after{left:-4px;border-right-color:inherit;border-right-width:12px;border-left-width:0}
+.arw .lab{text-align:center;font-weight:600}
+.arw .amt{font-variant-numeric:tabular-nums;font-weight:700}
+.arw.new{animation:pop 1.6s ease-out}
+.bal{display:flex;flex-direction:column;gap:6px;max-width:520px;margin:14px auto 0;font-size:14px}
+.bal .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;padding:4px 10px;border-radius:6px}
+.bal .row.tot{font-weight:700;border-top:2px solid var(--ink)}
+.due{border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.due h4{margin:0 0 6px;font-size:14px;color:var(--passif)}
+.due .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;font-size:13.5px}
+.due .row.tot{font-weight:700;border-top:1px solid var(--ink);margin-top:4px;padding-top:4px}
+.due.on{box-shadow:0 0 0 2px var(--accent)}
+/* --- Titres --- */
+.acrow{display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:center;margin-bottom:10px}
+.acrow .t-body{min-height:26px}
+.acx{font-size:14px}
+.acgrp{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin:12px 0 6px}
+.jr-stage{max-width:760px;margin-bottom:16px}
+.lk{display:inline-block;padding:1px 8px;border-radius:7px;border:1.5px solid;font-weight:700}
+.code{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start;justify-content:center;padding:10px 0}
+.cpart{display:flex;flex-direction:column;align-items:center;gap:8px;max-width:170px;text-align:center}
+.ctok{font:700 30px/1 'Courier New',monospace;border:3px solid;border-radius:10px;padding:10px 14px;background:#fff}
+.clab{font-size:13px;font-weight:600;color:var(--ink)}
+.icbar{display:flex;height:40px;border-radius:8px;overflow:hidden;margin-top:10px;color:#fff;font-weight:600;font-size:13px}
+.ics{display:flex;align-items:center;justify-content:center;transition:background .4s}
+.icdates{position:relative;height:44px;font-size:12px;color:var(--muted);margin-top:6px}
+.icdates span{position:absolute;top:0;white-space:nowrap}
+.icdates span:nth-child(2){transform:translateX(-50%);text-align:center;color:var(--ink);font-weight:600}
+.steps3{display:flex;flex-direction:column;gap:4px;max-width:620px}
+.steps3 .calc{margin:6px 0}
+/* Action vs Obligation */
+.syn{width:100%;border-collapse:collapse;font-size:13.5px;table-layout:fixed}
+.syn th,.syn td{padding:8px 10px;border-bottom:1px dashed #9c9282;vertical-align:top;text-align:left}
+.syn tr>th:first-child{width:130px;font-weight:600;color:var(--muted);font-size:12.5px}
+.syn th.hd{font-family:Fraunces,Georgia,serif;font-size:19px;text-align:center;border-radius:10px 10px 0 0}
+.syn th.hd.a{background:var(--actif-bg);color:var(--actif)}.syn th.hd.o{background:var(--produit-bg);color:var(--produit)}
+.syn td.cur{background:var(--hl)}
+.syn .code{justify-content:flex-start;gap:8px;padding:0}.syn .ctok{font-size:20px;padding:6px 8px}.syn .clab{font-size:11.5px}.syn .cpart{max-width:110px}
+/* Dividendes et intérêts */
+.divt{max-width:620px}.divt td{font-size:15px}
+/* Donnée et jours */
+/* --- Intérêts --- */
+.tab.cal td,.tab.cal th{text-align:left}
+.jt{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.jt th{font-size:12px;color:var(--muted);font-weight:600;text-align:left;padding:6px 8px;border-bottom:2px solid var(--ink)}
+.jt td{padding:6px 8px;border-bottom:1px dashed #9c9282;vertical-align:top}
+.jt .n{text-align:right}
+.jt td.dates{white-space:nowrap}
+.jt tr.cur td{background:var(--hl)}
+.jt tr.why td{font-size:12.5px;color:var(--muted);padding-top:0;border-bottom:1px dashed #9c9282}
+.jt tr.why td{border-top:0}
+.an{display:inline-block;font-size:11px;font-weight:600;padding:1px 6px;border-radius:999px;background:var(--actif-bg);color:var(--actif);margin-left:4px}
+.an.bis{background:var(--passif-bg);color:var(--passif)}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 4px}
+.frac span:first-child{border-bottom:2px solid currentColor;padding:0 6px}
+.frac span:last-child{padding:0 6px}
+.fml{font-size:20px;font-weight:600;text-align:center;margin:10px 0}
+.fx2{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.fx2 .calc{margin:0}
+.lets{display:grid;grid-template-columns:repeat(4,minmax(0,140px));gap:10px;margin-top:12px}
+.let{display:flex;align-items:baseline;gap:8px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:18px}
+.let span{color:var(--muted);font-weight:600}
+.let.x{border:2px solid var(--accent);background:var(--accent-bg)}
+.cards.feb .card h4{font-size:17px}.cards.feb .card .ex{font-size:15.5px;color:var(--ink);line-height:1.5}
+.jt td.c{white-space:nowrap}
+.jt{table-layout:fixed}
+.jt s{color:var(--muted)}.jt .d2{color:var(--passif)}
+.donnee{font-size:14.5px;background:#f6f3ec;border-left:4px solid var(--accent);border-radius:6px;padding:8px 12px}
+.jours{border-collapse:collapse;font-size:13px;margin-top:4px;width:100%}
+.jours td{padding:2px 6px;border-bottom:1px dashed #9c9282}
+.jours td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.jours tr.tot td{font-weight:700;border-bottom:0;border-top:2px solid var(--ink)}
+.jnote{font-size:12px;color:var(--muted);margin-top:4px}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="panel">
+      <h1>Les intérêts</h1>
+      <p class="sub">Calcul des jours · calcul de l'intérêt · impôt anticipé · comptabilisation</p>
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <div class="panel" id="explain"></div>
+
+    <div class="nav-wrap">
+      <div class="nav">
+        <button class="btn" id="prev">← Précédent</button>
+        <button class="btn primary" id="next">Suite →</button>
+      </div>
+    </div>
+
+    <div class="nav exit">
+      <button class="btn quit" id="quit">Quitter</button>
+    </div>
+    <p class="note" id="quit-msg" style="display:none;color:#fff">Le navigateur ne permet pas de fermer cette fenêtre automatiquement : fermer l'onglet.</p>
+  </aside>
+
+  <main class="stage" id="stage"></main>
+</div>
+<div class="zoombar"><button id="zm" title="Réduire la taille" aria-label="Réduire la taille">A−</button><button id="zp" title="Agrandir la taille" aria-label="Agrandir la taille">A+</button></div>
+
+<script>
+/* ---------- Réglages ---------- */
+const IA = 35;                                       // *** Taux de l'impôt anticipé (%) ***
+const ANS = {};
+const fmt = n => { const neg=n<0; n=Math.abs(Math.round(n*100)/100); const [i,d]=n.toFixed(2).split('.');
+  return (neg?'−':'') + i.replace(/\B(?=(\d{3})+(?!\d))/g,"'") + (d!=='00' ? '.'+d : ''); };
+const $ = id => document.getElementById(id);
+const KIND = {'Banque':'actif','Créances AFC':'actif','Dette bancaire':'passif','Privé':'passif',
+  'Charges financières':'charge','Produits financiers':'produit'};
+const PLUS_D = k => k==='actif' || k==='charge';
+const chip = a => `<span class="chip ${KIND[a]==='produit'?'actif" style="background:var(--produit-bg);color:var(--produit)':KIND[a]}">${a}</span>`;
+
+/* Couleur de liaison = compte de destination du montant */
+const LINK = {'Banque':'#4b5563', 'Créances AFC':'#2a52be', 'Produits financiers':'#1f7a4d', 'Charges financières':'#c2671f', 'Dette bancaire':'#a3333d', 'Privé':'#6d48b3'};
+const pill = (acc, txt) => acc ? `<span class="lk" style="color:${LINK[acc]};background:${LINK[acc]}1f;border-color:${LINK[acc]}">${txt}</span>` : txt;
+
+/* ---------- Avis de la banque / décompte ---------- */
+function bordHTML(title, rows, curAcc){
+  return `<div style="font-weight:700;margin-bottom:6px">${title}</div><table class="slip">${rows.map(r=>`<tr class="${r.k} ${curAcc&&r.to===curAcc?'cur':''}"><td>${r.lb}</td><td class="calc2">${r.calc||''}</td><td class="calc2">${r.to?'→ '+r.to:''}</td><td class="n">${r.to?pill(r.to,fmt(r.amt)):fmt(r.amt)}</td></tr>`).join('')}</table>`;
+}
+
+/* ---------- Journal à deux colonnes + comptes en T ---------- */
+// J : lignes {ph, n, d|c, amt}  ·  {ph, open:compte, side, amt, lab}
+function journalHTML(J, ph){
+  let rows = J.filter(e=>!e.open);
+  // écriture simple (un compte au débit, un au crédit, même montant) : sur une seule ligne
+  const byN = {}; rows.forEach(e=>(byN[e.n+'/'+e.ph] = byN[e.n+'/'+e.ph] || []).push(e));
+  rows = Object.values(byN).flatMap(g => g.length===2 && g[0].d && g[1].c && g[0].amt===g[1].amt
+    ? [{ph:g[0].ph, n:g[0].n, d:g[0].d, c:g[1].c, amt:g[0].amt}] : g);
+  return `<table class="jl2"><tr><th>N°</th><th>Compte débité</th><th>Compte crédité</th><th class="n">Débit</th><th class="n">Crédit</th></tr>
+    ${rows.map(e=>`<tr class="${e.ph>ph?'hide':''}"><td>${e.n}</td><td>${e.d?chip(e.d):''}</td><td>${e.c?chip(e.c):''}</td>
+      <td class="n">${e.d?pill(LINK[e.d]?e.d:null,fmt(e.amt)):''}</td><td class="n">${e.c?pill(LINK[e.c]?e.c:null,fmt(e.amt)):''}</td></tr>`).join('')}</table>`;
+}
+function postings(J, acc, ph){
+  const P = {d:[], c:[]};
+  J.forEach(e=>{
+    if (e.ph>ph) return;
+    const fresh = e.ph===ph;
+    if (e.open){ if (e.open===acc) P[e.side].push({lb:e.lab||'sàn', amt:e.amt, fresh}); return; }
+    if (e.d===acc) P.d.push({lb:e.n, amt:e.amt, fresh});
+    if (e.c===acc) P.c.push({lb:e.n, amt:e.amt, fresh});
+  });
+  return P;
+}
+const sum = a => a.reduce((s,l)=>s+l.amt,0);
+const bal = (acc,P) => PLUS_D(KIND[acc]) ? sum(P.d)-sum(P.c) : sum(P.c)-sum(P.d);
+function tHTML(acc, P, focus, eff){
+  const k = KIND[acc], pd = PLUS_D(k);
+  const col = arr => arr.map(l=>`<div class="ln ${l.fresh?'fresh':''}"><span class="lb">${l.lb}</span><span class="am">${fmt(l.amt)}</span></div>`).join('');
+  return `<div class="t k-${k} ${focus?'focus':''}">
+    <div class="t-sides"><span>D <b class="sg ${pd?'plus':'minus'}">${pd?'+':'−'}</b></span><span class="t-head" title="${acc}">${acc}</span><span><b class="sg ${pd?'minus':'plus'}">${pd?'−':'+'}</b> C</span></div>
+    <div class="t-body"><div class="col d">${col(P.d)}</div><div class="col c">${col(P.c)}</div></div>
+    ${eff?`<div class="eff">${eff}</div>`:''}</div>`;
+}
+function compta(J, accs, ph, eff){
+  const ts = accs.map(acc=>{ const P = postings(J, acc, ph);
+    const focus = J.some(e=>e.ph===ph && !e.open && (e.d===acc||e.c===acc));
+    return tHTML(acc, P, focus, eff ? eff(acc,P,ph) : ''); }).join('');
+  return `<section class="sec"><h2>Dans la comptabilité</h2><div class="jr-stage">${journalHTML(J, ph)}</div><div class="tg">${ts}</div></section>`;
+}
+
+/* ---------- Le calcul des jours : un exemple après l'autre, sur une seule page ---------- */
+// a : jour de départ compté · b : jour d'arrivée compté · m : mois complets · du2 / au2 : date remplacée (dernier jour du mois → 30)
+const EX = [
+  {du:'16.01', au:'25.04', a:16, b:25, m:2},
+  {du:'30.05', au:'01.09', a:30, b:1,  m:3},
+  {du:'12.02', au:'05.07', a:12, b:5,  m:4},
+  {du:'01.03', au:'31.08', a:1,  b:30, m:4, au2:'30.08', why:'le 31.08 est le dernier jour du mois : il compte comme le 30'},
+  {du:'28.02', au:'15.03', a:30, b:15, m:0, an:'normale', du2:'30.02', why:'en année normale, le 28.02 est le dernier jour de février : il compte comme le 30'},
+  {du:'28.02', au:'15.03', a:28, b:15, m:0, an:'bissextile', why:'en année bissextile, février a 29 jours : le 28.02 compte comme le 28'},
+  {du:'25.12', au:'28.02', a:25, b:30, m:1, an:'normale', au2:'30.02', why:'en année normale, le 28.02 est le dernier jour de février : il compte comme le 30'},
+  {du:'25.12', au:'28.02', a:25, b:28, m:1, an:'bissextile', why:'en année bissextile, le 28.02 n\'est pas le dernier jour : il compte comme le 28'},
+  {du:'25.12', au:'29.02', a:25, b:30, m:1, an:'bissextile', au2:'30.02', why:'le 29.02 est le dernier jour de février : il compte comme le 30'}];
+EX.forEach(e=>{ e.r = 30-e.a; e.tot = e.r + e.m*30 + e.b; });
+const JOURS_STEP = 1;
+const calc = e => `(30 − ${e.a}) + ${e.m} × 30 + ${e.b} = ${e.r} + ${e.m*30} + ${e.b} = ${e.tot} jours`;
+const febQ = (txt, ok) => ({text:txt, opts:[['f','le dernier jour de février'],['n','un jour comme les autres']], ok});
+const q1 = e => ({text:'① Le reste du mois de départ ?', opts:[['a',`${e.a}`],['b',`30 − ${e.a}`],['c',`${e.a} − 30`]], ok:'b', fb:`il reste 30 − ${e.a} = <b>${e.r}</b> jours en décembre.`});
+const q2 = e => ({text:'② Les mois complets ?', opts:[['1','1 × 30'],['3','3 × 30']], ok:'1', fb:'seul <b>janvier</b> est un mois complet : 1 × 30 = <b>30</b>.'});
+const q3 = (e, ok, fb) => ({text:'③ Les jours du mois d\'arrivée ?', opts:[['28','28'],['30','30'],['d','30 − 28']], ok, fb});
+// Phases : k = exemple, set = ce qui s'affiche, ans = ce qui s'affiche une fois la question répondue
+const PB = [
+  {k:0, set:['row'], btn:'① →', text:`On découpe la période en <b>3 morceaux</b> :<br>① les jours qui restent dans le mois de départ : <b>30 − le jour de départ</b> ;<br>② les <b>mois complets</b> entre les deux : × 30 ;<br>③ les jours du <b>mois d'arrivée</b>.<br><br>Premier exemple : du 16.01 au 25.04.`},
+  {k:0, set:['c1'], btn:'② →', text:`① Il reste <b>30 − 16 = 14</b> jours en janvier.`},
+  {k:0, set:['c2'], btn:'③ →', text:`② Février et mars sont des mois complets : <b>2 × 30 = 60</b> jours.`},
+  {k:0, set:['c3'], btn:'Le total →', text:`③ En avril, on compte jusqu'au 25 : <b>25</b> jours.`},
+  {k:0, set:['tot'], btn:'Exemple suivant →', text:`On additionne les 3 morceaux : 14 + 60 + 25 = <b>99 jours</b>.`},
+
+  {k:1, set:['row'], btn:'① →', text:`Deuxième exemple : du 30.05 au 01.09.`},
+  {k:1, set:['c1'], btn:'② →', text:`① Il reste <b>30 − 30 = 0</b> jour en mai.`},
+  {k:1, set:['c2'], btn:'③ →', text:`② Juin, juillet et août sont des mois complets : <b>3 × 30 = 90</b> jours.`},
+  {k:1, set:['c3'], btn:'Le total →', text:`③ En septembre, on compte jusqu'au 1<sup>er</sup> : <b>1</b> jour.`},
+  {k:1, set:['tot'], btn:'Exemple suivant →', text:`On additionne : 0 + 90 + 1 = <b>91 jours</b>.`},
+
+  {k:2, set:['row'], btn:'① →', text:`Troisième exemple : du 12.02 au 05.07.`},
+  {k:2, set:['c1'], btn:'② →', text:`① Il reste <b>30 − 12 = 18</b> jours en février.`},
+  {k:2, set:['c2'], btn:'③ →', text:`② Mars, avril, mai et juin sont des mois complets : <b>4 × 30 = 120</b> jours.`},
+  {k:2, set:['c3'], btn:'Le total →', text:`③ En juillet, on compte jusqu'au 5 : <b>5</b> jours.`},
+  {k:2, set:['tot'], btn:'Exemple suivant →', text:`On additionne : 18 + 120 + 5 = <b>143 jours</b>.`},
+
+  {k:3, set:['row'], btn:'Suite →', text:`Du 01.03 au 31.08.`, ans:['why'],
+   q:{text:'Le 31.08 compte comme…', opts:[['31','le 31'],['30','le 30']], ok:'30', fb:'c\'est le <b>dernier jour du mois</b> : il compte comme le <b>30</b>.'}},
+  {k:3, set:['strike'], btn:'Le calcul →', text:`On remplace donc le 31.08 par le <b>30.08</b>.`},
+  {k:3, set:['c1','c2','c3','tot'], btn:'Exemple suivant →', text:`${calc(EX[3])}.`},
+
+  {k:4, set:['row'], btn:'Suite →', text:`Du 28.02 au 15.03, en <b>année normale</b>.`, ans:['why'],
+   q:{...febQ('En année normale, le 28.02 est…', 'f'), fb:'en année normale, février se termine le 28 : le 28.02 compte comme le <b>30</b>.'}},
+  {k:4, set:['strike'], btn:'Le calcul →', text:`On remplace donc le 28.02 par le <b>30.02</b>.`},
+  {k:4, set:['c1','c2','c3','tot'], btn:'Exemple suivant →', text:`${calc(EX[4])}.`},
+
+  {k:5, set:['row'], btn:'Le calcul →', text:`Les mêmes dates, du 28.02 au 15.03, mais en <b>année bissextile</b>.`, ans:['why'],
+   q:{...febQ('En année bissextile, le 28.02 est…', 'n'), fb:'en année bissextile, février se termine le <b>29</b> : le 28.02 compte comme le <b>28</b>. On ne le remplace pas.'}},
+  {k:5, set:['c1','c2','c3','tot'], btn:'Exemple suivant →', text:`${calc(EX[5])}.`},
+
+  {k:6, set:['row'], btn:'Suite →', text:`Du 25.12 au 28.02, en <b>année normale</b>.`, ans:['why'],
+   q:{...febQ('En année normale, le 28.02 est…', 'f'), fb:'c\'est le dernier jour de février : il compte comme le <b>30</b>.'}},
+  {k:6, set:['strike'], btn:'Suite →', text:`On remplace donc le 28.02 par le <b>30.02</b>.<br><br>À toi de trouver chaque morceau.`},
+  {k:6, ans:['c1'], btn:'Suite →', text:'', q:q1(EX[6])},
+  {k:6, ans:['c2'], btn:'Suite →', text:'', q:q2(EX[6])},
+  {k:6, ans:['c3'], btn:'Le total →', text:'', q:q3(EX[6], '30', 'le 28.02 a été remplacé par le 30.02 : on compte jusqu\'au <b>30</b>.')},
+  {k:6, set:['tot'], btn:'Exemple suivant →', text:`On additionne : 5 + 30 + 30 = <b>65 jours</b>.`},
+
+  {k:7, set:['row'], btn:'Suite →', text:`Les mêmes dates, du 25.12 au 28.02, mais en <b>année bissextile</b>.`, ans:['why'],
+   q:{...febQ('En année bissextile, le 28.02 est…', 'n'), fb:'février se termine le 29 : le 28.02 compte comme le <b>28</b>. On ne le remplace pas.'}},
+  {k:7, ans:['c1'], btn:'Suite →', text:'', q:q1(EX[7])},
+  {k:7, ans:['c2'], btn:'Suite →', text:'', q:q2(EX[7])},
+  {k:7, ans:['c3'], btn:'Le total →', text:'', q:q3(EX[7], '28', 'le 28.02 n\'est pas le dernier jour de février : on compte jusqu\'au <b>28</b>.')},
+  {k:7, set:['tot'], btn:'Exemple suivant →', text:`On additionne : 5 + 30 + 28 = <b>63 jours</b>.`},
+
+  {k:8, set:['row'], btn:'Suite →', text:`Du 25.12 au <b>29.02</b>, en année bissextile.`, ans:['why'],
+   q:{...febQ('Le 29.02 est…', 'f'), fb:'en année bissextile, le 29.02 est le dernier jour de février : il compte comme le <b>30</b>.'}},
+  {k:8, set:['strike'], btn:'Suite →', text:`On remplace donc le 29.02 par le <b>30.02</b>.`},
+  {k:8, ans:['c1'], btn:'Suite →', text:'', q:q1(EX[8])},
+  {k:8, ans:['c2'], btn:'Suite →', text:'', q:q2(EX[8])},
+  {k:8, ans:['c3'], btn:'Le total →', text:'', q:q3(EX[8], '30', 'le 29.02 a été remplacé par le 30.02 : on compte jusqu\'au <b>30</b>.')},
+  {k:8, set:['tot','rule'], btn:'Suite →', text:`On additionne : 5 + 30 + 30 = <b>65 jours</b>.`}];
+
+// Ce qui est visible pour l'exemple k à la phase ph
+function exState(k, ph){
+  const st = new Set();
+  PB.forEach((p,i)=>{ if (i>ph || p.k!==k) return;
+    (p.set||[]).forEach(x=>st.add(x));
+    if (p.ans && (i<ph || ANS[JOURS_STEP+'.'+i])) p.ans.forEach(x=>st.add(x)); });
+  return st;
+}
+function joursTable(ph){
+  const tag = e => e.an ? `<span class="an ${e.an==='bissextile'?'bis':''}">${e.an==='bissextile'?'année bissextile':'année normale'}</span>` : '';
+  const dt = (d, d2, st) => d2 && st.has('strike') ? `<s>${d}</s> <b class="d2">${d2}</b>` : `<b>${d}</b>`;
+  const curK = PB[ph].k;
+  const rows = EX.map((e,k)=>{ const st = exState(k, ph); if (!st.has('row')) return '';
+    const cur = k===curK;
+    return `<tr class="${cur?'cur':''}"><td class="dates">du ${dt(e.du, e.du2, st)} au ${dt(e.au, e.au2, st)} ${tag(e)}</td>
+      <td class="c">${st.has('c1') ? `(30 − ${e.a})` : ''}</td>
+      <td class="c">${st.has('c2') ? `+ ${e.m} × 30` : ''}</td>
+      <td class="c">${st.has('c3') ? `+ ${e.b}` : ''}</td>
+      <td class="c">${st.has('tot') ? `= ${e.r} + ${e.m*30} + ${e.b}` : ''}</td>
+      <td class="n">${st.has('tot') ? `= <b>${e.tot}</b>` : ''}</td></tr>
+      ${st.has('why') ? `<tr class="why ${cur?'cur':''}"><td colspan="6">↳ ${e.why}</td></tr>` : ''}`; }).join('');
+  return `<table class="jt"><colgroup><col style="width:31%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:21%"><col style="width:12%"></colgroup><tr><th>Période</th><th>① Reste du mois</th><th>② Mois complets</th><th>③ Mois d'arrivée</th><th>Calcul</th><th class="n">Jours</th></tr>${rows}</table>
+    ${exState(EX.length-1, ph).has('rule') ? `<div class="calc q" style="margin-top:14px">À retenir : le <b>dernier jour du mois</b> compte toujours comme le <b>30</b> : le 31, le 28.02 en année normale, le 29.02 en année bissextile.</div>`:''}`;
+}
+
+/* ---------- Données ---------- */
+const IC = {c:12000, t:5, n:99};  IC.i = IC.c*IC.t*IC.n/36000;
+const AV = {amort:20000, int:800};    AV.tot = AV.amort + AV.int;
+const IR = {brut:600};                 IR.ia = IR.brut*IA/100; IR.net = IR.brut - IR.ia;
+const IMP = {tot:17000, ia:IR.ia};     IMP.solde = IMP.tot - IMP.ia;
+// Exemples : donnée, valeurs, inconnue, calcul
+const EXI = [
+  {titre:'Exemple : calculer l\'intérêt', data:`Un capital de <b>12'000</b> est placé à <b>5&nbsp;%</b> pendant <b>99 jours</b>. Calcule l'intérêt.`,
+   v:{c:"12'000", t:'5', i:'', n:'99'}, x:'i', num:"12'000 × 5 × 99", den:"36'000", res:165, unit:''},
+  {titre:'Exemple 1 : trouver le capital', data:`Un capital placé à <b>4&nbsp;%</b> pendant <b>90 jours</b> a rapporté un intérêt de <b>150</b>. Quel est le capital ?`,
+   v:{c:'', t:'4', i:'150', n:'90'}, x:'c', num:"150 × 36'000", den:'4 × 90', res:15000, unit:'',
+   fb:`150 × 36'000 ÷ (4 × 90) = <b>15'000</b>.`},
+  {titre:'Exemple 2 : trouver le taux', data:`Un capital de <b>9'000</b> placé pendant <b>120 jours</b> a rapporté un intérêt de <b>90</b>. Quel est le taux ?`,
+   v:{c:"9'000", t:'', i:'90', n:'120'}, x:'t', num:"90 × 36'000", den:"9'000 × 120", res:3, unit:'&nbsp;%',
+   fb:`90 × 36'000 ÷ (9'000 × 120) = <b>3&nbsp;%</b>.`}];
+// k : 0 = lettres posées, 1 = chiffres connus, 2 = calcul (affiché une fois la question répondue)
+function exBox(e, k, done){
+  const cell = l => { const known = e.v[l] !== '';
+    const val = k<1 ? '…' : known ? e.v[l] : (k>=2 && done ? `<b>${fmt(e.res)}${e.unit}</b>` : '?');
+    return `<div class="let ${!known && k>=1 ? 'x' : ''}"><span>${l} =</span><b>${val}</b></div>`; };
+  return `<section class="sec"><h2>${e.titre}</h2><div class="donnee">${e.data}</div>
+    <div class="lets">${['c','t','i','n'].map(cell).join('')}</div>
+    ${k>=2 && done ? `<div class="calc q" style="max-width:560px;margin-top:12px"><div class="fml">${e.x} = ${frac(e.num, e.den)} = ${fmt(e.res)}${e.unit}</div></div>` : ''}</section>`;
+}
+const frac = (a, b) => `<span class="frac"><span>${a}</span><span>${b}</span></span>`;
+
+/* ---------- Les étapes ---------- */
+const STEPS = [
+ { title:'Le calendrier commercial',
+   ph:[{btn:'Suite →', text:`Pour calculer des intérêts, il faut d'abord compter les <b>jours</b>.<br><br>En comptabilité, on utilise le <b>calendrier commercial</b> : tous les mois ont <b>30 jours</b>, l'année a <b>360 jours</b>.`,
+        q:{text:'Combien de jours compte le mois de février dans le calendrier commercial ?', opts:[['28','28'],['29','29'],['30','30']], ok:'30',
+           fb:'comme tous les mois, février compte <b>30 jours</b>.'}},
+       {btn:'L\'année bissextile →', text:`Règle d'or : le <b>dernier jour du mois</b> compte toujours comme le <b>30</b>.<br><br>En année normale, février se termine le <b>28</b>.`},
+       {btn:'Le calcul des jours →', text:`Attention à l'<b>année bissextile</b> (366 jours dans le calendrier normal) : février se termine le <b>29</b> et non le 28.`}],
+   stage: ph => `<section class="sec"><h2>Calendrier normal ou commercial</h2><table class="tab cal">
+       <tr><th></th><th>Calendrier normal</th><th>Calendrier commercial</th></tr>
+       <tr><td>Un mois</td><td>28, 29, 30 ou 31 jours</td><td><b>30 jours</b></td></tr>
+       <tr><td>Une année</td><td>365 jours (366 en année bissextile)</td><td><b>360 jours</b></td></tr>
+       ${ph>=1?`<tr class="cur"><td>Le dernier jour du mois</td><td>le 28, 29, 30 ou 31</td><td>compte toujours comme le <b>30</b></td></tr>`:''}</table></section>
+     ${ph>=1?`<section class="sec"><h2>Février</h2><div class="cards feb" style="grid-template-columns:1fr 1fr">
+       <div class="card ${ph===1?'on':''}"><h4>Année normale</h4><div class="ex">Février se termine le <b>28</b>.<br>Le 28.02 est le dernier jour : il compte comme le <b>30</b>.</div></div>
+       ${ph>=2?`<div class="card ${ph===2?'on':''}"><h4>Année bissextile *</h4><div class="ex">Février se termine le <b>29</b>.<br>Le 28.02 compte comme le <b>28</b> ; le 29.02 compte comme le <b>30</b>.</div></div>`:''}</div>
+       ${ph>=2?`<p class="note">* Dans les exercices, l'astérisque signale une année bissextile.</p>`:''}</section>`:''}` },
+
+ { title:'Le calcul des jours',
+   ph: PB.map(p=>({btn:p.btn, text:p.text, q:p.q})),
+   stage: ph => `<section class="sec"><h2>Le calcul des jours</h2>${joursTable(ph)}</section>` },
+
+ { title:'Le vocabulaire',
+   ph:[{btn:'Suite →', text:`Le <b>taux</b> d'intérêt s'exprime en pour cent : 5&nbsp;% = 5 ÷ 100 = 0.05.`},
+       {btn:'Suite →', text:`Deux mots à connaître.`}],
+   stage: ph => `<section class="sec"><h2>Le taux</h2><div class="calc" style="max-width:420px;font-size:18px;text-align:center">5&nbsp;% = ${frac(5,100)} = 0.05</div></section>
+     ${ph>=1?`<section class="sec"><h2>Les mots à connaître</h2><table class="vocab">
+       <tr><td>Intérêt moratoire</td><td>Intérêt de <b>retard</b>. Selon le Code des obligations (CO), il est de <b>5&nbsp;%</b>.</td></tr>
+       <tr><td>Taux d'usure</td><td>Taux <b>illégal</b>, car trop haut.</td></tr></table></section>`:''}` },
+
+ { title:'Le calcul de l\'intérêt',
+   ph:[{btn:'La formule →', text:`Quatre lettres pour calculer un intérêt.`},
+       {btn:'Un exemple →', text:`La durée est en <b>jours</b> : on divise par <b>36'000</b>, soit 100 (le taux en %) × 360 (les jours d'une année).`},
+       {btn:'Suite →', text:`La méthode, en 3 temps.<br><br>1. On <b>pose</b> les quatre lettres.`},
+       {btn:'Le calcul →', text:`2. On cherche dans la donnée les <b>chiffres connus</b>. Il manque l'intérêt : c'est ce qu'on cherche.`},
+       {btn:'Suite →', text:`3. On <b>calcule</b> avec la formule et les chiffres : ${fmt(IC.c)} × ${IC.t} × ${IC.n} ÷ 36'000 = <b>${fmt(IC.i)}</b>.`}],
+   stage: ph => `<section class="sec"><h2>Les lettres</h2><table class="vocab">
+       <tr><td>c</td><td>le <b>capital</b> (le montant de référence)</td></tr><tr><td>t</td><td>le <b>taux</b> (en %)</td></tr>
+       <tr><td>i</td><td>l'<b>intérêt</b></td></tr><tr><td>n</td><td>la <b>durée</b> (en jours)</td></tr></table></section>
+     ${ph>=1?`<section class="sec"><h2>La formule</h2><div class="calc ${ph===1?'q':''}" style="max-width:420px"><div class="fml">i = ${frac('c × t × n','36\'000')}</div></div></section>`:''}
+     ${ph>=2?exBox(EXI[0], ph-2, true):''}` },
+
+ { title:'Retrouver c, t ou n',
+   ph:[{btn:'Le taux →', text:`On connaît l'intérêt et on cherche une autre valeur : on <b>retourne la formule</b>. L'intérêt multiplié par 36'000 est divisé par les deux autres lettres.<br><br>Pour trouver le <b>capital</b> :`},
+       {btn:'La durée →', text:`Pour trouver le <b>taux</b> :`},
+       {btn:'Un exemple →', text:`Pour trouver la <b>durée</b> :`},
+       {btn:'Suite →', text:`Premier exemple : on cherche le <b>capital</b>.<br><br>1. On <b>pose</b> les quatre lettres.`},
+       {btn:'Le calcul →', text:`2. On cherche dans la donnée les <b>chiffres connus</b>.`},
+       {btn:'Autre exemple →', text:`3. On <b>calcule</b> avec la formule du capital : ${EXI[1].fb}`},
+       {btn:'Suite →', text:`Deuxième exemple : on cherche le <b>taux</b>.<br><br>1. On <b>pose</b> les quatre lettres.`},
+       {btn:'Le calcul →', text:`2. On cherche dans la donnée les <b>chiffres connus</b>.`},
+       {btn:'Suite →', text:`3. On <b>calcule</b> avec la formule du taux : ${EXI[2].fb}`}],
+   stage: ph => { const card = (on, l, f) => `<div class="calc ${on?'q':''}"><b>${l}</b><div class="fml">${f}</div></div>`;
+     return `<section class="sec"><h2>Les formules retournées</h2><div class="fx2">
+       ${card(ph===0, 'Le capital', `c = ${frac('i × 36\'000','t × n')}`)}
+       ${ph>=1?card(ph===1, 'Le taux', `t = ${frac('i × 36\'000','c × n')}`):''}
+       ${ph>=2?card(ph===2, 'La durée', `n = ${frac('i × 36\'000','t × c')}`):''}</div></section>
+       ${ph>=3?exBox(EXI[1], ph-3, true):''}${ph>=6?exBox(EXI[2], ph-6, true):''}`; } },
+
+ { title:'L\'impôt anticipé',
+   ph:[{btn:'Suite →', text:`Pour lutter contre la <b>fraude fiscale</b>, l'État prélève un <b>impôt anticipé</b> de <b>${IA}&nbsp;%</b> du montant brut.`},
+       {btn:'Suite →', text:`La banque verse le montant <b>net</b> et transmet l'impôt anticipé à l'Administration fédérale des contributions (AFC).`,
+        q:{text:'L\'impôt anticipé est-il perdu ?', opts:[['p','oui, perdu'],['r','non, récupérable']], ok:'r',
+           fb:'il est <b>récupéré</b> quand le contribuable déclare ce revenu : il est déduit de l\'impôt total à payer. C\'est une <b>créance</b> envers l\'AFC.'}}],
+   stage: ph => `<section class="sec"><h2>L'impôt anticipé est prélevé à la source (= au moment du versement) sur :</h2><table class="vocab">
+       <tr><td>- Les intérêts bancaires reçus</td><td>dès CHF 200.- brut sur les comptes d'épargne, dès 1.- sur les autres comptes</td></tr>
+       <tr><td>- Les gains de loterie</td><td>dès CHF 2'000.-</td></tr>
+       <tr><td>- Les dividendes des actions suisses</td></tr>
+       <tr><td>- Les intérêts des obligations suisses</td></tr></table></section>
+     ${ph>=1?`<section class="sec"><h2>Brut, impôt anticipé et net</h2><table class="slip divt">
+       <tr><td>Intérêt brut</td><td class="n">${pill('Produits financiers', fmt(IR.brut))}</td><td class="n">100&nbsp;%</td><td class="calc2">→ Produits financiers</td></tr>
+       <tr><td>− Impôt anticipé</td><td class="n">${pill('Créances AFC', fmt(IR.ia))}</td><td class="n">${IA}&nbsp;%</td><td class="calc2">→ Créances AFC</td></tr>
+       <tr class="tot"><td>= Intérêt net</td><td class="n">${pill('Banque', fmt(IR.net))}</td><td class="n">${100-IA}&nbsp;%</td><td class="calc2">→ Banque</td></tr></table></section>`:''}` },
+
+ { title:'Les intérêts qu\'on paie',
+   ph:[{btn:'L\'avis de débit →', text:`Les <b>intérêts débiteurs</b> sont en faveur de la banque : nous les payons.`,
+        q:{text:'Les intérêts que nous payons sont…', opts:[['c','une charge'],['p','un produit']], ok:'c',
+           fb:'ils coûtent à l\'entreprise : <b>Charges financières / Banque</b>.'}},
+       {btn:'Comptabiliser →', text:`La banque nous envoie un <b>avis de débit</b> : nous remboursons une partie de la dette bancaire (amortissement) et payons les intérêts de l'année.`},
+       {btn:'Suite →', text:`L'amortissement diminue la dette ; les intérêts sont une charge. La banque est débitée du total.`}],
+   stage: ph => `<section class="sec"><h2>Intérêts en faveur de la banque</h2><div class="ecr" style="max-width:420px"><span>On l'appelle intérêt <b>débiteur</b></span></div></section>
+     ${ph>=1?`<section class="sec"><h2>Exemple :</h2>${bordHTML('Avis de débit de la banque',[
+       {k:'add', lb:'Amortissement de la dette', amt:AV.amort, to:ph>=2?'Dette bancaire':null},
+       {k:'add', lb:'+ Intérêts annuels', amt:AV.int, to:ph>=2?'Charges financières':null},
+       {k:'tot', lb:'= Total débité', amt:AV.tot, to:ph>=2?'Banque':null}])}</section>`:''}
+     ${ph>=2?compta([{ph:2,n:1,d:'Dette bancaire',amt:AV.amort},{ph:2,n:1,d:'Charges financières',amt:AV.int},{ph:2,n:1,c:'Banque',amt:AV.tot}],['Dette bancaire','Charges financières','Banque'],ph):''}` },
+
+ { title:'Les intérêts qu\'on reçoit',
+   ph:[{btn:'Avec l\'impôt anticipé →', text:`Les <b>intérêts créanciers</b> sont en notre faveur : nous les recevons.<br><br>L'écriture est <b>Banque / Produits financiers</b>.`},
+       {btn:'Comptabiliser →', text:`Mais la banque retient l'impôt anticipé : nous recevons un intérêt brut de ${fmt(IR.brut)}, dont ${IA}&nbsp;% sont retenus.`,
+        q:{text:'Quel montant au crédit des Produits financiers ?', opts:[['b',fmt(IR.brut)+' (brut)'],['n',fmt(IR.net)+' (net)']], ok:'b',
+           fb:'le produit est enregistré <b>brut</b> : la banque reçoit le net, l\'AFC doit le reste.'}},
+       {btn:'Suite →', text:`<b>Banque</b> ${fmt(IR.net)} et <b>Créances AFC</b> ${fmt(IR.ia)} / <b>Produits financiers</b> ${fmt(IR.brut)}.`}],
+   stage: ph => `<section class="sec"><h2>Intérêt en notre faveur</h2><div class="ecr" style="max-width:420px"><span>On l'appelle intérêt <b>créancier</b></span></div></section>
+     ${ph>=1?`<section class="sec"><h2>Exemple :</h2>${bordHTML('Avis de crédit de la banque',[
+       {k:'add', lb:'Intérêt brut', amt:IR.brut, to:ph>=2?'Produits financiers':null},
+       {k:'sub', lb:`− Impôt anticipé ${IA}&nbsp;%`, amt:IR.ia, to:ph>=2?'Créances AFC':null},
+       {k:'tot', lb:'= Intérêt net', amt:IR.net, to:ph>=2?'Banque':null}])}</section>`:''}
+     ${ph>=2?compta([{ph:2,n:1,d:'Banque',amt:IR.net},{ph:2,n:1,d:'Créances AFC',amt:IR.ia},{ph:2,n:1,c:'Produits financiers',amt:IR.brut}],['Banque','Créances AFC','Produits financiers'],ph):''}` },
+
+ { title:'Le patron paie ses impôts',
+   ph:[{btn:'Comptabiliser →', text:`Dans une entreprise individuelle, le patron paie ses impôts de l'année par la banque de l'entreprise. L'impôt anticipé de ${fmt(IMP.ia)} est déduit.`,
+        q:{text:'Les impôts du patron sont…', opts:[['c','une charge de l\'entreprise'],['p','une dépense privée']], ok:'p',
+           fb:'ce sont ses impôts <b>personnels</b> : on les débite au compte <b>Privé</b>.'}},
+       {btn:'Suite →', text:`<b>Privé</b> ${fmt(IMP.tot)} / <b>Créances AFC</b> ${fmt(IMP.ia)} et <b>Banque</b> ${fmt(IMP.solde)}.<br><br>La créance envers l'AFC est soldée : l'impôt anticipé est récupéré.`}],
+   stage: ph => `<section class="sec"><h2>Le décompte d'impôts · d'où viennent les montants</h2>${bordHTML('Décompte d\'impôts',[
+       {k:'add', lb:'Impôts', amt:IMP.tot, to:ph>=1?'Privé':null},
+       {k:'sub', lb:'− Impôt anticipé', amt:IMP.ia, to:ph>=1?'Créances AFC':null},
+       {k:'tot', lb:'= Solde à payer', amt:IMP.solde, to:ph>=1?'Banque':null}])}</section>
+     ${ph>=1?compta([{ph:0,open:'Créances AFC',side:'d',amt:IMP.ia,lab:'IA'},{ph:1,n:1,d:'Privé',amt:IMP.tot},{ph:1,n:1,c:'Créances AFC',amt:IMP.ia},{ph:1,n:1,c:'Banque',amt:IMP.solde}],['Privé','Créances AFC','Banque'],ph,
+       (acc,P)=> acc==='Créances AFC' ? `<span class="tag good">soldé ✓</span>` : ''):''}` }
+];
+const LAST = STEPS.length-1;
+
+/* ---------- Actions ---------- */
+const A = [];
+STEPS.forEach((s,i)=>s.ph.forEach((_,p)=>A.push({step:i, ph:p})));
+let pos = 0;
+
+/* ---------- Rendu ---------- */
+function qBox(key, q){
+  const ch = ANS[key];
+  const btn = (a,lb) => `<button class="ch ${ch===a?(a===q.ok?'ok':'ko'):''} ${ch?'':'blink'}" data-a="${a}" ${ch?'disabled':''}>${lb}</button>`;
+  const fb = ch ? `<div class="fb ${ch===q.ok?'ok':'ko'}">${ch===q.ok?'✓ En effet':'✗ En fait'}, ${q.fb}</div>` : `<div class="hint">Cliquer sur la bonne réponse.</div>`;
+  return `<div class="calc q"><div style="font-weight:600;margin-bottom:4px">La question à se poser</div>${q.text}
+    <div class="choices" style="flex-wrap:wrap">${q.opts.map(([a,lb])=>btn(a,lb)).join('')}</div>${fb}</div>`;
+}
+const LET = i => String.fromCharCode(65+i);   // A, B, C…
+function render(){
+  pos = Math.max(0, Math.min(A.length-1, pos));
+  const {step, ph} = A[pos], S = STEPS[step], P = S.ph[ph], key = step+'.'+ph;
+  document.querySelectorAll('.dot').forEach((b,i)=>{ b.classList.toggle('cur', i===step); b.classList.toggle('done', i<step); });
+  $('prev').disabled = pos===0;
+  $('next').disabled = pos===A.length-1 || (P.q && !ANS[key]);
+  $('next').textContent = pos===A.length-1 ? 'Terminé ✓' : P.btn;
+  $('explain').innerHTML = `<h2 class="steptitle">${LET(step)}. ${S.title}</h2>
+    <p class="steptext">${P.text}</p>${P.q?qBox(key,P.q):''}`;
+  $('stage').innerHTML = S.stage(ph);
+}
+
+/* ---------- Navigation ---------- */
+function goTo(p){ pos = p; render(); }
+function goStep(s){ goTo(A.findIndex(a=>a.step===s)); }
+let Z = 1;
+try { Z = +localStorage.getItem('interets-zoom') || 1; } catch(e){}
+function applyZoom(){
+  Z = Math.round(Math.max(0.8, Math.min(1.6, Z))*10)/10;
+  document.documentElement.style.setProperty('--z', Z);
+  try { localStorage.setItem('interets-zoom', Z); } catch(e){}
+}
+$('dots').innerHTML = STEPS.map((s,i)=>`<button class="dot" data-s="${i}" title="${LET(i)}. ${s.title}" aria-label="${LET(i)}. ${s.title}"></button>`).join('');
+$('zm').addEventListener('click', ()=>{ Z -= 0.1; applyZoom(); });
+$('zp').addEventListener('click', ()=>{ Z += 0.1; applyZoom(); });
+$('next').addEventListener('click', ()=>goTo(pos+1));
+$('prev').addEventListener('click', ()=>goTo(pos-1));
+$('explain').addEventListener('click', e=>{ const b=e.target.closest('.ch'); if (!b || b.disabled) return; const {step,ph}=A[pos]; ANS[step+'.'+ph] = b.dataset.a; render(); });
+$('quit').addEventListener('click', ()=>{ window.close(); setTimeout(()=>{ $('quit-msg').style.display='block'; }, 300); });
+$('dots').addEventListener('click', e=>{ const b=e.target.closest('.dot'); if (b) goStep(+b.dataset.s); });
+document.addEventListener('keydown', e=>{
+  if (e.key==='ArrowRight' && !$('next').disabled) goTo(pos+1);
+  if (e.key==='ArrowLeft') goTo(pos-1);
+});
+render();
+applyZoom();
+</script>
+<script src="theorie.js"></script>
+</body>
+</html>

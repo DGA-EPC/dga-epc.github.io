@@ -105,6 +105,14 @@
 .acx{font-size:14px}
 .acgrp{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin:12px 0 6px}
 .acgrp:first-of-type{margin-top:0}
+.new-card{animation:fadein .5s ease-out}
+@keyframes fadein{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.donnee{font-size:14.5px;background:#f6f3ec;border-left:4px solid var(--accent);border-radius:6px;padding:8px 12px;margin-bottom:12px}
+.dcalc{border-collapse:collapse;margin:14px 0 0;font-size:14px}
+.dcalc td{padding:3px 10px;border-bottom:1px dashed #9c9282}
+.dcalc td.am{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.dcalc tr.tot td{border-bottom:0;border-top:2px solid var(--ink);font-weight:700}
+.tab.prov td,.tab.prov th{text-align:left}
 .jr-stage{max-width:640px;margin-bottom:16px}
 .jr-stage .journal{font-size:13.5px}
 .bl-side.p .bg.hl{color:var(--passif)}
@@ -185,85 +193,100 @@ const LOI = [
   ['📄','L\'acte de défaut de biens (ADB)','Après une poursuite, s\'il reste une dette impayée, le créancier reçoit un ADB, valable 20 ans.'],
   ['%','Les intérêts moratoires','Le créancier peut réclamer 5&nbsp;% d\'intérêts moratoires (intérêts de retard).']];
 
+const COMPTES = [   // groupe, couleur, compte, explication
+  ['Actif','actif','Créances clients','Les factures que les clients doivent encore payer.'],
+  ['Actif','actif','Créances douteuses','Les factures à risque, pour lesquelles une poursuite est en cours. Il est sous-entendu dans les données par « compte approprié » ou « débiteur à risque ».'],
+  ['Produits','produit','Produits financiers','Les intérêts moratoires (= intérêts de retard) facturés au client.'],
+  ['Produits','produit','Produits exceptionnels','Si on récupère une créance effacée dans un exercice précédent.'],
+  ['Charge','charge','Pertes sur créances','Au débit : les factures perdues ou annulées.<p>Au crédit : une créance effacée qu\'on récupère durant l\'exercice en cours.']];
+const LOI_TXT = `Un client ne paie pas sa facture. Que dit la loi ? Quatre points à retenir.`;
+const COMPTES_TXT = `Cinq comptes sont utilisés quand un client ne paie pas. Chacun a sa nature : actif, produit ou charge.`;
+// Ajuster le ducroire : calcul présenté sous les comptes
+const ducCalc = (clients, actuel) => bp => bp<1 ? '' : `<table class="dcalc">
+  <tr><td>5&nbsp;% des clients ${fmt(clients)}</td><td>=</td><td class="am">${fmt(clients*0.05)}</td></tr>
+  <tr><td>Solde du Ducroire</td><td></td><td class="am">${fmt(actuel)}</td></tr>
+  <tr class="tot"><td>Différence</td><td></td><td class="am">${fmt(Math.abs(clients*0.05-actuel))}</td></tr></table>`;
+
+// C, D et E racontent la même histoire : journal et comptes en T se complètent sans s'effacer
+const SCEN = [
+  {title:'Dans la comptabilité', from:0,
+   data: bp => [`1) Un client ne paie pas sa facture de 4'000. Nous lançons une poursuite et avançons par poste CHF 80 de frais de poursuite.`,
+                bp>=2 ? `2) La poursuite n'a rien donné : nous recevons un <b>acte de défaut de biens</b> pour cette créance.` : '',
+                bp>=4 ? `3) <b>La même année</b>, nous relançons une poursuite contre ce client et récupérons CHF 500, versés à la banque.` : ''].filter(Boolean).join('<br>'),
+   accs: bp => ['Créances clients','Poste', ...(bp>=2?['Pertes sur créances']:[]), ...(bp>=4?['Banque']:[])],
+   J:[{ph:0,open:'Créances clients',side:'d',amt:4000,lab:'Facture'},{ph:0,open:'Poste',side:'d',amt:3000},
+      {ph:1,show:0,n:1,d:'Créances clients',c:'Poste',amt:80},
+      {ph:3,show:2,n:2,d:'Pertes sur créances',c:'Créances clients',amt:4080},
+      {ph:5,show:4,n:3,d:'Banque',c:'Pertes sur créances',amt:500}],
+   eff:(acc,P,bp)=> acc==='Créances clients' ? (bp>=3 ? `<span class="tag good">soldé ✓</span>` : bp>=1 ? soldeTag(acc,P,'at') : '')
+     : acc==='Pertes sur créances' && bp>=3 ? `Perte de l'année : <span class="tag bad">${fmt(bal(acc,P))}</span>` : ''},
+  {title:'Des années plus tard : nouvel exercice', from:6,
+   data:`4) <b>Deux ans plus tard</b>, grâce à l'ADB, nous relançons une poursuite et récupérons CHF 600, versés à la banque.`,
+   accs:['Banque','Produits exceptionnels','Pertes sur créances'],
+   J:[{ph:1,n:4,d:'Banque',c:'Produits exceptionnels',amt:600}],
+   eff:(acc,P,bp)=> bp>=1 && acc==='Produits exceptionnels' ? `Produit : <span class="tag good">${fmt(bal(acc,P))}</span>` : ''}];
+const BLOCKS = {SCEN};
+
 const STEPS = [
  { title:'La loi',
-   ph:[{btn:'Suite →', text:`Un client ne paie pas sa facture. Que dit la loi ? Quatre points à retenir.`}],
+   ph: LOI.map(()=>({btn:'Suite →', text:LOI_TXT})),
    stage: ph => `<section class="sec"><h2>Que dit la loi ?</h2><div class="cards">
-     ${LOI.map(([ic,t,x])=>`<div class="qa"><div class="ico">${ic}</div><h4>${t}</h4>${x}</div>`).join('')}</div></section>` },
+     ${LOI.filter((_,k)=>k<=ph).map(([ic,t,x],k)=>`<div class="qa ${k===ph?'new-card':''}"><div class="ico">${ic}</div><h4>${t}</h4>${x}</div>`).join('')}</div></section>` },
 
  { title:'Les comptes',
-   ph:[{btn:'Suite →', text:`Cinq comptes sont utilisés quand un client ne paie pas. Chacun a sa nature : actif, produit ou charge.`}],
-   stage: () => { const row = (acc, txt) => `<div class="acrow">${tHTML(acc,{d:[],c:[]},false,'')}<div class="acx">${txt}</div></div>`;
+   ph: COMPTES.map(()=>({btn:'Suite →', text:COMPTES_TXT})),
+   stage: ph => { let g = '';
      return `<section class="sec"><h2>Les comptes utilisés</h2>
-       <div class="acgrp" style="color:var(--actif)">Actif</div>
-       ${row('Créances clients','Les factures que les clients doivent encore payer.')}
-       ${row('Créances douteuses','Les factures à risque, pour lesquelles une poursuite est en cours. On l\'appelle aussi « compte approprié » ou « débiteur à risque ».')}
-       <div class="acgrp" style="color:var(--produit)">Produits</div>
-       ${row('Produits financiers','Les intérêts moratoires (intérêts de retard) facturés au client.')}
-       ${row('Produits exceptionnels','Une ancienne dette effacée qu\'on récupère.')}
-       <div class="acgrp" style="color:var(--charge)">Charge</div>
-       ${row('Pertes sur créances','Les factures perdues ou annulées.')}</section>`; } },
+       ${COMPTES.filter((_,k)=>k<=ph).map(([grp,col,acc,txt],k)=>{ const head = grp!==g ? `<div class="acgrp" style="color:var(--${col})">${grp}</div>` : ''; g = grp;
+         return `${head}<div class="acrow ${k===ph?'new-card':''}">${tHTML(acc,{d:[],c:[]},false,'')}<div class="acx">${txt}</div></div>`; }).join('')}</section>`; } },
 
- { title:'Les frais de poursuite', cpt:{
-   accs:['Créances clients','Poste'],
-   J:[{ph:0,open:'Créances clients',side:'d',amt:4000,lab:'Facture'},{ph:0,open:'Poste',side:'d',amt:3000},
-      {ph:1,n:1,d:'Créances clients',c:'Poste',amt:80}],
-   eff:(acc,P,ph)=> ph>=1 && acc==='Créances clients' ? soldeTag(acc,P,'at') : ''},
-   ph:[{btn:'Suite →', text:`Un client ne paie pas sa facture de 4'000. Nous lançons une poursuite et avançons par poste CHF 80 de frais de poursuite.`,
+ { title:'Les frais de poursuite', blocks:'SCEN', g0:0,
+   ph:[{btn:'Suite →', text:'',
         q:{text:'Ces frais de poursuite sont…', opts:[['ch','une charge pour nous'],['cl','facturés au client']], ok:'cl',
            fb:'la loi permet de <b>facturer les frais au client</b> : il nous doit 80 de plus.'}},
        {btn:'Suite →', text:`Les frais sont ajoutés à la créance du client : <b>Créances clients / Poste</b> 80. Le client nous doit maintenant 4'080.`}] },
 
- { title:'L\'acte de défaut de biens', cpt:{
-   accs:['Créances clients','Pertes sur créances'],
-   J:[{ph:0,open:'Créances clients',side:'d',amt:4000,lab:'Facture'},
-      {ph:1,n:2,d:'Pertes sur créances',c:'Créances clients',amt:4000}],
-   eff:(acc,P,ph)=> ph>=1 ? (acc==='Créances clients' ? `<span class="tag good">soldé ✓</span>` : `Charge : <span class="tag bad">${fmt(bal(acc,P))}</span>`) : ''},
-   ph:[{btn:'Suite →', text:`La poursuite n'a rien donné : nous recevons un <b>acte de défaut de biens</b> pour une facture de CHF 4'000.`,
+ { title:'L\'acte de défaut de biens', blocks:'SCEN', g0:2,
+   ph:[{btn:'Suite →', text:'',
         q:{text:'Que devient cette créance dans la comptabilité ?', opts:[['due','elle reste due'],['perdue','elle est perdue']], ok:'perdue',
            fb:'le client ne peut pas payer : la créance est <b>perdue</b>. C\'est une charge, la <b>perte sur créances</b>.'}},
-       {btn:'Suite →', text:`On sort la facture des Créances clients et on enregistre la charge : <b>Pertes sur créances / Créances clients</b> 4'000.<br><br>L'ADB reste valable 20 ans : on pourra peut-être récupérer l'argent plus tard.`}] },
+       {btn:'Suite →', text:`On sort toute la créance du client, frais de poursuite compris, et on enregistre la charge : <b>Pertes sur créances / Créances clients</b> 4'080.<br><br>L'ADB reste valable 20 ans : on pourra peut-être récupérer l'argent plus tard.`}] },
 
- { title:'Récupérer la même année', cpt:{
-   accs:['Pertes sur créances','Banque'],
-   J:[{ph:0,open:'Pertes sur créances',side:'d',amt:4000,lab:'2'},
-      {ph:1,n:3,d:'Banque',c:'Pertes sur créances',amt:500}],
-   eff:(acc,P,ph)=> acc==='Pertes sur créances' ? `Perte de l'année : <span class="tag bad">${fmt(bal(acc,P))}</span>` : ''},
-   ph:[{btn:'Suite →', text:`<b>La même année</b>, nous relançons une poursuite contre ce client et récupérons CHF 500, versés à la banque.`,
+ { title:'Récupérer une créance perdue', blocks:'SCEN', g0:4,
+   ph:[{btn:'Suite →', text:'',
         q:{text:'Quel compte est crédité ?', opts:[['pc','Pertes sur créances'],['pe','Produits exceptionnels']], ok:'pc',
            fb:'la perte a été comptabilisée <b>cette année</b> : on la diminue. On crédite les <b>Pertes sur créances</b>.'}},
-       {btn:'Suite →', text:`<b>Banque / Pertes sur créances</b> 500. La perte de l'année n'est plus que de 3'500.`}] },
-
- { title:'Récupérer des années plus tard', cpt:{
-   accs:['Banque','Produits exceptionnels'],
-   J:[{ph:1,n:4,d:'Banque',c:'Produits exceptionnels',amt:600}],
-   eff:(acc,P,ph)=> ph>=1 && acc==='Produits exceptionnels' ? `Produit : <span class="tag good">${fmt(bal(acc,P))}</span>` : ''},
-   ph:[{btn:'Suite →', text:`<b>Deux ans plus tard</b>, grâce à l'ADB, nous relançons une poursuite et récupérons CHF 600, versés à la banque.`,
+       {btn:'Des années plus tard →', text:`<b>Banque / Pertes sur créances</b> 500. La perte de l'année n'est plus que de 3'580.`},
+       {btn:'Suite →', text:`Deux ans plus tard, c'est un <b>nouvel exercice</b> : on ouvre de nouveaux comptes. Le compte Pertes sur créances repart à zéro.`,
         q:{text:'Quel compte est crédité ?', opts:[['pc','Pertes sur créances'],['pe','Produits exceptionnels']], ok:'pe',
            fb:'la perte a été comptabilisée dans un <b>exercice précédent</b>, déjà clôturé. L\'argent récupéré est un <b>produit exceptionnel</b>.'}},
-       {btn:'Suite →', text:`<b>Banque / Produits exceptionnels</b> 600.<br><br>À retenir : même année → on diminue la perte ; année suivante ou plus tard → produit exceptionnel.`}] },
+       {btn:'Suite →', text:`<b>Banque / Produits exceptionnels</b> 600. Le compte Pertes sur créances ne bouge pas.<br><br>À retenir : même année → on diminue la perte ; année suivante ou plus tard → produit exceptionnel.`}] },
 
- { title:'Les créances douteuses', cpt:{
+ { title:'Les créances douteuses', blocks:[{
+   data:`5) Nous avons lancé une poursuite contre un client qui nous doit CHF 1'200. Nous ne savons pas encore s'il paiera.`,
    accs:['Créances clients','Créances douteuses'],
    J:[{ph:0,open:'Créances clients',side:'d',amt:1200,lab:'Facture'},
       {ph:1,n:5,d:'Créances douteuses',c:'Créances clients',amt:1200}],
-   eff:(acc,P,ph)=> ph>=1 && acc==='Créances douteuses' ? soldeTag(acc,P,'at') : ''},
-   ph:[{btn:'Suite →', text:`Nous avons lancé une poursuite contre un client qui nous doit CHF 1'200. Nous ne savons pas encore s'il paiera.`,
+   eff:(acc,P,ph)=> ph>=1 && acc==='Créances douteuses' ? soldeTag(acc,P,'at') : ''}],
+   ph:[{btn:'Suite →', text:'',
         q:{text:'Cette facture est-elle déjà perdue ?', opts:[['oui','oui, perdue'],['non','pas encore : à risque']], ok:'non',
            fb:'tant qu\'il n\'y a pas d\'ADB, la facture n\'est <b>pas perdue</b>, mais elle est <b>à risque</b>.'}},
        {btn:'Suite →', text:`On la transfère dans le « compte approprié » : <b>Créances douteuses / Créances clients</b> 1'200.<br><br>C'est toujours un <b>actif</b> : aucune charge n'est enregistrée. On sépare simplement les factures à risque.`}] },
 
  { title:'Les provisions',
-   ph:[{btn:'Suite →', text:`Une <b>provision</b> est l'enregistrement dans la comptabilité d'une <b>charge future probable</b>.<br><br>Exemple : un procès risque de nous coûter de l'argent l'année prochaine. On enregistre la charge dès maintenant.`,
-        q:{text:'Une provision est-elle un actif ou un passif ?', opts:[['a','actif'],['p','passif']], ok:'p',
-           fb:'la provision est une charge comptabilisée dans un compte de <b>passif</b> : c\'est comme une dette probable.'}},
-       {btn:'Suite →', text:`La loi limite les provisions à certaines charges. Les trois principales :`}],
+   ph:[{btn:'Les principales provisions →', text:`Une <b>provision</b> est l'enregistrement dans la comptabilité d'une <b>charge future probable</b>.<br><br>Exemple : un procès risque de nous coûter de l'argent l'année prochaine. On enregistre la charge dès maintenant.<br><br>La provision est enregistrée dans un compte de <b>passif</b> : c'est comme une dette probable. La charge est au débit, la provision au crédit.`},
+       {btn:'Les limites →', text:`Les trois principales provisions. Le compte de charge est <b>débité</b>, le compte de provision est <b>crédité</b>.`},
+       {btn:'Suite →', text:`On ne peut pas créer des provisions comme on veut : la loi les limite.`}],
    stage: ph => `<section class="sec"><h2>L'écriture d'une provision</h2>
        <div class="ecr" style="max-width:520px"><span>Charge / Provision (passif)</span><span>montant de la charge probable</span></div></section>
-     ${ph>=1?`<section class="sec"><h2>Les principales provisions</h2><table class="vocab">
-       <tr><td>Ducroire<br><span style="font-weight:400;color:var(--muted)">provision pour pertes sur créances</span></td><td><b>Pertes sur créances / Ducroire</b><br>Limitée à 5&nbsp;% des clients suisses, 10&nbsp;% des clients étrangers en CHF, 15&nbsp;% des clients étrangers en devises.</td></tr>
-       <tr><td>Provision pour litige</td><td><b>Charges exceptionnelles / Provision pour litige</b><br>En cas de procès.</td></tr>
-       <tr><td>Provision pour entretien</td><td><b>Frais d'entretien / Provision pour entretien</b><br>Grosses réparations, rénovation de machines ou d'immeubles.</td></tr></table></section>`:''}` },
+     ${ph>=1?`<section class="sec"><h2>Les principales provisions</h2><table class="tab prov">
+       <tr><th>En bref</th><th>Compte de charge (débité)</th><th>Compte de provision (crédité)</th></tr>
+       <tr><td>Anticipation d'une perte sur créance</td><td>Pertes sur créances</td><td>Ducroire</td></tr>
+       <tr><td>En cas de procès</td><td>Charges exceptionnelles</td><td>Provision pour litige</td></tr>
+       <tr><td>Entretien et gros travaux</td><td>Frais d'entretien</td><td>Provision pour entretien</td></tr></table></section>`:''}
+     ${ph>=2?`<section class="sec"><h2>Les limites</h2><table class="vocab">
+       <tr><td>1) Sur les créances<br><span style="font-weight:400;color:var(--muted)">(ducroire)</span></td><td>Au maximum 5&nbsp;% des clients suisses, 10&nbsp;% des clients étrangers en CHF, 15&nbsp;% des clients étrangers en devises.</td></tr>
+       <tr><td>2) Les autres provisions</td><td>Seulement si elles sont <b>justifiées</b> : le risque doit être réel et le montant estimé raisonnablement.</td></tr></table></section>`:''}` },
 
  { title:'L\'impact des provisions',
    ph:[{btn:'Avec provision →', text:`En ${Y1}, l'entreprise risque un procès et estime la perte à CHF 20'000. Le procès a lieu en ${Y2} et coûte CHF 32'000.<br><br>Bénéfice avant le procès : ${Y1} 280'000, ${Y2} 230'000. Impôt : 15&nbsp;%.<br><br>Comparons <b>avec</b> et <b>sans</b> provision.`},
@@ -288,27 +311,31 @@ const STEPS = [
          <tr class="${ph>=5?'cur':''}"><td><b>Impôt 15&nbsp;%</b></td><td><b>${cell(1,3)}</b></td><td><b>${cell(2,3)}</b></td><td><b>${tot}</b></td></tr></table></div>`; };
      return `<section class="sec"><h2>Avec ou sans provision</h2><div class="two">${box('avec','Avec provision')}${box('sans','Sans provision')}</div></section>`; } },
 
- { title:'Ajuster le ducroire : cas a', cpt:{
-   accs:['Créances clients','Ducroire','Pertes sur créances'],
-   J:[{ph:0,open:'Créances clients',side:'d',amt:102800,lab:'Solde'},{ph:0,open:'Ducroire',side:'c',amt:4700},
-      {ph:2,n:6,d:'Pertes sur créances',c:'Ducroire',amt:440}],
-   eff:(acc,P,ph)=> acc==='Ducroire' ? (ph>=1 ? `Solde : <span class="tag ${ph>=2?'good':'bad'}">${fmt(bal(acc,P))}</span> · voulu : <b>5'140</b>` : soldeTag(acc,P,'pt')) : '',
-   bilan: ph => ph<2 ? '' : `<div class="bil"><h4>Bilan au 31.12.${Y2}</h4><div class="grp">Actifs circulants</div>
+ { title:'Ajuster le ducroire', blocks:[
+   {title:'Cas a', from:0,
+    data:`6) Au 31.12, le solde des clients (suisses) est de <b>102'800</b>. Le compte Ducroire a un solde de <b>4'700</b>. Le ducroire doit être de 5&nbsp;% des clients.`,
+    accs:['Créances clients','Ducroire','Pertes sur créances'],
+    J:[{ph:0,open:'Créances clients',side:'d',amt:102800,lab:'Solde'},{ph:0,open:'Ducroire',side:'c',amt:4700},
+       {ph:2,n:6,d:'Pertes sur créances',c:'Ducroire',amt:440}],
+    eff:(acc,P,ph)=> acc==='Ducroire' ? soldeTag(acc,P,ph>=2?'good':'pt') : '',
+    calc: ducCalc(102800, 4700),
+    bilan: ph => ph<2 ? '' : `<div class="bil" style="max-width:420px"><h4>Bilan au 31.12.${Y2}</h4><div class="grp">Actifs circulants</div>
       <div class="row"><span>Créances clients</span><span>102'800</span></div><div class="row sub"><span>− Ducroire</span><span>−5'140</span></div>
       <div class="row tot"><span>= Valeur probable des créances</span><span>97'660</span></div></div>`},
-   ph:[{btn:'Calculer →', text:`Au 31.12, le solde des clients (suisses) est de <b>102'800</b>. Le compte Ducroire a un solde de <b>4'700</b>.<br><br>Chaque année, on <b>ajuste</b> le ducroire au pourcentage voulu des clients : ici 5&nbsp;%.`},
-       {btn:'Ajuster →', text:`Ducroire voulu : 5&nbsp;% de 102'800 = <b>5'140</b>.<br>Ducroire actuel : 4'700.`,
+   {title:'Cas b', from:3,
+    data:`7) Même solde des clients : <b>102'800</b>. Mais cette fois, le compte Ducroire a un solde de <b>5'600</b>.`,
+    accs:['Créances clients','Ducroire','Pertes sur créances'],
+    J:[{ph:0,open:'Créances clients',side:'d',amt:102800,lab:'Solde'},{ph:0,open:'Ducroire',side:'c',amt:5600},
+       {ph:2,n:7,d:'Ducroire',c:'Pertes sur créances',amt:460}],
+    eff:(acc,P,ph)=> acc==='Ducroire' ? soldeTag(acc,P,ph>=2?'good':'pt') : '',
+    calc: ducCalc(102800, 5600)}],
+   ph:[{btn:'Calculer →', text:`Chaque année, on <b>ajuste</b> le ducroire au pourcentage voulu des clients : ici 5&nbsp;%.`},
+       {btn:'Ajuster →', text:'',
         q:{text:'Faut-il augmenter ou diminuer le ducroire ?', opts:[['+','augmenter'],['-','diminuer']], ok:'+',
            fb:'il faut passer de 4\'700 à 5\'140 : on <b>augmente</b> le ducroire de <b>440</b>.'}},
-       {btn:'Suite →', text:`Le ducroire est un passif : il augmente au <b>crédit</b>. La contrepartie est une charge : <b>Pertes sur créances / Ducroire</b> 440.<br><br>Au bilan, le ducroire se présente <b>sous les créances clients, en moins</b>.`}] },
-
- { title:'Ajuster le ducroire : cas b', cpt:{
-   accs:['Créances clients','Ducroire','Pertes sur créances'],
-   J:[{ph:0,open:'Créances clients',side:'d',amt:102800,lab:'Solde'},{ph:0,open:'Ducroire',side:'c',amt:5600},
-      {ph:2,n:7,d:'Ducroire',c:'Pertes sur créances',amt:460}],
-   eff:(acc,P,ph)=> acc==='Ducroire' ? (ph>=1 ? `Solde : <span class="tag ${ph>=2?'good':'bad'}">${fmt(bal(acc,P))}</span> · voulu : <b>5'140</b>` : soldeTag(acc,P,'pt')) : ''},
-   ph:[{btn:'Calculer →', text:`Même solde des clients : <b>102'800</b>. Mais cette fois, le compte Ducroire a un solde de <b>5'600</b>.`},
-       {btn:'Ajuster →', text:`Ducroire voulu : 5&nbsp;% de 102'800 = <b>5'140</b>.<br>Ducroire actuel : 5'600.`,
+       {btn:'Cas b →', text:`Le ducroire est un passif : il augmente au <b>crédit</b>. La contrepartie est une charge : <b>Pertes sur créances / Ducroire</b> 440.<br><br>Au bilan, le ducroire se présente <b>sous les créances clients, en moins</b>.`},
+       {btn:'Calculer →', text:`Même calcul avec un autre solde du Ducroire.`},
+       {btn:'Ajuster →', text:'',
         q:{text:'Faut-il augmenter ou diminuer le ducroire ?', opts:[['+','augmenter'],['-','diminuer']], ok:'-',
            fb:'il faut passer de 5\'600 à 5\'140 : on <b>diminue</b> le ducroire de <b>460</b>.'}},
        {btn:'Suite →', text:`Le ducroire diminue au <b>débit</b>. La contrepartie diminue les charges : <b>Ducroire / Pertes sur créances</b> 460.<br><br>Les Pertes sur créances ont un solde au crédit : cette année, l'ajustement réduit les charges.`}] }
@@ -329,6 +356,21 @@ function qBox(key, q){
     <div class="choices" style="flex-wrap:wrap">${q.opts.map(([a,lb])=>btn(a,lb)).join('')}</div>${fb}</div>`;
 }
 const LET = i => String.fromCharCode(65+i);   // A, B, C…
+// Un bloc : la donnée numérotée, le journal, les comptes en T, le calcul et le bilan. bp = phase du bloc
+function blockHTML(b, bp){
+  const rows = b.J.filter(e=>!e.open && (e.show||0)<=bp);
+  const jr = `<table class="journal"><caption>Journal</caption><tr><th>N°</th><th>Débit</th><th>Crédit</th><th class="am">Montant</th></tr>
+      ${rows.map(e=>`<tr class="${e.ph===bp?'cur':e.ph>bp?'todo':''}"><td>${e.n}</td><td>${e.ph>bp?'…':e.d}</td><td>${e.ph>bp?'…':e.c}</td><td class="am">${e.ph>bp?'':fmt(e.amt)}</td></tr>`).join('')}</table>`;
+  const ts = (typeof b.accs==='function' ? b.accs(bp) : b.accs).map(acc=>{
+    const Pp = postings(b.J, acc, bp);
+    const focus = b.J.some(e=>e.ph===bp && !e.open && (e.d===acc||e.c===acc));
+    return tHTML(acc, Pp, focus, b.eff ? b.eff(acc,Pp,bp) : '');
+  }).join('');
+  const bl = b.bilan ? b.bilan(bp) : '';
+  return `<section class="sec"><h2>${b.title || 'Dans la comptabilité'}</h2><div class="donnee">${typeof b.data==='function' ? b.data(bp) : b.data}</div>
+    <div class="jr-stage">${jr}</div><div class="tg">${ts}</div>${b.calc ? b.calc(bp) : ''}</section>`
+    + (bl ? `<section class="sec"><h2>Au bilan</h2>${bl}</section>` : '');
+}
 function render(){
   pos = Math.max(0, Math.min(A.length-1, pos));
   const {step, ph} = A[pos], S = STEPS[step], P = S.ph[ph], key = step+'.'+ph;
@@ -336,24 +378,13 @@ function render(){
   $('prev').disabled = pos===0;
   $('next').disabled = pos===A.length-1 || (P.q && !ANS[key]);
   $('next').textContent = pos===A.length-1 ? 'Terminé ✓' : P.btn;
-  let jr = '';
-  if (S.cpt){
-    const rows = S.cpt.J.filter(e=>!e.open);
-    jr = `<table class="journal"><caption>Journal</caption><tr><th>N°</th><th>Débit</th><th>Crédit</th><th class="am">Montant</th></tr>
-      ${rows.map(e=>`<tr class="${e.ph===ph?'cur':e.ph>ph?'todo':''}"><td>${e.n}</td><td>${e.ph>ph?'…':e.d}</td><td>${e.ph>ph?'…':e.c}</td><td class="am">${fmt(e.amt)}</td></tr>`).join('')}</table>`;
-  }
   $('explain').innerHTML = `<h2 class="steptitle">${LET(step)}. ${S.title}</h2>
     <p class="steptext">${P.text}</p>${P.q?qBox(key,P.q):''}`;
-  if (S.cpt){
-    const C = S.cpt;
-    const ts = C.accs.map(acc=>{
-      const Pp = postings(C.J, acc, ph);
-      const focus = C.J.some(e=>e.ph===ph && !e.open && (e.d===acc||e.c===acc));
-      return tHTML(acc, Pp, focus, C.eff ? C.eff(acc,Pp,ph) : '');
-    }).join('');
-    const bl = C.bilan ? C.bilan(ph) : '';
-    $('stage').innerHTML = `<section class="sec"><h2>Dans la comptabilité</h2>${jr?`<div class="jr-stage">${jr}</div>`:''}<div class="tg">${ts}</div></section>`
-      + (bl ? `<section class="sec"><h2>Au bilan</h2>${bl}</section>` : '');
+  if (S.blocks){
+    const B = typeof S.blocks==='string' ? BLOCKS[S.blocks] : S.blocks, gp = (S.g0||0) + ph;   // phase dans l'histoire
+    $('stage').innerHTML = B.filter(b=>gp>=(b.from||0)).map(b=>blockHTML(b, gp-(b.from||0))).join('');
+    const secs = $('stage').querySelectorAll('section.sec');
+    if (secs.length>1) requestAnimationFrame(()=>{ const el = secs[secs.length-1]; if (el.getBoundingClientRect().bottom > innerHeight) el.scrollIntoView({block:'end', behavior:'smooth'}); })   /* remonte seulement si le bas est caché */;
   } else $('stage').innerHTML = S.stage(ph);
 }
 

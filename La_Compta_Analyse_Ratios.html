@@ -37,20 +37,30 @@
         .res { font-weight:bold; font-size:17px; text-align:center !important; white-space:nowrap; }
         .norme { font-size:12px; color:#1A6DD9; display:none; }
         body.aide .norme { display:block; }
+        .aide-sens { display:none; }
+        body.aide .aide-sens { display:inline; }
+        .nb { font-size:12px; color:#78004f; font-weight:bold; margin-top:2px; }
         .app label { display:inline-flex; align-items:center; gap:6px; margin-right:14px; cursor:pointer; white-space:nowrap; }
         .app input, .raisons input { width:auto; margin:0; transform:scale(1.2); }
         .raisons { margin-top:8px; padding:8px 10px; background:#fff6e5; border-radius:6px; display:none; }
         .raisons.on { display:block; }
         .raisons .q { font-size:13px; font-weight:bold; margin-bottom:4px; }
         .raisons label { display:flex; align-items:flex-start; gap:8px; font-size:13.5px; padding:3px 0; cursor:pointer; line-height:1.3; }
-        tr.info td { color:#777; background:#fafafa; }
-        tr.info .app { font-size:13px; font-style:italic; }
         tr.ok td { background:#d4edda; }
         tr.ko td { background:#f8d7da; }
         tr.ok .raisons, tr.ko .raisons { background:rgba(255,255,255,.6); }
         .expl { font-size:13px; margin-top:6px; display:none; line-height:1.35; }
         tr.ok .expl, tr.ko .expl { display:block; }
         label.bonne { color:#155724; font-weight:bold; }
+        table.rt.gt th:nth-child(2), table.rt.gt td:nth-child(2) { width:27%; }
+        table.rt.gt th:nth-child(4), table.rt.gt td:nth-child(4) { width:39%; }
+        .calc.ges { white-space:normal; text-align:left !important; font-size:12.5px; line-height:1.5; }
+        .compl { max-width:760px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        .compl table { margin:0; }
+        .compl td, .compl th { padding:6px 10px !important; font-size:14px; }
+        .compl td:first-child { text-align:left !important; }
+        .compl td { text-align:right !important; font-variant-numeric:tabular-nums; width:auto !important; }
+        @media (max-width:700px){ .compl { grid-template-columns:1fr; } }
         .outils { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
         .outils label { display:inline-flex; align-items:center; gap:6px; cursor:pointer; }
         .outils input { width:auto; transform:scale(1.2); }
@@ -68,7 +78,8 @@
     <div class="container">
         <div class="consigne">
             Voici le bilan analytique d'une entreprise commerciale au <b>31.12.<span class="an"></span></b>. Les ratios sont déjà calculés.<br>
-            Pour chaque ratio qui a une norme, cocher <b>bon</b> ou <b>pas bon</b>. Si le ratio n'est pas bon, cocher la <b>raison</b>.
+            Les informations complémentaires servent aux ratios de gestion.<br>
+            Pour chaque ratio, cocher <b>bon</b> ou <b>pas bon</b>. Si le ratio n'est pas bon, cocher la <b>raison</b>.<br>Les normes de la théorie sont à connaître. Pour les ratios qui dépendent de la branche ou de l'année précédente, la comparaison est donnée.
         </div>
 
         <div class="outils">
@@ -79,10 +90,19 @@
         <h3 class="sec">Bilan analytique au 31.12.<span class="an"></span></h3>
         <div id="bilan"></div>
 
-        <h3 class="sec">Les ratios</h3>
+        <h3 class="sec">Informations complémentaires (année <span class="an"></span>)</h3>
+        <div id="compl"></div>
+
+        <h3 class="sec">Ratios du bilan</h3>
         <table class="rt">
             <thead><tr><th>Ratio</th><th>Calcul</th><th>Résultat</th><th>Appréciation</th></tr></thead>
             <tbody id="ratios"></tbody>
+        </table>
+
+        <h3 class="sec">Ratios de gestion</h3>
+        <table class="rt gt">
+            <thead><tr><th>Ratio</th><th>Calcul</th><th>Résultat</th><th>Appréciation</th></tr></thead>
+            <tbody id="gestion"></tbody>
         </table>
 
         <div id="score"></div>
@@ -118,43 +138,105 @@ const G = {
    Les raisons (tirées de la théorie)
    ====================================================================== */
 const RAISONS = {
-  insolv: 'Risque d\'insolvabilité : l\'entreprise risque de ne pas pouvoir payer ses dettes à court terme (à terme, la faillite).',
-  dort:   'De l\'argent dort et ne rapporte rien : la rentabilité diminue.',
-  orCT:   'Règle d\'or non respectée : les dettes à court terme ne sont pas assez couvertes par les circulants.',
-  stock:  'Trop de stock : de l\'argent est bloqué dans les marchandises, la rentabilité est faible.',
-  orLT:   'Règle d\'or non respectée : des dettes à court terme financent des immobilisés (machines, immeubles).',
-  dep:    'Trop de fonds étrangers : l\'entreprise dépend de ses créanciers.',
-  fp:     'Pas assez de fonds propres : l\'entreprise est peu indépendante et peu solide.'};
+  insolv:  'Risque d\'insolvabilité : l\'entreprise risque de ne pas pouvoir payer ses dettes à court terme (à terme, la faillite).',
+  dort:    'De l\'argent dort et ne rapporte rien : la rentabilité diminue.',
+  creances:'Trop de créances ouvertes : surveiller le délai de paiement des clients.',
+  orCT:    'Règle d\'or non respectée : les dettes à court terme ne sont pas assez couvertes par les circulants.',
+  stock:   'Trop de stock : de l\'argent est bloqué dans les marchandises, la rentabilité est faible.',
+  orLT:    'Règle d\'or non respectée : des dettes à court terme financent des immobilisés (machines, immeubles).',
+  dep:     'Trop de fonds étrangers : l\'entreprise dépend de ses créanciers.',
+  fp:      'Pas assez de fonds propres : l\'entreprise est peu indépendante et peu solide.',
+  peuCirc: 'Trop peu d\'actif circulant par rapport à la branche : peu de valeurs deviendront vite de l\'argent.',
+  tropImm: 'Trop d\'actif bloqué à long terme par rapport à la branche (par exemple après de gros investissements).',
+  autoBas: 'L\'autofinancement diminue : l\'entreprise a gardé moins de bénéfice (perte, ou bénéfice distribué).',
+  cou1Bas: 'Les propriétaires financent trop peu des immobilisés par rapport à la branche.',
+  stockLent:'La marchandise reste trop longtemps en stock : de l\'argent est bloqué dans le stock.',
+  cliLent:  'Les clients paient après le délai accordé : l\'argent tarde à rentrer.',
+  fouRetard:'L\'entreprise paie ses fournisseurs après le délai accordé : elle perd les escomptes.',
+  cycleLong:'L\'entreprise doit financer elle-même ses marchandises trop longtemps.'};
 
 /* ======================================================================
    Les ratios
-   jug(v) renvoie null si le ratio est bon, sinon le code de la raison.
-   choix : les raisons proposées à l'élève pour ce ratio.
+   Le ratio est bon si lo ≤ valeur ≤ hi. Sinon : raison bas (rb) ou raison haut (rh).
+   fixe : norme de la théorie (à connaître, visible seulement avec l'aide).
+   Sans fixe : la norme est inventée à chaque bilan (norme de la branche
+   ou année précédente) et toujours affichée.
+   paire : on ne montre qu'un des deux ratios complémentaires.
+   choix : les raisons proposées à l'élève.
    ====================================================================== */
 const RATIOS = [
-  {k:'intC', nm:'Intensité de l\'actif circulant', frm:'Circulants ÷ Total de l\'actif', num:['liq','cre','sto'], den:'TA', info:true},
-  {k:'intI', nm:'Intensité de l\'actif immobilisé', frm:'Immobilisés ÷ Total de l\'actif', num:['imm'], den:'TA', info:true},
-  {k:'end',  nm:'Degré d\'endettement', frm:'Fonds étrangers ÷ Total du passif', num:['dct','dlt'], den:'TP',
-     norme:'60 % au maximum', lo:0, hi:60, jug: v => v > 60 ? 'dep' : null, choix:['dep','orLT','dort','stock'],
+  {k:'intC', paire:'int', nm:'Intensité de l\'actif circulant', frm:'Circulants ÷ Total de l\'actif', num:['liq','cre','sto'], den:'TA',
+     sens:'min', rb:'peuCirc', choix:['peuCirc','dort','stock','dep'],
+     ex:'Part de l\'actif qui deviendra vite de l\'argent. Elle dépend de la branche : élevée dans le commerce, faible dans l\'industrie. Souhaité : dans la norme de la branche ou plus.'},
+  {k:'intI', paire:'int', nm:'Intensité de l\'actif immobilisé', frm:'Immobilisés ÷ Total de l\'actif', num:['imm'], den:'TA',
+     sens:'max', rh:'tropImm', choix:['tropImm','orLT','dort','insolv'],
+     ex:'Part de l\'actif bloquée à long terme. Elle diminue avec les amortissements et augmente après des investissements. Souhaité : dans la norme de la branche ou moins.'},
+  {k:'end', paire:'fin', nm:'Degré d\'endettement', frm:'Fonds étrangers ÷ Total du passif', num:['dct','dlt'], den:'TP',
+     fixe:true, norme:'60 % au maximum', lo:-Infinity, hi:60, rh:'dep', choix:['dep','orLT','dort','stock'],
      ex:'Part du financement apportée par les créanciers. Plus il est élevé, plus l\'entreprise dépend de ses créanciers.'},
-  {k:'finP', nm:'Degré de financement propre', frm:'Capitaux propres ÷ Total du passif', num:['csoc','ccr'], den:'TP',
-     norme:'40 % au minimum', lo:40, hi:100, jug: v => v < 40 ? 'fp' : null, choix:['fp','insolv','stock','dort'],
+  {k:'finP', paire:'fin', nm:'Degré de financement propre', frm:'Capitaux propres ÷ Total du passif', num:['csoc','ccr'], den:'TP',
+     fixe:true, norme:'40 % au minimum', lo:40, hi:Infinity, rb:'fp', choix:['fp','insolv','stock','dort'],
      ex:'Part du financement apportée par les propriétaires. Plus il est élevé, plus l\'entreprise est indépendante et solide.'},
-  {k:'auto', nm:'Ratio d\'autofinancement', frm:'Capital de croissance ÷ Capitaux propres', num:['ccr'], den:['csoc','ccr'], info:true},
+  {k:'auto', nm:'Ratio d\'autofinancement', frm:'Capital de croissance ÷ Capitaux propres', num:['ccr'], den:['csoc','ccr'],
+     sens:'hausse', rb:'autoBas', choix:['autoBas','dep','dort','stock'],
+     ex:'Part des capitaux propres que l\'entreprise a gagnée elle-même. Pas de norme fixe : il doit augmenter chaque année.'},
   {k:'liq1', nm:'Liquidité I (trésorerie)', frm:'Liquidités ÷ Dettes à court terme', num:['liq'], den:['dct'],
-     norme:'environ 30 % (20 à 40 %)', lo:20, hi:40, jug: v => v < 20 ? 'insolv' : v > 40 ? 'dort' : null, choix:['insolv','dort','stock','orLT'],
+     fixe:true, norme:'environ 30 % (20 à 40 %)', lo:20, hi:40, rb:'insolv', rh:'dort', choix:['insolv','dort','stock','orLT'],
      ex:'Capacité à payer les dettes immédiates. Trop bas : risque d\'insolvabilité. Trop haut : de l\'argent qui dort et ne rapporte rien.'},
   {k:'liq2', nm:'Liquidité II', frm:'(Liquidités + créances) ÷ Dettes à court terme', num:['liq','cre'], den:['dct'],
-     norme:'100 à 200 %', lo:100, hi:200, jug: v => v < 100 ? 'insolv' : v > 200 ? 'dort' : null, choix:['insolv','dort','stock','orLT'],
-     ex:'Capacité à faire face à ses engagements à court terme. Trop bas : l\'entreprise risque de ne pas pouvoir payer ses dettes.'},
+     fixe:true, norme:'100 à 200 %', lo:100, hi:200, lim:[80], rb:'insolv', rh:'creances', choix:['insolv','creances','stock','orLT'],
+     ex:'Capacité à faire face à ses engagements à court terme. Trop bas : l\'entreprise risque de ne pas pouvoir payer ses dettes. 80 % reste acceptable si les stocks tournent vite. Trop haut : trop de créances ouvertes, surveiller le délai de paiement des clients.'},
   {k:'liq3', nm:'Liquidité III (fonds de roulement)', frm:'Circulants ÷ Dettes à court terme', num:['liq','cre','sto'], den:['dct'],
-     norme:'150 à 200 %', lo:150, hi:200, jug: v => v < 150 ? 'orCT' : v > 200 ? 'stock' : null, choix:['orCT','stock','dort','dep'],
+     fixe:true, norme:'150 à 200 %', lo:150, hi:200, rb:'orCT', rh:'stock', choix:['orCT','stock','dort','dep'],
      ex:'Vérifie la règle d\'or : les dettes à court terme doivent être couvertes par les circulants. Trop haut : trop de stock, rentabilité faible.'},
-  {k:'cou1', nm:'Degré de couverture 1', frm:'Capitaux propres ÷ Immobilisés', num:['csoc','ccr'], den:['imm'], info:true},
+  {k:'cou1', nm:'Degré de couverture 1', frm:'Capitaux propres ÷ Immobilisés', num:['csoc','ccr'], den:['imm'],
+     sens:'min', rb:'cou1Bas', choix:['cou1Bas','orLT','dort','stock'],
+     ex:'Part des immobilisés financée par les propriétaires. Souhaité : dans la norme de la branche ou plus.'},
   {k:'cou2', nm:'Degré de couverture 2', frm:'Capital permanent ÷ Immobilisés', num:['dlt','csoc','ccr'], den:['imm'],
-     norme:'plus de 100 %', lo:100, hi:Infinity, jug: v => v < 100 ? 'orLT' : null, choix:['orLT','stock','dort','dep'],
-     ex:'Vérifie la règle d\'or : ce qui reste longtemps dans l\'entreprise (immobilisés) doit être financé par des capitaux à long terme.'}];
-const INFO_TXT = 'Pas de norme fixe : comparer avec la branche et les années précédentes.';
+     fixe:true, norme:'plus de 100 %', lo:100, hi:Infinity, rb:'orLT', choix:['orLT','stock','dort','dep'],
+     ex:'Vérifie la règle d\'or : ce qui reste longtemps dans l\'entreprise (immobilisés) doit être financé par des capitaux à long terme.'},
+  // --- Ratios de gestion (ges) : les données viennent des informations complémentaires
+  {k:'dSto', ges:true, nm:'Durée moyenne du stock', frm:'Rotation = PRAMV ÷ stock moyen<br>Durée = 360 ÷ rotation',
+     rh:'stockLent', choix:['stockLent','cliLent','fouRetard','dort'], ok:'dans la norme', ko:'trop long',
+     calc: () => `Ø stock = (${fmt(GE.sto1)} + ${fmt(GE.sto31)}) ÷ 2 = ${fmt(GE.stoM)}<br>Rotation = ${fmt(GE.pramv)} ÷ ${fmt(GE.stoM)} = ${dec(GE.rot)} fois<br>Durée = 360 ÷ ${dec(GE.rot)}`,
+     ex:'Nombre de jours pendant lesquels la marchandise reste en stock. Plus c\'est court, moins l\'argent est bloqué dans le stock.'},
+  {k:'dCli', ges:true, nm:'Durée de paiement des clients', frm:'Vitesse = CAN à crédit ÷ clients moyens<br>Durée = 360 ÷ vitesse',
+     rh:'cliLent', choix:['cliLent','stockLent','fouRetard','insolv'], ok:'dans le délai', ko:'au-delà du délai',
+     calc: () => `Ø clients = (${fmt(GE.cli1)} + ${fmt(GE.cli31)}) ÷ 2 = ${fmt(GE.cliM)}<br>Vitesse = ${fmt(GE.canC)} ÷ ${fmt(GE.cliM)} = ${dec(GE.vC)} fois<br>Durée = 360 ÷ ${dec(GE.vC)}`,
+     ex:'Nombre de jours que les clients mettent à payer. Trop long : l\'argent tarde à rentrer. On le compare au délai de paiement accordé aux clients.'},
+  {k:'dFou', ges:true, nm:'Durée de paiement aux fournisseurs', frm:'Vitesse = PRAMA à crédit ÷ fournisseurs moyens<br>Durée = 360 ÷ vitesse',
+     rh:'fouRetard', choix:['fouRetard','cliLent','stockLent','dep'], ok:'dans le délai', ko:'au-delà du délai',
+     calc: () => `Ø fournisseurs = (${fmt(GE.fou1)} + ${fmt(GE.fou31)}) ÷ 2 = ${fmt(GE.fouM)}<br>Vitesse = ${fmt(GE.pramaC)} ÷ ${fmt(GE.fouM)} = ${dec(GE.vF)} fois<br>Durée = 360 ÷ ${dec(GE.vF)}`,
+     ex:'Nombre de jours avant de payer les fournisseurs. Plus c\'est long, plus l\'entreprise garde son argent, mais au-delà du délai accordé, elle perd les escomptes.'},
+  {k:'cyc', ges:true, nm:'Durée du cycle des liquidités', frm:'Durée du stock − durée fournisseurs + durée clients',
+     rh:'cycleLong', choix:['cycleLong','dort','dep','orLT'], ok:'dans la norme', ko:'trop long',
+     calc: () => `${V.dSto} − ${V.dFou} + ${V.dCli}`,
+     ex:'Nombre de jours pendant lesquels l\'entreprise doit financer elle-même ses marchandises. Plus ce cycle est court, mieux c\'est.'}];
+
+const R_ = k => RATIOS.find(r => r.k === k);
+const stockRapide = () => V.dSto <= R_('dSto').hi;                // le stock tourne vite : durée dans la norme de la branche
+const liq2Zone = v => v >= 80 && v < 100;                         // 80 % reste acceptable si les stocks tournent vite
+function jug(r, v){                                               // null = bon, sinon le code de la raison
+  if (r.k === 'liq2' && liq2Zone(v)) return stockRapide() ? null : 'insolv';
+  return v < r.lo ? r.rb : v > r.hi ? r.rh : null;
+}
+const dec = x => x.toFixed(1).replace('.', ',');
+const aff = (r, v) => r.ges ? `${v} jours` : pc(v);
+
+/* Norme inventée pour un ratio sans norme fixe : bon ou pas bon au hasard (pas bon 4 fois sur 10),
+   avec au moins 3 points d'écart entre la valeur et la norme */
+function inventeNorme(r, v){
+  const bon = Math.random() >= 0.4, ecart = rnd(3, 14);
+  if (r.sens === 'hausse'){                       // comparaison avec l'année précédente
+    const prec = Math.round((bon ? v - ecart : v + ecart) * 10) / 10;
+    r.lo = prec; r.hi = Infinity; r.normeTxt = `Année précédente : ${pc(prec)}`; r.norme = `année précédente : ${pc(prec)}`;
+    return;
+  }
+  const vers5 = x => Math.max(5, (r.sens === 'min') === bon ? Math.floor(x / 5) * 5 : Math.ceil(x / 5) * 5);
+  if (r.sens === 'min'){ const n = vers5(bon ? v - ecart : v + ecart); r.lo = n; r.hi = Infinity; r.norme = `${n} % au minimum`; }
+  else                 { const n = vers5(bon ? v + ecart : v - ecart); r.lo = -Infinity; r.hi = n; r.norme = `${n} % au maximum`; }
+  r.normeTxt = `Norme de la branche : ${r.norme.replace(/ au (minimum|maximum)$/, '<span class="aide-sens"> au $1</span>')}`;   // « au minimum / au maximum » seulement avec l'aide
+}
 
 /* ======================================================================
    Génération aléatoire du bilan analytique
@@ -164,14 +246,13 @@ const INFO_TXT = 'Pas de norme fixe : comparer avec la branche et les années pr
 function genere(){
   for (let essai = 0; essai < 500; essai++){
     const dct = rnd(60000, 220000);
-    // Liquidité I : souvent bonne, parfois trop basse ou trop haute
     // Une fois sur six : règle d'or non respectée (circulants < dettes à court terme → couverture 2 < 100 %)
     const orBrisee = Math.random() < 1/6;
     const l1 = orBrisee ? pick([[5,16],[22,38]]) : pick([[22,38],[22,38],[5,16],[48,90]]);
-    // Liquidité II : bonne ou trop basse (pas de « trop haut » dans la théorie)
-    const l2 = orBrisee ? [45,75] : pick([[110,190],[110,190],[55,85]]);
+    // Liquidité II : bonne, trop basse (sous 80 % ou entre 80 et 100 %) ou trop haute
+    const l2 = orBrisee ? [45,75] : pick([[110,190],[110,190],[55,77],[83,97],[215,300]]);
     // Liquidité III : bonne, trop basse ou trop haute
-    const l3 = orBrisee ? [72,94] : pick([[158,195],[158,195],[100,140],[215,320]]);
+    const l3 = orBrisee ? [72,94] : l2[0] === 215 ? [235,380] : pick([[158,195],[158,195],[100,140],[215,320]]);   // liquidité II trop haute → liquidité III forcément haute
     const v1 = rnd(...l1), v2 = rnd(Math.max(l2[0], v1 + 25), l2[1]), v3 = rnd(Math.max(l3[0], v2 + 15), l3[1]);
     if (v2 > l2[1] || v3 > l3[1]) continue;         // il faut un peu de créances et de stock
     const liq = dct*v1/100, cre = dct*(v2-v1)/100, sto = dct*(v3-v2)/100;
@@ -182,16 +263,16 @@ function genere(){
     const e = rnd(...pick([[30,57],[30,57],[63,82]])) / 100;
     const dlt = e*TA - dct;
     if (dlt < 0.04*TA) continue;
-    const cp = TA - dct - dlt, csoc = cp * rnd(0.5, 0.8), ccr = cp - csoc;
+    const cp = TA - dct - dlt, csoc = cp * rnd(0.45, 0.8), ccr = cp - csoc;
 
     // Arrondi au millier ; le total du passif est ajusté sur le capital de croissance
     const B = {liq:r1000(liq), cre:r1000(cre), sto:r1000(sto), imm:r1000(imm), dct:r1000(dct), dlt:r1000(dlt), csoc:r1000(csoc)};
     B.ccr = B.liq+B.cre+B.sto+B.imm - B.dct-B.dlt-B.csoc;
     if (B.ccr < 1000) continue;
 
-    // Pas de ratio trop proche d'une limite : sinon l'appréciation serait ambiguë
+    // Pas de ratio à norme fixe trop proche d'une limite : sinon l'appréciation serait ambiguë
     const vals = calcule(B);
-    const limite = RATIOS.some(r => !r.info && [r.lo, r.hi].some(b => isFinite(b) && b > 0 && Math.abs(vals[r.k] - b) < 2));
+    const limite = RATIOS.some(r => r.fixe && [r.lo, r.hi, ...(r.lim || [])].some(b => isFinite(b) && b > 0 && Math.abs(vals[r.k] - b) < 2));
     if (limite) continue;
     return B;
   }
@@ -200,12 +281,66 @@ function genere(){
 
 const tot = (B, gs) => gs.reduce((t,g) => t + B[g], 0);
 function denVal(B, r){ return r.den === 'TA' ? tot(B,['liq','cre','sto','imm']) : r.den === 'TP' ? tot(B,['dct','dlt','csoc','ccr']) : tot(B, r.den); }
-function calcule(B){ const o = {}; RATIOS.forEach(r => o[r.k] = tot(B, r.num) / denVal(B, r) * 100); return o; }
+function calcule(B){ const o = {}; RATIOS.filter(r => r.num).forEach(r => o[r.k] = tot(B, r.num) / denVal(B, r) * 100); return o; }
+
+/* ======================================================================
+   Génération des informations complémentaires (ratios de gestion)
+   Cohérence avec le bilan : stock et créances au 31.12 viennent du bilan ;
+   liquidité III trop haute → stock lent ; liquidité II trop haute → clients lents.
+   Renvoie null si aucun tirage ne convient (on retire alors un autre bilan).
+   ====================================================================== */
+const r1 = x => Math.round(x * 10) / 10;
+const bas5 = x => Math.floor(x / 5) * 5, haut5 = x => Math.ceil(x / 5) * 5;
+function genereGestion(B, V){
+  const stoKo = V.liq3 > 200 || (liq2Zone(V.liq2) ? Math.random() < 0.5 : Math.random() < 0.2);
+  const cliKo = V.liq2 > 200 || Math.random() < 0.35;
+  const fouKo = Math.random() < 0.35;
+  const cycKo = Math.random() < 0.4;
+  for (let essai = 0; essai < 300; essai++){
+    const G = {};
+    // Stock
+    G.sto31 = B.sto; G.sto1 = r1000(B.sto * rnd(0.75, 1.25)); G.stoM = (G.sto1 + G.sto31) / 2;
+    G.pramv = r1000(360 / (stoKo ? rnd(45, 110) : rnd(15, 60)) * G.stoM);
+    G.rot = r1(G.pramv / G.stoM); const dS = Math.round(360 / G.rot);
+    const nS = stoKo ? bas5(dS - rnd(4, 20)) : haut5(dS + rnd(4, 20));
+    if (nS < 10 || Math.abs(dS - nS) < 3) continue;
+    // Clients (une partie des créances)
+    G.delC = pick([30, 60]);
+    G.cli31 = r1000(B.cre * rnd(0.7, 0.95)); G.cli1 = r1000(G.cli31 * rnd(0.8, 1.2)); G.cliM = (G.cli1 + G.cli31) / 2;
+    G.canC = r1000(G.cliM * 360 / (cliKo ? G.delC + rnd(6, 30) : G.delC * rnd(0.55, 0.9)));
+    if (G.canC < 1.1 * G.pramv || G.canC > 2.6 * G.pramv) continue;      // marge plausible
+    G.vC = r1(G.canC / G.cliM); const dC = Math.round(360 / G.vC);
+    if (Math.abs(dC - G.delC) < 3 || (dC > G.delC) !== cliKo) continue;
+    // Fournisseurs (une partie des dettes à court terme) ; achats = PRAMV + stock final − stock initial
+    G.delF = pick([30, 60]);
+    G.pramaC = r1000((G.pramv + G.sto31 - G.sto1) * rnd(0.85, 1));
+    const fouM = (fouKo ? G.delF + rnd(6, 30) : G.delF * rnd(0.55, 0.9)) * G.pramaC / 360, f = rnd(0.8, 1.2);
+    G.fou31 = r1000(fouM * 2 / (1 + f)); G.fou1 = r1000(G.fou31 * f); G.fouM = (G.fou1 + G.fou31) / 2;
+    if (G.fou31 > 0.85 * B.dct || G.fou31 < 0.2 * B.dct) continue;
+    G.vF = r1(G.pramaC / G.fouM); const dF = Math.round(360 / G.vF);
+    if (Math.abs(dF - G.delF) < 3 || (dF > G.delF) !== fouKo) continue;
+    // Cycle des liquidités
+    const cy = dS - dF + dC;
+    const nC = cycKo ? bas5(cy - rnd(4, 15)) : haut5(cy + rnd(4, 15));
+    if (cy < 5 || nC < 5 || Math.abs(cy - nC) < 3) continue;
+
+    // Normes et délais affichés
+    const S = R_('dSto'), Cl = R_('dCli'), Fo = R_('dFou'), Cy = R_('cyc');
+    const brn = n => `Norme de la branche : ${n} jours<span class="aide-sens"> au maximum</span>`;
+    S.lo = -Infinity; S.hi = nS; S.normeTxt = brn(nS); S.normeFb = `norme de la branche : ${nS} jours au maximum`;
+    Cy.lo = -Infinity; Cy.hi = nC; Cy.normeTxt = brn(nC); Cy.normeFb = `norme de la branche : ${nC} jours au maximum`;
+    Cl.lo = -Infinity; Cl.hi = G.delC; Cl.normeTxt = `Délai accordé aux clients : ${G.delC} jours`; Cl.normeFb = `délai accordé : ${G.delC} jours`;
+    Fo.lo = -Infinity; Fo.hi = G.delF; Fo.normeTxt = `Délai accordé par les fournisseurs : ${G.delF} jours`; Fo.normeFb = `délai accordé : ${G.delF} jours`;
+    Object.assign(V, {dSto: dS, dCli: dC, dFou: dF, cyc: cy});
+    return G;
+  }
+  return null;
+}
 
 /* ======================================================================
    Affichage
    ====================================================================== */
-let B, V;
+let B, V, GE, LISTE;      // LISTE : les ratios affichés pour ce bilan
 
 function afficheBilan(){
   const TA = tot(B,['liq','cre','sto','imm']);
@@ -222,13 +357,22 @@ function afficheBilan(){
     </div>`;
 }
 
+function afficheCompl(){
+  const l = (nm, a, b) => `<tr><td>${nm}</td><td>${fmt(a)}</td><td>${fmt(b)}</td></tr>`;
+  $('compl').innerHTML = `<div class="compl">
+      <table><thead><tr><th></th><th>1.1</th><th>31.12</th></tr></thead><tbody>
+        ${l('Stock de marchandises', GE.sto1, GE.sto31)}${l('Créances clients', GE.cli1, GE.cli31)}${l('Dettes fournisseurs', GE.fou1, GE.fou31)}</tbody></table>
+      <table><thead><tr><th>Compte de résultat</th><th>Montant</th></tr></thead><tbody>
+        <tr><td>PRAMV</td><td>${fmt(GE.pramv)}</td></tr><tr><td>CAN à crédit</td><td>${fmt(GE.canC)}</td></tr><tr><td>PRAMA à crédit</td><td>${fmt(GE.pramaC)}</td></tr></tbody></table>
+    </div>`;
+}
+
 function afficheRatios(){
-  $('ratios').innerHTML = RATIOS.map(r => {
-    const calc = `${fmt(tot(B, r.num))} × 100 ÷ ${fmt(denVal(B, r))}`;
-    const head = `<td><div class="nm">${r.nm}</div><div class="frm">${r.frm}</div>${r.norme?`<div class="norme">Norme : ${r.norme}</div>`:''}</td>
-                  <td class="calc">${calc}</td><td class="res">${pc(V[r.k])}</td>`;
-    if (r.info) return `<tr class="info">${head}<td class="app">${INFO_TXT}</td></tr>`;
-    return `<tr id="tr-${r.k}">${head}<td>
+  const ligne = r => {
+    const calc = r.ges ? r.calc() : `${fmt(tot(B, r.num))} × 100 ÷ ${fmt(denVal(B, r))}`;
+    const nrm = r.fixe ? `<div class="norme">Norme : ${r.norme}</div>` : `<div class="nb">${r.normeTxt}</div>`;
+    return `<tr id="tr-${r.k}"><td><div class="nm">${r.nm}</div><div class="frm">${r.frm}</div>${nrm}</td>
+      <td class="calc${r.ges ? ' ges' : ''}">${calc}</td><td class="res">${aff(r, V[r.k])}</td><td>
         <div class="app">
           <label><input type="radio" name="a-${r.k}" value="bon"> Bon</label>
           <label><input type="radio" name="a-${r.k}" value="pas"> Pas bon</label>
@@ -239,9 +383,11 @@ function afficheRatios(){
         </div>
         <div class="expl" id="ex-${r.k}"></div>
       </td></tr>`;
-  }).join('');
+  };
+  $('ratios').innerHTML = LISTE.filter(r => !r.ges).map(ligne).join('');
+  $('gestion').innerHTML = LISTE.filter(r => r.ges).map(ligne).join('');
   // La liste des raisons n'apparaît que si « pas bon » est coché
-  RATIOS.filter(r => !r.info).forEach(r => {
+  LISTE.forEach(r => {
     document.querySelectorAll(`input[name="a-${r.k}"]`).forEach(inp => inp.addEventListener('change', () => {
       $('rs-'+r.k).classList.toggle('on', inp.value === 'pas' && inp.checked);
       majProgression();
@@ -250,23 +396,21 @@ function afficheRatios(){
   });
 }
 
-const aJuger = () => RATIOS.filter(r => !r.info);
 const val = name => { const x = document.querySelector(`input[name="${name}"]:checked`); return x ? x.value : null; };
 const complet = r => { const a = val('a-'+r.k); return a === 'bon' || (a === 'pas' && val('r-'+r.k)); };
 function majProgression(){
-  const n = aJuger().filter(complet).length;
-  $('progression').textContent = `Ratios appréciés : ${n} / ${aJuger().length}`;
+  $('progression').textContent = `Ratios appréciés : ${LISTE.filter(complet).length} / ${LISTE.length}`;
 }
 
 /* ======================================================================
    Correction
    ====================================================================== */
 function valider(){
-  const manque = aJuger().filter(r => !complet(r));
+  const manque = LISTE.filter(r => !complet(r));
   if (manque.length){ alerteManque(manque); return; }
   let pts = 0;
-  aJuger().forEach(r => {
-    const bonne = r.jug(V[r.k]);                // null = bon, sinon le code de la raison
+  LISTE.forEach(r => {
+    const v = V[r.k], bonne = jug(r, v);
     const a = val('a-'+r.k), rs = val('r-'+r.k);
     const juste = bonne === null ? a === 'bon' : (a === 'pas' && rs === bonne);
     if (juste) pts++;
@@ -275,11 +419,21 @@ function valider(){
     // Montrer la bonne raison en gras
     document.querySelectorAll(`input[name="r-${r.k}"]`).forEach(i => i.parentElement.classList.toggle('bonne', i.value === bonne));
     if (bonne) $('rs-'+r.k).classList.add('on');
-    const sens = bonne === null ? 'dans la norme' : (V[r.k] < r.lo ? 'trop bas' : 'trop haut');
-    $('ex-'+r.k).innerHTML = `${juste ? '✓' : '✗'} <b>${pc(V[r.k])} : ${bonne === null ? 'bon' : 'pas bon'}</b> (${sens} ; norme : ${r.norme}).<br>${r.ex}`;
+    let sens = r.ges ? (bonne === null ? r.ok : r.ko)
+             : r.sens === 'hausse' ? (bonne === null ? 'en hausse' : 'en baisse') : bonne === null ? 'dans la norme' : (v < r.lo ? 'trop bas' : 'trop haut');
+    const fb = r.ges ? r.normeFb : r.sens === 'hausse' ? r.norme : 'norme : ' + r.norme;
+    let nuance = '';
+    if (r.k === 'liq2' && liq2Zone(v)){
+      const S = R_('dSto');
+      sens = bonne === null ? 'acceptable' : 'trop bas';
+      nuance = bonne === null
+        ? ` Entre 80 et 100 % : <b>acceptable</b>, car le stock tourne vite (durée du stock : ${V.dSto} jours, norme de la branche : ${S.hi} jours).`
+        : ` Entre 80 et 100 %, ce serait acceptable si le stock tournait vite, mais la durée du stock (${V.dSto} jours) dépasse la norme de la branche (${S.hi} jours).`;
+    }
+    $('ex-'+r.k).innerHTML = `${juste ? '✓' : '✗'} <b>${aff(r, v)} : ${bonne === null ? 'bon' : 'pas bon'}</b> (${sens} ; ${fb}).${nuance}${bonne ? `<br>Raison : ${RAISONS[bonne]}` : ''}<br>${r.ex}`;
   });
-  document.querySelectorAll('#ratios input').forEach(i => i.disabled = true);
-  const n = aJuger().length, s = $('score');
+  document.querySelectorAll('#ratios input, #gestion input').forEach(i => i.disabled = true);
+  const n = LISTE.length, s = $('score');
   s.style.display = 'block';
   s.style.background = pts === n ? '#d4edda' : pts >= n/2 ? '#fff3cd' : '#f8d7da';
   s.textContent = `Score : ${pts} / ${n}` + (pts === n ? ' — parfait !' : '');
@@ -294,9 +448,13 @@ function alerteManque(manque){
    Lancement
    ====================================================================== */
 function nouveau(){
-  B = genere(); V = calcule(B);
+  do { B = genere(); V = calcule(B); GE = genereGestion(B, V); } while (!GE);
+  // Un seul ratio de chaque paire complémentaire, au hasard
+  const garde = {int: pick(['intC','intI']), fin: pick(['end','finP'])};
+  LISTE = RATIOS.filter(r => !r.paire || garde[r.paire] === r.k);
+  LISTE.filter(r => !r.fixe && !r.ges).forEach(r => inventeNorme(r, V[r.k]));
   document.querySelectorAll('.an').forEach(e => e.textContent = Y);
-  afficheBilan(); afficheRatios(); majProgression();
+  afficheBilan(); afficheCompl(); afficheRatios(); majProgression();
   $('score').style.display = 'none';
   $('validate-btn').style.display = '';
 }

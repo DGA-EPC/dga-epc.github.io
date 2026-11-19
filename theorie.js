@@ -53,3 +53,47 @@
   document.getElementById('paper-btn').addEventListener('click', () => { build(); window.print(); });
   window.addEventListener('afterprint', () => { paper.innerHTML = ''; });
 })();
+
+/* Typographie : espace insécable avant les deux-points, pour qu'ils ne partent jamais seuls à la ligne */
+(function(){
+  const fix = root => {
+    if (!root) return;
+    if (root.nodeType === 3){ if (root.nodeValue.includes(' :')) root.nodeValue = root.nodeValue.replace(/ :/g, '\u00a0:'); return; }
+    if (root.nodeType !== 1 || root.closest('script,style')) return;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n;
+    while ((n = w.nextNode())) if (n.nodeValue.includes(' :')) n.nodeValue = n.nodeValue.replace(/ :/g, '\u00a0:');
+  };
+  fix(document.body);
+  new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(fix))).observe(document.body, {childList:true, subtree:true});
+})();
+
+/* Deuxième rangée de barres : aller à la FIN d'une partie, tout complété (bonnes réponses remplies)
+   Une page peut la désactiver en définissant FIN_BARS = false avant ce script. */
+(function(){
+  if (typeof FIN_BARS !== 'undefined' && FIN_BARS === false) return;
+  if (typeof A === 'undefined' || !document.getElementById('dots')) return;
+  const P = (typeof PAPER !== 'undefined') ? PAPER : {};
+  const count  = P.count  || (() => A.length);
+  const stepOf = P.stepOf || (p => A[p].step);
+  const nSteps = (typeof STEPS !== 'undefined') ? STEPS.length : Math.max(...Array.from({length:count()}, (_,p)=>stepOf(p))) + 1;
+  const title = i => (typeof STEPS !== 'undefined' && STEPS[i]) ? STEPS[i].title : (typeof TITLES !== 'undefined' ? TITLES[i] : '');
+  const L = i => String.fromCharCode(65+i);
+  const answerUpTo = s => {
+    if (typeof ANS === 'undefined') return;
+    if (P.answer) { P.answer(); return; }
+    A.forEach(({step, ph}) => { if (step > s) return;
+      const q = typeof STEPS !== 'undefined' && STEPS[step] && STEPS[step].ph[ph] && STEPS[step].ph[ph].q;
+      if (q){ ANS[step] = q.ok; ANS[step + '.' + ph] = q.ok; } });
+  };
+  const row = document.createElement('div');
+  row.className = 'dots fin'; row.id = 'dots-fin';
+  row.innerHTML = Array.from({length:nSteps}, (_,i)=>`<button class="dot" data-s="${i}" title="${L(i)}. ${title(i)} · tout complété" aria-label="${L(i)}. ${title(i)} · tout complété"></button>`).join('');
+  document.getElementById('dots').after(row);
+  row.addEventListener('click', e => {
+    const b = e.target.closest('.dot'); if (!b) return;
+    const s = +b.dataset.s; let last = -1;
+    for (let p = 0; p < count(); p++) if (stepOf(p) === s) last = p;
+    if (last < 0) return;
+    answerUpTo(s); pos = last; render();
+  });
+})();

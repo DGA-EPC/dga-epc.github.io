@@ -78,6 +78,10 @@
 
 .jr-stage{max-width:640px;margin-bottom:16px}
 .jr-stage .journal{font-size:13.5px}
+.tsign .col{display:flex;flex-direction:column;align-items:center;padding:8px 0}
+.tsign .col b{font-size:26px;line-height:1}
+.tsign .col b.plus{color:#1f7a3a}.tsign .col b.minus{color:#c2410c}
+.tsign .col small{font-size:12px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -100,8 +104,7 @@
 
 
     <div class="nav exit">
-      <!-- *** Lien du quiz *** : remplacer La_Compta_Transitoires.html par le lien voulu -->
-      <a class="btn quiz" href="La_Compta_Transitoires.html" target="_blank">Quiz</a>
+
       <button class="btn quit" id="quit">Quitter</button>
     </div>
     <p class="note" id="quit-msg" style="display:none;color:#fff">Le navigateur ne permet pas de fermer cette fenêtre automatiquement : ferme l'onglet.</p>
@@ -139,61 +142,65 @@ const r05 = x => Math.round(x*20)/20;                           // arrondi aux 5
 function rawCase(step){
   switch(step){
   case 1: { const a=V.hon; return {
-    cp:'Honoraires', tr:AT, want:a,
+    cp:'Honoraires', tr:AT, want:a, hide:true,
     story:`Nous avons effectué des travaux de comptabilité en <b>décembre ${Y1}</b>. Ils seront facturés en <b>janvier ${Y2}</b> : CHF <b>${fmt(a)}</b>.`,
     q:`Au 31.12.${Y1}, manque-t-il ou y a-t-il en trop ${fmt(a)} d'honoraires dans ma compta ${Y1} ?`,
     what:`${fmt(a)} d'honoraires`, ansTag:'manque',
     tl:{bars:[{from:11,to:12,label:'Travaux'}], marks:[{at:12.5,label:'Facture janv.'}], fix:Y1},
     J:[{ph:1,y:Y1,d:AT,c:'Honoraires',amt:a,dt:'31.12'},
-       {ph:2,y:Y2,open:AT,side:'d',amt:a},
-       {ph:2,y:Y2,d:'Honoraires',c:AT,amt:a,dt:'1.1',ext:1},
-       {ph:3,y:Y2,d:'Créances clients',c:'Honoraires',amt:a,dt:'janv.'}],
+       {ph:3,y:Y2,open:AT,side:'d',amt:a},
+       {ph:3,y:Y2,d:'Honoraires',c:AT,amt:a,dt:'1.1',ext:1},
+       {ph:4,y:Y2,d:'Créances clients',c:'Honoraires',amt:a,dt:'janv.'}],
     ph:[
       {btn:'Corriger au 31.12 →', text:`Le travail est fait en ${Y1}, mais rien n'est comptabilisé : la facture ne partira qu'en janvier.`},
-      {btn:'Passer au 1.1 →', text:`Il <b>manque</b> du produit : on l'ajoute au <b>crédit des Honoraires</b>. <p>Le compte en contrepartie étant au débit, c'est un <b>Actifs transitoires</b>.`},
+      {btn:'Compléter l\'écriture →', text:`Il <b>manque</b> du produit : on l'ajoute au <b>crédit des Honoraires</b>.<p>Il manque le compte au <b>débit</b> : c'est obligatoirement un <b>Actifs transitoires</b>.`},
+      {btn:'Passer au 1.1 →', text:`On inscrit <b>Actifs transitoires</b> au débit, dans le journal et dans le compte.`},
       {btn:'Saisir la facture →', text:`Le compte Honoraires ${Y2} contient maintenant ${fmt(a)} au <b>débit</b>, comme si le produit avait été « enlevé » de ${Y2}. Il attend la facture de janvier.`},
       {btn:'Étape suivante →', text:`En janvier, la facture est saisie normalement. Elle compense l'extourne : pour ces travaux, les Honoraires ${Y2} restent à <b>0</b>. Le produit est compté une seule fois, en ${Y1}.`}]};}
   case 2: { const a=V.ass; return {
-    cp:'Assurances', tr:AT, want:0,
+    cp:'Assurances', tr:AT, want:0, hide:true,
     story:`Le <b>20 décembre ${Y1}</b>, nous avons payé l'assurance RC pour <b>${Y2}</b> : CHF <b>${fmt(a)}</b>.`,
     q:`Au 31.12.${Y1}, manque-t-il ou y a-t-il en trop ${fmt(a)} d'assurances dans ma compta ${Y1} ?`,
     what:`${fmt(a)} d'assurances`, ansTag:'trop',
     tl:{bars:[{from:12,to:24,label:`Couverture RC ${Y2}`}], marks:[{at:11.65,label:'Paiement 20.12'}], fix:Y2},
     J:[{ph:0,y:Y1,d:'Assurances',c:'Banque',amt:a,dt:'20.12'},
        {ph:1,y:Y1,d:AT,c:'Assurances',amt:a,dt:'31.12'},
-       {ph:2,y:Y2,open:AT,side:'d',amt:a},
-       {ph:2,y:Y2,d:'Assurances',c:AT,amt:a,dt:'1.1',ext:1}],
+       {ph:3,y:Y2,open:AT,side:'d',amt:a},
+       {ph:3,y:Y2,d:'Assurances',c:AT,amt:a,dt:'1.1',ext:1}],
     ph:[
       {btn:'Corriger au 31.12 →', text:`Le paiement a été comptabilisé en décembre (Assurances / Banque).`},
-      {btn:'Passer au 1.1 →', text:`Il y a de la charge <b>en trop</b> : on la sort au <b>crédit des Assurances</b>.<p>La contrepartie étant au débit c'est de nouveau un <b>Actifs transitoires</b>.`},
+      {btn:'Compléter l\'écriture →', text:`Il y a de la charge <b>en trop</b> : on la sort au <b>crédit des Assurances</b>.<p>Il manque le compte au <b>débit</b> : c'est obligatoirement un <b>Actifs transitoires</b>.`},
+      {btn:'Passer au 1.1 →', text:`On inscrit <b>Actifs transitoires</b> au débit, dans le journal et dans le compte.`},
       {btn:'Étape suivante →', text:`La charge revient dans l'exercice qu'elle concerne : les Assurances ${Y2} contiennent ${fmt(a)} au débit.`}]};}
   case 3: { const a=V.int; return {
-    cp:'Produits financiers', tr:PT, want:0,
+    cp:'Produits financiers', tr:PT, want:0, hide:true,
     story:`Nous avons prêté une somme à un employé. En <b>décembre ${Y1}</b>, il nous a versé les intérêts pour <b>${Y2}</b> : CHF <b>${fmt(a)}</b>.`,
     q:`Au 31.12.${Y1}, manque-t-il ou y a-t-il en trop ${fmt(a)} d'intérêts dans ma compta ${Y1} ?`,
     what:`${fmt(a)} d'intérêts`, ansTag:'trop',
     tl:{bars:[{from:12,to:24,label:`Intérêts ${Y2}`}], marks:[{at:11.6,label:'Encaissement déc.'}], fix:Y2},
     J:[{ph:0,y:Y1,d:'Banque',c:'Produits financiers',amt:a,dt:'déc.'},
        {ph:1,y:Y1,d:'Produits financiers',c:PT,amt:a,dt:'31.12'},
-       {ph:2,y:Y2,open:PT,side:'c',amt:a},
-       {ph:2,y:Y2,d:PT,c:'Produits financiers',amt:a,dt:'1.1',ext:1}],
+       {ph:3,y:Y2,open:PT,side:'c',amt:a},
+       {ph:3,y:Y2,d:PT,c:'Produits financiers',amt:a,dt:'1.1',ext:1}],
     ph:[
       {btn:'Corriger au 31.12 →', text:`L'encaissement a été comptabilisé (Banque / Produits financiers).`},
-      {btn:'Passer au 1.1 →', text:`Il y a du produit <b>en trop</b> : on le sort au <b>débit des Produits financiers</b>.<p>La contrepartie est au crédit, c'est donc un <b>Passifs transitoires</b>.`},
+      {btn:'Compléter l\'écriture →', text:`Il y a du produit <b>en trop</b> : on le sort au <b>débit des Produits financiers</b>.<p>Il manque le compte au <b>crédit</b> : c'est obligatoirement un <b>Passifs transitoires</b>.`},
+      {btn:'Passer au 1.1 →', text:`On inscrit <b>Passifs transitoires</b> au crédit, dans le journal et dans le compte.`},
       {btn:'Étape suivante →', text:`Le produit revient dans l'exercice qu'il concerne : les Produits financiers ${Y2} contiennent ${fmt(a)} au crédit.`}]};}
   case 4: { const a=V.rep; return {
-    cp:'Frais de véhicules', tr:PT, want:a,
+    cp:'Frais de véhicules', tr:PT, want:a, hide:true,
     story:`Nous avons fait réparer notre véhicule en <b>décembre ${Y1}</b>. La facture, estimée à CHF <b>${fmt(a)}</b>, nous parviendra en <b>janvier ${Y2}</b>.`,
     q:`Au 31.12.${Y1}, manque-t-il ou y a-t-il en trop ${fmt(a)} de charges dans ma compta ${Y1} ?`,
     what:`${fmt(a)} de frais de véhicules`, ansTag:'manque',
     tl:{bars:[{from:11.3,to:11.9,label:'Rép.'}], marks:[{at:12.5,label:'Facture janv.'}], fix:Y1},
     J:[{ph:1,y:Y1,d:'Frais de véhicules',c:PT,amt:a,dt:'31.12'},
-       {ph:2,y:Y2,open:PT,side:'c',amt:a},
-       {ph:2,y:Y2,d:PT,c:'Frais de véhicules',amt:a,dt:'1.1',ext:1},
-       {ph:3,y:Y2,d:'Frais de véhicules',c:'Dettes fournisseurs',amt:a,dt:'janv.'}],
+       {ph:3,y:Y2,open:PT,side:'c',amt:a},
+       {ph:3,y:Y2,d:PT,c:'Frais de véhicules',amt:a,dt:'1.1',ext:1},
+       {ph:4,y:Y2,d:'Frais de véhicules',c:'Dettes fournisseurs',amt:a,dt:'janv.'}],
     ph:[
       {btn:'Corriger au 31.12 →', text:`La réparation a eu lieu en ${Y1}, mais la facture n'est pas arrivée : rien n'est comptabilisé. On connaît seulement une <b>estimation</b>.`},
-      {btn:'Passer au 1.1 →', text:`Il <b>manque</b> de la charge : on l'ajoute au <b>débit des Frais de véhicules</b>.<p>La contrepartie est de nouveau au crédit, c'est donc un <b>Passifs transitoires</b> (pas Dettes fournisseurs : la facture n'est pas encore reçue et le montant n'est qu'estimé).`},
+      {btn:'Compléter l\'écriture →', text:`Il <b>manque</b> de la charge : on l'ajoute au <b>débit des Frais de véhicules</b>.<p>Il manque le compte au <b>crédit</b> : c'est obligatoirement un <b>Passifs transitoires</b>.`},
+      {btn:'Passer au 1.1 →', text:`On inscrit <b>Passifs transitoires</b> au crédit, dans le journal et dans le compte.<p>Pas Dettes fournisseurs : la facture n'est pas encore reçue et le montant n'est qu'estimé.`},
       {btn:'Saisir la facture →', text:`Le compte Frais de véhicules ${Y2} contient maintenant ${fmt(a)} au <b>crédit</b>. Il attend la facture de janvier.`},
       {btn:'Étape suivante →', text:`En janvier, la facture est saisie normalement et compense l'extourne. Si la facture réelle est différente de l'estimation (p. ex. ${fmt(a+50)}), la différence (${fmt(50)}) tombe dans ${Y2}.`}]};}
   case 6: {
@@ -244,15 +251,16 @@ function rawCase(step){
 /* Ajoute la phase « Situation au 1.1 » avant l'extourne */
 function getCase(step){
   const c = rawCase(step); if (!c) return c;
-  c.J.forEach(e=>{ if (!e.open && e.ph>=2) e.ph++; });
+  c.p11 = c.hide ? 3 : 2;                                    // phase « Situation au 1.1 »
+  c.J.forEach(e=>{ if (!e.open && e.ph>=c.p11) e.ph++; });
   let k = 1; c.J.forEach(e=>{ if (!e.open) e.n = k++; });   // N° du journal
   const x = c.J.find(e=>e.ext), side = c.tr===AT ? 'débit' : 'crédit';
-  c.ph.splice(2, 0, {btn:'Extourner →', text:`Le <b>1.1.${Y2}</b>, un nouvel exercice commence.<br><br>
+  c.ph.splice(c.p11, 0, {btn:'Extourner →', text:`Le <b>1.1.${Y2}</b>, un nouvel exercice commence.<br><br>
     • Le compte <b>${c.tr}</b> est un compte du bilan : il est rouvert avec son <b>solde à nouveau</b> (sàn) de ${fmt(x.amt)} au ${side}.<br>
     • Le compte <b>${c.cp}</b> est un compte de gestion : il a été viré au compte de résultat ${Y1}, il repart donc <b>vide</b>.<br><br>
     Le transitoire a fait son travail : <b>corriger le résultat ${Y1}.</b> Il faut maintenant l'extourner.`});
-  c.ph[3].text = `L'<b>extourne</b> est l'écriture <b>inverse</b> de celle du 31.12 : <b>${x.d} / ${x.c}</b> ${fmt(x.amt)}.<br><br>
-    Elle solde le compte ${c.tr} (sàn ${fmt(x.amt)} − extourne ${fmt(x.amt)} = 0). ` + c.ph[3].text;
+  c.ph[c.p11+1].text = `L'<b>extourne</b> est l'écriture <b>inverse</b> de celle du 31.12 : <b>${x.d} / ${x.c}</b> ${fmt(x.amt)}.<br><br>
+    Elle solde le compte ${c.tr} (sàn ${fmt(x.amt)} − extourne ${fmt(x.amt)} = 0). ` + c.ph[c.p11+1].text;
   return c;
 }
 
@@ -282,10 +290,10 @@ function accountsOf(c, y){
   return L;
 }
 const bal = (P,k) => { const sd=P.d.reduce((s,l)=>s+l.amt,0), sc=P.c.reduce((s,l)=>s+l.amt,0); return (k==='charge'||k==='actif') ? sd-sc : sc-sd; };
-function tHTML(acc, P, focus, eff){
+function tHTML(acc, P, focus, eff, label){   // label : nom affiché (« ? » tant que le compte est caché)
   const col = arr => arr.map(l=>`<div class="ln ${l.fresh?'fresh':''} ${l.ext?'ext':''}"><span class="lb">${l.lb}</span><span class="am">${fmt(l.amt)}</span></div>`).join('');
-  return `<div class="t k-${KIND[acc]} ${focus?'focus':''}">
-    <div class="t-sides"><span>D</span><span class="t-head" title="${acc}">${acc}</span><span>C</span></div>
+  return `<div class="t ${label?'':'k-'+KIND[acc]} ${focus?'focus':''}">
+    <div class="t-sides"><span>D</span><span class="t-head" title="${label||acc}">${label||acc}</span><span>C</span></div>
     <div class="t-body"><div class="col d">${col(P.d)}</div><div class="col c">${col(P.c)}</div></div>
     ${eff?`<div class="eff">${eff}</div>`:''}</div>`;
 }
@@ -332,16 +340,16 @@ function renderCase(c, step, ph){
            : `<div class="hint">Clique sur ta réponse pour continuer.</div>`;
   const qBox = ph>=1 ? '' : `<div class="calc q"><div style="font-weight:600;margin-bottom:4px">La question à se poser</div>${c.q}${choices}${fb}</div>`;
   const rows = c.J.filter(e=>!e.open);
+  const hid = c.hide && ph===1, nm = a => hid && a===c.tr ? '?' : a;   // compte transitoire pas encore nommé
+  const rv = c.hide && ph===2;                                           // phase où il apparaît : on le met en évidence
   const jr = `<table class="journal"><caption>Journal</caption><tr><th>N°</th><th>Date</th><th>Débit</th><th>Crédit</th><th class="am">Montant</th></tr>
-    ${rows.map(e=>`<tr class="${e.ph===ph?'cur':e.ph>ph?'todo':''}"><td>${e.n}</td><td class="dt">${e.dt}${e.ext?' · extourne':''}</td><td>${e.d}</td><td>${e.c}</td><td class="am">${fmt(e.amt)}</td></tr>`).join('')}</table>`;
-  const trTag = c.tr===AT ? '<span class="tag at">Actif transitoire</span>' : '<span class="tag pt">Passif transitoire</span>';
+    ${rows.map(e=>`<tr class="${e.ph===ph || (rv && e.ph===1)?'cur':e.ph>ph?'todo':''}"><td>${e.n}</td><td class="dt">${e.dt}${e.ext?' · extourne':''}</td><td>${nm(e.d)}</td><td>${nm(e.c)}</td><td class="am">${fmt(e.amt)}</td></tr>`).join('')}</table>`;
   $('explain').innerHTML = `<h2 class="steptitle">${LET(step)}. ${TITLES[step]}</h2>
-    <div style="margin:2px 0 8px">${trTag}</div>
     <p class="steptext">${c.ph[ph].text}</p>${qBox}${ph>=1 && c.calc ? c.calc : ''}`;
 
   // Scène
   const yearCol = y => {
-    const on = y===Y1 || ph>=2;
+    const on = y===Y1 || ph>=c.p11;
     const accs = accountsOf(c, y);
     const ts = accs.map(acc=>{
       const P = postings(c, acc, y, on?ph:-1);
@@ -352,11 +360,11 @@ function renderCase(c, step, ph){
         eff = y===Y1 ? `Dans le résultat ${Y1} : <span class="tag ${ok?'good':'bad'}">${fmt(b)} ${ok?'✓':'✗'}</span>${ok?'':`<br><span style="color:var(--muted)">attendu : ${fmt(c.want)}</span>`}`
                        : (ph===last ? `Solde ${Y2} : <span class="tag neutral">${fmt(b)}</span>` : '');
       }
-      if (y===Y2 && ph===2 && acc===c.cp) eff = `<span class="tag neutral">vide au 1.1</span>`;
-      if (y===Y2 && ph===2 && acc===c.tr) eff = `sàn au 1.1 : <span class="tag ${c.tr===AT?'at':'pt'}">${fmt(b)}</span>`;
-      if (acc===c.tr && on && (y===Y1 ? ph>=1 : ph===last)) eff = y===Y1 ? `Au bilan du 31.12 : <span class="tag ${c.tr===AT?'at':'pt'}">${fmt(b)}</span>` : `<span class="tag good">soldé ✓</span>`;
-      const focus = on && c.J.some(e=>e.y===y && e.ph===ph && (e.d===acc||e.c===acc||e.open===acc));
-      return tHTML(acc, P, focus, eff);
+      if (y===Y2 && ph===c.p11 && acc===c.cp) eff = `<span class="tag neutral">vide au 1.1</span>`;
+      if (y===Y2 && ph===c.p11 && acc===c.tr) eff = `sàn au 1.1 : <span class="tag ${c.tr===AT?'at':'pt'}">${fmt(b)}</span>`;
+      if (acc===c.tr && on && !hid && (y===Y1 ? ph>=1 : ph===last)) eff = y===Y1 ? `Au bilan du 31.12 : <span class="tag ${c.tr===AT?'at':'pt'}">${fmt(b)}</span>` : `<span class="tag good">soldé ✓</span>`;
+      const focus = (rv && y===Y1 && acc===c.tr) || on && c.J.some(e=>e.y===y && e.ph===ph && (e.d===acc||e.c===acc||e.open===acc));
+      return tHTML(acc, P, focus, eff, hid && acc===c.tr ? '?' : '');
     }).join('');
     return `<div class="yr ${y===Y1?'y1':'y2'} ${on?'':'off'}"><h3>Exercice ${y}${y===Y2&&!on?' · dès le 1.1':''}</h3><div class="tg">${ts}</div></div>`;
   };
@@ -372,23 +380,22 @@ function renderIntro(){
     Les opérations transitoires :</p>
     <div class="calc"><div class="row"><span>• au <b>31.12</b> : on corrige les comptes de charges et de produits</span></div>
     <div class="row" style="margin-top:4px"><span>• au <b>1.1</b> suivant : on <b>extourne</b> (écriture inverse)</span></div></div>
-    <p class="steptext">Il y a <b>4 situations</b> à corriger en fin d'exercice. Pour chacune, une seule question :</p>
-    <div class="calc q">Au 31.12, manque-t-il ou y a-t-il <b>en trop</b> ce montant dans ma compta de l'exercice ?</div>`;
-  const sit = [[1,'Produit à recevoir',`Travail fait en ${Y1}, facturé en ${Y2}`],[2,'Charge payée d\'avance',`Payé en ${Y1}, concerne ${Y2}`],
-               [3,'Produit reçu d\'avance',`Encaissé en ${Y1}, concerne ${Y2}`],[4,'Charge à payer',`Consommé en ${Y1}, facture en ${Y2}`]];
+    <p class="steptext">En fin d'exercice, on doit se poser la question :</p>
+    <div class="calc q">Au 31.12, <b>manque</b>-t-il ou y a-t-il <b>en trop</b> une <b>charge</b> ou un <b>produit</b> dans l'exercice en cours ?</div>`;
   $('stage').innerHTML = `
     <section class="sec"><h2>Un exercice = une année</h2>
       <div class="yrs3"><div><b>${Y0}</b>exercice précédent</div><div class="on"><b>${Y1}</b>le compte de résultat ne contient que les charges et produits de ${Y1}</div><div><b>${Y2}</b>exercice suivant</div></div></section>
     <section class="sec"><h2>Les deux documents de clôture</h2>
       <div class="two"><div class="box"><h4 style="color:var(--bilan)">Bilan au 31.12.${Y1}</h4>Une « photo » : la valeur des comptes le jour de la clôture.</div>
       <div class="box"><h4 style="color:var(--res)">Compte de résultat ${Y1}</h4>Un « film » de l'année : toutes les charges et tous les produits de ${Y1}, et seulement ceux-là.</div></div></section>
-    <section class="sec"><h2>Les 4 situations à corriger</h2>
-      <div class="quad">${sit.map(([s,t,e])=>`<div class="qc" data-go="${s}"><h4>${s}) ${t}</h4><div class="ex">${e}</div></div>`).join('')}</div></section>
-    <section class="sec"><h2>A maîtriser pour bien comptabiliser</h2>
-      <div class="steptext">Le fonctionnement des comptes!<p>Rappel : Charges : + | - et Produits : - | +</div></section>	  
-	  `;
-	  
+    <section class="sec"><h2>À maîtriser pour bien comptabiliser</h2>
+      <p class="steptext" style="margin:0 0 10px">Le fonctionnement des comptes de charges et de produits :</p>
+      <div class="two">${tSign('Charges','charge','+','−')}${tSign('Produits','produit','−','+')}</div></section>`;
 }
+// Compte en T avec les signes + et − de chaque côté
+const tSign = (name, k, d, c) => `<div class="t k-${k} tsign"><div class="t-sides"><span>D</span><span class="t-head">${name}</span><span>C</span></div>
+  <div class="t-body"><div class="col d"><b class="${d==='+'?'plus':'minus'}">${d}</b><small>${d==='+'?'augmente':'diminue'}</small></div>
+  <div class="col c"><b class="${c==='+'?'plus':'minus'}">${c}</b><small>${c==='+'?'augmente':'diminue'}</small></div></div></div>`;
 
 function renderResume(){
   $('explain').innerHTML = `<h2 class="steptitle">${LET(5)}. ${TITLES[5]}</h2>

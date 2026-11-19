@@ -461,7 +461,7 @@ function render(){
   $('explain').innerHTML = `<h2 class="steptitle">${LET(step)}. ${S.title}</h2>
     <p class="steptext">${P.text}</p>${P.q?qBox(key,P.q):''}`;
   $('stage').innerHTML = S.stage(ph);
-  if (S.scroll) { const secs = $('stage').querySelectorAll('section.sec'); requestAnimationFrame(()=>secs[secs.length-1].scrollIntoView({block:'end', behavior:'smooth'})); }
+  if (S.scroll) { const secs = $('stage').querySelectorAll('section.sec'); requestAnimationFrame(()=>{ const el = secs[secs.length-1]; if (el.getBoundingClientRect().bottom > innerHeight) el.scrollIntoView({block:'end', behavior:'smooth'}); })   /* remonte seulement si le bas est caché */; }
 }
 
 /* ---------- Navigation ---------- */

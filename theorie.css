@@ -16,6 +16,10 @@ h1{font-family:Fraunces,Georgia,serif;font-size:26px;line-height:1.15;margin:0 0
 .dot{flex:1;height:6px;border-radius:3px;background:var(--soft);border:0;padding:0;cursor:pointer}
 .dot.done{background:#cbbfa6}
 .dot.cur{background:var(--accent)}
+/* Rangée « fin de partie, tout complété » (theorie.js) */
+.dots.fin{margin:6px 0 2px}
+.dots.fin .dot{height:6px;background:#d7e9dd}
+.dots.fin .dot:hover{background:#2b8352}
 .stepno{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
 .steptitle{font-family:Fraunces,Georgia,serif;font-size:21px;line-height:1.2;margin:0 0 8px}
 .steptext{margin:0 0 10px}
@@ -154,6 +158,8 @@ section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;
 
 /* Agrandir / réduire (A− A+) : seulement l'explication et la partie de droite, pas les boutons ni le titre */
 #explain,.stage{zoom:var(--z,1)}
+/* Marge sous la partie de droite : on peut remonter le dernier encadré ajouté jusqu'au milieu de l'écran */
+.stage{padding-bottom:45vh}
 
 /* ---------- Version papier (bouton 🖨, voir theorie.js) ---------- */
 .btn.paper{flex:1;background:#fff;color:var(--ink);border:1px solid var(--line)}
@@ -163,7 +169,7 @@ section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;
   html,body{background:#fff !important}
   .app,.zoombar{display:none !important}
   #paper{display:block;zoom:.82}
-  #paper .stage{zoom:1}
+  #paper .stage{zoom:1;padding-bottom:0}
   *{animation:none !important;transition:none !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .pstep{break-before:page}
   .pstep:first-child{break-before:auto}
