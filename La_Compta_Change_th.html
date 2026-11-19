@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le change – théorie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theorie.css">
+<style>
+:root{
+  --bg:#f5f3ee; --card:#fff; --ink:#1e2226; --muted:#6a6f76; --line:#e2ddd2; --soft:#efebe3;
+  --charge:#c2671f; --charge-bg:#fcefe3;
+  --produit:#2b8352; --produit-bg:#e6f4eb;
+  --res:#6d48b3; --res-bg:#efe9f9;
+  --passif:#a3333d; --passif-bg:#f8e8ea;
+  --bilan:#20394f; --bilan-bg:#e6ecf1;
+  --actif:#2a52be; --actif-bg:#e8eefb;
+  --accent:#c98a10; --accent-bg:#fff3d6;
+}
+.calc.q{background:var(--bilan-bg)}
+.ch.ko{background:var(--charge);border-color:var(--charge);color:#fff;opacity:1}
+.fb.ko{border-left:4px solid var(--charge)}
+.ch.blink{animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{0%,100%{box-shadow:0 0 0 0 rgba(32,57,79,0)}50%{box-shadow:0 0 0 5px rgba(201,138,16,.75);background:var(--accent-bg)}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.choices.c4 .ch{flex:1 1 40%}
+.card{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.card h4{margin:0 0 4px;font-size:15px}
+.card .ex{font-size:14px;line-height:1.5}
+.tab tr.cur td{background:var(--hl);font-weight:700}
+.tab tr.new td{animation:pop 1.6s ease-out;background:var(--hl)}
+.tab td.c,.tab th.c{text-align:center}
+.donnee{font-size:15px;background:#f6f3ec;border-left:4px solid var(--accent);border-radius:6px;padding:8px 12px}
+.sec.on{box-shadow:0 0 0 3px var(--accent)}
+
+/* --- Règle de trois --- */
+.r3{position:relative;display:grid;grid-template-columns:150px auto 76px auto 1fr;column-gap:14px;row-gap:34px;align-items:center;margin-top:12px;padding-left:4px;font-size:17px;font-variant-numeric:tabular-nums}
+.r3 .hd{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;text-align:center;border-bottom:2px solid var(--ink);padding-bottom:2px;margin-bottom:-22px}
+.r3 .lb{font-size:13px;font-weight:600;color:var(--muted)}
+.r3 .v{position:relative;display:inline-block;min-width:110px;text-align:center;padding:5px 12px;border-radius:8px;border:2px solid var(--line);background:#fff;font-weight:700;animation:fadein .5s ease-out;z-index:1;transition:background .4s,border-color .4s,color .4s,box-shadow .4s,border-radius .4s}
+.r3 .v small{font-size:12px;color:var(--muted);font-weight:600;margin-left:4px}
+.r3 .vaut{color:var(--muted);font-size:18px;font-weight:700;text-align:center}
+.r3 .v.mul{border-color:var(--actif);background:var(--actif-bg);color:var(--actif)}
+.r3 .v.div{border-color:var(--charge);background:var(--charge-bg);color:var(--charge)}
+.r3 .v.x{border-color:var(--accent);background:var(--accent-bg);color:var(--accent)}
+/* le cercle autour du nombre par lequel on divise, et le « : » à sa gauche */
+.r3 .v.circ{border-radius:999px;box-shadow:0 0 0 4px #fff,0 0 0 7px var(--charge)}
+.r3 .colon{position:absolute;left:-24px;top:50%;transform:translateY(-55%);font-size:28px;font-weight:800;color:var(--charge);animation:fadein .6s ease-out}
+/* ce qui était déjà affiché au clic précédent ne s'anime plus */
+.still{animation:none !important}
+.mon{table-layout:fixed}.mon td,.mon th{text-align:left}.mon td.c,.mon th.c{text-align:center}
+.r3svg{position:absolute;left:0;top:0;pointer-events:none;overflow:visible;z-index:2}
+.r3svg .ln{stroke:var(--actif);stroke-width:3;fill:none;stroke-linecap:round}
+.r3svg .ah{fill:var(--actif)}
+.r3svg .lbc{fill:#fff;stroke:var(--actif);stroke-width:2.5}
+.r3svg .lbt{fill:var(--actif);font:800 20px Inter,sans-serif;text-anchor:middle;dominant-baseline:central}
+.r3svg.draw .ln{animation:drawln .8s ease-out both}
+.r3svg.draw .ah,.r3svg.draw .lbc,.r3svg.draw .lbt{animation:fadein .4s .6s both}
+@keyframes drawln{from{stroke-dashoffset:var(--len)}to{stroke-dashoffset:0}}
+.mul{color:var(--actif)}.div{color:var(--charge)}
+.fml{font-size:19px;font-weight:600;margin:18px 0 4px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.fml .eq{color:var(--muted)}
+.fml .nw{animation:fadein .6s ease-out}
+.sol{display:inline-block;padding:4px 12px;border-radius:8px;background:var(--hl);border:2px solid var(--accent);font-weight:700}
+.rnote{font-size:12.5px;color:var(--muted);margin-top:2px}
+
+/* --- Arrondis --- */
+.rnd td.n{text-align:right;font-variant-numeric:tabular-nums}
+.rnd td.why{color:var(--muted);font-size:12.5px}
+
+/* --- Cote --- */
+.cote td.sel{background:var(--hl);font-weight:700;box-shadow:inset 0 0 0 2px var(--accent)}
+.cote th.grp{text-align:center;border-bottom:1px solid var(--line)}
+.who{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.who .card h4{font-family:Fraunces,Georgia,serif;font-size:18px}
+.who .a h4{color:var(--produit)}.who .v h4{color:var(--passif)}
+
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;padding:12px 12px 90px}
+  aside{position:static;max-height:none;overflow:visible}
+  .nav-wrap{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(245,243,238,.95);backdrop-filter:blur(6px);padding:10px 12px;border-top:1px solid var(--line)}
+  .who{grid-template-columns:1fr}
+  .r3{grid-template-columns:90px auto 34px auto;font-size:15px;column-gap:10px}
+  .r3 .v{min-width:80px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="panel">
+      <h1>Le change</h1>
+      <p class="sub">Monnaies · arrondis · conversions par la règle de trois · recherche du cours · choix du cours</p>
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <div class="panel" id="explain"></div>
+
+    <div class="nav-wrap">
+      <div class="nav">
+        <button class="btn" id="prev">← Précédent</button>
+        <button class="btn primary" id="next">Suite →</button>
+      </div>
+    </div>
+
+    <div class="nav exit">
+      <button class="btn quit" id="quit">Quitter</button>
+    </div>
+    <p class="note" id="quit-msg" style="display:none;color:#fff">Le navigateur ne permet pas de fermer cette fenêtre automatiquement : fermer l'onglet.</p>
+  </aside>
+
+  <main class="stage" id="stage"></main>
+</div>
+<div class="zoombar"><button id="zm" title="Réduire la taille" aria-label="Réduire la taille">A−</button><button id="zp" title="Agrandir la taille" aria-label="Agrandir la taille">A+</button></div>
+
+<script>
+/* =====================================================================
+   *** COURS À METTRE À JOUR ***
+   Modifier ici les cours : toute la page (exemples, calculs, solutions, cote) suit.
+   - unité  : le cours est donné pour 1 ou pour 100 unités
+   - moyen  : cours moyen (BNS), utilisé dans les exemples de conversion
+   - devises achat / vente : gros montants (virements, cartes)
+   - billets achat / vente : espèces (touristes) · null = pas affiché
+   Sources du 19.11.2026 : cours moyens BNS du 17.11.2026 ; devises Banque Migros ;
+   billets EUR = cours Bancomat Migros, billets USD = estimation.
+   ===================================================================== */
+const DATE_COURS = '17.11.2026';
+const COURS = {
+//         unité   moyen     devises achat  devises vente   billets achat  billets vente
+  EUR: [     1,   0.9222,        0.9175,        0.9345,         0.9010,        0.9510 ],
+  USD: [     1,   0.8382,        0.8335,        0.8525,         0.8205,        0.8655 ],
+  GBP: [     1,   1.1063,        1.0925,        1.1195,         null,          null   ],
+  AUD: [     1,   0.5630,        0.5535,        0.5725,         null,          null   ],
+  CAD: [     1,   0.5890,        0.5825,        0.5955,         null,          null   ],
+  HKD: [   100,  10.7400,       10.5400,       10.9400,         null,          null   ],
+  JPY: [   100,   0.5271,        0.5190,        0.5360,         null,          null   ],
+  DKK: [   100,  12.4000,       12.2000,       12.6000,         null,          null   ],
+  SEK: [   100,   8.3000,        8.1000,        8.5000,         null,          null   ],
+  NOK: [   100,   8.6500,        8.4500,        8.8500,         null,          null   ],
+};
+/* ===================================================================== */
+
+const U = c => COURS[c][0], M = c => COURS[c][1];
+const COL = {da:2, dv:3, ba:4, bv:5};
+const COTE = (c, k) => COURS[c][COL[k]];
+
+/* ---------- Outils ---------- */
+const ANS = {};
+const $ = id => document.getElementById(id);
+const grp = s => s.replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+// n avec d décimales et l'apostrophe des milliers : show(1939.6575, 2) → 1'939.66
+const show = (n, d) => { const [i, f] = Math.abs(n).toFixed(d).split('.'); return (n<0?'−':'') + grp(i) + (f ? '.'+f : ''); };
+// n tel quel, au plus 4 décimales, « … » si le nombre continue : 14'814.8148…
+const auto = n => { const r = Math.round(n*1e4)/1e4; let s = show(r, 4);
+  if (s.includes('.')) s = s.replace(/0+$/, '').replace(/\.$/, '');
+  return s + (Math.abs(n - r) > 1e-9 ? '…' : ''); };
+// un cours : au moins 2 décimales, au plus 4 (0.9222 · 8.65 · 10.74)
+const cstr = n => { let s = show(n, 4).replace(/0{1,2}$/, ''); return s; };
+const num = s => +String(s).replace(/'/g, '');
+
+/* ---------- Arrondis ---------- */
+// CHF : au 0.05 · devises (EUR, USD…) : au centime (0.01) · cours : 4 décimales
+const RND = {
+  CHF:   v => Math.round(v*20 + 1e-9)/20,
+  DEV:   v => Math.round(v*100 + 1e-9)/100,
+  COURS: v => Math.round(v*1e4 + 1e-9)/1e4 };
+const RNOTE = e => e.r==='CHF' ? 'Les francs s\'arrondissent à <b>0.05</b>.'
+  : e.r==='DEV' ? `Les ${e.dev} s'arrondissent au <b>centime (0.01)</b>.` : 'Le cours se donne avec <b>4 décimales</b> au plus.';
+const solTxt = (e, v) => e.r==='CHF' ? `CHF ${show(v, 2)}` : e.r==='DEV' ? `${e.dev} ${show(v, 2)}` : `${e.ch.d} ${e.dev} = CHF ${auto(v)}`;
+
+/* ---------- La règle de trois ---------- */
+// sait / ch : {d : quantité de devises, c : quantité de CHF} ; dans ch, la valeur cherchée vaut null
+function solve(e){
+  const xc = e.ch.c===null ? 'c' : 'd', kc = xc==='c' ? 'd' : 'c';           // colonne de x · colonne connue
+  const A = e.ch[kc], B = e.sait[xc], C = e.sait[kc];                         // x = A × B : C
+  const prod = num(A)*num(B), raw = prod/num(C), res = RND[e.r](raw);
+  return {xc, kc, A, B, C, prod, raw, res, same: Math.abs(raw - res) < 1e-9};
+}
+const say = (row, dev) => `${row.d===null?'<b>x</b>':row.d} ${dev} => ${row.c===null?'<b>x</b>':row.c} CHF`;
+
+// lvl : 0 = ce qu'on sait · 1 = ce qu'on cherche · 2 = la flèche × · 3 = le cercle : · 4 = le calcul et la solution
+function r3Box(e, lvl){
+  if (lvl < 0) return '';
+  const s = solve(e);
+  const role = (row, k) => row==='ch' && k===s.xc ? 'x'
+    : (row==='ch' && k===s.kc) || (row==='sait' && k===s.xc) ? (lvl>=2 ? 'mul' : '')
+    : (lvl>=3 ? 'div circ' : '');
+  const cell = (row, k) => { const v = e[row][k];
+    const r = role(row, k);
+    return `<span class="v ${r}" data-k="${row}-${k}" data-a="${e.id}:${row}-${k}">${r.includes('circ')?`<span class="colon" data-a="${e.id}:colon">:</span>`:''}${v===null?'x':v}<small>${k==='d'?e.dev:'CHF'}</small></span>`; };
+  const line = (row, lb) => `<span class="lb">${lb}</span>${cell(row,'d')}<span class="vaut">=&gt;</span>${cell(row,'c')}<span></span>`;
+  const eq = '<span class="eq">=</span>', nw = (x, id) => `<span class="nw" data-a="${e.id}:${id}">${x}</span>`;
+  let f = '';
+  if (lvl >= 2){
+    f = `<span>x</span>${eq}<span class="mul">${s.A}</span><span>×</span><span class="mul">${s.B}</span>`;
+    if (lvl >= 3) f += nw(`<span class="div">: ${s.C}</span>`, 'f3');
+    if (lvl >= 4){
+      f += num(s.C)===1 ? `${eq}${nw(auto(s.prod), 'f4')}` : `${eq}${nw(auto(s.prod)+' : '+s.C, 'f4')}${eq}${nw(auto(s.raw), 'f5')}`;
+      f += `<span class="eq">${s.same?'=':'≈'}</span><span class="sol nw" data-a="${e.id}:sol">${solTxt(e, s.res)}</span>`;
+    }
+  }
+  return `<div class="r3" ${lvl>=2?`data-arrow="ch-${s.kc}>sait-${s.xc}" data-id="${e.id}"`:''}>
+      <span></span><span class="hd">${e.dev}</span><span></span><span class="hd">CHF</span><span></span>
+      ${line('sait', 'Ce qu\'on sait')}
+      ${lvl>=1 ? line('ch', 'Ce qu\'on cherche') : ''}
+    </div>
+    ${lvl>=2 ? `<div class="fml">${f}</div>${lvl>=4 ? `<div class="rnote">${RNOTE(e)}</div>` : ''}` : ''}`;
+}
+
+/* La flèche « × » : du nombre connu de « ce qu'on cherche » vers le nombre de la même colonne que x dans « ce qu'on sait » */
+let SEEN = new Set();   // éléments déjà affichés au clic précédent
+function drawArrows(still){
+  document.querySelectorAll('.r3[data-arrow]').forEach(box => {
+    const [a, b] = box.dataset.arrow.split('>');
+    const ea = box.querySelector(`[data-k="${a}"]`), eb = box.querySelector(`[data-k="${b}"]`);
+    if (!ea || !eb) return;
+    const c = el => ({x: el.offsetLeft + el.offsetWidth/2, y: el.offsetTop + el.offsetHeight/2, w: el.offsetWidth/2 + 6, h: el.offsetHeight/2 + 6});
+    const p = c(ea), q = c(eb), dx = q.x - p.x, dy = q.y - p.y;
+    const cut = r => Math.min(r.w/Math.abs(dx||1e-6), r.h/Math.abs(dy||1e-6));
+    const t1 = cut(p), t2 = cut(q);
+    const x1 = p.x + dx*t1, y1 = p.y + dy*t1, x2 = q.x - dx*t2, y2 = q.y - dy*t2;
+    const L = Math.hypot(x2-x1, y2-y1), ux = (x2-x1)/L, uy = (y2-y1)/L;
+    const bx = x2 - ux*14, by = y2 - uy*14;                                   // base de la pointe
+    const head = `${x2},${y2} ${bx - uy*8},${by + ux*8} ${bx + uy*8},${by - ux*8}`;
+    const mx = (x1+x2)/2, my = (y1+y2)/2;
+    const svg = `<svg class="r3svg ${!still && !SEEN.has(box.dataset.id+':arrow')?'draw':''}" width="${box.offsetWidth}" height="${box.offsetHeight}" style="--len:${L}">
+      <line class="ln" x1="${x1}" y1="${y1}" x2="${bx}" y2="${by}" stroke-dasharray="${L}"/>
+      <polygon class="ah" points="${head}"/>
+      <circle class="lbc" cx="${mx}" cy="${my}" r="15"/><text class="lbt" x="${mx}" y="${my}">×</text></svg>`;
+    box.querySelectorAll('.r3svg').forEach(x => x.remove());
+    box.insertAdjacentHTML('beforeend', svg);
+  });
+}
+
+/* ---------- Les exemples (fichier Excel « Change »), calculés avec la table des cours ---------- */
+const NOM = {EUR:'euros', USD:'dollars', NOK:'couronnes norvégiennes', SEK:'couronnes suédoises', GBP:'livres sterling', JPY:'yens'};
+const pour = c => U(c)===100 ? ` (pour 100 ${c})` : '';
+// des CHF vers des devises (fromCHF) ou des devises vers des CHF
+const conv = (titre, dev, fromCHF, amt) => ({titre, dev, r: fromCHF ? 'DEV' : 'CHF',
+  sait:{d:String(U(dev)), c:cstr(M(dev))}, ch: fromCHF ? {d:null, c:amt} : {d:amt, c:null},
+  data: fromCHF ? `Convertir <b>CHF ${amt}.–</b> en ${NOM[dev]}. Cours ${dev} : <b>${cstr(M(dev))}</b>${pour(dev)}.`
+                : `Convertir <b>${dev} ${amt}.–</b> en francs. Cours ${dev} : <b>${cstr(M(dev))}</b>${pour(dev)}.`});
+// recherche du cours : on a obtenu « qd » devises contre des CHF (montant calculé au cours moyen, arrondi à 0.05)
+const crs = (titre, dev, qd, verbe) => { const chf = show(RND.CHF(num(qd)*M(dev)/U(dev)), 2);
+  return {titre, dev, r:'COURS', sait:{d:qd, c:chf}, ch:{d:String(U(dev)), c:null},
+    data: verbe==='payé' ? `Payé <b>CHF ${chf}</b> pour <b>${dev} ${qd}.–</b>. Quel est le cours ${dev==='JPY'?'du yen':'de la devise'} ?`
+                         : `Obtenu <b>${dev} ${qd}.–</b> contre <b>CHF ${chf}</b>. Quel est le cours ${dev==='GBP'?'de la livre':'de la devise'} ?`}; };
+const EX = {
+  m:  conv('Exemple', 'USD', false, "2'500"),
+  b1: conv('Exemple 1 : des francs en euros', 'EUR', true, "1'200"),
+  b2: conv('Exemple 2 : des francs en couronnes norvégiennes', 'NOK', true, "1'200"),
+  b3: conv('Exemple 3 : à vous !', 'EUR', true, '850'),
+  c1: conv('Exemple 1 : des dollars en francs', 'USD', false, "1'200"),
+  c2: conv('Exemple 2 : des couronnes suédoises en francs', 'SEK', false, "25'000"),
+  c3: conv('Exemple 3 : à vous !', 'USD', false, "2'475"),
+  d1: crs('Exemple 1 : le cours de la livre', 'GBP', "1'800", 'obtenu'),
+  d2: crs('Exemple 2 : le cours du yen', 'JPY', "100'000", 'payé')
+};
+
+Object.entries(EX).forEach(([k, e]) => e.id = k);
+
+/* ---------- Les phases d'un exemple ----------
+   lv : niveau affiché · lv0 : niveau affiché tant que la question n'a pas de réponse */
+const calcTxt = e => { const s = solve(e);
+  return `On multiplie <b class="mul">${s.A}</b> × <b class="mul">${s.B}</b> (la flèche) et on divise par <b class="div">${s.C}</b> (le cercle).<br><br>x = ${s.A} × ${s.B} : ${s.C} = ${auto(s.raw)}<br>${RNOTE(e)} ${s.same ? 'Pas besoin d\'arrondir' : 'On arrondit'} : <b>${solTxt(e, s.res)}</b>.`; };
+function exPhases(e, T={}, Q={}, avous=false){
+  const s = solve(e);
+  const sait = `On écrit d'abord <b>ce qu'on sait</b> : le cours.<br>${say(e.sait, e.dev)}.`;
+  const ch = `Puis <b>ce qu'on cherche</b> :<br>${say(e.ch, e.dev)}.`;
+  let P;
+  if (!avous) P = [
+    {btn:'Ce qu\'on cherche →', text:sait, lv:0, lv0:-1},
+    {btn:'Le calcul →', text:ch, lv:1, lv0:0},
+    {btn:'Suite →', text:calcTxt(e), lv:4, lv0:1}];
+  else {
+    // deux questions : les nombres multipliés, puis le nombre par lequel on divise
+    const pairs = [[s.A, s.C], [s.A, s.B], [s.B, s.C]].map(([u, v]) => `${u} × ${v}`);
+    P = [
+      {btn:'Ce qu\'on cherche →', text:sait, lv:0, lv0:-1},
+      {btn:'Suite →', text:ch, lv:1, lv0:0},
+      {btn:'Suite →', text:'', lv:2, lv0:1,
+       q:{text:'Quels nombres multiplie-t-on ?', opts:pairs.map((p, i) => [String(i), p]), ok:'1',
+          fb:`on multiplie <b>${s.A} × ${s.B}</b> : le nombre connu de « ce qu'on cherche » et le nombre de « ce qu'on sait » dans la colonne de x.`}},
+      {btn:'Suite →', text:'', lv:4, lv0:2,
+       q:{text:'Par quoi divise-t-on ?', opts:[['c', s.C], ['a', s.A], ['b', s.B]], ok:'c',
+          fb:`on divise par <b>${s.C}</b>.<br>x = ${s.A} × ${s.B} : ${s.C} = ${auto(s.raw)} ${s.same?'=':'≈'} <b>${solTxt(e, s.res)}</b>.<br>${RNOTE(e)}`}}];
+  }
+  P.forEach((p, j) => { if (T[j] !== undefined) p.text = T[j]; if (Q[j]) p.q = Q[j]; });
+  return P;
+}
+
+/* Une étape « exemples » : chaque exemple prend 3 phases (4 pour « à vous ! ») */
+function exStep(title, h2, desc, list){
+  const ph = [], start = [];
+  list.forEach(([k, T, Q, av]) => { start.push(ph.length); ph.push(...exPhases(EX[k], T, Q, av)); });
+  const step = {title, ph};
+  step.stage = (p, si) => `<section class="sec"><h2>${h2}</h2><div style="font-size:15px">${desc}</div></section>` + list.map(([k], i) => {
+      const j = p - start[i], n = (list[i+1] ? start[i+1] : ph.length) - start[i];
+      if (j < 0) return '';
+      let lvl = 4, cur = j < n;
+      if (cur){ const P = ph[p]; lvl = P.q && !ANS[si+'.'+p] ? P.lv0 : P.lv; }
+      return `<section class="sec ${cur?'on':''}"><h2>${EX[k].titre}</h2><div class="donnee">${EX[k].data}</div>${r3Box(EX[k], lvl)}</section>`; }).join('');
+  return step;
+}
+
+/* ---------- Les monnaies ---------- */
+const MON = [['CHF','Suisse','Franc',''],['EUR','Zone euro','Euro','€'],['GBP','Royaume-Uni','Livre sterling','£'],['USD','États-Unis','Dollar','$'],
+  ['AUD','Australie','Dollar australien',''],['CAD','Canada','Dollar canadien',''],['HKD','Hong Kong','Dollar de Hong Kong',''],
+  ['JPY','Japon','Yen','¥'],['DKK','Danemark','Couronne danoise',''],['SEK','Suède','Couronne suédoise',''],['NOK','Norvège','Couronne norvégienne','']];
+const MON_TXT = (m, i) => (i===0 ? `Chaque monnaie a un <b>code</b> de 3 lettres : les 2 premières pour le pays, la dernière pour la monnaie.<br><br>` : '')
+  + `${m[1]} : ${m[2].toLowerCase()}, code <b>${m[0]}</b>${m[3]?`, symbole <b>${m[3]}</b>`:''}.`
+  + (m[0]==='CHF' ? '<br>CH (Confoederatio Helvetica) + F (franc).' : m[0]==='USD' ? '<br>US + D (dollar).' : '');
+
+/* ---------- Le choix du cours ---------- */
+const SIT = [
+  {txt:`Tu pars en vacances aux États-Unis. Tu achètes <b>USD 500.–</b> en <b>billets</b> au guichet.`, dev:'USD', amt:'500', ok:'bv',
+   fb:'petit montant en espèces : cours des <b>billets</b>. La banque te <b>vend</b> des dollars : cours de <b>vente</b>.'},
+  {txt:`L'entreprise paie une facture de <b>EUR 12'400.–</b> à un fournisseur allemand, par <b>virement</b>.`, dev:'EUR', amt:"12'400", ok:'dv',
+   fb:'virement : cours des <b>devises</b>. La banque <b>vend</b> des euros à l\'entreprise : cours de <b>vente</b>.'},
+  {txt:`De retour de vacances, tu rapportes <b>EUR 180.–</b> en <b>billets</b> à la banque.`, dev:'EUR', amt:'180', ok:'ba',
+   fb:'espèces : cours des <b>billets</b>. La banque t\'<b>achète</b> tes euros : cours d\'<b>achat</b>.'},
+  {txt:`Un client américain verse <b>USD 3'765.–</b> sur le compte de l'entreprise, par <b>virement</b>.`, dev:'USD', amt:"3'765", ok:'da',
+   fb:'virement : cours des <b>devises</b>. La banque <b>achète</b> les dollars reçus : cours d\'<b>achat</b>.'}];
+SIT.forEach((s, i) => s.e = {id:'s'+i, dev:s.dev, sait:{d:'1', c:show(COTE(s.dev, s.ok), 4)}, ch:{d:s.amt, c:null}, r:'CHF'});
+const SITOPTS = [['da','Devises · achat'],['dv','Devises · vente'],['ba','Billets · achat'],['bv','Billets · vente']];
+const SIT0 = 3;   // première phase des situations dans l'étape « Le choix du cours »
+const COTE_DEV = Object.keys(COURS).filter(c => COURS[c][4] !== null);
+
+/* ---------- Le cours selon le pays ---------- */
+const GBP_EUR = cstr(Math.round(M('GBP')/M('EUR')*1e4)/1e4);
+
+/* ---------- Les étapes ---------- */
+const R3_LV = [-1, 0, 1, 2, 3, 4];   // étape C : niveau de la règle de trois à chaque phase
+const STEPS = [
+ { title:'Les principales monnaies',
+   ph:[...MON.map((m, i) => ({btn: i<MON.length-1 ? 'Suite →' : 'Attention →', text:MON_TXT(m, i)})),
+       {btn:'Les arrondis →', text:`Attention : la plupart des cours sont donnés pour <b>1</b> unité, mais certains pour <b>100</b> unités : ce sont les monnaies qui valent peu (yen, couronnes, dollar de Hong Kong).<br><br>Cours moyens du ${DATE_COURS}.`}],
+   stage: ph => { const fin = ph >= MON.length;
+     return `<section class="sec"><h2>Principales monnaies</h2><table class="tab mon">
+       <colgroup><col style="width:20%"><col style="width:26%"><col style="width:10%"><col style="width:10%"><col style="width:15%"><col style="width:19%"></colgroup>
+       <tr><th>Pays</th><th>Monnaie</th><th class="c">Code</th><th class="c">Symbole</th><th class="c">${fin?'Cours pour':''}</th><th class="c">${fin?'Cours moyen':''}</th></tr>
+       ${MON.slice(0, ph+1).map(([c,p,m,s], i)=>{ const cent = COURS[c] && U(c)===100;
+         return `<tr class="${fin ? (cent?'cur':'') : (i===ph?'new':'')}"><td>${p}</td><td>${m}</td><td class="c"><b>${c}</b></td><td class="c">${s}</td>
+         <td class="c">${fin&&COURS[c]?U(c)+' '+c:''}</td><td class="c">${fin&&COURS[c]?'CHF '+cstr(M(c)):''}</td></tr>`; }).join('')}
+       </table></section>`; } },
+
+ { title:'Les arrondis',
+   ph:[{btn:'Suite →', text:`Les <b>francs suisses</b> s'arrondissent à <b>0.05</b> : les centimes finissent toujours par <b>0</b> ou par <b>5</b>.<br><br>On prend le multiple de 0.05 le plus proche. Au milieu, on arrondit vers le haut.`},
+       {btn:'Les devises →', text:`Un exemple.`,
+        q:{text:'CHF 47.83 arrondi à 0.05 ?', opts:[['a','47.80'],['b','47.85'],['c','47.83']], ok:'b',
+           fb:'47.83 est entre 47.80 et 47.85 ; il est plus proche de <b>47.85</b>.'}},
+       {btn:'La règle de trois →', text:`Les <b>devises</b> (euros, dollars…) s'arrondissent au <b>centime</b> : 0.01, comme d'habitude.`}],
+   stage: ph => `<section class="sec"><h2>Les francs et devises cotées pour 100 unités : arrondi à 0.05</h2><table class="tab rnd">
+       <tr><th>Résultat du calcul</th><th>Arrondi</th><th>Pourquoi</th></tr>
+       <tr><td>12.32</td><td class="n"><b>12.30</b></td><td class="why">entre 12.30 et 12.35 : plus proche de 12.30</td></tr>
+       <tr><td>12.33</td><td class="n"><b>12.35</b></td><td class="why">entre 12.30 et 12.35 : plus proche de 12.35</td></tr>
+       <tr><td>12.375</td><td class="n"><b>12.40</b></td><td class="why">pile au milieu de 12.35 et 12.40 : vers le haut</td></tr>
+       <tr><td>12.39</td><td class="n"><b>12.40</b></td><td class="why">entre 12.35 et 12.40 : plus proche de 12.40</td></tr>
+       ${ph>=1?`<tr class="${ph===1?'cur':''}"><td>47.83</td><td class="n">${ph>1||ANS['1.1']?'<b>47.85</b>':'?'}</td><td class="why">${ph>1||ANS['1.1']?'entre 47.80 et 47.85 : plus proche de 47.85':''}</td></tr>`:''}
+       </table></section>
+     ${ph>=2?`<section class="sec"><h2>Les devises cotées pour 1 unités : arrondi au centime (0.01)</h2><table class="tab rnd">
+       <tr><th>Résultat du calcul</th><th>Arrondi</th><th>Pourquoi</th></tr>
+       <tr><td>906.9569…</td><td class="n"><b>EUR 906.96</b></td><td class="why">le 3<sup>e</sup> chiffre après la virgule est 6 : on arrondit vers le haut</td></tr>
+       <tr><td>1'250.123</td><td class="n"><b>USD 1'250.12</b></td><td class="why">le 3<sup>e</sup> chiffre après la virgule est 3 : on arrondit vers le bas</td></tr>
+       </table></section>`:''}` },
+
+ { title:'La règle de trois',
+   ph:(() => { const e = EX.m, s = solve(e); return [
+       {btn:'Ce qu\'on sait →', text:`Toutes les conversions se font avec une <b>règle de trois</b>, toujours dans le même ordre.<br><br><b>1. La donnée.</b> On a des dollars, on cherche des francs.`},
+       {btn:'Ce qu\'on cherche →', text:`<b>2. Ce qu'on sait</b> : le cours.<br>${say(e.sait, e.dev)}.`},
+       {btn:'La formule →', text:`<b>3. Ce qu'on cherche</b> : x est le montant inconnu.<br>${say(e.ch, e.dev)}.`},
+       {btn:'Suite →', text:`<b>4. La formule.</b><br>a) Une flèche va de <b class="mul">${s.A} ${e.dev}</b> vers <b class="mul">${s.B}</b> : on <b>multiplie</b> ces deux nombres.<br><br>x = ${s.A} × ${s.B}`},
+       {btn:'Le calcul →', text:`b) Le nombre qui reste dans « ce qu'on sait », <b class="div">${s.C} ${e.dev}</b>, est entouré : on <b>divise</b> par ce nombre.<br><br>x = ${s.A} × ${s.B} : ${s.C}`},
+       {btn:'Les francs en devises →', text:`<b>5. Le calcul.</b><br>x = ${s.A} × ${s.B} : ${s.C} = <b>${solTxt(e, s.res)}</b>.<br>${RNOTE(e)}<br><br>Quel que soit le sens de la conversion, on fait toujours la même chose : la flèche de « ce qu'on cherche » vers « ce qu'on sait », puis on divise par le nombre qui reste.`}]; })(),
+   stage: ph => `<section class="sec on"><h2>Le modèle</h2><div class="donnee">${EX.m.data}</div>${r3Box(EX.m, R3_LV[ph])}</section>` },
+
+ exStep('Recherche du montant en devises', 'On a des francs, on cherche des devises',
+   `x est dans la colonne des <b>devises</b> : on divise par le <b>cours</b>.`, [
+   ['b1', {0:`On a des <b>francs</b> et on cherche des <b>euros</b>.<br><br>On écrit d'abord <b>ce qu'on sait</b> : le cours.<br>${say(EX.b1.sait,'EUR')}.`}],
+   ['b2', {}, {0:{text:`Le cours de ${EX.b2.sait.c} est donné pour…`, opts:[['1','1 NOK'],['100','100 NOK']], ok:'100',
+                  fb:`comme toutes les couronnes, la NOK est cotée pour <b>100</b> : 100 NOK => ${EX.b2.sait.c} CHF.`}}],
+   ['b3', {0:`À vous !<br><br>Ce qu'on sait : ${say(EX.b3.sait,'EUR')}.`}, {}, true]]),
+
+ exStep('Recherche du montant en CHF', 'On a des devises, on cherche des francs',
+   `x est dans la colonne des <b>CHF</b> : on multiplie par le <b>cours</b>.`, [
+   ['c1', {0:`Maintenant, on a des <b>dollars</b> et on cherche des <b>francs</b>. Même méthode.<br><br>Ce qu'on sait : ${say(EX.c1.sait,'USD')}.`}],
+   ['c2', {0:`La couronne suédoise est cotée pour <b>100</b>.<br><br>Ce qu'on sait : ${say(EX.c2.sait,'SEK')}.`}],
+   ['c3', {0:`À vous !<br><br>Ce qu'on sait : ${say(EX.c3.sait,'USD')}.`}, {}, true]]),
+
+ exStep('Recherche du cours', 'On connaît les deux montants, on cherche le cours',
+   `Le cours, c'est ce que vaut <b>1</b> unité (ou <b>100</b> unités) de la devise en CHF.`, [
+   ['d1', {0:`On connaît le montant en devises <b>et</b> le montant en francs. On cherche le <b>cours</b> : ce que vaut 1 GBP.<br><br>Ce qu'on sait, c'est l'opération : ${say(EX.d1.sait,'GBP')}.`,
+           1:`Ce qu'on cherche : le cours, pour <b>1</b> livre.<br>${say(EX.d1.ch,'GBP')}.`}],
+   ['d2', {0:`Ce qu'on sait : ${say(EX.d2.sait,'JPY')}.`, 1:''},
+          {1:{text:'Le cours du yen se cherche pour…', opts:[['1','1 JPY'],['100','100 JPY']], ok:'100',
+              fb:'le yen est coté pour <b>100</b> : 100 JPY => x CHF.'}}]]),
+
+ { title:'Le choix du cours',
+   ph:[{btn:'Achat ou vente →', text:`La banque ne donne pas un seul cours mais <b>quatre</b>.<br><br>Pour les <b>gros montants</b> (virements, paiements par carte), on prend le cours des <b>devises</b>.<br>Pour les <b>petits montants</b> en espèces (touristes), on prend le cours des <b>billets</b>.`},
+       {btn:'Suite →', text:`Pour chaque cours, il y a un prix d'<b>achat</b> et un prix de <b>vente</b>.<br><br>Que fait la banque avec la monnaie étrangère ? On se met toujours <b>à la place de la banque</b>.`,
+        q:{text:'Tu veux des dollars. La banque…', opts:[['a','t\'achète des dollars'],['v','te vend des dollars']], ok:'v',
+           fb:'la banque te <b>vend</b> des dollars : cours de <b>vente</b>, le plus haut. La banque vend plus cher qu\'elle n\'achète : c\'est son bénéfice.'}},
+       {btn:'Situation 1 →', text:`À vous de choisir le cours. Pour chaque situation : <b>devises ou billets</b> ? <b>Achat ou vente</b> ?`},
+       ...SIT.map((s, i) => ({btn: i<SIT.length-1 ? `Situation ${i+2} →` : 'Suite →', text:`Situation ${i+1}.<br><br>${s.txt}`,
+          q:{text:'Quel cours ?', opts:SITOPTS, ok:s.ok, fb:s.fb}}))],
+   stage: (ph, si) => {
+     const k = ph - SIT0, s = SIT[k], done = s && ANS[si+'.'+ph];
+     const td = (d, c) => `<td class="n ${done && s.dev===d && s.ok===c ? 'sel' : ''}">${show(COTE(d,c), 4)}</td>`;
+     return `<section class="sec"><h2>Quel cours ?</h2><table class="tab">
+         <tr><th></th><th>Gros montants</th><th>Petits montants</th></tr>
+         <tr><td>Exemples</td><td>virements, paiements par carte</td><td>touristes, espèces</td></tr>
+         <tr class="${ph===0?'cur':''}"><td>On prend le cours des…</td><td><b>devises</b></td><td><b>billets</b></td></tr></table></section>
+       ${ph>=1?`<section class="sec"><h2>La cote de la banque (${DATE_COURS})</h2><table class="tab cote">
+         <tr><th></th><th class="grp" colspan="2">Devises</th><th class="grp" colspan="2">Billets</th></tr>
+         <tr><th>1 unité en CHF</th><th>Achat</th><th>Vente</th><th>Achat</th><th>Vente</th></tr>
+         ${COTE_DEV.map(d=>`<tr><td><b>${d}</b></td>${td(d,'da')}${td(d,'dv')}${td(d,'ba')}${td(d,'bv')}</tr>`).join('')}</table>
+         <p class="note">Le cours des billets est moins favorable : la banque doit transporter, stocker et assurer les billets.</p></section>`:''}
+       ${ph>=2||(ph===1&&ANS[si+'.1'])?`<section class="sec"><h2>Que fait la banque avec la monnaie étrangère ?</h2><div class="who">
+         <div class="card a"><h4>Achat · cours bas</h4><div class="ex">La banque <b>achète</b> la monnaie étrangère : le client la lui <b>donne</b> et reçoit des francs.</div></div>
+         <div class="card v"><h4>Vente · cours haut</h4><div class="ex">La banque <b>vend</b> la monnaie étrangère : le client la <b>reçoit</b> et paie en francs.</div></div></div></section>`:''}
+       ${s && done ? `<section class="sec on"><h2>Situation ${k+1} : le calcul</h2><div class="donnee">${s.txt}</div>${r3Box(s.e, 4)}</section>` : ''}`; } },
+
+ { title:'Le cours selon le pays',
+   ph:[{btn:'Au Royaume-Uni →', text:`Chaque pays donne le cours <b>dans sa propre monnaie</b> : 1 unité étrangère => tant de monnaie du pays.<br><br>Exemple : le cours de la livre.`,
+        q:{text:`En France, le cours de la livre est de ${GBP_EUR}. Cela veut dire…`, opts:[['a',`1 GBP = ${GBP_EUR} EUR`],['b',`1 EUR = ${GBP_EUR} GBP`]], ok:'a',
+           fb:`en France, on dit ce que vaut <b>1 GBP en euros</b> : 1 GBP = ${GBP_EUR} EUR.`}},
+       {btn:'Suite →', text:`Le <b>Royaume-Uni</b> fait l'inverse : pour donner le cours de l'euro, il dit combien d'euros on obtient pour <b>1 livre</b>.`}],
+   stage: (ph, si) => { const ok = ph>0 || ANS[si+'.0'];
+     return `<section class="sec"><h2>Le cours de la livre (${DATE_COURS})</h2><table class="tab">
+       <tr><th>Pays</th><th class="c">Cours</th><th>Ce que cela veut dire</th></tr>
+       <tr><td>En Suisse</td><td class="c">${cstr(M('GBP'))}</td><td>1 GBP = <b>CHF ${cstr(M('GBP'))}</b></td></tr>
+       <tr class="${ph===0?'cur':''}"><td>En France</td><td class="c">${GBP_EUR}</td><td>${ok?`1 GBP = <b>EUR ${GBP_EUR}</b>`:'?'}</td></tr>
+       <tr><td>En Allemagne</td><td class="c">${GBP_EUR}</td><td>${ok?`1 GBP = <b>EUR ${GBP_EUR}</b> (même monnaie qu'en France)`:'?'}</td></tr>
+       ${ph>=1?`<tr class="cur"><td>Au Royaume-Uni : cours de l'euro</td><td class="c">${GBP_EUR}</td><td>1 GBP = <b>EUR ${GBP_EUR}</b></td></tr>`:''}</table>
+       ${ph>=1?`<p class="note">Même nombre qu'en France, mais vu de l'autre côté : en France, c'est le prix de la livre ; au Royaume-Uni, c'est ce qu'on obtient en euros pour une livre.</p>`:''}</section>`; } }
+];
+
+/* ---------- Actions ---------- */
+const A = [];
+STEPS.forEach((s,i)=>s.ph.forEach((_,p)=>A.push({step:i, ph:p})));
+let pos = 0;
+
+/* ---------- Rendu ---------- */
+function qBox(key, q){
+  const ch = ANS[key];
+  const btn = (a,lb) => `<button class="ch ${ch===a?(a===q.ok?'ok':'ko'):''} ${ch?'':'blink'}" data-a="${a}" ${ch?'disabled':''}>${lb}</button>`;
+  const fb = ch ? `<div class="fb ${ch===q.ok?'ok':'ko'}">${ch===q.ok?'✓ En effet':'✗ En fait'}, ${q.fb}</div>` : `<div class="hint">Cliquer sur la bonne réponse.</div>`;
+  return `<div class="calc q"><div style="font-weight:600;margin-bottom:4px">La question à se poser</div>${q.text}
+    <div class="choices ${q.opts.length===4?'c4':''}" style="flex-wrap:wrap">${q.opts.map(([a,lb])=>btn(a,lb)).join('')}</div>${fb}</div>`;
+}
+const LET = i => String.fromCharCode(65+i);   // A, B, C…
+function render(){
+  pos = Math.max(0, Math.min(A.length-1, pos));
+  const {step, ph} = A[pos], S = STEPS[step], P = S.ph[ph], key = step+'.'+ph;
+  document.querySelectorAll('#dots .dot').forEach((b,i)=>{ b.classList.toggle('cur', i===step); b.classList.toggle('done', i<step); });
+  $('prev').disabled = pos===0;
+  $('next').disabled = pos===A.length-1 || (P.q && !ANS[key]);
+  $('next').textContent = pos===A.length-1 ? 'Terminé ✓' : P.btn;
+  $('explain').innerHTML = `<h2 class="steptitle">${LET(step)}. ${S.title}</h2>
+    ${P.text?`<p class="steptext">${P.text}</p>`:''}${P.q?qBox(key,P.q):''}`;
+  $('stage').innerHTML = S.stage(ph, step);
+  const now = new Set();
+  document.querySelectorAll('#stage [data-a]').forEach(el => { now.add(el.dataset.a); if (SEEN.has(el.dataset.a)) el.classList.add('still'); });
+  drawArrows();
+  document.querySelectorAll('#stage .r3[data-id]').forEach(b => now.add(b.dataset.id+':arrow'));
+  SEEN = now;
+}
+
+/* ---------- Navigation ---------- */
+function goTo(p){ pos = p; render(); }
+function goStep(s){ goTo(A.findIndex(a=>a.step===s)); }
+let Z = 1;
+try { Z = +localStorage.getItem('change-zoom') || 1; } catch(e){}
+function applyZoom(){
+  Z = Math.round(Math.max(0.8, Math.min(1.6, Z))*10)/10;
+  document.documentElement.style.setProperty('--z', Z);
+  try { localStorage.setItem('change-zoom', Z); } catch(e){}
+  drawArrows(true);
+}
+$('dots').innerHTML = STEPS.map((s,i)=>`<button class="dot" data-s="${i}" title="${LET(i)}. ${s.title}" aria-label="${LET(i)}. ${s.title}"></button>`).join('');
+$('zm').addEventListener('click', ()=>{ Z -= 0.1; applyZoom(); });
+$('zp').addEventListener('click', ()=>{ Z += 0.1; applyZoom(); });
+$('next').addEventListener('click', ()=>goTo(pos+1));
+$('prev').addEventListener('click', ()=>goTo(pos-1));
+$('explain').addEventListener('click', e=>{ const b=e.target.closest('.ch'); if (!b || b.disabled) return; const {step,ph}=A[pos]; ANS[step+'.'+ph] = b.dataset.a; render(); });
+$('quit').addEventListener('click', ()=>{ window.close(); setTimeout(()=>{ $('quit-msg').style.display='block'; }, 300); });
+$('dots').addEventListener('click', e=>{ const b=e.target.closest('.dot'); if (b) goStep(+b.dataset.s); });
+document.addEventListener('keydown', e=>{
+  if (e.key==='ArrowRight' && !$('next').disabled) goTo(pos+1);
+  if (e.key==='ArrowLeft') goTo(pos-1);
+});
+window.addEventListener('resize', ()=>drawArrows(true));
+document.fonts && document.fonts.ready.then(()=>drawArrows(true));
+render();
+applyZoom();
+</script>
+<script src="theorie.js"></script>
+</body>
+</html>
