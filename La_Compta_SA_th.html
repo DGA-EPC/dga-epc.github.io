@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La SA – théorie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theorie.css">
+<style>
+:root{
+  --bg:#f5f3ee; --card:#fff; --ink:#1e2226; --muted:#6a6f76; --line:#e2ddd2; --soft:#efebe3;
+  --charge:#c2671f; --charge-bg:#fcefe3;
+  --produit:#2b8352; --produit-bg:#e6f4eb;
+  --res:#6d48b3; --res-bg:#efe9f9;
+  --passif:#a3333d; --passif-bg:#f8e8ea;
+  --bilan:#20394f; --bilan-bg:#e6ecf1;
+  --actif:#2a52be; --actif-bg:#e8eefb;
+  --accent:#c98a10; --accent-bg:#fff3d6;
+  --y1:#e8eefb; --y2:#fff3d6;
+}
+.calc.q{background:var(--bilan-bg)}
+.ch.ko{background:var(--charge);border-color:var(--charge);color:#fff;opacity:1}
+.fb.ko{border-left:4px solid var(--charge)}
+.ch.blink{animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{0%,100%{box-shadow:0 0 0 0 rgba(32,57,79,0)}50%{box-shadow:0 0 0 5px rgba(201,138,16,.75);background:var(--accent-bg)}}
+.tag.at{background:var(--actif-bg);color:var(--actif)}
+.tag.pt{background:var(--passif-bg);color:var(--passif)}
+.journal td.dt{color:var(--muted);white-space:nowrap}
+.journal tr.todo td{opacity:.38}
+.btn.quiz{display:flex;align-items:center;justify-content:center;background:#037DFF;color:#fff;border-color:#037DFF;text-align:center;text-decoration:none}
+
+/* Ligne du temps */
+.t{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 9px 8px;position:relative;min-width:0}
+.t-head{font-weight:700;font-size:13.5px;text-align:center;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t-body{display:grid;grid-template-columns:1fr 1fr;min-height:46px}
+.col{padding:4px 4px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.ln{display:flex;flex-wrap:wrap;justify-content:space-between;gap:3px;font-size:11.5px;border-radius:4px;padding:1px 2px}
+.ln .lb{color:var(--muted);line-height:1.25;min-width:0}
+.ln.ext .lb{font-style:italic}
+.eff .tag{font-size:11.5px}
+
+/* Introduction et résumé */
+.box{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.box h4{margin:0 0 6px;font-size:14px}
+.quad .hd.pt{background:var(--passif-bg);color:var(--passif)}
+
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;padding:12px 12px 90px}
+  aside{position:static;max-height:none;overflow:visible}
+  .nav-wrap{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(245,243,238,.95);backdrop-filter:blur(6px);padding:10px 12px;border-top:1px solid var(--line)}
+  .two,.quad{grid-template-columns:1fr}
+}
+
+/* --- Amortissements --- */
+.card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s,box-shadow .3s}
+.card.on{box-shadow:0 0 0 2px var(--accent)}
+.card.off{opacity:.45}
+.card .lt{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--soft);font-weight:700;font-size:12px;margin-right:6px}
+.card h4{margin:0 0 4px;font-size:15px;display:flex;align-items:center}
+.card .ex{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
+.ecr{display:flex;justify-content:space-between;gap:8px;font-size:13px;background:var(--soft);border-radius:8px;padding:6px 10px;font-weight:600}
+.ecr span:last-child{color:var(--muted);font-weight:500}
+.vocab tr.cur td{background:var(--hl)}
+.tab tr.todo td{color:transparent}
+.tab tr.cur td{background:var(--hl);font-weight:700}
+.tab tr.cur td.am{color:var(--charge)}
+.tab td.am{color:var(--charge)}.bil .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;padding:2px 0}
+.bil .row.sub{color:var(--passif)}
+.bil .row.tot{font-weight:700;border-top:1px solid var(--ink);margin-top:4px;padding-top:4px}
+.k-fac .t-head{color:var(--passif)}
+.t-head{white-space:normal !important;line-height:1.2;overflow:visible !important;text-overflow:clip !important;hyphens:auto;-webkit-hyphens:auto}
+.split{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:1100px){ .split{grid-template-columns:1fr} }
+
+/* --- Bilan et journal --- */
+.inv td.am{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+.inv td.tg2,.inv td.acc{width:1%;white-space:nowrap}
+@keyframes fadein{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
+.pill.a{background:var(--actif-bg);color:var(--actif)}.pill.p{background:var(--passif-bg);color:var(--passif)}
+.pill.acc{background:var(--soft);color:var(--ink)}
+.bl{display:grid;grid-template-columns:1fr 1fr;max-width:720px;margin:0 auto}
+.bl-title{grid-column:1/-1;text-align:center;font-family:Fraunces,Georgia,serif;font-weight:700;font-size:18px;padding-bottom:4px}
+.bl-head.a{color:var(--actif)}.bl-head.p{color:var(--passif);text-align:right}
+.bl-side.a{border-right:3px solid var(--ink)}
+.br{display:flex;justify-content:space-between;gap:10px;font-variant-numeric:tabular-nums;padding:2px 4px;border-radius:4px}
+.br.new{animation:pop 1.6s ease-out}
+.br.cap{color:var(--res);font-weight:700}
+.br.dec{color:var(--charge);font-weight:700}
+.bt.bad{color:var(--charge)}
+.qa.off{opacity:.25}
+.acct td.n{text-align:right;font-variant-numeric:tabular-nums}
+.acct th.n{text-align:right}
+.rule .pm{display:grid;grid-template-columns:1fr 1fr;border-top:2px solid var(--ink);font-size:22px;font-weight:700}
+.rule .pm span:first-child{border-right:2px solid var(--ink)}
+.rule .pm small{display:block;font-size:11px;color:var(--muted);font-weight:500}
+.plus{color:var(--produit)}.case{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s,box-shadow .3s}
+.case.on{box-shadow:0 0 0 2px var(--accent)}.case.off{opacity:.4}
+.case p{margin:0 0 8px;font-size:14.5px}
+.t-sides .sg{font-weight:700}
+.bl-side.p .bg.hl{color:var(--passif)}
+.bl-side.dim,.bl-head.dim{opacity:.3}
+.t-head{white-space:normal !important;line-height:1.2;overflow:visible !important;text-overflow:clip !important;hyphens:auto;-webkit-hyphens:auto}
+
+/* --- Salaires --- */
+.taux{border:3px solid var(--accent);border-radius:14px;padding:12px 16px;background:#fffdf6}
+.taux h3{margin:0 0 8px;font-family:Fraunces,Georgia,serif;color:var(--accent);display:flex;justify-content:space-between;align-items:baseline}
+.taux h3 small{font-family:Inter,sans-serif;font-size:12px;color:var(--muted);font-weight:500}
+.tt td.n,.tt th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tt tr.hl td{background:var(--hl);font-weight:600}
+.slip td{padding:6px 10px;border-bottom:1px dashed var(--line)}
+.slip td.n{text-align:right;white-space:nowrap}
+.slip tr.sub td:first-child{border-left:4px solid var(--charge)}
+.slip tr.add td.n{color:var(--produit)}.slip tr.sub td.n{color:var(--charge)}.slip tr.pay td.n{color:var(--actif)}
+.slip tr.tot td{font-weight:700;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
+.slip tr.cur td{background:var(--hl)}
+.chip{display:inline-block;padding:2px 9px;border-radius:7px;font-weight:600;font-size:13px}
+.chip.charge{background:var(--charge-bg);color:var(--charge)}
+.chip.passif{background:var(--passif-bg);color:var(--passif)}
+.chip.actif{background:var(--actif-bg);color:var(--actif)}
+.jl2 th.n,.jl2 td.n{text-align:right}
+.jl2 td{padding:6px 8px;border-bottom:1px dashed var(--line)}
+.jl2 tr.cur td{background:var(--hl)}
+.jl2 tr.new td{animation:pop 1.6s ease-out}
+.jl2 tr.tot td{font-weight:700;border-top:2px solid var(--ink)}
+.arrows{grid-column:1/-1;display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.arw.off{opacity:.12}
+.arw .line{height:4px;border-radius:2px;position:relative}
+.arw .line::after{content:"";position:absolute;top:-6px;border:8px solid transparent}
+.arw.r .line::after{right:-4px;border-left-color:inherit;border-left-width:12px;border-right-width:0}
+.arw.l .line::after{left:-4px;border-right-color:inherit;border-right-width:12px;border-left-width:0}
+.arw .lab{text-align:center;font-weight:600}
+.arw .amt{font-variant-numeric:tabular-nums;font-weight:700}
+.arw.new{animation:pop 1.6s ease-out}
+.bal{display:flex;flex-direction:column;gap:6px;max-width:520px;margin:14px auto 0;font-size:14px}
+.bal .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;padding:4px 10px;border-radius:6px}
+.bal .row.tot{font-weight:700;border-top:2px solid var(--ink)}
+.due{border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.due h4{margin:0 0 6px;font-size:14px;color:var(--passif)}
+.due .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;font-size:13.5px}
+.due .row.tot{font-weight:700;border-top:1px solid var(--ink);margin-top:4px;padding-top:4px}
+.due.on{box-shadow:0 0 0 2px var(--accent)}
+/* --- Titres --- */
+.acrow{display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:center;margin-bottom:10px}
+.acrow .t-body{min-height:26px}
+.acx{font-size:14px}
+.acgrp{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin:12px 0 6px}
+.jr-stage{max-width:760px;margin-bottom:16px}
+.lk{display:inline-block;padding:1px 8px;border-radius:7px;border:1.5px solid;font-weight:700}
+.code{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start;justify-content:center;padding:10px 0}
+.cpart{display:flex;flex-direction:column;align-items:center;gap:8px;max-width:170px;text-align:center}
+.ctok{font:700 30px/1 'Courier New',monospace;border:3px solid;border-radius:10px;padding:10px 14px;background:#fff}
+.clab{font-size:13px;font-weight:600;color:var(--ink)}
+.icbar{display:flex;height:40px;border-radius:8px;overflow:hidden;margin-top:10px;color:#fff;font-weight:600;font-size:13px}
+.ics{display:flex;align-items:center;justify-content:center;transition:background .4s}
+.icdates{position:relative;height:44px;font-size:12px;color:var(--muted);margin-top:6px}
+.icdates span{position:absolute;top:0;white-space:nowrap}
+.icdates span:nth-child(2){transform:translateX(-50%);text-align:center;color:var(--ink);font-weight:600}
+.steps3{display:flex;flex-direction:column;gap:4px;max-width:620px}
+.steps3 .calc{margin:6px 0}
+/* Action vs Obligation */
+.syn{width:100%;border-collapse:collapse;font-size:13.5px;table-layout:fixed}
+.syn th,.syn td{padding:8px 10px;border-bottom:1px dashed #9c9282;vertical-align:top;text-align:left}
+.syn tr>th:first-child{width:130px;font-weight:600;color:var(--muted);font-size:12.5px}
+.syn th.hd{font-family:Fraunces,Georgia,serif;font-size:19px;text-align:center;border-radius:10px 10px 0 0}
+.syn th.hd.a{background:var(--actif-bg);color:var(--actif)}.syn th.hd.o{background:var(--produit-bg);color:var(--produit)}
+.syn td.cur{background:var(--hl)}
+.syn .code{justify-content:flex-start;gap:8px;padding:0}.syn .ctok{font-size:20px;padding:6px 8px}.syn .clab{font-size:11.5px}.syn .cpart{max-width:110px}
+/* Dividendes et intérêts */
+.divt{max-width:620px}.divt td{font-size:15px}
+/* Donnée et jours */
+/* --- Intérêts --- */
+.tab.cal td,.tab.cal th{text-align:left}
+.jt{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.jt th{font-size:12px;color:var(--muted);font-weight:600;text-align:left;padding:6px 8px;border-bottom:2px solid var(--ink)}
+.jt td{padding:6px 8px;border-bottom:1px dashed #9c9282;vertical-align:top}
+.jt .n{text-align:right}
+.jt td.dates{white-space:nowrap}
+.jt tr.cur td{background:var(--hl)}
+.jt tr.why td{font-size:12.5px;color:var(--muted);padding-top:0;border-bottom:1px dashed #9c9282}
+.jt tr.why td{border-top:0}
+.an{display:inline-block;font-size:11px;font-weight:600;padding:1px 6px;border-radius:999px;background:var(--actif-bg);color:var(--actif);margin-left:4px}
+.an.bis{background:var(--passif-bg);color:var(--passif)}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 4px}
+.frac span:first-child{border-bottom:2px solid currentColor;padding:0 6px}
+.frac span:last-child{padding:0 6px}
+.fml{font-size:20px;font-weight:600;text-align:center;margin:10px 0}
+.fx2{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.fx2 .calc{margin:0}
+.lets{display:grid;grid-template-columns:repeat(4,minmax(0,140px));gap:10px;margin-top:12px}
+.let{display:flex;align-items:baseline;gap:8px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:18px}
+.let span{color:var(--muted);font-weight:600}
+.let.x{border:2px solid var(--accent);background:var(--accent-bg)}
+.cards.feb .card h4{font-size:17px}.cards.feb .card .ex{font-size:15.5px;color:var(--ink);line-height:1.5}
+.jt td.c{white-space:nowrap}
+.jt{table-layout:fixed}
+.jt s{color:var(--muted)}.jt .d2{color:var(--passif)}
+.donnee{font-size:14.5px;background:#f6f3ec;border-left:4px solid var(--accent);border-radius:6px;padding:8px 12px}
+.jours{border-collapse:collapse;font-size:13px;margin-top:4px;width:100%}
+.jours td{padding:2px 6px;border-bottom:1px dashed #9c9282}
+.jours td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.jours tr.tot td{font-weight:700;border-bottom:0;border-top:2px solid var(--ink)}
+.jnote{font-size:12px;color:var(--muted);margin-top:4px}
+
+/* --- SA (repris de la TVA) --- */
+.k-res .t-head{color:var(--res)}
+.bl{max-width:640px;margin:0}
+.chip.produit{background:var(--produit-bg);color:var(--produit)}
+.donnee{margin-bottom:12px}
+.tauxt td{font-size:14px}
+.tauxt td:nth-child(2){white-space:nowrap;font-weight:600}
+.tauxt td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:700;width:90px}
+.tauxt tr.new td{animation:pop 1.6s ease-out;background:var(--hl)}
+.tauxt tr.ex td{color:var(--muted)}
+.three{display:grid;grid-template-columns:1fr 34px 1fr 34px 1fr;align-items:stretch;gap:6px}
+.actor{border:2px solid var(--line);border-radius:14px;padding:10px 12px;background:#fff;min-height:120px}
+.actor h4{margin:0 0 6px;font-family:Fraunces,Georgia,serif;font-size:18px;text-align:center}
+.actor.on{box-shadow:0 0 0 3px var(--accent)}
+.actor.off{opacity:.25}
+.actor .row{display:flex;justify-content:space-between;gap:8px;font-variant-numeric:tabular-nums;font-size:14px;padding:2px 4px;border-radius:4px}
+.actor .row.tot{font-weight:700;border-top:1px solid var(--ink);margin-top:2px}
+.actor .row.tva{color:var(--passif);font-weight:600}
+.actor .row.ip{color:var(--actif);font-weight:600}
+.actor .row.afc{background:var(--hl);font-weight:700}
+.actor .sub{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:8px 0 2px}
+.flowarr{display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--muted)}
+.afcbox{margin:16px auto 0;max-width:520px;border:3px solid var(--res);border-radius:14px;padding:10px 16px;background:#faf8fe}
+.afcbox h4{margin:0 0 6px;font-family:Fraunces,Georgia,serif;color:var(--res);text-align:center;font-size:18px}
+.afcbox .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;font-size:14.5px;padding:2px 0}
+.afcbox .row.tot{font-weight:700;border-top:2px solid var(--ink);margin-top:4px;padding-top:4px}
+.pct{color:var(--muted);font-size:12.5px;text-align:right;width:70px}
+.fml2{font-size:17px;font-weight:600;margin:10px 0 0;font-variant-numeric:tabular-nums}
+.fml2 .sol{display:inline-block;padding:2px 10px;border-radius:8px;background:var(--hl);border:2px solid var(--accent);font-weight:700}
+.acrow{display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:center;margin-bottom:10px}
+.acrow .t-body{min-height:26px}
+.acrow.new{animation:pop 1.6s ease-out}
+.acx{font-size:14px}
+/* flèches × 1.081 / : 1.081 dans le tableau HT-TTC */
+.tab th.arrc,.tab td.arrc{width:180px;padding:0 6px;text-align:center;vertical-align:middle;border-bottom:1px dashed var(--line)}
+.varr{display:flex;gap:8px;justify-content:center;height:96px}
+.va{position:relative;width:82px;display:flex;align-items:center;justify-content:center;animation:fadein .6s ease-out}
+.va::before{content:"";position:absolute;left:50%;width:3px;margin-left:-1.5px;top:8px;bottom:8px;background:currentColor}
+.va::after{content:"";position:absolute;left:50%;margin-left:-8px;border:8px solid transparent}
+.va.down{color:var(--actif)}.va.down::after{bottom:-6px;border-top:12px solid currentColor;border-bottom:0}
+.va.up{color:var(--charge)}.va.up::after{top:-6px;border-bottom:12px solid currentColor;border-top:0}
+.va span{position:relative;z-index:1;background:#fff;border:2px solid currentColor;border-radius:8px;padding:2px 6px;font-weight:700;font-size:13px;white-space:nowrap}
+@media (max-width:1000px){ .three{grid-template-columns:1fr} .flowarr{transform:rotate(90deg)} }
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="panel">
+      <h1>La SA</h1>
+      <p class="sub">Comptes de la SA · création et libération · droit de timbre · augmentation de capital · distribution du bénéfice</p>
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <div class="panel" id="explain"></div>
+
+    <div class="nav-wrap">
+      <div class="nav">
+        <button class="btn" id="prev">← Précédent</button>
+        <button class="btn primary" id="next">Suite →</button>
+      </div>
+    </div>
+
+    <div class="nav exit">
+      <button class="btn quit" id="quit">Quitter</button>
+    </div>
+    <p class="note" id="quit-msg" style="display:none;color:#fff">Le navigateur ne permet pas de fermer cette fenêtre automatiquement : fermer l'onglet.</p>
+  </aside>
+
+  <main class="stage" id="stage"></main>
+</div>
+<div class="zoombar"><button id="zm" title="Réduire la taille" aria-label="Réduire la taille">A−</button><button id="zp" title="Agrandir la taille" aria-label="Agrandir la taille">A+</button></div>
+
+<script>
+/* =====================================================================
+   *** TAUX À METTRE À JOUR ***
+   ===================================================================== */
+const TX = {
+  ia:        35,        // impôt anticipé sur les dividendes (%)
+  avs:       5.3,       // retenue AVS sur les tantièmes (%)
+  timbre:    1,         // droit de timbre (%)
+  franchise: 1000000,   // premier million exonéré du droit de timbre
+  resMin:    5,         // attribution à la réserve sur bénéfice si les réserves < 50 % du capital (% du bénéfice)
+  divOrd:    5,         // dividende ordinaire (% du capital libéré)
+  arrSuper:  0.5        // le taux du superdividende s'arrondit vers le bas à 0.5 %
+};
+/* ===================================================================== */
+const ANS = {};
+const fmt = n => { const neg=n<0; n=Math.abs(Math.round(n*100)/100); const [i,d]=n.toFixed(2).split('.');
+  return (neg?'−':'') + i.replace(/\B(?=(\d{3})+(?!\d))/g,"'") + (d!=='00' ? '.'+d : ''); };
+const f2 = n => fmt(n);   // montants : les centimes seulement s'il y en a (75'000 · 8'049.50)
+const pc = x => String(x) + '&nbsp;%';
+const r05 = v => Math.round(v*20 + 1e-9)/20;          // les francs s'arrondissent à 0.05
+const $ = id => document.getElementById(id);
+const KIND = {'Caisse':'actif','Banque':'actif','Machines':'actif','Véhicules':'actif','Stock de marchandises':'actif','Actionnaires':'actif','Participants':'actif',
+  'Capital-actions':'passif','Capital-participations':'passif','Réserve légale sur capital':'passif','Réserve légale sur bénéfice':'passif',
+  'Bénéfice reporté':'passif','Bénéfice de l\'exercice':'passif','Dividendes':'passif','Tantièmes':'passif','Dettes AFC':'passif','Dettes AVS':'passif',
+  'FAO':'charge'};
+const PLUS_D = k => k==='actif' || k==='charge';
+let PLAIN = false, MONO = false;   // PLAIN : comptes en T sans couleur · MONO : montants du journal sans couleur   // true : comptes sans couleur (seuls les montants sont colorés)
+const chip = a => `<span>${a}</span>`;   // journal : comptes en noir
+/* Couleur de liaison = compte de destination du montant */
+const LINK = {'Caisse':'#4b5563','Banque':'#4b5563','Machines':'#2a52be','Véhicules':'#2a52be','Stock de marchandises':'#2a52be','Actionnaires':'#0e7490','Participants':'#0e7490',
+  'Capital-actions':'#7a2730','Capital-participations':'#7a2730','Réserve légale sur capital':'#6d48b3','Réserve légale sur bénéfice':'#6d48b3',
+  'Bénéfice reporté':'#1f7a4d','Bénéfice de l\'exercice':'#2a52be','Dividendes':'#a3333d','Tantièmes':'#b45309','Dettes AFC':'#a3333d','Dettes AVS':'#a3333d','FAO':'#c2671f'};
+const pill = (acc, txt) => acc ? `<span class="lk" style="color:${LINK[acc]};background:${LINK[acc]}1f;border-color:${LINK[acc]}">${txt}</span>` : txt;
+
+/* ---------- Décompte : d'où viennent les montants ---------- */
+function bordHTML(title, rows){
+  return `<div style="font-weight:700;margin-bottom:6px">${title}</div><table class="slip">${rows.map(r=>`<tr class="${r.k||''}"><td>${r.lb}</td><td class="pct">${r.p||''}</td><td class="calc2">${r.calc||''}</td><td class="calc2">${r.to?'→ '+r.to:''}</td><td class="n">${r.to?pill(r.to,f2(r.amt)):f2(r.amt)}</td></tr>`).join('')}</table>`;
+}
+
+/* ---------- Journal à deux colonnes + comptes en T ---------- */
+// J : lignes {ph, n, d|c, amt}  ·  {ph, open:compte, side, amt, lab}
+function journalHTML(J, ph){
+  let rows = J.filter(e=>!e.open);
+  // une écriture à deux comptes (un débit, un crédit, même montant) tient sur une seule ligne ; chaque compte apparaît à son tour
+  const byN = {}; rows.forEach(e=>(byN[e.n] = byN[e.n] || []).push(e));
+  rows = Object.values(byN).flatMap(g => g.length===2 && g[0].d && g[1].c && g[0].amt===g[1].amt
+    ? [{n:g[0].n, d:g[0].d, c:g[1].c, amt:g[0].amt, phd:g[0].ph, phc:g[1].ph}] : g.map(e=>({...e, phd:e.ph, phc:e.ph})));
+  const am = (acc, v) => MONO ? f2(v) : pill(acc, f2(v));
+  return `<table class="jl2"><tr><th>N°</th><th>Compte débité</th><th>Compte crédité</th><th class="n">Débit</th><th class="n">Crédit</th></tr>
+    ${rows.map((e,i)=>{ const sd = e.d && e.phd<=ph, sc = e.c && e.phc<=ph;
+      return `<tr class="${!sd && !sc ? 'hide' : ''}"><td>${i>0 && rows[i-1].n===e.n ? '' : e.n}</td><td>${sd?chip(e.d):''}</td><td>${sc?chip(e.c):''}</td>
+      <td class="n">${sd?am(e.d,e.amt):''}</td><td class="n">${sc?am(e.c,e.amt):''}</td></tr>`; }).join('')}</table>`;
+}
+function postings(J, acc, ph){
+  const P = {d:[], c:[]};
+  J.forEach(e=>{
+    if (e.ph>ph) return;
+    const fresh = e.ph===ph;
+    if (e.open){ if (e.open===acc) P[e.side].push({lb:e.lab||'sàn', amt:e.amt, fresh}); return; }
+    if (e.d===acc) P.d.push({lb:e.n, amt:e.amt, fresh});
+    if (e.c===acc) P.c.push({lb:e.n, amt:e.amt, fresh});
+  });
+  return P;
+}
+const sum = a => a.reduce((s,l)=>s+l.amt,0);
+const bal = (acc,P) => PLUS_D(KIND[acc]) ? sum(P.d)-sum(P.c) : sum(P.c)-sum(P.d);
+function tHTML(acc, P, focus, eff){
+  const k = KIND[acc], pd = PLUS_D(k);
+  const col = arr => arr.map(l=>`<div class="ln ${l.fresh?'fresh':''}"><span class="lb">${l.lb}</span><span class="am">${f2(l.amt)}</span></div>`).join('');
+  return `<div class="t ${PLAIN?'':'k-'+k} ${focus?'focus':''}">
+    <div class="t-sides"><span>D <b class="sg ${pd?'plus':'minus'}">${pd?'+':'−'}</b></span><span class="t-head" title="${acc}">${acc}</span><span><b class="sg ${pd?'minus':'plus'}">${pd?'−':'+'}</b> C</span></div>
+    <div class="t-body"><div class="col d">${col(P.d)}</div><div class="col c">${col(P.c)}</div></div>
+    ${eff?`<div class="eff">${eff}</div>`:''}</div>`;
+}
+function compta(J, accs, ph, eff, plain){
+  PLAIN = plain===true; MONO = plain==='mono';
+  const ts = accs.map(acc=>{ const P = postings(J, acc, ph);
+    const focus = J.some(e=>e.ph===ph && !e.open && (e.d===acc||e.c===acc));
+    return tHTML(acc, P, focus, eff ? eff(acc,P,ph) : ''); }).join('');
+  const out = `<section class="sec"><h2>Dans la comptabilité</h2><div class="jr-stage">${journalHTML(J, ph)}</div><div class="tg">${ts}</div></section>`;
+  PLAIN = false; MONO = false; return out;
+}
+/* Donnée en haut de la partie de droite : les opérations, celle en cours en évidence */
+const donnee = (titre, ops, cur) => `<section class="sec"><h2>${titre}</h2><div class="donnee" style="margin:0">${ops.map((o,i)=>i<=cur
+  ? `<div style="padding:2px 6px;border-radius:5px;${i===cur?'background:var(--hl);font-weight:600':''}">${o}</div>` : '').join('')}</div></section>`;
+
+/* ---------- Comptes en T avec des libellés (raison individuelle) ---------- */
+function tLab(acc, kind, D, C, focus){
+  const pd = PLUS_D(kind), sg = kind!=='res';
+  const col = arr => arr.map(l=>`<div class="ln"><span class="lb" style="color:var(--ink);font-style:normal">${l}</span></div>`).join('');
+  return `<div class="t k-${kind} ${focus?'focus':''}">
+    <div class="t-sides"><span>D ${sg?`<b class="sg ${pd?'plus':'minus'}">${pd?'+':'−'}</b>`:''}</span><span class="t-head">${acc}</span><span>${sg?`<b class="sg ${pd?'minus':'plus'}">${pd?'−':'+'}</b>`:''} C</span></div>
+    <div class="t-body"><div class="col d">${col(D)}</div><div class="col c">${col(C)}</div></div></div>`;
+}
+/* ---------- Bilan en deux colonnes ---------- */
+// A, P : listes de [libellé, montant ou '', classe] ; une ligne ['#Groupe'] = titre de groupe
+function bilanHTML(title, A, P, totaux=true){
+  const tot = rows => rows.reduce((t,r)=>t+(typeof r[1]==='number'?r[1]:0),0);
+  const side = rows => rows.map(([l, v, c]) => l[0]==='#' ? `<div class="bg">${l.slice(1)}</div>`
+    : `<div class="br ${c||''}"><span>${l}</span><span>${v===''||v===undefined?'':f2(v)}</span></div>`).join('');
+  return `<div class="bl"><div class="bl-title">${title}</div>
+    <div class="bl-head a">Actif</div><div class="bl-head p">Passif</div>
+    <div class="bl-side a">${side(A)}</div><div class="bl-side p">${side(P)}</div>
+    ${totaux && [...A,...P].some(r=>typeof r[1]==='number') ? `<div class="bt"><span>Total</span><span>${f2(tot(A))}</span></div><div class="bt"><span>Total</span><span>${f2(tot(P))}</span></div>` : ''}</div>`;
+}
+
+/* ---------- Les données (fichier Excel « SA ») ---------- */
+// B. Création : 50'000 actions de 10.– = 500'000
+const CR = {ca:500000, vn:10, fao:3500}; CR.nb = CR.ca/CR.vn;
+// Libération en nature
+const NAT = [['Caisse',500],['Machines',15000],['Véhicules',8000],['Stock de marchandises',1500]]; const NATT = NAT.reduce((t,r)=>t+r[1],0);
+// Libération partielle : 80 %
+const LP = {pct:80}; LP.lib = CR.ca*LP.pct/100; LP.rest = CR.ca - LP.lib;
+// C. Droit de timbre : on « consomme » la franchise d'un million, augmentation après augmentation
+function timbre(montants){ let reste = TX.franchise;
+  return montants.map(m => { const fr = Math.min(reste, m); reste -= fr; const base = m - fr;
+    return {m, fr, base, dt: base*TX.timbre/100}; }); }
+const TBA = timbre([1300000, 800000]), TBB = timbre([700000, 700000, 600000]);
+// D. Augmentation de capital : 1'000 actions, nominal 200.–, prix d'émission 800.–, libérées à 60 %
+const AUG = {nb:1000, vn:200, pe:800, pct:60}; AUG.prime = AUG.pe - AUG.vn; AUG.vnLib = AUG.vn*AUG.pct/100; AUG.paye = AUG.vnLib + AUG.prime;
+AUG.tCa = AUG.nb*AUG.vn; AUG.tPr = AUG.nb*AUG.prime; AUG.tPe = AUG.nb*AUG.pe; AUG.tPaye = AUG.nb*AUG.paye;
+// E. Distribution du bénéfice
+const DB = {ca:800000, pct:75, rc:50000, rb:150000, br:4780, be:85000, tant:10};
+DB.lib = DB.ca*DB.pct/100; DB.nonlib = DB.ca - DB.lib; DB.res = DB.rc + DB.rb; DB.moitie = DB.ca/2; DB.resPct = DB.res/DB.ca*100;
+DB.oblig = DB.res < DB.moitie; DB.att = DB.oblig ? DB.be*TX.resMin/100 : 0;
+DB.dist = DB.be + DB.br; DB.div = DB.lib*TX.divOrd/100; DB.tan = DB.be*DB.tant/100;
+DB.solde = DB.dist - DB.att - DB.div - DB.tan; DB.un = DB.lib/100; DB.tauxBrut = DB.solde/DB.un;
+DB.taux = Math.floor(DB.tauxBrut/TX.arrSuper + 1e-9)*TX.arrSuper; DB.sup = DB.lib*DB.taux/100; DB.rep = Math.round((DB.solde - DB.sup)*100)/100;
+DB.divTot = DB.div + DB.sup; DB.ia = r05(DB.divTot*TX.ia/100); DB.divNet = DB.divTot - DB.ia;
+DB.avs = r05(DB.tan*TX.avs/100); DB.tanNet = Math.round((DB.tan - DB.avs)*100)/100;
+const pc2 = x => String(Math.round(x*100)/100) + '&nbsp;%';
+
+/* ---------- Pas à pas : la donnée, puis l'écriture ligne après ligne ----------
+   ops : [{don : texte de la donnée, txt : explication, q : question éventuelle, lines : [[ 'd'|'c', compte, montant, explication ], …]}]
+   start : numéro de la première phase · lastBtn : bouton de la dernière ligne */
+function seq(ops, start, lastBtn){
+  const P = [], J = [], OP = [], LN = [];
+  ops.forEach((o, k) => {
+    P.push({btn:'Écriture →', text:o.txt, q:o.q}); OP.push(k); LN.push(null);
+    o.lines.forEach(([side, acc, amt, why], j) => {
+      const abs = start + P.length, n = o.n || k+1;
+      J.push(side==='d' ? {ph:abs, n, d:acc, amt} : {ph:abs, n, c:acc, amt});
+      const last = j===o.lines.length-1;
+      P.push({btn: last ? (k<ops.length-1 ? 'Donnée suivante →' : (lastBtn||'Suite →')) : 'Ligne suivante →', text:why}); OP.push(k); LN.push(j);
+    });
+  });
+  return {P, J, OP, LN, start, end:start+P.length, first:start+1,
+    op: ph => OP[Math.max(0, Math.min(ph-start, OP.length-1))],
+    line: ph => (ph-start>=0 && ph-start<LN.length) ? LN[ph-start] : null};
+}
+const D_ = (acc, amt) => `<b>${acc}</b> au débit : ${fmt(amt)}.`, C_ = (acc, amt) => `<b>${acc}</b> au crédit : ${fmt(amt)}.`;
+
+/* ---------- Le tableau de distribution (étapes H et I) ---------- */
+function tabDist(ph, done, col, hl=[]){
+     const R = [[0,'Bénéfice de l\'exercice','',DB.be,'','Bénéfice de l\'exercice'],[0,'+ Bénéfice reporté','',DB.br,'','Bénéfice reporté'],[0,'= À distribuer','',DB.dist,'tot'],
+       [1,'− Réserve légale sur bénéfice',`${TX.resMin}&nbsp;% de ${fmt(DB.be)}`,DB.att,'sub','Réserve légale sur bénéfice'],[2,'− Dividende',`${TX.divOrd}&nbsp;% de ${fmt(DB.lib)}`,DB.div,'sub','Dividendes'],
+       [3,'− Tantièmes',`${DB.tant}&nbsp;% de ${fmt(DB.be)}`,DB.tan,'sub','Tantièmes'],[3,'= Solde avant superdividende','',DB.solde,'tot'],
+       [4,'− Superdividende',done?`${pc(DB.taux)} de ${fmt(DB.lib)}`:'? % de '+fmt(DB.lib),done?DB.sup:null,'sub','Dividendes'],[5,'= Bénéfice à reporter','',DB.rep,'tot','Bénéfice reporté']];
+     return `<section class="sec"><h2>Tableau de distribution du bénéfice</h2><table class="slip">
+       ${R.filter(r=>ph>=r[0]).map(([p,l,c,v,k,to],i)=>`<tr class="${k||''} ${p===ph||hl.includes(i)?'cur':''}"><td>${l}</td><td class="calc2">${c}</td><td class="n">${v===null?'?':col&&to?pill(to,f2(v)):f2(v)}</td></tr>`).join('')}</table></section>`; }
+
+/* Les séquences des étapes en pas à pas */
+const SC = seq([
+  {don:`1. La SA met en souscription ${fmt(CR.nb)} actions de ${fmt(CR.vn)}.– de valeur nominale. Le capital est entièrement souscrit : ${fmt(CR.ca)}.`,
+   txt:`1. La <b>souscription</b> : les actionnaires s'engagent à acheter les ${fmt(CR.nb)} actions de ${fmt(CR.vn)}.–, soit ${fmt(CR.ca)}.`,
+   lines:[['d','Actionnaires',CR.ca,`Les actionnaires s'engagent à payer : ils deviennent <b>débiteurs</b> de la SA.<br><br>${D_('Actionnaires',CR.ca)}`],
+          ['c','Capital-actions',CR.ca,`Le capital de la SA est créé : il vaut la valeur nominale de toutes les actions.<br><br>${C_('Capital-actions',CR.ca)}`]]},
+  {don:`2. Les actionnaires libèrent entièrement le capital à l'office de consignation, la banque.`,
+   txt:`2. La <b>libération</b> : les actionnaires versent l'argent à la banque (l'office de consignation).`,
+   lines:[['d','Banque',CR.ca,`L'argent arrive à la banque.<br><br>${D_('Banque',CR.ca)}`],
+          ['c','Actionnaires',CR.ca,`Les actionnaires ont payé : leur dette envers la SA disparaît.<br><br>${C_('Actionnaires',CR.ca)} Le compte est soldé.`]]},
+  {don:`3. Les frais de fondation sont payés par banque : ${fmt(CR.fao)}.`,
+   txt:`3. Les <b>frais de fondation</b> (notaire, registre du commerce, impression des actions…) sont payés par banque : ${fmt(CR.fao)}.<br><br>Compte <b>FAO</b> : frais de fondation, d'augmentation de capital et d'organisation.`,
+   q:{text:'Les FAO sont…', opts:[['c','une charge'],['a','un actif']], ok:'c', fb:'ce sont des frais : compte de <b>charge</b>.'},
+   lines:[['d','FAO',CR.fao,`Les frais sont une charge.<br><br>${D_('FAO',CR.fao)}`],
+          ['c','Banque',CR.fao,`Ils sont payés par la banque.<br><br>${C_('Banque',CR.fao)}`]]}], 0, 'Les cas spéciaux →');
+const SN = seq([
+  {don:`Un actionnaire libère ses actions en nature : ${NAT.map(([a,v])=>`${a.toLowerCase()} ${fmt(v)}`).join(', ')}. Total : ${fmt(NATT)}.`,
+   txt:`Les actionnaires peuvent libérer leurs actions <b>en nature</b> : ils apportent du matériel, des marchandises, des créances… ou toute une entreprise.<br><br>Chaque bien apporté est débité à son compte.`,
+   lines:[...NAT.map(([a,v])=>['d',a,v,`L'actionnaire apporte : ${a.toLowerCase()}.<br><br>${D_(a,v)}`]),
+          ['c','Actionnaires',NATT,`Le total des apports libère ses actions : sa dette diminue.<br><br>${C_('Actionnaires',NATT)}`]]}], 0, 'La libération partielle →');
+const SP = seq([
+  {don:`1. Souscription : capital de ${fmt(CR.ca)} entièrement souscrit.`, txt:`1. La <b>souscription</b> : le capital de ${fmt(CR.ca)} est entièrement souscrit.`,
+   lines:[['d','Actionnaires',CR.ca,`Les actionnaires doivent tout le capital souscrit.<br><br>${D_('Actionnaires',CR.ca)}`],
+          ['c','Capital-actions',CR.ca,`Le capital-actions vaut toujours la valeur nominale de <b>toutes</b> les actions.<br><br>${C_('Capital-actions',CR.ca)}`]]},
+  {don:`2. Libération partielle : les actionnaires versent ${LP.pct}&nbsp;% du capital à la banque.`, txt:`2. La <b>libération partielle</b> : les actionnaires versent ${LP.pct}&nbsp;% de ${fmt(CR.ca)} = ${fmt(LP.lib)} à la banque.`,
+   lines:[['d','Banque',LP.lib,`L'argent versé arrive à la banque.<br><br>${D_('Banque',LP.lib)}`],
+          ['c','Actionnaires',LP.lib,`La dette des actionnaires diminue de ce qu'ils ont versé.<br><br>${C_('Actionnaires',LP.lib)} Il reste un solde de ${fmt(LP.rest)}.`]]}], SN.end+1, 'Le bilan →');
+const SI = seq([{don:'', txt:'', lines:[
+   ['d','Bénéfice de l\'exercice',DB.be,`On vide le compte <b>Bénéfice de l'exercice</b> : tout le bénéfice est distribué.<br><br>${D_('Bénéfice de l\'exercice',DB.be)}`],
+   ['d','Bénéfice reporté',DB.br,`On vide aussi l'ancien <b>Bénéfice reporté</b>.<br><br>${D_('Bénéfice reporté',DB.br)}`],
+   ['c','Dividendes',DB.divTot,`Les dividendes : dividende + superdividende = ${fmt(DB.div)} + ${fmt(DB.sup)}. C'est une dette envers les actionnaires.<br><br>${C_('Dividendes',DB.divTot)}`],
+   ['c','Réserve légale sur bénéfice',DB.att,`La réserve augmente.<br><br>${C_('Réserve légale sur bénéfice',DB.att)}`],
+   ['c','Tantièmes',DB.tan,`Les tantièmes : une dette envers les administrateurs.<br><br>${C_('Tantièmes',DB.tan)}`],
+   ['c','Bénéfice reporté',DB.rep,`Le reste devient le nouveau <b>Bénéfice reporté</b>.<br><br>${C_('Bénéfice reporté',DB.rep)}`]]}], 0, 'Le paiement →');
+SI.P[0] = {btn:'Écriture →', text:`Après la décision de l'AG, on reprend les montants du tableau de distribution : chaque montant garde <b>sa couleur</b> dans le journal.<br><br>On passe l'écriture ligne après ligne.`};
+const SI_HL = [[], [0], [1], [4,7], [3], [5], [8]];   // lignes du tableau en évidence à chaque phase
+const SJ = seq([
+  {don:`1. Paiement des dividendes par banque, ${fmt(DB.divTot)} brut. L'impôt anticipé de ${TX.ia}&nbsp;% est retenu.`,
+   txt:`La SA verse les dividendes par banque, mais elle retient l'<b>impôt anticipé</b> de <b>${TX.ia}&nbsp;%</b> pour l'AFC.<br><br>${TX.ia}&nbsp;% de ${fmt(DB.divTot)} = ${fmt(DB.ia)}. Les actionnaires reçoivent ${fmt(DB.divNet)}.`,
+   q:{text:'L\'impôt anticipé retenu est…', opts:[['c','une charge de la SA'],['d','une dette envers l\'AFC']], ok:'d', fb:'la SA le retient pour l\'AFC et doit le lui verser : <b>Dettes AFC</b>.'},
+   lines:[['d','Dividendes',DB.divTot,`La dette envers les actionnaires est payée : on la vide.<br><br>${D_('Dividendes',DB.divTot)}`],
+          ['c','Banque',DB.divNet,`Les actionnaires reçoivent le dividende <b>net</b> (${100-TX.ia}&nbsp;%).<br><br>${C_('Banque',DB.divNet)}`],
+          ['c','Dettes AFC',DB.ia,`L'impôt anticipé retenu est dû à l'AFC.<br><br>${C_('Dettes AFC',DB.ia)}`]]},
+  {don:`2. Versement de l'impôt anticipé à l'AFC par banque.`, txt:`2. La SA verse l'impôt anticipé retenu à l'AFC, par banque : ${fmt(DB.ia)}.`,
+   lines:[['d','Dettes AFC',DB.ia,`La dette envers l'AFC est payée.<br><br>${D_('Dettes AFC',DB.ia)}`],
+          ['c','Banque',DB.ia,`${C_('Banque',DB.ia)}`]]},
+  {don:`3. Paiement des tantièmes par banque, ${fmt(DB.tan)} brut. Retenue AVS de ${TX.avs}&nbsp;%.`,
+   txt:`Les tantièmes sont un revenu des administrateurs : la SA retient les cotisations <b>AVS</b> de <b>${TX.avs}&nbsp;%</b>.<br><br>${TX.avs}&nbsp;% de ${fmt(DB.tan)} = ${fmt(DB.avs)}. Les administrateurs reçoivent ${fmt(DB.tanNet)}.`,
+   lines:[['d','Tantièmes',DB.tan,`La dette envers les administrateurs est payée.<br><br>${D_('Tantièmes',DB.tan)}`],
+          ['c','Banque',DB.tanNet,`Les administrateurs reçoivent les tantièmes <b>nets</b>.<br><br>${C_('Banque',DB.tanNet)}`],
+          ['c','Dettes AVS',DB.avs,`La retenue AVS est due à la caisse AVS.<br><br>${C_('Dettes AVS',DB.avs)}`]]}], 0, 'Suite →');
+
+/* ---------- Les étapes ---------- */
+const STEPS = [
+ { title:'De la raison individuelle à la SA',
+   ph:[{btn:'En cas de perte →', text:`Rappel : dans une <b>raison individuelle</b>, le propriétaire a un compte <b>Privé</b> et un compte <b>Capital</b>.<br><br>En cas de <b>bénéfice</b> : son salaire et les intérêts sur son capital vont au crédit du Privé. En dernier, après les autres écritures, le <b>bénéfice net</b> y est viré depuis le compte de résultat. Ce qui reste après ses prélèvements augmente sa fortune (AF) : le Capital augmente.`},
+       {btn:'Dans une SA →', text:`En cas de <b>perte</b> : les prélèvements sont au débit du Privé et, en dernier, la <b>perte nette</b> virée depuis le compte de résultat. Si le Privé est débiteur, la fortune diminue (DF) : le Capital diminue.`},
+       {btn:'La structure →', text:`Dans une <b>société anonyme (SA)</b>, il n'y a <b>pas de compte Privé</b>. Les propriétaires sont les <b>actionnaires</b>.<br><br>Le capital-actions est <b>fixe</b> : il ne change qu'avec une décision de l'assemblée générale (AG). Le bénéfice reste dans la SA jusqu'à ce que l'AG décide de sa <b>distribution</b>.`,
+        q:{text:'Dans une SA, le bénéfice de l\'exercice va…', opts:[['p','au compte Privé'],['c','au capital-actions'],['b','au compte Bénéfice de l\'exercice']], ok:'b',
+           fb:'il reste au passif, au compte <b>Bénéfice de l\'exercice</b>, jusqu\'à la décision de l\'AG.'}}],
+   stage: ph => `<section class="sec ${ph<2?'':''}"><h2>Raison individuelle${ph===0?' : bénéfice':ph===1?' : perte':''}</h2><div class="tg" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+       ${ph===1
+         ? tLab('Privé','passif',['Prélèvements','Perte nette (PN)'],['Salaire net','Intérêts s/capital','DF (spb)'],true)
+           + tLab('Capital','passif',['DF','spb'],['sàn'],true) + tLab('Résultat','res',['Charges'],['Produits','Perte nette (PN)'])
+         : tLab('Privé','passif',['Prélèvements','AF (spb)'],['Salaire net','Intérêts s/capital','Bénéfice net (BN)'],ph===0)
+           + tLab('Capital','passif',['spb'],['sàn','AF'],ph===0) + tLab('Résultat','res',['Charges','Bénéfice net (BN)'],['Produits'])}</div>
+       <p class="note">AF : augmentation de fortune · DF : diminution de fortune · spb : solde pour balance · sàn : solde à nouveau</p></section>
+     ${ph>=2?`<section class="sec"><h2>Dans une SA</h2><div class="cards">
+       <div class="card"><div class="ico">🚫</div><h4>Pas de compte Privé</h4><div class="ex">Les propriétaires sont les actionnaires. Ils ne prélèvent pas d'argent dans la société.</div></div>
+       <div class="card"><div class="ico">🔒</div><h4>Un capital fixe</h4><div class="ex">Le capital-actions ne change qu'avec une décision de l'AG (augmentation ou réduction).</div></div>
+       <div class="card"><div class="ico">🗳️</div><h4>Le bénéfice est distribué par l'AG</h4><div class="ex">Dividendes aux actionnaires, tantièmes aux administrateurs, réserves, bénéfice reporté.</div></div></div></section>`:''}` },
+
+ { title:'Les comptes de la SA',
+   ph:[{btn:'Les dettes →', text:`Le bilan d'une SA a des <b>comptes propres</b>. On commence par les <b>capitaux propres</b>.<br><br>Le <b>capital-actions</b> : la valeur nominale de toutes les actions. Le <b>capital-participation</b> : la même chose pour les bons de participation (sans droit de vote).`},
+       {btn:'Les réserves →', text:`Quand l'AG décide la distribution du bénéfice, les montants à verser deviennent des <b>dettes à court terme</b> :<br>• <b>Dividendes</b> : la part du bénéfice versée aux actionnaires ;<br>• <b>Tantièmes</b> : la part versée aux administrateurs (une sorte de salaire).`},
+       {btn:'Le bénéfice →', text:`Les <b>réserves légales</b> :<br>• <b>issue du capital</b> : la prime payée lors d'une augmentation de capital ;<br>• <b>issue du bénéfice</b> : la part du bénéfice que la SA garde.`},
+       {btn:'Le capital non libéré →', text:`Le <b>bénéfice reporté</b> : ce qui reste des années précédentes.<br>Le <b>bénéfice de l'exercice</b> : le bénéfice de l'année, en attente de la décision de l'AG.`},
+       {btn:'La création →', text:`À l'actif, les comptes <b>Actionnaires</b> et <b>Participants</b> : le capital souscrit mais <b>pas encore versé</b>. C'est une créance de la SA envers ses actionnaires.`,
+        q:{text:'Le compte Actionnaires est…', opts:[['a','un actif (une créance)'],['p','un passif (une dette)']], ok:'a',
+           fb:'les actionnaires <b>doivent</b> encore verser le capital souscrit : c\'est une <b>créance</b>, à l\'actif.'}}],
+   stage: ph => { const on = i => ph===i ? 'new' : '';
+     const A = [['#Actifs circulants'],['Liquidités, créances, stock…',''],['#Actifs immobilisés'],['Machines, véhicules, immeubles…','']];
+     if (ph>=4) A.push(['#Capital non libéré'],['Actionnaires','','cap '+on(4)],['Participants','','cap '+on(4)]);
+     const P = [];
+     if (ph>=1) P.push(['#Dettes à court terme'],['Dividendes','','dec '+on(1)],['Tantièmes','','dec '+on(1)]);
+     P.push(['#Capitaux propres'],['Capital-actions','',on(0)],['Capital-participations','',on(0)]);
+     if (ph>=2) P.push(['Réserve légale sur capital','',on(2)],['Réserve légale sur bénéfice','',on(2)]);
+     if (ph>=3) P.push(['Bénéfice reporté','',on(3)],['Bénéfice de l\'exercice','',on(3)]);
+     return `<section class="sec"><h2>Le bilan d'une SA</h2>${bilanHTML('Bilan de la SA', A, P)}</section>`; } },
+
+ { title:'La création d\'une SA',
+   ph:SC.P,
+   stage: ph => donnee(`Donnée : création d'une SA, capital de ${fmt(CR.ca)}`, [
+         `1. La SA met en souscription ${fmt(CR.nb)} actions de ${fmt(CR.vn)}.– de valeur nominale. Le capital est entièrement souscrit : ${fmt(CR.ca)}.`,
+         `2. Les actionnaires libèrent entièrement le capital à l'office de consignation, la banque.`,
+         `3. Les frais de fondation sont payés par banque : ${fmt(CR.fao)}.`], SC.op(ph))
+     + compta(SC.J, ['Actionnaires','Capital-actions','Banque','FAO'], ph,
+         (acc,P,q)=> acc==='Actionnaires' && Math.abs(bal(acc,P))<0.001 && P.c.length ? `<span class="tag good">soldé ✓</span>` : '', 'mono') },
+
+ { title:'Libération en nature ou partielle',
+   ph:[...SN.P,
+       {btn:'La souscription →', text:`On peut aussi libérer <b>partiellement</b> le capital : au minimum <b>20 %</b>, mais pas moins de <b>50'000.–</b>.`,
+        q:{text:'Une SA a un capital de 200\'000.–. Combien faut-il libérer au minimum ?', opts:[['a','40\'000.– (20 %)'],['b','50\'000.–'],['c','200\'000.–']], ok:'b',
+           fb:'20 % de 200\'000 = 40\'000, c\'est moins que le minimum : il faut libérer au moins <b>50\'000.–</b>.'}},
+       ...SP.P,
+       {btn:'Le droit de timbre →', text:`Dans le bilan, le compte <b>Actionnaires</b> garde un solde de ${fmt(LP.rest)} : la partie <b>non libérée</b>.<br><br>Le capital-actions reste à ${fmt(CR.ca)} : il vaut toujours la valeur nominale de toutes les actions.`}],
+   stage: ph => ph<SN.end
+     ? donnee('Donnée : libération en nature', [`Un actionnaire libère ses actions en nature : ${NAT.map(([a,v])=>`${a.toLowerCase()} ${fmt(v)}`).join(', ')}. Total : ${fmt(NATT)}.`], 0)
+       + compta(SN.J, ['Caisse','Machines','Véhicules','Stock de marchandises','Actionnaires'], ph, null, 'mono')
+     : donnee('Règle', [`On libère au minimum 20 % du capital, mais pas moins de 50'000.–.`], 0)
+       + (ph>=SP.start ? donnee('Donnée : libération partielle', [`1. Souscription : capital de ${fmt(CR.ca)} entièrement souscrit.`,
+           `2. Libération partielle : les actionnaires versent ${LP.pct}&nbsp;% du capital à la banque.`], SP.op(ph)) : '')
+       + compta(SP.J, ['Actionnaires','Capital-actions','Banque'], ph,
+           (acc,P,q)=> acc==='Actionnaires' && P.c.length ? `Solde : <span class="tag neutral">${f2(bal(acc,P))}</span>` : '', 'mono')
+       + (ph>=SP.end ? `<section class="sec"><h2>Le bilan après la libération</h2>${bilanHTML('Bilan',
+           [['#Actifs circulants'],['Banque',LP.lib],['#Capital non libéré'],['Actionnaires',LP.rest,'cap new']],
+           [['#Capitaux propres'],['Capital-actions',CR.ca]])}</section>` : '') },
+
+ { title:'Le droit de timbre',
+   ph:[{btn:'Exemple A →', text:`Lors de la création ou d'une augmentation de capital, la SA paie un <b>droit de timbre</b> de <b>${TX.timbre}&nbsp;%</b> sur le capital libéré <b>+ la prime</b>.<br><br>Mais seulement sur la partie qui <b>dépasse 1 million</b> : le premier million est exonéré (une seule fois, pour toute la vie de la SA).`},
+       {btn:'Exemple B →', text:`Exemple A : création avec ${fmt(TBA[0].m)} de capital, puis 2 ans après, augmentation de ${fmt(TBA[1].m)}.<br><br>À la création, le million exonéré est utilisé : il reste ${fmt(TBA[0].base)} soumis au droit. À l'augmentation, tout est soumis.`},
+       {btn:'Comptabiliser →', text:`Exemple B : création avec ${fmt(TBB[0].m)}, augmentation de ${fmt(TBB[1].m)}, puis de ${fmt(TBB[2].m)}.`,
+        q:{text:`À la création avec ${fmt(TBB[0].m)}, le droit de timbre est de…`, opts:[['0','0.–'],['a',fmt(TBB[0].m*TX.timbre/100)+'.–']], ok:'0',
+           fb:`${fmt(TBB[0].m)} est sous le million exonéré : <b>pas de droit de timbre</b>. Il reste ${fmt(TX.franchise - TBB[0].m)} de franchise pour la suite.`}},
+       {btn:'Ligne suivante →', text:`Le droit de timbre fait partie des frais de fondation ou d'augmentation.<br><br>Exemple : l'augmentation de l'exemple A. ${D_('FAO',TBA[1].dt)}`},
+       {btn:'L\'augmentation de capital →', text:`Il est payé par banque.<br><br>${C_('Banque',TBA[1].dt)}`}],
+   stage: ph => { const done = ph>2 || ANS['4.2'];
+     const rows = (T, lbs, from) => T.map((t,i)=>`<tr class="${ph===from?'cur':''}"><td>${lbs[i]}</td><td class="n">${fmt(t.m)}</td><td class="n">${fmt(t.fr)}</td><td class="n">${fmt(t.base)}</td><td class="n"><b>${(from===2&&i===0&&!done)?'?':f2(t.dt)}</b></td></tr>`).join('');
+     return `<section class="sec"><h2>Le droit de timbre : ${TX.timbre}&nbsp;% au-delà du premier million</h2><table class="tab">
+       <tr><th>Opération</th><th>Montant</th><th>Franchise utilisée</th><th>Soumis au droit</th><th>Droit de timbre</th></tr>
+       ${ph>=1?`<tr><td colspan="5" style="font-weight:700;text-align:left">Exemple A</td></tr>${rows(TBA,['Création','2 ans après : augmentation'],1)}`:''}
+       ${ph>=2?`<tr><td colspan="5" style="font-weight:700;text-align:left">Exemple B</td></tr>${rows(TBB,['Création','2 ans après : augmentation','5 ans après : augmentation'],2)}`:''}</table></section>
+     ${compta([{ph:3,n:1,d:'FAO',amt:TBA[1].dt},{ph:4,n:1,c:'Banque',amt:TBA[1].dt}],['FAO','Banque'],ph,null,'mono')}`; } },
+
+ { title:'L\'augmentation de capital',
+   ph:[{btn:'Un exemple →', text:`Lors d'une augmentation de capital, les nouveaux actionnaires paient la <b>valeur nominale</b> + une <b>prime à l'émission</b> (agio). La prime alimente les réserves : les anciens actionnaires ne sont pas lésés.<br><br>• Valeur nominale → <b>Capital-actions</b> (ou Capital-participations)<br>• Prime → <b>Réserve légale sur capital</b>`},
+       {btn:'La souscription →', text:`Exemple : émission de ${fmt(AUG.nb)} actions au prix de ${fmt(AUG.pe)}.– (valeur nominale ${fmt(AUG.vn)}.–), libérées à ${AUG.pct}&nbsp;%.<br><br>En cas de libération partielle, le pourcentage s'applique <b>uniquement à la valeur nominale</b>. La prime est toujours payée en entier.`,
+        q:{text:'Par action, l\'actionnaire verse…', opts:[['a',`${fmt(AUG.pe*AUG.pct/100)}.– (${AUG.pct} % de ${fmt(AUG.pe)})`],['b',`${fmt(AUG.paye)}.– (${AUG.pct} % de ${fmt(AUG.vn)} + ${fmt(AUG.prime)})`]], ok:'b',
+           fb:`${AUG.pct} % de la valeur nominale : ${fmt(AUG.vnLib)}, plus toute la prime : ${fmt(AUG.prime)}. Total : <b>${fmt(AUG.paye)}.–</b> par action.`}},
+       {btn:'Suite →', text:`1. Souscription : les actionnaires doivent le <b>prix d'émission</b> de toutes les actions.<br><br><b>Actionnaires</b> ${fmt(AUG.tPe)} au débit.`},
+       {btn:'Suite →', text:`La valeur nominale va au <b>Capital-actions</b> : ${fmt(AUG.tCa)} au crédit.`},
+       {btn:'La libération →', text:`La prime va à la <b>Réserve légale sur capital</b> : ${fmt(AUG.tPr)} au crédit.`},
+       {btn:'La distribution du bénéfice →', text:`2. Libération : <b>Banque / Actionnaires</b> ${fmt(AUG.tPaye)}.<br><br>Il reste ${fmt(AUG.tPe - AUG.tPaye)} au compte Actionnaires : le capital non libéré (${100-AUG.pct}&nbsp;% du nominal).`}],
+   stage: ph => { const done = ph>1 || ANS['5.1'];
+     const top = donnee('Donnée : augmentation de capital', [
+       `Émission de ${fmt(AUG.nb)} actions nouvelles au prix de ${fmt(AUG.pe)}.– (valeur nominale ${fmt(AUG.vn)}.–), libérées à ${AUG.pct}&nbsp;%.`,
+       `1. Souscription des ${fmt(AUG.nb)} actions.`, `2. Libération à la banque.`], ph<2 ? 0 : ph<5 ? 1 : 2);
+     const row = (lb, u, t, cls='', to=null) => `<tr class="${cls}"><td>${lb}</td><td class="n">${u}</td><td class="n">${ph>=2&&to?pill(to,t):t}</td></tr>`;
+     return top + `<section class="sec"><h2>Le prix d'émission</h2><table class="tab" style="max-width:720px">
+       <tr><th>Par action</th><th>Émis</th><th>${ph>=1?`Versé (libéré à ${AUG.pct}&nbsp;%)`:''}</th></tr>
+       <tr><td>Valeur nominale</td><td class="n">${f2(AUG.vn)}</td><td class="n">${ph>=1&&done?`${AUG.pct}&nbsp;% = ${f2(AUG.vnLib)}`:ph>=1?'?':''}</td></tr>
+       <tr><td>+ Prime à l'émission (agio)</td><td class="n">${f2(AUG.prime)}</td><td class="n">${ph>=1&&done?f2(AUG.prime):ph>=1?'?':''}</td></tr>
+       <tr class="${ph===1&&done?'cur':''}"><td><b>= Prix d'émission</b></td><td class="n"><b>${f2(AUG.pe)}</b></td><td class="n"><b>${ph>=1&&done?f2(AUG.paye):''}</b></td></tr></table>
+       ${ph>=2?`<div style="height:14px"></div>${bordHTML(`Pour ${fmt(AUG.nb)} actions : la souscription`,[
+         {k:'add', lb:'Valeur nominale', calc:`${fmt(AUG.nb)} × ${fmt(AUG.vn)}`, amt:AUG.tCa, to:ph>=3?'Capital-actions':null},
+         {k:'add', lb:'+ Prime', calc:`${fmt(AUG.nb)} × ${fmt(AUG.prime)}`, amt:AUG.tPr, to:ph>=4?'Réserve légale sur capital':null},
+         {k:'tot', lb:'= Prix d\'émission', calc:`${fmt(AUG.nb)} × ${fmt(AUG.pe)}`, amt:AUG.tPe, to:'Actionnaires'}])}`:''}</section>
+     ${compta([{ph:2,n:1,d:'Actionnaires',amt:AUG.tPe},{ph:3,n:1,c:'Capital-actions',amt:AUG.tCa},{ph:4,n:1,c:'Réserve légale sur capital',amt:AUG.tPr},
+         {ph:5,n:2,d:'Banque',amt:AUG.tPaye},{ph:5,n:2,c:'Actionnaires',amt:AUG.tPaye}],
+         ['Actionnaires','Capital-actions','Réserve légale sur capital','Banque'], ph, (acc,P,q)=> acc==='Actionnaires' && q>=5 ? `Solde : <span class="tag neutral">${f2(bal(acc,P))}</span>` : '')}`; } },
+
+ { title:'Avant la distribution du bénéfice',
+   ph:[{btn:'Le capital libéré →', text:`Avant de distribuer le bénéfice, on fait deux <b>calculs préliminaires</b> à partir du bilan.`},
+       {btn:'Les réserves →', text:`a) Le <b>capital libéré</b> : le dividende se calcule sur le capital <b>versé</b>, pas sur le capital souscrit.<br><br>${fmt(DB.ca)} − ${fmt(DB.nonlib)} = <b>${fmt(DB.lib)}</b> (ou ${DB.pct}&nbsp;% de ${fmt(DB.ca)}).`},
+       {btn:'Le tableau →', text:`b) Les <b>réserves</b> (sur capital + sur bénéfice) atteignent-elles <b>50 %</b> du capital inscrit ?<br><br>${fmt(DB.rc)} + ${fmt(DB.rb)} = ${fmt(DB.res)}. 50&nbsp;% de ${fmt(DB.ca)} = ${fmt(DB.moitie)}.`,
+        q:{text:'Faut-il attribuer 5 % du bénéfice à la réserve sur bénéfice ?', opts:[['o','oui'],['n','non']], ok: DB.oblig?'o':'n',
+           fb: DB.oblig ? `les réserves (${fmt(DB.res)}, soit ${pc2(DB.resPct)} du capital) n'atteignent pas 50 % : il faut attribuer <b>${TX.resMin} % du bénéfice</b> à la réserve sur bénéfice.`
+                        : `les réserves atteignent 50 % du capital : <b>pas d'attribution obligatoire</b>.`}}],
+   stage: ph => `<section class="sec"><h2>Extrait du bilan avant la distribution</h2>${bilanHTML('Bilan (extrait)',
+       [['#Capital non libéré'],['Actionnaires',DB.nonlib, ph===1?'cap new':'cap']],
+       [['#Capitaux propres'],[`Capital-actions (libéré à ${DB.pct}&nbsp;%)`,DB.ca, ph===1?'new':''],['Réserve légale sur capital',DB.rc, ph===2?'new':''],['Réserve légale sur bénéfice',DB.rb, ph===2?'new':''],
+        ['Bénéfice reporté',DB.br],['Bénéfice de l\'exercice',DB.be]], false)}</section>
+     ${ph>=1?`<section class="sec"><h2>Calculs préliminaires</h2>
+       <div class="fml2">a) Capital libéré = ${fmt(DB.ca)} − ${fmt(DB.nonlib)} = <span class="sol">${fmt(DB.lib)}</span></div>
+       ${ph>=2?`<div class="fml2">b) Réserves = ${fmt(DB.rc)} + ${fmt(DB.rb)} = ${fmt(DB.res)} ${DB.oblig?'&lt;':'≥'} 50&nbsp;% de ${fmt(DB.ca)} = ${fmt(DB.moitie)}${ph>2||ANS['6.2']?` → <span class="sol">${DB.oblig?`attribuer ${TX.resMin}&nbsp;% du bénéfice`:'pas d\'attribution'}</span>`:''}</div>`:''}</section>`:''}` },
+
+ { title:'Le tableau de distribution',
+   ph:[{btn:'La réserve →', text:`On part du bénéfice de l'exercice, auquel on ajoute le bénéfice reporté : c'est le montant <b>à distribuer</b>.`},
+       {btn:'Le dividende →', text:`Réserve sur bénéfice : ${TX.resMin}&nbsp;% du <b>bénéfice de l'exercice</b> (pas du montant à distribuer).<br><br>${TX.resMin}&nbsp;% de ${fmt(DB.be)} = <b>${f2(DB.att)}</b>.`},
+       {btn:'Les tantièmes →', text:`Le <b>dividende</b> ordinaire : ${TX.divOrd}&nbsp;% du <b>capital libéré</b>.<br><br>${TX.divOrd}&nbsp;% de ${fmt(DB.lib)} = <b>${f2(DB.div)}</b>.`},
+       {btn:'Le superdividende →', text:`Les <b>tantièmes</b> : ${DB.tant}&nbsp;% du bénéfice de l'exercice (selon les statuts ou la décision de l'AG).<br><br>${DB.tant}&nbsp;% de ${fmt(DB.be)} = <b>${f2(DB.tan)}</b>. D'autres attributions sont possibles selon la donnée (réserve facultative, dons…).`},
+       {btn:'Le report →', text:`Avec le <b>solde</b> (${f2(DB.solde)}), on verse un <b>superdividende</b>, en % du capital libéré, arrondi <b>vers le bas</b> à ${pc(TX.arrSuper)}.<br><br>1&nbsp;% du capital libéré = ${fmt(DB.un)}.`,
+        q:{text:`${fmt(DB.solde)} : ${fmt(DB.un)} = ${DB.tauxBrut.toFixed(2)}. Le taux du superdividende est de…`, opts:[['a',pc(DB.taux)],['b',pc(DB.taux+TX.arrSuper)],['c',pc2(DB.tauxBrut)]], ok:'a',
+           fb:`on arrondit <b>vers le bas</b> à ${pc(TX.arrSuper)} : on ne peut pas verser plus que le solde. <b>${pc(DB.taux)}</b> de ${fmt(DB.lib)} = ${f2(DB.sup)}.`}},
+       {btn:'Comptabiliser →', text:`Ce qui reste est le <b>bénéfice à reporter</b> : ${f2(DB.solde)} − ${f2(DB.sup)} = <b>${f2(DB.rep)}</b>.<br><br>Dividendes en tout : ${f2(DB.div)} + ${f2(DB.sup)} = <b>${f2(DB.divTot)}</b>.`}],
+   stage: ph => tabDist(ph, ph>4 || ANS['7.4'], false) },
+
+ { title:'Comptabiliser la distribution',
+   ph:SI.P,
+   stage: ph => tabDist(99, true, true, SI_HL[ph]||[]) + (true ? compta([{ph:0,open:'Bénéfice de l\'exercice',side:'c',amt:DB.be},{ph:0,open:'Bénéfice reporté',side:'c',amt:DB.br}, ...SI.J],
+       ['Bénéfice de l\'exercice','Bénéfice reporté','Dividendes','Réserve légale sur bénéfice','Tantièmes'], ph,
+       (acc,P,q)=> acc==='Bénéfice de l\'exercice' && q>=1 ? `<span class="tag good">soldé ✓</span>` : acc==='Bénéfice reporté' && q>=6 ? `Nouveau solde : <span class="tag neutral">${f2(bal(acc,P))}</span>` : '', true) : '') },
+
+ { title:'Payer les dividendes et les tantièmes',
+   ph:SJ.P,
+   stage: ph => { const k = SJ.op(ph);
+     return donnee('Donnée : paiements', [`1. Paiement des dividendes par banque, ${fmt(DB.divTot)} brut. L'impôt anticipé de ${TX.ia}&nbsp;% est retenu.`,
+         `2. Versement de l'impôt anticipé à l'AFC par banque.`, `3. Paiement des tantièmes par banque, ${fmt(DB.tan)} brut. Retenue AVS de ${TX.avs}&nbsp;%.`], k)
+     + `<section class="sec"><h2>Le calcul</h2>
+       ${bordHTML('Dividendes',[
+         {k:'add', lb:'Dividende brut', p:'100&nbsp;%', amt:DB.divTot, to:'Dividendes'},
+         {k:'sub', lb:'− Impôt anticipé', p:pc(TX.ia), calc:`${fmt(DB.divTot)} × ${TX.ia} : 100`, amt:DB.ia, to:'Dettes AFC'},
+         {k:'tot', lb:'= Dividende net', p:pc(100-TX.ia), amt:DB.divNet, to:'Banque'}])}
+       ${k>=2?`<div style="height:14px"></div>${bordHTML('Tantièmes',[
+         {k:'add', lb:'Tantièmes bruts', p:'100&nbsp;%', amt:DB.tan, to:'Tantièmes'},
+         {k:'sub', lb:'− AVS', p:pc(TX.avs), calc:`${fmt(DB.tan)} × ${TX.avs} : 100`, amt:DB.avs, to:'Dettes AVS'},
+         {k:'tot', lb:'= Tantièmes nets', p:pc(Math.round((100-TX.avs)*10)/10), amt:DB.tanNet, to:'Banque'}])}`:''}</section>`
+     + (true ? compta([{ph:0,open:'Dividendes',side:'c',amt:DB.divTot,lab:'AG'},{ph:0,open:'Tantièmes',side:'c',amt:DB.tan,lab:'AG'}, ...SJ.J],
+       ['Dividendes','Dettes AFC','Tantièmes','Dettes AVS','Banque'], ph,
+       (acc,P,q)=> P.d.length && Math.abs(bal(acc,P))<0.001 ? `<span class="tag good">soldé ✓</span>` : '') : ''); } }
+];
+
+const LAST = STEPS.length-1;
+
+/* ---------- Actions ---------- */
+const A = [];
+STEPS.forEach((s,i)=>s.ph.forEach((_,p)=>A.push({step:i, ph:p})));
+let pos = 0;
+
+/* ---------- Rendu ---------- */
+function qBox(key, q){
+  const ch = ANS[key];
+  const btn = (a,lb) => `<button class="ch ${ch===a?(a===q.ok?'ok':'ko'):''} ${ch?'':'blink'}" data-a="${a}" ${ch?'disabled':''}>${lb}</button>`;
+  const fb = ch ? `<div class="fb ${ch===q.ok?'ok':'ko'}">${ch===q.ok?'✓ En effet':'✗ En fait'}, ${q.fb}</div>` : `<div class="hint">Cliquer sur la bonne réponse.</div>`;
+  return `<div class="calc q"><div style="font-weight:600;margin-bottom:4px">La question à se poser</div>${q.text}
+    <div class="choices" style="flex-wrap:wrap">${q.opts.map(([a,lb])=>btn(a,lb)).join('')}</div>${fb}</div>`;
+}
+const LET = i => String.fromCharCode(65+i);   // A, B, C…
+function render(){
+  pos = Math.max(0, Math.min(A.length-1, pos));
+  const {step, ph} = A[pos], S = STEPS[step], P = S.ph[ph], key = step+'.'+ph;
+  document.querySelectorAll('#dots .dot').forEach((b,i)=>{ b.classList.toggle('cur', i===step); b.classList.toggle('done', i<step); });
+  $('prev').disabled = pos===0;
+  $('next').disabled = pos===A.length-1 || (P.q && !ANS[key]);
+  $('next').textContent = pos===A.length-1 ? 'Terminé ✓' : P.btn;
+  $('explain').innerHTML = `<h2 class="steptitle">${LET(step)}. ${S.title}</h2>
+    ${P.text?`<p class="steptext">${P.text}</p>`:''}${P.q?qBox(key,P.q):''}`;
+  $('stage').innerHTML = S.stage(ph);
+}
+
+/* ---------- Navigation ---------- */
+function goTo(p){ pos = p; render(); }
+function goStep(s){ goTo(A.findIndex(a=>a.step===s)); }
+let Z = 1;
+try { Z = +localStorage.getItem('sa-zoom') || 1; } catch(e){}
+function applyZoom(){
+  Z = Math.round(Math.max(0.8, Math.min(1.6, Z))*10)/10;
+  document.documentElement.style.setProperty('--z', Z);
+  try { localStorage.setItem('sa-zoom', Z); } catch(e){}
+}
+$('dots').innerHTML = STEPS.map((s,i)=>`<button class="dot" data-s="${i}" title="${LET(i)}. ${s.title}" aria-label="${LET(i)}. ${s.title}"></button>`).join('');
+$('zm').addEventListener('click', ()=>{ Z -= 0.1; applyZoom(); });
+$('zp').addEventListener('click', ()=>{ Z += 0.1; applyZoom(); });
+$('next').addEventListener('click', ()=>goTo(pos+1));
+$('prev').addEventListener('click', ()=>goTo(pos-1));
+$('explain').addEventListener('click', e=>{ const b=e.target.closest('.ch'); if (!b || b.disabled) return; const {step,ph}=A[pos]; ANS[step+'.'+ph] = b.dataset.a; render(); });
+$('quit').addEventListener('click', ()=>{ window.close(); setTimeout(()=>{ $('quit-msg').style.display='block'; }, 300); });
+$('dots').addEventListener('click', e=>{ const b=e.target.closest('.dot'); if (b) goStep(+b.dataset.s); });
+document.addEventListener('keydown', e=>{
+  if (e.key==='ArrowRight' && !$('next').disabled) goTo(pos+1);
+  if (e.key==='ArrowLeft') goTo(pos-1);
+});
+render();
+applyZoom();
+</script>
+<script src="theorie.js"></script>
+</body>
+</html>
