@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La TVA – théorie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theorie.css">
+<style>
+:root{
+  --bg:#f5f3ee; --card:#fff; --ink:#1e2226; --muted:#6a6f76; --line:#e2ddd2; --soft:#efebe3;
+  --charge:#c2671f; --charge-bg:#fcefe3;
+  --produit:#2b8352; --produit-bg:#e6f4eb;
+  --res:#6d48b3; --res-bg:#efe9f9;
+  --passif:#a3333d; --passif-bg:#f8e8ea;
+  --bilan:#20394f; --bilan-bg:#e6ecf1;
+  --actif:#2a52be; --actif-bg:#e8eefb;
+  --accent:#c98a10; --accent-bg:#fff3d6;
+  --y1:#e8eefb; --y2:#fff3d6;
+}
+.calc.q{background:var(--bilan-bg)}
+.ch.ko{background:var(--charge);border-color:var(--charge);color:#fff;opacity:1}
+.fb.ko{border-left:4px solid var(--charge)}
+.ch.blink{animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{0%,100%{box-shadow:0 0 0 0 rgba(32,57,79,0)}50%{box-shadow:0 0 0 5px rgba(201,138,16,.75);background:var(--accent-bg)}}
+.tag.at{background:var(--actif-bg);color:var(--actif)}
+.tag.pt{background:var(--passif-bg);color:var(--passif)}
+.journal td.dt{color:var(--muted);white-space:nowrap}
+.journal tr.todo td{opacity:.38}
+.btn.quiz{display:flex;align-items:center;justify-content:center;background:#037DFF;color:#fff;border-color:#037DFF;text-align:center;text-decoration:none}
+
+/* Ligne du temps */
+.t{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 9px 8px;position:relative;min-width:0}
+.t-head{font-weight:700;font-size:13.5px;text-align:center;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t-body{display:grid;grid-template-columns:1fr 1fr;min-height:46px}
+.col{padding:4px 4px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.ln{display:flex;flex-wrap:wrap;justify-content:space-between;gap:3px;font-size:11.5px;border-radius:4px;padding:1px 2px}
+.ln .lb{color:var(--muted);line-height:1.25;min-width:0}
+.ln.ext .lb{font-style:italic}
+.eff .tag{font-size:11.5px}
+
+/* Introduction et résumé */
+.box{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.box h4{margin:0 0 6px;font-size:14px}
+.quad .hd.pt{background:var(--passif-bg);color:var(--passif)}
+
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;padding:12px 12px 90px}
+  aside{position:static;max-height:none;overflow:visible}
+  .nav-wrap{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(245,243,238,.95);backdrop-filter:blur(6px);padding:10px 12px;border-top:1px solid var(--line)}
+  .two,.quad{grid-template-columns:1fr}
+}
+
+/* --- Amortissements --- */
+.card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s,box-shadow .3s}
+.card.on{box-shadow:0 0 0 2px var(--accent)}
+.card.off{opacity:.45}
+.card .lt{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--soft);font-weight:700;font-size:12px;margin-right:6px}
+.card h4{margin:0 0 4px;font-size:15px;display:flex;align-items:center}
+.card .ex{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
+.ecr{display:flex;justify-content:space-between;gap:8px;font-size:13px;background:var(--soft);border-radius:8px;padding:6px 10px;font-weight:600}
+.ecr span:last-child{color:var(--muted);font-weight:500}
+.vocab tr.cur td{background:var(--hl)}
+.tab tr.todo td{color:transparent}
+.tab tr.cur td{background:var(--hl);font-weight:700}
+.tab tr.cur td.am{color:var(--charge)}
+.tab td.am{color:var(--charge)}.bil .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;padding:2px 0}
+.bil .row.sub{color:var(--passif)}
+.bil .row.tot{font-weight:700;border-top:1px solid var(--ink);margin-top:4px;padding-top:4px}
+.k-fac .t-head{color:var(--passif)}
+.t-head{white-space:normal !important;line-height:1.2;overflow:visible !important;text-overflow:clip !important;hyphens:auto;-webkit-hyphens:auto}
+.split{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:1100px){ .split{grid-template-columns:1fr} }
+
+/* --- Bilan et journal --- */
+.inv td.am{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+.inv td.tg2,.inv td.acc{width:1%;white-space:nowrap}
+@keyframes fadein{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
+.pill.a{background:var(--actif-bg);color:var(--actif)}.pill.p{background:var(--passif-bg);color:var(--passif)}
+.pill.acc{background:var(--soft);color:var(--ink)}
+.bl{display:grid;grid-template-columns:1fr 1fr;max-width:720px;margin:0 auto}
+.bl-title{grid-column:1/-1;text-align:center;font-family:Fraunces,Georgia,serif;font-weight:700;font-size:18px;padding-bottom:4px}
+.bl-head.a{color:var(--actif)}.bl-head.p{color:var(--passif);text-align:right}
+.bl-side.a{border-right:3px solid var(--ink)}
+.br{display:flex;justify-content:space-between;gap:10px;font-variant-numeric:tabular-nums;padding:2px 4px;border-radius:4px}
+.br.new{animation:pop 1.6s ease-out}
+.br.cap{color:var(--res);font-weight:700}
+.br.dec{color:var(--charge);font-weight:700}
+.bt.bad{color:var(--charge)}
+.qa.off{opacity:.25}
+.acct td.n{text-align:right;font-variant-numeric:tabular-nums}
+.acct th.n{text-align:right}
+.rule .pm{display:grid;grid-template-columns:1fr 1fr;border-top:2px solid var(--ink);font-size:22px;font-weight:700}
+.rule .pm span:first-child{border-right:2px solid var(--ink)}
+.rule .pm small{display:block;font-size:11px;color:var(--muted);font-weight:500}
+.plus{color:var(--produit)}.case{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s,box-shadow .3s}
+.case.on{box-shadow:0 0 0 2px var(--accent)}.case.off{opacity:.4}
+.case p{margin:0 0 8px;font-size:14.5px}
+.t-sides .sg{font-weight:700}
+.bl-side.p .bg.hl{color:var(--passif)}
+.bl-side.dim,.bl-head.dim{opacity:.3}
+.t-head{white-space:normal !important;line-height:1.2;overflow:visible !important;text-overflow:clip !important;hyphens:auto;-webkit-hyphens:auto}
+
+/* --- Salaires --- */
+.taux{border:3px solid var(--accent);border-radius:14px;padding:12px 16px;background:#fffdf6}
+.taux h3{margin:0 0 8px;font-family:Fraunces,Georgia,serif;color:var(--accent);display:flex;justify-content:space-between;align-items:baseline}
+.taux h3 small{font-family:Inter,sans-serif;font-size:12px;color:var(--muted);font-weight:500}
+.tt td.n,.tt th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tt tr.hl td{background:var(--hl);font-weight:600}
+.slip td{padding:6px 10px;border-bottom:1px dashed var(--line)}
+.slip td.n{text-align:right;white-space:nowrap}
+.slip tr.sub td:first-child{border-left:4px solid var(--charge)}
+.slip tr.add td.n{color:var(--produit)}.slip tr.sub td.n{color:var(--charge)}.slip tr.pay td.n{color:var(--actif)}
+.slip tr.tot td{font-weight:700;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
+.slip tr.cur td{background:var(--hl)}
+.chip{display:inline-block;padding:2px 9px;border-radius:7px;font-weight:600;font-size:13px}
+.chip.charge{background:var(--charge-bg);color:var(--charge)}
+.chip.passif{background:var(--passif-bg);color:var(--passif)}
+.chip.actif{background:var(--actif-bg);color:var(--actif)}
+.jl2 th.n,.jl2 td.n{text-align:right}
+.jl2 td{padding:6px 8px;border-bottom:1px dashed var(--line)}
+.jl2 tr.cur td{background:var(--hl)}
+.jl2 tr.new td{animation:pop 1.6s ease-out}
+.jl2 tr.tot td{font-weight:700;border-top:2px solid var(--ink)}
+.arrows{grid-column:1/-1;display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.arw.off{opacity:.12}
+.arw .line{height:4px;border-radius:2px;position:relative}
+.arw .line::after{content:"";position:absolute;top:-6px;border:8px solid transparent}
+.arw.r .line::after{right:-4px;border-left-color:inherit;border-left-width:12px;border-right-width:0}
+.arw.l .line::after{left:-4px;border-right-color:inherit;border-right-width:12px;border-left-width:0}
+.arw .lab{text-align:center;font-weight:600}
+.arw .amt{font-variant-numeric:tabular-nums;font-weight:700}
+.arw.new{animation:pop 1.6s ease-out}
+.bal{display:flex;flex-direction:column;gap:6px;max-width:520px;margin:14px auto 0;font-size:14px}
+.bal .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;padding:4px 10px;border-radius:6px}
+.bal .row.tot{font-weight:700;border-top:2px solid var(--ink)}
+.due{border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.due h4{margin:0 0 6px;font-size:14px;color:var(--passif)}
+.due .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;font-size:13.5px}
+.due .row.tot{font-weight:700;border-top:1px solid var(--ink);margin-top:4px;padding-top:4px}
+.due.on{box-shadow:0 0 0 2px var(--accent)}
+/* --- Titres --- */
+.acrow{display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:center;margin-bottom:10px}
+.acrow .t-body{min-height:26px}
+.acx{font-size:14px}
+.acgrp{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin:12px 0 6px}
+.jr-stage{max-width:760px;margin-bottom:16px}
+.lk{display:inline-block;padding:1px 8px;border-radius:7px;border:1.5px solid;font-weight:700}
+.code{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start;justify-content:center;padding:10px 0}
+.cpart{display:flex;flex-direction:column;align-items:center;gap:8px;max-width:170px;text-align:center}
+.ctok{font:700 30px/1 'Courier New',monospace;border:3px solid;border-radius:10px;padding:10px 14px;background:#fff}
+.clab{font-size:13px;font-weight:600;color:var(--ink)}
+.icbar{display:flex;height:40px;border-radius:8px;overflow:hidden;margin-top:10px;color:#fff;font-weight:600;font-size:13px}
+.ics{display:flex;align-items:center;justify-content:center;transition:background .4s}
+.icdates{position:relative;height:44px;font-size:12px;color:var(--muted);margin-top:6px}
+.icdates span{position:absolute;top:0;white-space:nowrap}
+.icdates span:nth-child(2){transform:translateX(-50%);text-align:center;color:var(--ink);font-weight:600}
+.steps3{display:flex;flex-direction:column;gap:4px;max-width:620px}
+.steps3 .calc{margin:6px 0}
+/* Action vs Obligation */
+.syn{width:100%;border-collapse:collapse;font-size:13.5px;table-layout:fixed}
+.syn th,.syn td{padding:8px 10px;border-bottom:1px dashed #9c9282;vertical-align:top;text-align:left}
+.syn tr>th:first-child{width:130px;font-weight:600;color:var(--muted);font-size:12.5px}
+.syn th.hd{font-family:Fraunces,Georgia,serif;font-size:19px;text-align:center;border-radius:10px 10px 0 0}
+.syn th.hd.a{background:var(--actif-bg);color:var(--actif)}.syn th.hd.o{background:var(--produit-bg);color:var(--produit)}
+.syn td.cur{background:var(--hl)}
+.syn .code{justify-content:flex-start;gap:8px;padding:0}.syn .ctok{font-size:20px;padding:6px 8px}.syn .clab{font-size:11.5px}.syn .cpart{max-width:110px}
+/* Dividendes et intérêts */
+.divt{max-width:620px}.divt td{font-size:15px}
+/* Donnée et jours */
+/* --- Intérêts --- */
+.tab.cal td,.tab.cal th{text-align:left}
+.jt{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.jt th{font-size:12px;color:var(--muted);font-weight:600;text-align:left;padding:6px 8px;border-bottom:2px solid var(--ink)}
+.jt td{padding:6px 8px;border-bottom:1px dashed #9c9282;vertical-align:top}
+.jt .n{text-align:right}
+.jt td.dates{white-space:nowrap}
+.jt tr.cur td{background:var(--hl)}
+.jt tr.why td{font-size:12.5px;color:var(--muted);padding-top:0;border-bottom:1px dashed #9c9282}
+.jt tr.why td{border-top:0}
+.an{display:inline-block;font-size:11px;font-weight:600;padding:1px 6px;border-radius:999px;background:var(--actif-bg);color:var(--actif);margin-left:4px}
+.an.bis{background:var(--passif-bg);color:var(--passif)}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 4px}
+.frac span:first-child{border-bottom:2px solid currentColor;padding:0 6px}
+.frac span:last-child{padding:0 6px}
+.fml{font-size:20px;font-weight:600;text-align:center;margin:10px 0}
+.fx2{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.fx2 .calc{margin:0}
+.lets{display:grid;grid-template-columns:repeat(4,minmax(0,140px));gap:10px;margin-top:12px}
+.let{display:flex;align-items:baseline;gap:8px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:18px}
+.let span{color:var(--muted);font-weight:600}
+.let.x{border:2px solid var(--accent);background:var(--accent-bg)}
+.cards.feb .card h4{font-size:17px}.cards.feb .card .ex{font-size:15.5px;color:var(--ink);line-height:1.5}
+.jt td.c{white-space:nowrap}
+.jt{table-layout:fixed}
+.jt s{color:var(--muted)}.jt .d2{color:var(--passif)}
+.donnee{font-size:14.5px;background:#f6f3ec;border-left:4px solid var(--accent);border-radius:6px;padding:8px 12px}
+.jours{border-collapse:collapse;font-size:13px;margin-top:4px;width:100%}
+.jours td{padding:2px 6px;border-bottom:1px dashed #9c9282}
+.jours td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.jours tr.tot td{font-weight:700;border-bottom:0;border-top:2px solid var(--ink)}
+.jnote{font-size:12px;color:var(--muted);margin-top:4px}
+
+/* --- TVA --- */
+.chip.produit{background:var(--produit-bg);color:var(--produit)}
+.donnee{margin-bottom:12px}
+.tauxt td{font-size:14px}
+.tauxt td:nth-child(2){white-space:nowrap;font-weight:600}
+.tauxt td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:700;width:90px}
+.tauxt tr.new td{animation:pop 1.6s ease-out;background:var(--hl)}
+.tauxt tr.ex td{color:var(--muted)}
+.three{display:grid;grid-template-columns:1fr 34px 1fr 34px 1fr;align-items:stretch;gap:6px}
+.actor{border:2px solid var(--line);border-radius:14px;padding:10px 12px;background:#fff;min-height:120px}
+.actor h4{margin:0 0 6px;font-family:Fraunces,Georgia,serif;font-size:18px;text-align:center}
+.actor.on{box-shadow:0 0 0 3px var(--accent)}
+.actor.off{opacity:.25}
+.actor .row{display:flex;justify-content:space-between;gap:8px;font-variant-numeric:tabular-nums;font-size:14px;padding:2px 4px;border-radius:4px}
+.actor .row.tot{font-weight:700;border-top:1px solid var(--ink);margin-top:2px}
+.actor .row.tva{color:var(--passif);font-weight:600}
+.actor .row.ip{color:var(--actif);font-weight:600}
+.actor .row.afc{background:var(--hl);font-weight:700}
+.actor .sub{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:8px 0 2px}
+.flowarr{display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--muted)}
+.afcbox{margin:16px auto 0;max-width:520px;border:3px solid var(--res);border-radius:14px;padding:10px 16px;background:#faf8fe}
+.afcbox h4{margin:0 0 6px;font-family:Fraunces,Georgia,serif;color:var(--res);text-align:center;font-size:18px}
+.afcbox .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;font-size:14.5px;padding:2px 0}
+.afcbox .row.tot{font-weight:700;border-top:2px solid var(--ink);margin-top:4px;padding-top:4px}
+.pct{color:var(--muted);font-size:12.5px;text-align:right;width:70px}
+.fml2{font-size:17px;font-weight:600;margin:10px 0 0;font-variant-numeric:tabular-nums}
+.fml2 .sol{display:inline-block;padding:2px 10px;border-radius:8px;background:var(--hl);border:2px solid var(--accent);font-weight:700}
+.acrow{display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:center;margin-bottom:10px}
+.acrow .t-body{min-height:26px}
+.acrow.new{animation:pop 1.6s ease-out}
+.acx{font-size:14px}
+/* flèches × 1.081 / : 1.081 dans le tableau HT-TTC */
+.tab th.arrc,.tab td.arrc{width:180px;padding:0 6px;text-align:center;vertical-align:middle;border-bottom:1px dashed var(--line)}
+.varr{display:flex;gap:8px;justify-content:center;height:96px}
+.va{position:relative;width:82px;display:flex;align-items:center;justify-content:center;animation:fadein .6s ease-out}
+.va::before{content:"";position:absolute;left:50%;width:3px;margin-left:-1.5px;top:8px;bottom:8px;background:currentColor}
+.va::after{content:"";position:absolute;left:50%;margin-left:-8px;border:8px solid transparent}
+.va.down{color:var(--actif)}.va.down::after{bottom:-6px;border-top:12px solid currentColor;border-bottom:0}
+.va.up{color:var(--charge)}.va.up::after{top:-6px;border-bottom:12px solid currentColor;border-top:0}
+.va span{position:relative;z-index:1;background:#fff;border:2px solid currentColor;border-radius:8px;padding:2px 6px;font-weight:700;font-size:13px;white-space:nowrap}
+@media (max-width:1000px){ .three{grid-template-columns:1fr} .flowarr{transform:rotate(90deg)} }
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="panel">
+      <h1>La TVA</h1>
+      <p class="sub">Taux · HT, TVA et TTC · principe de la valeur ajoutée · comptes de TVA · journal · décompte TVA</p>
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <div class="panel" id="explain"></div>
+
+    <div class="nav-wrap">
+      <div class="nav">
+        <button class="btn" id="prev">← Précédent</button>
+        <button class="btn primary" id="next">Suite →</button>
+      </div>
+    </div>
+
+    <div class="nav exit">
+      <button class="btn quit" id="quit">Quitter</button>
+    </div>
+    <p class="note" id="quit-msg" style="display:none;color:#fff">Le navigateur ne permet pas de fermer cette fenêtre automatiquement : fermer l'onglet.</p>
+  </aside>
+
+  <main class="stage" id="stage"></main>
+</div>
+<div class="zoombar"><button id="zm" title="Réduire la taille" aria-label="Réduire la taille">A−</button><button id="zp" title="Agrandir la taille" aria-label="Agrandir la taille">A+</button></div>
+
+<script>
+/* =====================================================================
+   *** TAUX DE TVA À METTRE À JOUR (%) ***
+   Toute la page (exemples, calculs, écritures) suit le taux normal.
+   ===================================================================== */
+const TAUX = { normal: 8.1, reduit: 2.6, special: 3.8 };
+/* ===================================================================== */
+const T = TAUX.normal, TT = 100 + T;                  // 8.1 % · 108.1 %
+const FX = String(Math.round(TT*10)/1000);            // 1.081 : du HT au TTC × 1.081, du TTC au HT : 1.081
+const ANS = {};
+const fmt = n => { const neg=n<0; n=Math.abs(Math.round(n*100)/100); const [i,d]=n.toFixed(2).split('.');
+  return (neg?'−':'') + i.replace(/\B(?=(\d{3})+(?!\d))/g,"'") + (d!=='00' ? '.'+d : ''); };
+const f2 = n => { const [i,d]=Math.abs(n).toFixed(2).split('.'); return i.replace(/\B(?=(\d{3})+(?!\d))/g,"'")+'.'+d; };   // toujours 2 décimales
+const pc = x => String(x).replace('.', '.') + '&nbsp;%';
+const r05 = v => Math.round(v*20 + 1e-9)/20;          // les francs s'arrondissent à 0.05
+const $ = id => document.getElementById(id);
+const KIND = {'Caisse':'actif','Banque':'actif','Créances clients':'actif','IP sur marchandises':'actif','IP sur inv. et ACE':'actif',
+  'Dettes fournisseurs':'passif','TVA due':'passif','Privé':'passif',
+  'Achats de marchandises':'charge','Déductions accordées':'charge','Ventes de marchandises':'produit','Prestations propres':'produit'};
+const PLUS_D = k => k==='actif' || k==='charge';
+const chip = a => `<span class="chip ${KIND[a]}">${a}</span>`;
+/* Couleur de liaison = compte de destination du montant */
+const LINK = {'Caisse':'#4b5563','Banque':'#4b5563','Créances clients':'#2a52be','IP sur marchandises':'#0e7490','IP sur inv. et ACE':'#0e7490',
+  'Dettes fournisseurs':'#7a2730','TVA due':'#a3333d','Privé':'#6d48b3','Achats de marchandises':'#b45309','Déductions accordées':'#c2671f',
+  'Ventes de marchandises':'#1f7a4d','Prestations propres':'#2b8352'};
+const pill = (acc, txt) => acc ? `<span class="lk" style="color:${LINK[acc]};background:${LINK[acc]}1f;border-color:${LINK[acc]}">${txt}</span>` : txt;
+
+/* ---------- Décompte : d'où viennent les montants ---------- */
+function bordHTML(title, rows){
+  return `<div style="font-weight:700;margin-bottom:6px">${title}</div><table class="slip">${rows.map(r=>`<tr class="${r.k||''}"><td>${r.lb}</td><td class="pct">${r.p||''}</td><td class="calc2">${r.calc||''}</td><td class="calc2">${r.to?'→ '+r.to:''}</td><td class="n">${r.to?pill(r.to,f2(r.amt)):f2(r.amt)}</td></tr>`).join('')}</table>`;
+}
+
+/* ---------- Journal à deux colonnes + comptes en T ---------- */
+// J : lignes {ph, n, d|c, amt}  ·  {ph, open:compte, side, amt, lab}
+function journalHTML(J, ph){
+  let rows = J.filter(e=>!e.open);
+  const byN = {}; rows.forEach(e=>(byN[e.n+'/'+e.ph] = byN[e.n+'/'+e.ph] || []).push(e));
+  rows = Object.values(byN).flatMap(g => g.length===2 && g[0].d && g[1].c && g[0].amt===g[1].amt
+    ? [{ph:g[0].ph, n:g[0].n, d:g[0].d, c:g[1].c, amt:g[0].amt}] : g);
+  return `<table class="jl2"><tr><th>N°</th><th>Compte débité</th><th>Compte crédité</th><th class="n">Débit</th><th class="n">Crédit</th></tr>
+    ${rows.map((e,i)=>`<tr class="${e.ph>ph?'hide':''}"><td>${i>0 && rows[i-1].n===e.n ? '' : e.n}</td><td>${e.d?chip(e.d):''}</td><td>${e.c?chip(e.c):''}</td>
+      <td class="n">${e.d?pill(e.d,f2(e.amt)):''}</td><td class="n">${e.c?pill(e.c,f2(e.amt)):''}</td></tr>`).join('')}</table>`;
+}
+function postings(J, acc, ph){
+  const P = {d:[], c:[]};
+  J.forEach(e=>{
+    if (e.ph>ph) return;
+    const fresh = e.ph===ph;
+    if (e.open){ if (e.open===acc) P[e.side].push({lb:e.lab||'sàn', amt:e.amt, fresh}); return; }
+    if (e.d===acc) P.d.push({lb:e.n, amt:e.amt, fresh});
+    if (e.c===acc) P.c.push({lb:e.n, amt:e.amt, fresh});
+  });
+  return P;
+}
+const sum = a => a.reduce((s,l)=>s+l.amt,0);
+const bal = (acc,P) => PLUS_D(KIND[acc]) ? sum(P.d)-sum(P.c) : sum(P.c)-sum(P.d);
+function tHTML(acc, P, focus, eff){
+  const k = KIND[acc], pd = PLUS_D(k);
+  const col = arr => arr.map(l=>`<div class="ln ${l.fresh?'fresh':''}"><span class="lb">${l.lb}</span><span class="am">${f2(l.amt)}</span></div>`).join('');
+  return `<div class="t k-${k} ${focus?'focus':''}">
+    <div class="t-sides"><span>D <b class="sg ${pd?'plus':'minus'}">${pd?'+':'−'}</b></span><span class="t-head" title="${acc}">${acc}</span><span><b class="sg ${pd?'minus':'plus'}">${pd?'−':'+'}</b> C</span></div>
+    <div class="t-body"><div class="col d">${col(P.d)}</div><div class="col c">${col(P.c)}</div></div>
+    ${eff?`<div class="eff">${eff}</div>`:''}</div>`;
+}
+function compta(J, accs, ph, eff){
+  const ts = accs.map(acc=>{ const P = postings(J, acc, ph);
+    const focus = J.some(e=>e.ph===ph && !e.open && (e.d===acc||e.c===acc));
+    return tHTML(acc, P, focus, eff ? eff(acc,P,ph) : ''); }).join('');
+  return `<section class="sec"><h2>Dans la comptabilité</h2><div class="jr-stage">${journalHTML(J, ph)}</div><div class="tg">${ts}</div></section>`;
+}
+
+/* ---------- Les données (fichier Excel « TVA ») ---------- */
+// Le principe : fournisseur → commerçant → client
+const PR = {fht:600, pv:1000};  PR.ftva = r05(PR.fht*T/100); PR.fttc = PR.fht + PR.ftva;
+PR.bb = PR.pv - PR.fht; PR.ctva = r05(PR.pv*T/100); PR.cttc = PR.pv + PR.ctva; PR.afc = Math.round((PR.ctva - PR.ftva)*100)/100;
+// 1. Achat de marchandises à crédit, HT
+const E1 = {ht:4000};  E1.tva = r05(E1.ht*T/100); E1.ttc = E1.ht + E1.tva;
+// 2. Vente au comptant, TTC
+const E2 = {ttc:3243}; E2.ht = r05(E2.ttc*100/TT); E2.tva = Math.round((E2.ttc - E2.ht)*100)/100; E2.faux = E2.ttc*T/100;
+// 3. Paiement d'un client après escompte
+const E3 = {net:2928.5, esc:2}; E3.fac = r05(E3.net*100/(100-E3.esc)); E3.ettc = Math.round((E3.fac - E3.net)*100)/100;
+E3.eht = r05(E3.ettc*100/TT); E3.etva = Math.round((E3.ettc - E3.eht)*100)/100;
+// 4. Prestations propres (prix d'achat HT)
+const E4 = {ht:500}; E4.tva = r05(E4.ht*T/100); E4.tot = E4.ht + E4.tva;
+
+const TR = [  // les taux, l'un après l'autre
+  {t:pc(TAUX.normal), lb:'Taux normal', ex:'Tous les biens et services, sauf ceux des lignes suivantes.'},
+  {t:pc(TAUX.reduit), lb:'Taux réduit', ex:'Biens de première nécessité : alimentation, médicaments, journaux, livres.'},
+  {t:pc(TAUX.special), lb:'Taux spécial', ex:'Hébergement : nuitée d\'hôtel avec petit-déjeuner.'},
+  {t:'0&nbsp;%', lb:'Exonéré', ex:'Exportations : la TVA est à 0 %, mais l\'entreprise récupère quand même ses impôts préalables.'},
+  {t:'—', lb:'Exclu', ex:'Pas de TVA calculée et encaissée par le vendeur : enseignement, poste, assurances, loyers privés, soins médicaux.', cls:'ex'}];
+
+/* ---------- Les étapes ---------- */
+const STEPS = [
+ { title:'Les taux de TVA',
+   ph:[{btn:'Suite →', text:`La <b>TVA</b> (taxe sur la valeur ajoutée) est un impôt sur la <b>consommation</b>.<br><br>C'est le <b>consommateur final</b> qui la paie. Les entreprises l'encaissent et la versent à l'<b>AFC</b> (Administration fédérale des contributions).<br><br>Le <b>taux normal</b> : ${pc(TAUX.normal)}.`},
+       {btn:'Suite →', text:`Le <b>taux réduit</b> : ${pc(TAUX.reduit)}, pour les biens de première nécessité.`},
+       {btn:'Suite →', text:`Le <b>taux spécial</b> : ${pc(TAUX.special)}, pour l'hébergement.`},
+       {btn:'Suite →', text:`<b>Exonéré</b> : les exportations ont une TVA à <b>0 %</b>. L'entreprise peut quand même récupérer la TVA qu'elle a payée sur ses achats.`},
+       {btn:'Suite →', text:`<b>Exclu</b> : certaines activités n'ont <b>pas de TVA</b> du tout. Le vendeur ne calcule pas de TVA et ne peut pas récupérer celle de ses achats.`},
+       {btn:'Suite →', text:`À vous !`,
+        q:{text:'Une librairie vend un livre. Quel taux ?', opts:[['n',pc(TAUX.normal)],['r',pc(TAUX.reduit)],['s',pc(TAUX.special)]], ok:'r',
+           fb:`les livres et les journaux sont au <b>taux réduit</b> de ${pc(TAUX.reduit)}.`}},
+       {btn:'HT, TVA et TTC →', text:``,
+        q:{text:'Un garage répare une voiture. Quel taux ?', opts:[['n',pc(TAUX.normal)],['r',pc(TAUX.reduit)],['x','pas de TVA (exclu)']], ok:'n',
+           fb:`une réparation est un service ordinaire : <b>taux normal</b>, ${pc(TAUX.normal)}.`}}],
+   stage: ph => `<section class="sec"><h2>Les taux de TVA</h2><table class="vocab tauxt">
+       ${TR.slice(0, Math.min(ph, 4)+1).map((r,i)=>`<tr class="${r.cls||''} ${i===ph?'new':''}"><td class="n">${r.t}</td><td>${r.lb}</td><td style="font-weight:400;white-space:normal">${r.ex}</td></tr>`).join('')}
+       </table></section>` },
+
+ { title:'HT, TVA et TTC',
+   ph:[{btn:'Depuis le HT →', text:`Trois montants à connaître :<br>• <b>HT</b> : hors taxe, le prix sans la TVA = <b>100 %</b> ;<br>• <b>TVA</b> : ${pc(T)} du HT ;<br>• <b>TTC</b> : toutes taxes comprises = HT + TVA = <b>${pc(TT)}</b>.`},
+       {btn:'Depuis le TTC →', text:`On connaît le <b>HT</b> : CHF ${fmt(E1.ht)}.<br><br>TVA = ${fmt(E1.ht)} × ${T} : 100 = <b>${f2(E1.tva)}</b><br>TTC = ${fmt(E1.ht)} + ${f2(E1.tva)} = <b>${f2(E1.ttc)}</b>`},
+       {btn:'Attention →', text:`On connaît le <b>TTC</b> : CHF ${fmt(E2.ttc)}. C'est ${pc(TT)}.`,
+        q:{text:'Pour trouver le HT (100 %), on calcule…', opts:[['a',`${fmt(E2.ttc)} × 100 : ${TT}`],['b',`${fmt(E2.ttc)} × ${TT} : 100`],['c',`${fmt(E2.ttc)} − ${pc(T)}`]], ok:'a',
+           fb:`le TTC vaut ${pc(TT)} : HT = ${fmt(E2.ttc)} × 100 : ${TT} = <b>${f2(E2.ht)}</b>. TVA = ${fmt(E2.ttc)} − ${f2(E2.ht)} = <b>${f2(E2.tva)}</b>.`}},
+       {btn:'Le raccourci →', text:`Piège : on ne peut <b>pas</b> enlever ${pc(T)} au TTC.<br><br>${fmt(E2.ttc)} × ${T} : 100 = ${f2(r05(E2.faux))} ≠ ${f2(E2.tva)}.<br><br>La TVA est ${pc(T)} du <b>HT</b>, pas du TTC. Les francs s'arrondissent à <b>0.05</b>.`},
+       {btn:'Le principe →', text:`Le raccourci : ${pc(TT)} = <b>${FX}</b>.<br><br>• Du HT au TTC → <b>× ${FX}</b><br>${fmt(E1.ht)} × ${FX} = ${f2(E1.ttc)}<br><br>• Du TTC au HT → <b>: ${FX}</b><br>${fmt(E2.ttc)} : ${FX} = ${f2(E2.ht)}`}],
+   stage: ph => { const done2 = ph>2 || ANS['1.2'];
+     const arr = `<td rowspan="3" class="arrc">${ph>=4?`<div class="varr"><div class="va down"><span>× ${FX}</span></div><div class="va up"><span>: ${FX}</span></div></div>`:''}</td>`;
+     const row = (lb, p, a, b, cls='', ar='') => `<tr class="${cls}"><td>${lb}</td><td class="n">${p}</td>${ar}<td class="n">${ph>=1?a:''}</td><td class="n">${ph>=2?b:''}</td></tr>`;
+     return `<section class="sec"><h2>HT, TVA et TTC</h2><table class="tab" style="max-width:720px">
+       <tr><th>Montant</th><th>%</th><th class="arrc"></th><th>${ph>=1?'Exemple 1 : on connaît le HT':''}</th><th>${ph>=2?'Exemple 2 : on connaît le TTC':''}</th></tr>
+       ${row('HT (hors taxe)', '100&nbsp;%', `<b>${f2(E1.ht)}</b>`, done2?`<b>${f2(E2.ht)}</b>`:'?', ph===2?'cur':'', arr)}
+       ${row('+ TVA', pc(T), f2(E1.tva), done2?f2(E2.tva):'?', ph===1?'cur':'')}
+       ${row('= TTC (toutes taxes comprises)', pc(TT), f2(E1.ttc), `<b>${f2(E2.ttc)}</b>`, ph===1?'cur':'')}</table>
+       ${ph>=1?`<div class="fml2">Depuis le HT : TVA = ${fmt(E1.ht)} × ${T} : 100 = <span class="sol">${f2(E1.tva)}</span></div>`:''}
+       ${ph>=2&&done2?`<div class="fml2">Depuis le TTC : HT = ${fmt(E2.ttc)} × 100 : ${TT} = <span class="sol">${f2(E2.ht)}</span></div>`:''}
+       ${ph>=4?`<div class="fml2">Raccourci : TTC = ${fmt(E1.ht)} × ${FX} = <span class="sol">${f2(E1.ttc)}</span> · HT = ${fmt(E2.ttc)} : ${FX} = <span class="sol">${f2(E2.ht)}</span></div>`:''}
+       ${ph>=3?`<div class="warn2" style="max-width:720px">✗ ${fmt(E2.ttc)} × ${T} : 100 = ${f2(r05(E2.faux))} : faux ! La TVA se calcule sur le HT.</div>`:''}</section>`; } },
+
+ { title:'Le principe de la TVA',
+   ph:[{btn:'Le commerçant →', text:`Un <b>fournisseur</b> vend des marchandises à un commerçant pour ${fmt(PR.fht)} HT. Il ajoute la TVA : ${f2(PR.ftva)}.<br><br>Le commerçant paie ${f2(PR.fttc)} TTC.`},
+       {btn:'Le décompte →', text:`Le <b>commerçant</b> ajoute sa marge (le bénéfice brut, ${fmt(PR.bb)}) et revend les marchandises ${fmt(PR.pv)} HT. Il ajoute la TVA : ${f2(PR.ctva)}.<br><br>Le <b>client</b> paie ${f2(PR.cttc)} TTC.`},
+       {btn:'L\'AFC →', text:`Le commerçant a <b>encaissé</b> ${f2(PR.ctva)} de TVA chez le client : c'est la <b>TVA due</b>.<br>Il a <b>payé</b> ${f2(PR.ftva)} de TVA au fournisseur : c'est l'<b>impôt préalable (IP)</b>.<br><br>Il ne verse à l'AFC que la différence : ${f2(PR.ctva)} − ${f2(PR.ftva)} = <b>${f2(PR.afc)}</b>.`},
+       {btn:'Les comptes →', text:`L'AFC reçoit ${f2(PR.ftva)} du fournisseur et ${f2(PR.afc)} du commerçant : en tout <b>${f2(PR.ctva)}</b>.<br><br>Chacun ne paie la TVA que sur la <b>valeur qu'il ajoute</b> : ${pc(T)} de ${fmt(PR.bb)} = ${f2(PR.afc)} pour le commerçant.`,
+        q:{text:'Qui supporte finalement la TVA ?', opts:[['f','le fournisseur'],['c','le commerçant'],['k','le client final']], ok:'k',
+           fb:`le <b>client final</b> paie les ${f2(PR.ctva)} de TVA. Les entreprises ne font que l'encaisser et la verser à l'AFC.`}}],
+   stage: ph => { const done = ph>3 || ANS['2.3'];
+     const r = (l, v, cls='') => `<div class="row ${cls}"><span>${l}</span><span>${f2(v)}</span></div>`;
+     return `<section class="sec"><h2>Du fournisseur au client</h2><div class="three">
+       <div class="actor ${ph===0?'on':''}"><h4>Fournisseur</h4>
+         ${r('Prix HT', PR.fht)}${r('+ TVA '+pc(T), PR.ftva, 'tva')}${r('= Prix TTC', PR.fttc, 'tot')}
+         ${ph>=3?`<div class="sub">Verse à l'AFC</div>${r('TVA', PR.ftva, 'afc')}`:''}</div>
+       <div class="flowarr">→</div>
+       <div class="actor ${ph===1||ph===2?'on':''} ${ph<1?'off':''}"><h4>Commerçant</h4>
+         ${ph>=1?`${r('Prix d\'achat (PA)', PR.fht)}${r('+ Bénéfice brut (BB)', PR.bb)}${r('= Prix de vente HT (PV)', PR.pv, 'tot')}${r('+ TVA '+pc(T), PR.ctva, 'tva')}${r('= Prix TTC', PR.cttc, 'tot')}`:''}
+         ${ph>=2?`<div class="sub">Décompte TVA</div>${r('TVA due', PR.ctva, 'tva')}${r('− Impôt préalable', PR.ftva, 'ip')}${r('= TVA versée à l\'AFC', PR.afc, 'afc')}`:''}</div>
+       <div class="flowarr">→</div>
+       <div class="actor ${ph<1?'off':''} ${ph===3&&done?'on':''}"><h4>Client final</h4>
+         ${ph>=1?`${r('Paie TTC', PR.cttc, 'tot')}${r('dont TVA', PR.ctva, 'tva')}`:''}
+         ${ph>=3&&done?`<div class="sub">Il supporte toute la TVA</div>`:''}</div></div>
+       ${ph>=3?`<div class="afcbox"><h4>AFC</h4>${`<div class="row"><span>du fournisseur</span><span>${f2(PR.ftva)}</span></div><div class="row"><span>+ du commerçant</span><span>${f2(PR.afc)}</span></div><div class="row tot"><span>= TVA payée par le client</span><span>${f2(PR.ctva)}</span></div>`}</div>`:''}</section>`; } },
+
+ { title:'Les 3 comptes de TVA',
+   ph:[{btn:'Suite →', text:`La <b>TVA due</b> est la TVA facturée aux clients, sur les ventes. L'entreprise la doit à l'AFC : c'est un compte de <b>passif</b>.`},
+       {btn:'Suite →', text:`Les <b>impôts préalables (IP)</b> sont la TVA payée aux fournisseurs. L'AFC les rembourse : ce sont des comptes d'<b>actif</b>.<br><br>Le premier : l'<b>IP sur marchandises</b>.`},
+       {btn:'Suite →', text:`Le deuxième : l'<b>IP sur investissements et ACE</b>, pour la TVA payée sur tout le reste (machines, véhicules, ordinateurs, frais d'administration, électricité…).`},
+       {btn:'Achat de marchandises →', text:``,
+        q:{text:'L\'entreprise achète un ordinateur. La TVA payée va dans…', opts:[['d','TVA due'],['m','IP sur marchandises'],['i','IP sur inv. et ACE']], ok:'i',
+           fb:'un ordinateur n\'est pas une marchandise à revendre : <b>IP sur inv. et ACE</b>.'}}],
+   stage: ph => { const row = (acc, txt, i) => ph>=i ? `<div class="acrow ${ph===i?'new':''}">${tHTML(acc,{d:[],c:[]},ph===i,'')}<div class="acx">${txt}</div></div>` : '';
+     return `<section class="sec"><h2>Les comptes de TVA</h2>
+       <div class="acgrp" style="color:var(--passif)">Passif</div>
+       ${row('TVA due','TVA facturée aux clients : TVA sur les ventes.', 0)}
+       ${ph>=1?`<div class="acgrp" style="color:var(--actif)">Actif : les impôts préalables</div>`:''}
+       ${row('IP sur marchandises','TVA payée aux fournisseurs de marchandises. On y corrige aussi la TVA des prestations propres.', 1)}
+       ${row('IP sur inv. et ACE','TVA payée sur tout le reste : investissements et autres charges d\'exploitation.', 2)}</section>`; } },
+
+ { title:'Achat de marchandises',
+   ph:[{btn:'Comptabiliser →', text:`On utilise la <b>méthode au net</b> : à chaque opération, on sépare le montant HT et la TVA.<br><br>Achat de marchandises à crédit, CHF ${fmt(E1.ht)} HT.`,
+        q:{text:'La TVA payée au fournisseur va dans…', opts:[['d','TVA due'],['m','IP sur marchandises']], ok:'m',
+           fb:'c\'est de la TVA payée sur des marchandises : <b>IP sur marchandises</b>, au débit.'}},
+       {btn:'Vente au comptant →', text:`<b>Achats de marchandises</b> ${f2(E1.ht)} et <b>IP sur marchandises</b> ${f2(E1.tva)} / <b>Dettes fournisseurs</b> ${f2(E1.ttc)}.<br><br>La charge est enregistrée <b>HT</b> : la TVA n'est pas une charge, l'AFC la rembourse.`}],
+   stage: ph => `<section class="sec"><h2>Exemple 1 : d'où viennent les montants</h2><div class="donnee">Achat de marchandises à crédit, CHF ${fmt(E1.ht)} HT.</div>
+       ${bordHTML('Facture du fournisseur',[
+         {k:'add', lb:'HT', p:'100&nbsp;%', amt:E1.ht, to:ph>=1?'Achats de marchandises':null},
+         {k:'add', lb:'+ TVA', p:pc(T), calc:`${fmt(E1.ht)} × ${T} : 100`, amt:E1.tva, to:ph>=1?'IP sur marchandises':null},
+         {k:'tot', lb:'= TTC', p:pc(TT), amt:E1.ttc, to:ph>=1?'Dettes fournisseurs':null}])}</section>
+     ${ph>=1?compta([{ph:1,n:1,d:'Achats de marchandises',amt:E1.ht},{ph:1,n:1,d:'IP sur marchandises',amt:E1.tva},{ph:1,n:1,c:'Dettes fournisseurs',amt:E1.ttc}],
+       ['Achats de marchandises','IP sur marchandises','Dettes fournisseurs'],ph):''}` },
+
+ { title:'Vente au comptant',
+   ph:[{btn:'Le HT et la TVA →', text:`Vente au comptant, CHF ${fmt(E2.ttc)}. Le montant encaissé est <b>TTC</b>.`,
+        q:{text:'La TVA encaissée chez le client va dans…', opts:[['d','TVA due'],['m','IP sur marchandises']], ok:'d',
+           fb:'c\'est la TVA facturée au client : l\'entreprise la doit à l\'AFC. <b>TVA due</b>, au crédit.'}},
+       {btn:'Comptabiliser →', text:`On retrouve le HT : ${fmt(E2.ttc)} × 100 : ${TT} = <b>${f2(E2.ht)}</b>.<br>La TVA est la différence : ${fmt(E2.ttc)} − ${f2(E2.ht)} = <b>${f2(E2.tva)}</b>.`},
+       {btn:'L\'escompte →', text:`<b>Caisse</b> ${f2(E2.ttc)} / <b>Ventes de marchandises</b> ${f2(E2.ht)} et <b>TVA due</b> ${f2(E2.tva)}.<br><br>Le produit est enregistré <b>HT</b> : la TVA appartient à l'AFC.`}],
+   stage: ph => `<section class="sec"><h2>Exemple 2 : d'où viennent les montants</h2><div class="donnee">Vente au comptant, CHF ${fmt(E2.ttc)} (TTC).</div>
+       ${bordHTML('Quittance au client',[
+         {k:'add', lb:'HT', p:'100&nbsp;%', calc:ph>=1?`${fmt(E2.ttc)} × 100 : ${TT}`:'', amt:ph>=1?E2.ht:0, to:ph>=2?'Ventes de marchandises':null},
+         {k:'add', lb:'+ TVA', p:pc(T), calc:ph>=1?`${fmt(E2.ttc)} − ${f2(E2.ht)}`:'', amt:ph>=1?E2.tva:0, to:ph>=2?'TVA due':null},
+         {k:'tot', lb:'= TTC', p:pc(TT), amt:E2.ttc, to:ph>=2?'Caisse':null}]).replace(/<td class="n">0\.00<\/td>/g,'<td class="n">?</td>')}</section>
+     ${ph>=2?compta([{ph:2,n:2,d:'Caisse',amt:E2.ttc},{ph:2,n:2,c:'Ventes de marchandises',amt:E2.ht},{ph:2,n:2,c:'TVA due',amt:E2.tva}],
+       ['Caisse','Ventes de marchandises','TVA due'],ph):''}` },
+
+ { title:'L\'escompte accordé',
+   ph:[{btn:'L\'escompte →', text:`Un client paie par banque CHF ${f2(E3.net)}, après déduction de <b>${E3.esc}&nbsp;%</b> d'escompte.<br><br>On retrouve d'abord le montant de la facture.`,
+        q:{text:`CHF ${f2(E3.net)} correspond à…`, opts:[['a','100 %'],['b',`${100-E3.esc} %`],['c',`${100+E3.esc} %`]], ok:'b',
+           fb:`le client a payé la facture <b>moins ${E3.esc} %</b> : ${f2(E3.net)} = ${100-E3.esc} %. Facture = ${f2(E3.net)} × 100 : ${100-E3.esc} = <b>${f2(E3.fac)}</b>.`}},
+       {btn:'Comptabiliser →', text:`L'escompte est la différence : ${f2(E3.fac)} − ${f2(E3.net)} = <b>${f2(E3.ettc)}</b>. Il est <b>TTC</b>.<br><br>Il contient donc de la TVA : HT = ${f2(E3.ettc)} × 100 : ${TT} = <b>${f2(E3.eht)}</b> ; TVA = <b>${f2(E3.etva)}</b>.`},
+       {btn:'Les prestations propres →', text:`<b>Banque</b> ${f2(E3.net)}, <b>Déductions accordées</b> ${f2(E3.eht)} et <b>TVA due</b> ${f2(E3.etva)} / <b>Créances clients</b> ${f2(E3.fac)}.<br><br>L'escompte diminue la vente : il diminue aussi la <b>TVA due</b> (au débit).`}],
+   stage: ph => { const done = ph>0 || ANS['6.0'];
+     return `<section class="sec"><h2>Exemple 3 : d'où viennent les montants</h2><div class="donnee">Paiement par banque d'un client, CHF ${f2(E3.net)} après déduction de ${E3.esc}&nbsp;% d'escompte.</div>
+       ${bordHTML('La facture et l\'escompte',[
+         {k:'add', lb:'Facture (créance)', p:'100&nbsp;%', calc:done?`${f2(E3.net)} × 100 : ${100-E3.esc}`:'', amt:done?E3.fac:0, to:ph>=2?'Créances clients':null},
+         {k:'sub', lb:'− Escompte', p:`${E3.esc}&nbsp;%`, calc:ph>=1?`${f2(E3.fac)} − ${f2(E3.net)}`:'', amt:ph>=1?E3.ettc:0},
+         {k:'tot', lb:'= Payé par banque', p:`${100-E3.esc}&nbsp;%`, amt:E3.net, to:ph>=2?'Banque':null}]).replace(/<td class="n">0\.00<\/td>/g,'<td class="n">?</td>')}
+       ${ph>=1?`<div style="height:14px"></div>${bordHTML('L\'escompte (TTC)',[
+         {k:'add', lb:'HT', p:'100&nbsp;%', calc:`${f2(E3.ettc)} × 100 : ${TT}`, amt:E3.eht, to:ph>=2?'Déductions accordées':null},
+         {k:'add', lb:'+ TVA', p:pc(T), calc:`${f2(E3.ettc)} − ${f2(E3.eht)}`, amt:E3.etva, to:ph>=2?'TVA due':null},
+         {k:'tot', lb:'= Escompte TTC', p:pc(TT), amt:E3.ettc}])}`:''}</section>
+     ${ph>=2?compta([{ph:0,open:'Créances clients',side:'d',amt:E3.fac,lab:'facture'},{ph:2,n:3,d:'Banque',amt:E3.net},{ph:2,n:3,d:'Déductions accordées',amt:E3.eht},{ph:2,n:3,d:'TVA due',amt:E3.etva},{ph:2,n:3,c:'Créances clients',amt:E3.fac}],
+       ['Banque','Déductions accordées','TVA due','Créances clients'],ph,(acc,P)=> acc==='Créances clients' ? `<span class="tag good">soldé ✓</span>` : ''):''}`; } },
+
+ { title:'Les prestations propres',
+   ph:[{btn:'Comptabiliser →', text:`Le patron prend des marchandises pour sa famille, valeur d'achat CHF ${fmt(E4.ht)} HT.<br><br>À l'achat, l'entreprise a récupéré la TVA (IP). Mais ces marchandises ne seront pas vendues : il faut <b>corriger</b> l'impôt préalable.`,
+        q:{text:`La TVA de ${f2(E4.tva)} sur ces marchandises…`, opts:[['m','diminue l\'IP sur marchandises'],['d','augmente la TVA due']], ok:'m',
+           fb:`on rend l'impôt préalable récupéré à tort : <b>IP sur marchandises</b> au crédit, ${f2(E4.tva)}.`}},
+       {btn:'Le décompte TVA →', text:`<b>Privé</b> ${f2(E4.tot)} / <b>Prestations propres</b> ${f2(E4.ht)} et <b>IP sur marchandises</b> ${f2(E4.tva)}.<br><br>Le patron « paie » les marchandises et la TVA avec son compte privé.`}],
+   stage: ph => `<section class="sec"><h2>Exemple 4 : d'où viennent les montants</h2><div class="donnee">Prélèvement de marchandises par le patron, valeur d'achat CHF ${fmt(E4.ht)} HT.</div>
+       ${bordHTML('Prélèvement du patron',[
+         {k:'add', lb:'Marchandises HT', p:'100&nbsp;%', amt:E4.ht, to:ph>=1?'Prestations propres':null},
+         {k:'add', lb:'+ TVA', p:pc(T), calc:`${fmt(E4.ht)} × ${T} : 100`, amt:E4.tva, to:ph>=1?'IP sur marchandises':null},
+         {k:'tot', lb:'= Total à la charge du patron', p:pc(TT), amt:E4.tot, to:ph>=1?'Privé':null}])}</section>
+     ${ph>=1?compta([{ph:1,n:4,d:'Privé',amt:E4.tot},{ph:1,n:4,c:'Prestations propres',amt:E4.ht},{ph:1,n:4,c:'IP sur marchandises',amt:E4.tva}],
+       ['Privé','Prestations propres','IP sur marchandises'],ph):''}` },
+
+ { title:'Le décompte TVA',
+   ph:[{btn:'La vente →', text:`À la fin de chaque <b>trimestre</b>, l'entreprise fait son <b>décompte TVA</b> avec l'AFC.<br><br>On reprend le commerçant du principe. 1. Il achète les marchandises à crédit : ${fmt(PR.fht)} HT + ${f2(PR.ftva)} de TVA.`},
+       {btn:'Le transfert →', text:`2. Il les vend au comptant : ${fmt(PR.pv)} HT + ${f2(PR.ctva)} de TVA.`},
+       {btn:'Le paiement →', text:`3. Fin du trimestre : on <b>transfère</b> le solde des impôts préalables dans la TVA due.<br><br><b>TVA due / IP sur marchandises</b> ${f2(PR.ftva)}.`,
+        q:{text:'Après le transfert, le solde de la TVA due est de…', opts:[['a',f2(PR.ctva)],['b',f2(PR.afc)],['c',f2(PR.ftva)]], ok:'b',
+           fb:`${f2(PR.ctva)} − ${f2(PR.ftva)} = <b>${f2(PR.afc)}</b> : c'est le montant à verser à l'AFC.`}},
+       {btn:'Suite →', text:`4. Le solde de la TVA due est payé à l'AFC.<br><br><b>TVA due / Banque</b> ${f2(PR.afc)}.<br><br>Les deux comptes de TVA sont soldés.`}],
+   stage: ph => { const J = [
+       {ph:0,n:1,d:'Achats de marchandises',amt:PR.fht},{ph:0,n:1,d:'IP sur marchandises',amt:PR.ftva},{ph:0,n:1,c:'Dettes fournisseurs',amt:PR.fttc},
+       {ph:1,n:2,d:'Caisse',amt:PR.cttc},{ph:1,n:2,c:'Ventes de marchandises',amt:PR.pv},{ph:1,n:2,c:'TVA due',amt:PR.ctva},
+       {ph:2,n:3,d:'TVA due',c:'IP sur marchandises',amt:PR.ftva},
+       {ph:3,n:4,d:'TVA due',c:'Banque',amt:PR.afc}].flatMap(e => e.d && e.c ? [{ph:e.ph,n:e.n,d:e.d,amt:e.amt},{ph:e.ph,n:e.n,c:e.c,amt:e.amt}] : [e]);
+     const eff = (acc,P,q) => acc==='IP sur marchandises' || acc==='TVA due'
+       ? `Solde : <span class="tag ${Math.abs(bal(acc,P))<0.001&&q>=2?'good':'neutral'}">${f2(bal(acc,P))}${Math.abs(bal(acc,P))<0.001&&q>=2?' ✓':''}</span>` : '';
+     return compta(J, ['Achats de marchandises','IP sur marchandises','Dettes fournisseurs','Caisse','Ventes de marchandises','TVA due','Banque'], ph, eff)
+       .replace('<h2>Dans la comptabilité</h2>','<h2>Le trimestre du commerçant</h2>'); } }
+];
+const LAST = STEPS.length-1;
+
+/* ---------- Actions ---------- */
+const A = [];
+STEPS.forEach((s,i)=>s.ph.forEach((_,p)=>A.push({step:i, ph:p})));
+let pos = 0;
+
+/* ---------- Rendu ---------- */
+function qBox(key, q){
+  const ch = ANS[key];
+  const btn = (a,lb) => `<button class="ch ${ch===a?(a===q.ok?'ok':'ko'):''} ${ch?'':'blink'}" data-a="${a}" ${ch?'disabled':''}>${lb}</button>`;
+  const fb = ch ? `<div class="fb ${ch===q.ok?'ok':'ko'}">${ch===q.ok?'✓ En effet':'✗ En fait'}, ${q.fb}</div>` : `<div class="hint">Cliquer sur la bonne réponse.</div>`;
+  return `<div class="calc q"><div style="font-weight:600;margin-bottom:4px">La question à se poser</div>${q.text}
+    <div class="choices" style="flex-wrap:wrap">${q.opts.map(([a,lb])=>btn(a,lb)).join('')}</div>${fb}</div>`;
+}
+const LET = i => String.fromCharCode(65+i);   // A, B, C…
+function render(){
+  pos = Math.max(0, Math.min(A.length-1, pos));
+  const {step, ph} = A[pos], S = STEPS[step], P = S.ph[ph], key = step+'.'+ph;
+  document.querySelectorAll('#dots .dot').forEach((b,i)=>{ b.classList.toggle('cur', i===step); b.classList.toggle('done', i<step); });
+  $('prev').disabled = pos===0;
+  $('next').disabled = pos===A.length-1 || (P.q && !ANS[key]);
+  $('next').textContent = pos===A.length-1 ? 'Terminé ✓' : P.btn;
+  $('explain').innerHTML = `<h2 class="steptitle">${LET(step)}. ${S.title}</h2>
+    ${P.text?`<p class="steptext">${P.text}</p>`:''}${P.q?qBox(key,P.q):''}`;
+  $('stage').innerHTML = S.stage(ph);
+}
+
+/* ---------- Navigation ---------- */
+function goTo(p){ pos = p; render(); }
+function goStep(s){ goTo(A.findIndex(a=>a.step===s)); }
+let Z = 1;
+try { Z = +localStorage.getItem('tva-zoom') || 1; } catch(e){}
+function applyZoom(){
+  Z = Math.round(Math.max(0.8, Math.min(1.6, Z))*10)/10;
+  document.documentElement.style.setProperty('--z', Z);
+  try { localStorage.setItem('tva-zoom', Z); } catch(e){}
+}
+$('dots').innerHTML = STEPS.map((s,i)=>`<button class="dot" data-s="${i}" title="${LET(i)}. ${s.title}" aria-label="${LET(i)}. ${s.title}"></button>`).join('');
+$('zm').addEventListener('click', ()=>{ Z -= 0.1; applyZoom(); });
+$('zp').addEventListener('click', ()=>{ Z += 0.1; applyZoom(); });
+$('next').addEventListener('click', ()=>goTo(pos+1));
+$('prev').addEventListener('click', ()=>goTo(pos-1));
+$('explain').addEventListener('click', e=>{ const b=e.target.closest('.ch'); if (!b || b.disabled) return; const {step,ph}=A[pos]; ANS[step+'.'+ph] = b.dataset.a; render(); });
+$('quit').addEventListener('click', ()=>{ window.close(); setTimeout(()=>{ $('quit-msg').style.display='block'; }, 300); });
+$('dots').addEventListener('click', e=>{ const b=e.target.closest('.dot'); if (b) goStep(+b.dataset.s); });
+document.addEventListener('keydown', e=>{
+  if (e.key==='ArrowRight' && !$('next').disabled) goTo(pos+1);
+  if (e.key==='ArrowLeft') goTo(pos-1);
+});
+render();
+applyZoom();
+</script>
+<script src="theorie.js"></script>
+</body>
+</html>
