@@ -114,6 +114,11 @@
 .slip tr.add td.n{color:var(--produit)}.slip tr.sub td.n{color:var(--charge)}.slip tr.pay td.n{color:var(--actif)}
 .slip tr.tot td{font-weight:700;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
 .slip tr.cur td{background:var(--hl)}
+/* H : tableau de distribution sobre · J : décomptes sans bord, lignes resserrées */
+.slip.nob tr.sub td:first-child{border-left:0}
+.slip.plain td,.slip.plain td.n,.slip.plain td.calc2{color:var(--ink);font-size:inherit}
+.slip.plain tr.tot td{border-bottom:0}.slip.plain tr.tot:last-child td{border-bottom:2px solid var(--ink)}
+.slip.tight td{padding:3px 10px}
 .chip{display:inline-block;padding:2px 9px;border-radius:7px;font-weight:600;font-size:13px}
 .chip.charge{background:var(--charge-bg);color:var(--charge)}
 .chip.passif{background:var(--passif-bg);color:var(--passif)}
@@ -307,12 +312,12 @@ const chip = a => `<span>${a}</span>`;   // journal : comptes en noir
 /* Couleur de liaison = compte de destination du montant */
 const LINK = {'Caisse':'#4b5563','Banque':'#4b5563','Machines':'#2a52be','Véhicules':'#2a52be','Stock de marchandises':'#2a52be','Actionnaires':'#0e7490','Participants':'#0e7490',
   'Capital-actions':'#7a2730','Capital-participations':'#7a2730','Réserve légale sur capital':'#6d48b3','Réserve légale sur bénéfice':'#6d48b3',
-  'Bénéfice reporté':'#1f7a4d','Bénéfice de l\'exercice':'#2a52be','Dividendes':'#a3333d','Tantièmes':'#b45309','Dettes AFC':'#a3333d','Dettes AVS':'#a3333d','FAO':'#c2671f'};
+  'Bénéfice reporté':'#1f7a4d','Bénéfice de l\'exercice':'#2a52be','Dividendes':'#a3333d','Tantièmes':'#0e7490','Dettes AFC':'#a3333d','Dettes AVS':'#15803d','FAO':'#c2671f'};
 const pill = (acc, txt) => acc ? `<span class="lk" style="color:${LINK[acc]};background:${LINK[acc]}1f;border-color:${LINK[acc]}">${txt}</span>` : txt;
 
 /* ---------- Décompte : d'où viennent les montants ---------- */
-function bordHTML(title, rows){
-  return `<div style="font-weight:700;margin-bottom:6px">${title}</div><table class="slip">${rows.map(r=>`<tr class="${r.k||''}"><td>${r.lb}</td><td class="pct">${r.p||''}</td><td class="calc2">${r.calc||''}</td><td class="calc2">${r.to?'→ '+r.to:''}</td><td class="n">${r.to?pill(r.to,f2(r.amt)):f2(r.amt)}</td></tr>`).join('')}</table>`;
+function bordHTML(title, rows, cls=''){
+  return `<div style="font-weight:700;margin-bottom:6px">${title}</div><table class="slip ${cls}">${rows.map(r=>`<tr class="${r.k||''}"><td>${r.lb}</td><td class="pct">${r.p||''}</td><td class="calc2">${r.calc||''}</td><td class="calc2">${r.to?'→ '+r.to:''}</td><td class="n">${r.to?pill(r.to,f2(r.amt)):f2(r.amt)}</td></tr>`).join('')}</table>`;
 }
 
 /* ---------- Journal à deux colonnes + comptes en T ---------- */
@@ -434,7 +439,7 @@ function tabDist(ph, done, col, hl=[]){
        [1,'− Réserve légale sur bénéfice',`${TX.resMin}&nbsp;% de ${fmt(DB.be)}`,DB.att,'sub','Réserve légale sur bénéfice'],[2,'− Dividende',`${TX.divOrd}&nbsp;% de ${fmt(DB.lib)}`,DB.div,'sub','Dividendes'],
        [3,'− Tantièmes',`${DB.tant}&nbsp;% de ${fmt(DB.be)}`,DB.tan,'sub','Tantièmes'],[3,'= Solde avant superdividende','',DB.solde,'tot'],
        [4,'− Superdividende',done?`${pc(DB.taux)} de ${fmt(DB.lib)}`:'? % de '+fmt(DB.lib),done?DB.sup:null,'sub','Dividendes'],[5,'= Bénéfice à reporter','',DB.rep,'tot','Bénéfice reporté']];
-     return `<section class="sec"><h2>Tableau de distribution du bénéfice</h2><table class="slip">
+     return `<section class="sec"><h2>Tableau de distribution du bénéfice</h2><table class="slip nob plain">
        ${R.filter(r=>ph>=r[0]).map(([p,l,c,v,k,to],i)=>`<tr class="${k||''} ${p===ph||hl.includes(i)?'cur':''}"><td>${l}</td><td class="calc2">${c}</td><td class="n">${v===null?'?':col&&to?pill(to,f2(v)):f2(v)}</td></tr>`).join('')}</table></section>`; }
 
 /* Les séquences des étapes en pas à pas */
@@ -637,13 +642,13 @@ const STEPS = [
          `2. Versement de l'impôt anticipé à l'AFC par banque.`, `3. Paiement des tantièmes par banque, ${fmt(DB.tan)} brut. Retenue AVS de ${TX.avs}&nbsp;%.`], k)
      + `<section class="sec"><h2>Le calcul</h2>
        ${bordHTML('Dividendes',[
-         {k:'add', lb:'Dividende brut', p:'100&nbsp;%', amt:DB.divTot, to:'Dividendes'},
-         {k:'sub', lb:'− Impôt anticipé', p:pc(TX.ia), calc:`${fmt(DB.divTot)} × ${TX.ia} : 100`, amt:DB.ia, to:'Dettes AFC'},
-         {k:'tot', lb:'= Dividende net', p:pc(100-TX.ia), amt:DB.divNet, to:'Banque'}])}
+         {lb:'Dividende brut', p:'100&nbsp;%', amt:DB.divTot, to:'Dividendes'},
+         {lb:'− Impôt anticipé', p:pc(TX.ia), calc:`${fmt(DB.divTot)} × ${TX.ia} : 100`, amt:DB.ia, to:'Dettes AFC'},
+         {k:'tot', lb:'= Dividende net', p:pc(100-TX.ia), amt:DB.divNet, to:'Banque'}], 'nob tight')}
        ${k>=2?`<div style="height:14px"></div>${bordHTML('Tantièmes',[
-         {k:'add', lb:'Tantièmes bruts', p:'100&nbsp;%', amt:DB.tan, to:'Tantièmes'},
-         {k:'sub', lb:'− AVS', p:pc(TX.avs), calc:`${fmt(DB.tan)} × ${TX.avs} : 100`, amt:DB.avs, to:'Dettes AVS'},
-         {k:'tot', lb:'= Tantièmes nets', p:pc(Math.round((100-TX.avs)*10)/10), amt:DB.tanNet, to:'Banque'}])}`:''}</section>`
+         {lb:'Tantièmes bruts', p:'100&nbsp;%', amt:DB.tan, to:'Tantièmes'},
+         {lb:'− AVS', p:pc(TX.avs), calc:`${fmt(DB.tan)} × ${TX.avs} : 100`, amt:DB.avs, to:'Dettes AVS'},
+         {k:'tot', lb:'= Tantièmes nets', p:pc(Math.round((100-TX.avs)*10)/10), amt:DB.tanNet, to:'Banque'}], 'nob tight')}`:''}</section>`
      + (true ? compta([{ph:0,open:'Dividendes',side:'c',amt:DB.divTot,lab:'AG'},{ph:0,open:'Tantièmes',side:'c',amt:DB.tan,lab:'AG'}, ...SJ.J],
        ['Dividendes','Dettes AFC','Tantièmes','Dettes AVS','Banque'], ph,
        (acc,P,q)=> P.d.length && Math.abs(bal(acc,P))<0.001 ? `<span class="tag good">soldé ✓</span>` : '') : ''); } }
