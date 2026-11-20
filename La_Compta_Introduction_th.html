@@ -279,24 +279,37 @@ const QA = [
 // Le problème des factures : l'exemple de l'imprimante (Infra. informatique)
 const FX = [
   {part:'a', dt:'12.02', txt:'Le 12 février, on achète à crédit une imprimante pour un montant de CHF 550.', d:'Infra. informatique', c:'Autres dettes', lib:'Achat à crédit',
-   opts:['Infra. informatique','Autres dettes','Banque'], fb:'l\'imprimante est un <b>actif</b> : l\'avoir augmente au débit. La facture n\'est pas encore payée : la <b>dette augmente</b> au crédit.',
+   opts:['Infra. informatique','Autres dettes','Banque'],
+   fbD:'l\'imprimante est un <b>actif</b> : l\'avoir augmente au <b>débit</b>.',
+   fbC:'la facture n\'est pas encore payée : la <b>dette augmente</b> au <b>crédit</b>.',
    notes:{'Infra. informatique':'L\'avoir augmente de 550 ↗','Autres dettes':'La dette augmente de 550 ↗'}},
   {part:'a', dt:'10.03', txt:'Le 10 mars, on paie par virement bancaire la facture de l\'imprimante, soit CHF 550. <b>La facture est déjà comptabilisée.</b>', d:'Autres dettes', c:'Banque', lib:'Paiement',
-   opts:['Infra. informatique','Autres dettes','Banque'], fb:'l\'imprimante est déjà comptée. La facture est dans les Autres dettes : on <b>diminue la dette</b> au débit. La banque diminue au crédit.',
+   opts:['Infra. informatique','Autres dettes','Banque'],
+   fbD:'l\'imprimante est déjà comptée. La facture est dans les Autres dettes : on <b>diminue la dette</b> au <b>débit</b>.',
+   fbC:'l\'argent sort du compte bancaire : la <b>banque diminue</b> au <b>crédit</b>.',
    notes:{'Autres dettes':'La dette diminue de 550 ↘','Banque':'L\'avoir en banque diminue de 550 ↘'}},
   {part:'b', dt:'10.03', txt:'Rappel : le 12 février, achat à crédit d\'une imprimante, CHF 550.<br>Le 10 mars, on paie par virement bancaire la facture de l\'imprimante, soit CHF 550. <b>La facture n\'a pas été comptabilisée.</b>', d:'Infra. informatique', c:'Banque', lib:'Paiement',
-   opts:['Infra. informatique','Autres dettes','Banque'], fb:'aucune dette n\'a été enregistrée : on comptabilise directement l\'<b>achat de l\'imprimante</b> (l\'avoir augmente au débit), payé par la banque.',
+   opts:['Infra. informatique','Autres dettes','Banque'],
+   fbD:'aucune dette n\'a été enregistrée : on comptabilise directement l\'<b>achat de l\'imprimante</b> (l\'avoir augmente au <b>débit</b>).',
+   fbC:'l\'imprimante est payée tout de suite par la banque : la <b>banque diminue</b> au <b>crédit</b>. On ne passe pas par les Autres dettes.',
    notes:{'Infra. informatique':'L\'avoir augmente de 550 ↗','Banque':'L\'avoir en banque diminue de 550 ↘'}}];
 const FX_ACC = ['Infra. informatique','Autres dettes','Banque'];
-function fxPart(part, upto, ph){   // upto : nombre d'écritures de cette partie terminées
+// Chaque cas = 2 phases : 2i = question du débit, 2i+1 = question du crédit
+function fxPart(part, upto, ph){
+  const cur = Math.floor(ph/2), sub = ph%2;                       // cas en cours, 0 = débit / 1 = crédit
   const E = FX.map((e,i)=>({...e, i})).filter(e=>e.part===part);
-  const shown = E.filter(e=>e.i<=ph), done = e => ANS[SI('Le problème des factures')+'.'+e.i];
+  const key = p => SI('Le problème des factures')+'.'+p;
+  const shown = E.filter(e=>e.i<=cur);
+  const dOK = e => ANS[key(2*e.i)], cOK = e => ANS[key(2*e.i+1)];   // débit / crédit trouvé
   const jr = `<table class="tab jl"><tr><th>Date</th><th>Compte à débiter</th><th>Compte à créditer</th><th>Libellé</th><th>Somme au débit</th><th>Somme au crédit</th></tr>
-    ${shown.map(e=>{ const ok = done(e); return `<tr class="${e.i===ph?'cur':''}"><td>${e.dt}</td><td style="text-align:left">${ok?e.d:'…'}</td><td style="text-align:left">${ok?e.c:'…'}</td><td style="text-align:left">${e.lib}</td><td>${ok?'550':''}</td><td>${ok?'550':''}</td></tr>`; }).join('')}</table>`;
-  const posted = shown.filter(done), last = posted.find(e=>e.i===ph);
-  const L = [];
-  posted.forEach(e=>{ L.push({acc:e.d, side:'d', lb:e.dt, amt:550, fresh:e===last}); L.push({acc:e.c, side:'c', lb:e.dt, amt:550, fresh:e===last}); });
-  const ts = FX_ACC.map(a=>`<div>${tHTML(a, L, last && (last.d===a||last.c===a))}${last && last.notes[a] ? `<div class="tnote">${last.notes[a]}</div>` : ''}</div>`).join('');
+    ${shown.map(e=>{ const d = dOK(e), c = cOK(e); return `<tr class="${e.i===cur?'cur':''}"><td>${e.dt}</td><td style="text-align:left">${d?e.d:'…'}</td><td style="text-align:left">${c?e.c:'…'}</td><td style="text-align:left">${e.lib}</td><td>${d?'550':''}</td><td>${c?'550':''}</td></tr>`; }).join('')}</table>`;
+  const L = [], fresh = [], notes = {};
+  shown.forEach(e=>{
+    const now = e.i===cur;
+    if (dOK(e)){ const f = now && sub===0; L.push({acc:e.d, side:'d', lb:e.dt, amt:550, fresh:f}); if (f) fresh.push(e.d); if (now) notes[e.d] = e.notes[e.d]; }
+    if (cOK(e)){ const f = now && sub===1; L.push({acc:e.c, side:'c', lb:e.dt, amt:550, fresh:f}); if (f) fresh.push(e.c); if (now) notes[e.c] = e.notes[e.c]; }
+  });
+  const ts = FX_ACC.map(a=>`<div>${tHTML(a, L, fresh.includes(a))}${notes[a] ? `<div class="tnote">${notes[a]}</div>` : ''}</div>`).join('');
   return `${shown.map(e=>`<p class="sit">${e.txt}</p>`).join('')}${jr}<div style="font-weight:600;font-size:13px;margin-top:10px">Écritures dans les comptes :</div><div class="tg3">${ts}</div>`;
 }
 
@@ -364,16 +377,16 @@ const STEPS = [
    ph:[{btn:'Suite →', text:`Voici un petit atelier de menuiserie, le 1<sup>er</sup> janvier ${Y}.<br><br>Première étape : l'<b>inventaire</b> : On compte et on note la valeur de <b>tout</b> ce que <b>possède</b> et <b>doit</b> l'entreprise.`},
        {btn:'Trier →', text:`La liste est terminée.</b>.`,
         q:{text:'La facture du garagiste, pas encore payée : l\'entreprise la possède ou la doit ?', opts:[['A','possède'],['P','doit']], ok:'P',
-           fb:'l\'entreprise doit encore payer cette facture : c\'est une <b>dette</b>.'}},
+           fb:'l\'entreprise doit encore payer cette facture : c\'est une <b>dette</b>.<p>On procède de la même manière pour toute la liste.'}},
        {btn:'Nommer →', text:`Ce que l'entreprise <b>possède</b> s'appelle les <b>actifs</b>.<br>Ce qu'elle <b>doit</b> s'appelle les <b>passifs</b>.`},
-       {btn:'Suite →', text:`Chaque élément reçoit un <b>nom de compte</b>.<br><br>Le nom des comptes figure dans un <b>plan comptable</b>. Les entreprises sont libres de l'utiliser.`}],
+       {btn:'Suite →', text:`Les éléments sont <b>regroupés</b> et attribués à un <b>compte</b>.<br><br>La liste des comptes figure dans un <b>plan comptable</b>.<p>Les entreprises sont libres de l'utiliser.`}],
    stage: ph => invHTML(ph, ph===3, i => ph===1 && i.acc==='Autres dettes') },
 
  { title:'Le bilan',      // phases 0-3 : de l'inventaire au bilan ; phases 4-6 : l'ordre du bilan
-   ph:[{btn:'Placer les actifs →', text:`Le <b>bilan</b> est basé sur l'inventaire. C'est une liste ordonnée de tout ce que l'entreprise <b>possède</b> (à gauche, l'actif) et <b>doit</b> (à droite, le passif).<br><br>Il montre la situation de l'entreprise <b>à un moment donné</b> : c'est une photo.`},
+   ph:[{btn:'Placer les actifs →', text:`Le <b>bilan</b> est basé sur l'inventaire. C'est une liste ordonnée de tout ce que l'entreprise <b>possède</b> (à gauche, l'<b>actif</b>) et <b>doit</b> (à droite, le <b>passif</b>).<br><br>Il montre la situation de l'entreprise <b>à un moment donné</b> : c'est une <b>photo</b>.`},
        {btn:'Placer les dettes →', text:`Les <b>actifs</b> vont à gauche. Total : ${fmt(TA)}.`},
        {btn:'Équilibrer →', text:`Les <b>dettes</b> vont à droite. Total : ${fmt(TD)}.<br><br>Les deux côtés ne sont pas égaux : il manque ${fmt(TA-TD)} à droite.`},
-       {btn:'L\'ordre du bilan →', text:`La différence, c'est ce qui appartient au propriétaire : le <b>capital</b> (capitaux propres).<br><br>Capital = actifs − dettes = ${fmt(TA)} − ${fmt(TD)} = <b>${fmt(CAP)}</b>.<br><br>Le bilan est <b>toujours équilibré</b> : total de l'actif = total du passif.`},
+       {btn:'L\'ordre du bilan →', text:`La différence, c'est ce qui appartient au propriétaire : le <b>capital</b> (capitaux propres).<p>Du point de vue de l'entreprise, c'est une <b>dette</b> : le propriétaire a droit à cette somme en cas de vente de l'entreprise.<br><br>Capital = actifs − dettes = ${fmt(TA)} − ${fmt(TD)} = <b>${fmt(CAP)}</b>.<br><br>Le bilan est <b>toujours équilibré</b> : total de l'actif = total du passif.`},
        {btn:'Suite →', text:`Le bilan n'est pas dans le désordre. À l'actif, on suit l'<b>ordre de liquidité</b> : d'abord ce qui est déjà de l'argent ou le deviendra vite.`,
         q:{text:'Qui vient en premier à l\'actif ?', opts:[['cai','Caisse'],['mac','Machines']], ok:'cai',
            fb:'la <b>caisse</b> est déjà de l\'argent : elle est la plus liquide. Les machines sont utilisées des années.'}},
@@ -381,14 +394,14 @@ const STEPS = [
        {btn:'Suite →', text:`Au passif, on suit l'<b>ordre d'exigibilité</b> : d'abord ce qu'il faut payer vite.<br><br>• les <b>dettes à court terme</b> : à payer dans les 12 mois ;<br>• les <b>dettes à long terme</b> ;<br>• les <b>capitaux propres</b> : ce qui appartient au propriétaire.<br><br>Ces catégories sont aussi <b>obligatoires</b>.`}],
    extra: ph => ph<4 ? '' : (ph => ph<1 ? '' : `<div class="calc"><div style="font-weight:600;margin-bottom:4px">Autres comptes du bilan</div>
       <div style="font-size:12.5px"><b>Actifs circulants</b> : Banque (avoir), Stock de marchandises<br><b>Actifs immobilisés</b> : Informatique, Véhicules, Instruments et outillage, Immeubles, Brevet
-      ${ph>=2?`<br><b>Dettes CT</b> : Dettes fournisseurs (marchandises), Banque (dette)<br><b>Dettes LT</b> : Crédit hypothécaire<br><b>Capitaux propres</b> : Privé`:''}</div></div>`)(ph-4),
+      ${ph>=2?`<br><b>Dettes à CT</b> : Dettes fournisseurs (marchandises), Banque (dette)<br><b>Dettes à LT</b> : Crédit hypothécaire<br><b>Capitaux propres</b> : Privé`:''}</div></div>`)(ph-4),
    stage: ph => ph<4 ? (invHTML(3, false, i => (ph===1 && i.s==='A') || (ph===2 && i.s==='P')) + `<section class="sec"><h2>De l'inventaire au bilan</h2>${bilanHTML({a:ph>=1, p:ph>=2, cap:ph>=3, funds:true, fresh:['', 'a','p','cap'][ph]})}</section>`)
                      : (ph => `<section class="sec"><h2>Le bilan ordonné</h2>${bilanHTML({a:true, p:true, cap:true, orderA:true, groupsA:ph>=1, orderP:ph>=2, groupsP:ph>=2, hl:true, dimP:ph<2})}</section>`)(ph-4) },
 
 
  { title:'Capital ou découvert ?',
-   ph:[{btn:'Suite →', text:`Dans l'atelier, les actifs (${fmt(TA)}) sont plus grands que les dettes (${fmt(TD)}). La différence est le <b>capital</b>, au passif.`},
-       {btn:'Suite →', text:`Une autre entreprise a des actifs de 6'000 et des dettes de 9'000.<br><br>Quand les <b>dettes sont plus élevées que les actifs</b>, la différence ne s'appelle plus capital : on parle de <b>découvert</b>. Ici : 9'000 − 6'000 = <b>3'000</b>.<br><br>Le découvert s'inscrit à l'<b>actif</b>, pour équilibrer le bilan. L'entreprise doit plus qu'elle ne possède : c'est une situation dangereuse.`}],
+   ph:[{btn:'Suite →', text:`Dans l'atelier, les actifs (${fmt(TA)}) sont plus grands que les dettes (${fmt(TD)}). La différence est le <b>capital</b>, inscrit au passif.`},
+       {btn:'Suite →', text:`Une autre entreprise a des actifs pour 6'000 et des dettes à hauteur de 9'000.<br><br>Quand les <b>dettes sont plus élevées que les actifs</b>, la différence ne s'appelle plus capital : on parle de <b>Découvert</b>. Ici : 9'000 − 6'000 = <b>3'000</b>.<br><br>Le découvert s'inscrit à l'<b>actif</b>, pour équilibrer le bilan. L'entreprise doit plus qu'elle ne possède : c'est une situation dangereuse.`}],
    stage: ph => {
      const mk = (t, aRows, pRows, tot) => `<div class="bl" style="max-width:none;grid-template-columns:0 1fr 1fr 0"><div class="bl-title" style="font-size:15px">${t}</div>
        <div class="bl-head a">ACTIF</div><div class="bl-head p">PASSIF</div>
@@ -457,12 +470,16 @@ const STEPS = [
        <section class="sec"><h2>Ensuite : les comptes${ph>=1&&ph<4?' · pas encore reportée':''}</h2>${tGrid(L, focus)}</section>`; } },
 
  { title:'Le problème des factures',
-   ph: FX.map((e,i)=>({btn:'Suite →',
-        text: i===0 ? `Les factures reviennent tout le temps. La question clé : la facture est-elle <b>déjà comptabilisée</b> ?<br><br>Exemple : une imprimante, comptabilisée dans <b>Infra. informatique</b> (infrastructure informatique, un actif).`
-            : i===1 ? `Un mois plus tard, on paie la facture.` : `Autre cas : la facture d'achat n'avait <b>pas été comptabilisée</b> le 12 février.`,
-        q:{text:'Quel compte est débité ?', opts:e.opts.map(o=>[o,o]), ok:e.d, fb:e.fb}})),
+   ph: FX.flatMap((e,i)=>[
+        {btn:'Suite →',
+         text: i===0 ? `Les factures reviennent tout le temps. La question clé : la facture est-elle <b>déjà comptabilisée</b> ?<br><br>Exemple : Achat <b>à crédit</b> (= on ne paie pas!)`
+             : i===1 ? `Un mois plus tard, on paie la facture.` : `Autre cas : la facture d'achat n'avait <b>pas été comptabilisée</b> le 12 février.`,
+         q:{text:'Quel compte est débité ?', opts:e.opts.map(o=>[o,o]), ok:e.d, fb:e.fbD}},
+        {btn: i<FX.length-1 ? 'Cas suivant →' : 'Suite →',
+         text:`Le compte débité est <b>${e.d}</b> : 550 au débit.<br><br>Il reste à trouver le compte crédité.`,
+         q:{text:'Quel compte est crédité ?', opts:e.opts.map(o=>[o,o]), ok:e.c, fb:e.fbC}}]),
    stage: ph => `<section class="sec fx"><h2>a) Écriture déjà comptabilisée</h2>${fxPart('a', 0, ph)}</section>
-     ${ph>=2?`<section class="sec fx"><h2>b) Écriture non comptabilisée</h2>${fxPart('b', 0, ph)}</section>`:''}`,
+     ${ph>=4?`<section class="sec fx"><h2>b) Écriture non comptabilisée</h2>${fxPart('b', 0, ph)}</section>`:''}`,
    scroll:true },
 
  { title:'Les comptes de gestion', scroll:true,
