@@ -371,7 +371,7 @@ const STEPS = [
    ph:[{btn:'Le stock →', text:`Les comptes de marchandises sont des <b>comptes de gestion</b> : des charges ou des produits.`},
        {btn:'Suite →', text:`Le compte <b>Stock de marchandises</b> est différent : c'est un compte d'<b>actif</b>.<br><br>On ne l'utilise qu'<b>une fois par an</b>, en fin d'exercice, pour enregistrer l'inventaire.`}],
    stage: ph => { const row = (acc, txt) => `<div class="acrow">${tHTML(acc,{d:[],c:[]},false,'')}<div class="acx">${txt}</div></div>`;
-     return `<section class="sec"><h2>Les comptes de gestion</h2>
+     return `<section class="sec"><h2>Les comptes de gestion liés aux marchandises</h2>
        <div class="acgrp" style="color:var(--produit)">Produits</div>
        ${row('Ventes de marchandises','Le prix des marchandises vendues.')}
        ${row('Déductions obtenues','Les rabais, escomptes et ristournes de nos fournisseurs.')}

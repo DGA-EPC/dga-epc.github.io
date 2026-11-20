@@ -235,6 +235,7 @@
 .acx{font-size:14px}
 /* flèches × 1.081 / : 1.081 dans le tableau HT-TTC */
 .tab th.arrc,.tab td.arrc{width:180px;padding:0 6px;text-align:center;vertical-align:middle;border-bottom:1px dashed var(--line)}
+.tab tr.cur td.arrc{background:none;font-weight:normal}
 .varr{display:flex;gap:8px;justify-content:center;height:96px}
 .va{position:relative;width:82px;display:flex;align-items:center;justify-content:center;animation:fadein .6s ease-out}
 .va::before{content:"";position:absolute;left:50%;width:3px;margin-left:-1.5px;top:8px;bottom:8px;background:currentColor}
@@ -394,9 +395,9 @@ const STEPS = [
        {btn:'Le principe →', text:`Le raccourci : ${pc(TT)} = <b>${FX}</b>.<br><br>• Du HT au TTC → <b>× ${FX}</b><br>${fmt(E1.ht)} × ${FX} = ${f2(E1.ttc)}<br><br>• Du TTC au HT → <b>: ${FX}</b><br>${fmt(E2.ttc)} : ${FX} = ${f2(E2.ht)}`}],
    stage: ph => { const done2 = ph>2 || ANS['1.2'];
      const arr = `<td rowspan="3" class="arrc">${ph>=4?`<div class="varr"><div class="va down"><span>× ${FX}</span></div><div class="va up"><span>: ${FX}</span></div></div>`:''}</td>`;
-     const row = (lb, p, a, b, cls='', ar='') => `<tr class="${cls}"><td>${lb}</td><td class="n">${p}</td>${ar}<td class="n">${ph>=1?a:''}</td><td class="n">${ph>=2?b:''}</td></tr>`;
+     const row = (lb, p, a, b, cls='', ar='') => `<tr class="${cls}"><td>${lb}</td><td class="n">${p}</td><td class="n">${ph>=1?a:''}</td><td class="n">${ph>=2?b:''}</td>${ar}</tr>`;
      return `<section class="sec"><h2>HT, TVA et TTC</h2><table class="tab" style="max-width:720px">
-       <tr><th>Montant</th><th>%</th><th class="arrc"></th><th>${ph>=1?'Exemple 1 : on connaît le HT':''}</th><th>${ph>=2?'Exemple 2 : on connaît le TTC':''}</th></tr>
+       <tr><th>Montant</th><th>%</th><th>${ph>=1?'Exemple 1 : on connaît le HT':''}</th><th>${ph>=2?'Exemple 2 : on connaît le TTC':''}</th><th class="arrc"></th></tr>
        ${row('HT (hors taxe)', '100&nbsp;%', `<b>${f2(E1.ht)}</b>`, done2?`<b>${f2(E2.ht)}</b>`:'?', ph===2?'cur':'', arr)}
        ${row('+ TVA', pc(T), f2(E1.tva), done2?f2(E2.tva):'?', ph===1?'cur':'')}
        ${row('= TTC (toutes taxes comprises)', pc(TT), f2(E1.ttc), `<b>${f2(E2.ttc)}</b>`, ph===1?'cur':'')}</table>
