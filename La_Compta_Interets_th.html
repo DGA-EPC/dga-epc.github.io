@@ -34,6 +34,7 @@
 
 /* Ligne du temps */
 .t{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 9px 8px;position:relative;min-width:0}
+.t.focus{box-shadow:none}
 .t-head{font-weight:700;font-size:13.5px;text-align:center;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .t-body{display:grid;grid-template-columns:1fr 1fr;min-height:46px}
 .col{padding:4px 4px;display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -444,7 +445,7 @@ const STEPS = [
    stage: ph => `<section class="sec"><h2>Le calcul des jours</h2>${joursTable(ph)}</section>` },
 
  { title:'Le vocabulaire',
-   ph:[{btn:'Suite →', text:`Le <b>taux</b> d'intérêt s'exprime en pour cent : 5&nbsp;% = 5 ÷ 100 = 0.05.`},
+   ph:[{btn:'Suite →', text:`Le <b>taux</b> d'intérêt s'exprime en pour cent du capital.<p>5% représente un intérêt de 5.- pour 100.- de capital pendant <b>une année</b>.`},
        {btn:'Suite →', text:`Deux mots à connaître.`}],
    stage: ph => `<section class="sec"><h2>Le taux</h2><div class="calc" style="max-width:420px;font-size:18px;text-align:center">5&nbsp;% = ${frac(5,100)} = 0.05</div></section>
      ${ph>=1?`<section class="sec"><h2>Les mots à connaître</h2><table class="vocab">
@@ -457,7 +458,7 @@ const STEPS = [
        {btn:'Suite →', text:`La méthode, en 3 temps.<br><br>1. On <b>pose</b> les quatre lettres.`},
        {btn:'Le calcul →', text:`2. On cherche dans la donnée les <b>chiffres connus</b>. Il manque l'intérêt : c'est ce qu'on cherche.`},
        {btn:'Suite →', text:`3. On <b>calcule</b> avec la formule et les chiffres : ${fmt(IC.c)} × ${IC.t} × ${IC.n} ÷ 36'000 = <b>${fmt(IC.i)}</b>.`}],
-   stage: ph => `<section class="sec"><h2>Les lettres</h2><table class="vocab">
+   stage: ph => `<section class="sec"><h2>Les variables</h2><table class="vocab">
        <tr><td>c</td><td>le <b>capital</b> (le montant de référence)</td></tr><tr><td>t</td><td>le <b>taux</b> (en %)</td></tr>
        <tr><td>i</td><td>l'<b>intérêt</b></td></tr><tr><td>n</td><td>la <b>durée</b> (en jours)</td></tr></table></section>
      ${ph>=1?`<section class="sec"><h2>La formule</h2><div class="calc ${ph===1?'q':''}" style="max-width:420px"><div class="fml">i = ${frac('c × t × n','36\'000')}</div></div></section>`:''}
