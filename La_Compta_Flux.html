@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tableau des flux de trésorerie – exercice</title>
+<style>
+:root{
+  --ink:#1e2226; --muted:#6a6f76; --line:#e2ddd2; --hl:#F7FF78;
+  --exp:#2f6db5; --exp-bg:#dbe8f6;
+  --inv:#3f8f3a; --inv-bg:#dff0d6;
+  --fin:#c95a24; --fin-bg:#fbe0d2;
+  --liq:#b0418c; --liq-bg:#f4d6ee;
+  --ok:#d4edda; --okc:#1e7a34; --warn:#ffe2b3; --warnc:#b26500; --ko:#ffc9c9; --koc:#c0262d;
+}
+*{box-sizing:border-box}
+body{font-family:Arial,sans-serif;max-width:1400px;margin:0 auto;padding:14px;background:#000;color:var(--ink)}
+.title-container{background:#78004f;color:#fff;padding:10px 15px;text-align:center;border-radius:12px;border-top:5px solid #ffa500;border-bottom:5px solid #24FF7C;margin-bottom:10px}
+.title-container h1{margin:0;font-size:24px}
+.title-container h2{margin:4px 0 0;font-size:15px;font-weight:normal}
+.panel{background:#fff;border-radius:8px;padding:14px 16px;margin-bottom:12px}
+button{border:none;color:#fff;padding:9px 16px;border-radius:6px;cursor:pointer;font-size:15px;box-shadow:3px 3px 6px rgba(0,0,0,.45);transition:transform .1s,background-color .3s}
+button:hover{transform:translateY(-3px)}
+.start-button,.btn-valider{background:#4CAF50}.start-button:hover,.btn-valider:hover{background:#077d00}
+.quit-button{background:#ff4747}.quit-button:hover{background:#f00}
+.btn-nouveau{background:#ffbf47}.btn-nouveau:hover{background:#ffa500}
+.btn-menu{background:#BD99AC}.btn-menu:hover{background:#700158}
+.btn-data{background:var(--liq)}.btn-data:hover{background:#86246a}
+.btn-hint{background:#5b8def}.btn-hint:hover{background:#2a52be}
+.btn-sol{background:#777}.btn-sol:hover{background:#444}
+.footer{text-align:center;margin-top:18px;font-style:italic;color:#fbb5ec}
+
+/* Menu de départ */
+.options{display:flex;flex-wrap:wrap;gap:24px;margin-bottom:12px}
+.option-group{flex:1;min-width:220px}
+.option-group h3{margin:0 0 6px}
+.option-group label{display:block;margin:4px 0;cursor:pointer}
+.comment{font-style:italic;color:#555;margin-top:4px;font-size:14px}
+.rules{font-size:14px;color:#333;border-top:1px dashed #ccc;margin-top:12px;padding-top:8px}
+.rules p{margin:4px 0}
+
+/* Barre d'outils */
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.toolbar .sp{flex:1}
+.msg{background:#fff;border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:14.5px;display:none}
+.msg.on{display:block}
+.msg b.s{font-size:18px}
+
+/* Grille de travail */
+.work{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr) minmax(0,1fr);gap:10px;align-items:start}
+@media (max-width:1250px){ .work{grid-template-columns:minmax(0,1fr) minmax(0,1fr)} .work>div:first-child{grid-column:1/-1} }
+.box{background:#fff;border-radius:8px;padding:10px 12px}
+.box h3{margin:0 0 6px;font-size:16px;display:flex;align-items:center;gap:8px}
+.box h3 small{font-weight:normal;color:var(--muted);font-size:12.5px}
+table.ex{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+table.ex th{background:#8000A8;color:#fff;font-weight:600;padding:5px 6px;font-size:13px;text-align:left}
+table.ex th.n{text-align:right}
+table.ex td{padding:3px 4px;border-bottom:1px solid #eee;vertical-align:middle}
+table.ex td.n{text-align:right;white-space:nowrap;padding-right:8px}
+table.ex select{width:100%;font-size:13.5px;padding:3px;border:1px solid #bbb;border-radius:4px;background:#fff}
+table.ex input{width:100%;min-width:80px;font-size:14px;padding:3px 6px;text-align:right;border:1px solid #bbb;border-radius:4px;font-variant-numeric:tabular-nums}
+table.ex td.del{width:26px;text-align:center}
+table.ex td.del button{background:none;box-shadow:none;color:#bbb;padding:0 4px;font-size:17px}
+table.ex td.del button:hover{color:var(--koc);transform:none}
+table.ex td.st{width:24px;text-align:center;font-weight:700}
+table.ex tr.sect td{font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--c);background:var(--cbg);border-bottom:2px solid var(--c);padding:5px 6px}
+table.ex tr.sect td .cnt{float:right;text-transform:none;letter-spacing:0;font-weight:600;color:var(--c)}
+table.ex tr.tot td{font-weight:700;border-top:1.5px solid var(--ink);background:#fafafa}
+table.ex tr.add td{border-bottom:0;padding:2px 4px 8px}
+table.ex tr.add button{background:none;box-shadow:none;color:var(--c,#666);padding:2px 4px;font-size:13px}
+table.ex tr.add button:hover{transform:none;text-decoration:underline}
+table.ex tr.big td{font-weight:800;font-size:15px;background:var(--liq-bg);border-top:2px solid var(--ink)}
+tr.ok td{background:var(--ok)}  tr.ok td.st{color:var(--okc)}
+tr.warn td{background:var(--warn)} tr.warn td.st{color:var(--warnc)}
+tr.ko td{background:var(--ko)} tr.ko td.st{color:var(--koc)}
+.neg{color:#c2671f}
+.ctrl{margin-top:10px;border:2px solid var(--liq);border-radius:8px;padding:8px 10px;font-size:14px;background:#fdf5fb}
+.ctrl .row{display:flex;justify-content:space-between;gap:10px;font-variant-numeric:tabular-nums;padding:2px 0}
+.ctrl .res{font-weight:800;text-align:center;margin-top:4px}
+.ctrl .res.good{color:var(--okc)} .ctrl .res.bad{color:var(--koc)}
+.legend{font-size:12.5px;color:#555;margin-top:8px;line-height:1.5}
+.legend span{display:inline-block;padding:0 6px;border-radius:4px;margin-right:4px}
+.tip{font-size:12.5px;color:#555;margin-top:6px}
+
+/* Fenêtre « Données » */
+.dlg{position:fixed;right:16px;top:70px;z-index:80;width:min(640px,calc(100vw - 24px));max-height:calc(100vh - 90px);max-width:calc(100vw - 16px);min-width:320px;min-height:140px;resize:both;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:2px solid var(--liq);border-radius:12px;box-shadow:0 14px 40px rgba(0,0,0,.5)}
+.dlg[hidden]{display:none}
+.dlg-h{display:flex;align-items:center;gap:6px;padding:6px 8px 6px 12px;background:var(--liq-bg);border-radius:10px 10px 0 0;cursor:move;user-select:none;touch-action:none}
+.dlg-h b{flex:1;font-size:14px}
+.dlg-h button{font-size:12.5px;padding:3px 9px;border:1px solid #ccc;background:#fff;color:var(--ink);box-shadow:none;border-radius:6px}
+.dlg-h button:hover{transform:none;background:#eee}
+.dlg-h button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.dlg-b{flex:1;min-height:0;overflow:auto;padding:8px 10px 10px;font-size:calc(12.5px * var(--dz,1))}
+.dbil{display:grid;grid-template-columns:1fr 1fr}
+.dbil>div:first-child{border-right:2px solid var(--ink);padding-right:6px}
+.dbil>div:last-child{padding-left:6px}
+.dt{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.dt th{font-size:.92em;color:var(--muted);text-align:right;border-bottom:2px solid var(--ink);padding:2px 3px}
+.dt th:first-child{text-align:left;color:var(--ink);font-size:1.05em}
+.dt td{padding:1px 3px;border-bottom:1px dotted #ddd;text-align:right;white-space:nowrap}
+.dt td:first-child{text-align:left;white-space:normal}
+.dt tr.g td{font-weight:700;font-size:.9em;color:var(--muted);border-bottom:0;padding-top:5px}
+.dt tr.tot td{font-weight:800;border-top:2px solid var(--ink);border-bottom:0}
+.dt tr.sec td{font-weight:700;color:var(--c);border-bottom:1.5px solid var(--c);padding-top:6px}
+.dinfo{margin-top:8px;background:#f6f3ec;border-left:4px solid #c98a10;border-radius:6px;padding:4px 8px}
+.dinfo div::before{content:"• "}
+
+@media (max-width:800px){ .work{grid-template-columns:1fr} }
+@media print{ .toolbar,.dlg,.footer{display:none !important} body{background:#fff} }
+</style>
+</head>
+<body>
+<div class="title-container">
+  <h1>Établir un tableau des flux de trésorerie</h1>
+  <h2 id="subtitle">Tableau des liquidités et tableau de financement · chiffres renouvelés à chaque exercice</h2>
+</div>
+
+<!-- ===== Menu de départ ===== -->
+<div class="panel" id="menu">
+  <div class="options">
+    <div class="option-group">
+      <h3>Secteur d'exploitation :</h3>
+      <label><input type="radio" name="meth" value="dir" checked> Méthode directe</label>
+      <label><input type="radio" name="meth" value="ind"> Méthode indirecte</label>
+      <label><input type="radio" name="meth" value="alea"> Au hasard</label>
+    </div>
+    <div class="option-group">
+      <h3>Niveau :</h3>
+      <label><input type="radio" name="niv" value="s" checked> Simple</label>
+      <label><input type="radio" name="niv" value="c"> Complet</label>
+      <div class="comment" id="nivComment">Simple : liquidités, clients, stock, fournisseurs, immobilisés, dette bancaire, dividende.</div>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <button class="start-button" id="start">Lancer</button>
+    <button class="quit-button" id="quit">Quitter</button>
+  </div>
+  <div class="rules">
+    <p><b>Comment faire :</b> ouvrir <b>📋 Données</b> (bilan, compte de résultat, informations). Pour chaque ligne, choisir le libellé dans la liste et taper le montant. Un libellé choisi disparaît des autres listes.</p>
+    <p>Montants : <b>positif</b> = entrée d'argent, <b>négatif</b> (avec −) = sortie d'argent. Les totaux se calculent tout seuls.</p>
+    <p><b>Vérifier</b> colore les lignes : vert = juste, orange = bon libellé mais montant faux, rouge = libellé qui n'a rien à faire dans ce secteur.</p>
+  </div>
+</div>
+
+<!-- ===== Exercice ===== -->
+<div id="ex" style="display:none">
+  <div class="toolbar">
+    <button class="btn-data" id="bData">📋 Données</button>
+    <button class="btn-hint" id="bHint">💡 Indice</button>
+    <button class="btn-valider" id="bCheck">✔ Vérifier</button>
+    <button class="btn-sol" id="bSol">Solution</button>
+    <span class="sp"></span>
+    <button class="btn-nouveau" id="bNew">Nouvel exercice</button>
+    <button class="btn-menu" id="bMenu">Retour au menu</button>
+  </div>
+  <div class="msg" id="msg"></div>
+  <div class="work">
+    <div>
+      <div class="box">
+        <h3>Tableau des liquidités <small>fonds de trésorerie</small></h3>
+        <table class="ex" id="tLiq">
+          <thead><tr><th>Compte</th><th class="n" id="hY0"></th><th class="n" id="hY1"></th><th class="n">Variation</th><th></th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="ctrl" id="ctrl"></div>
+        <div class="legend"><span style="background:var(--ok)">juste</span><span style="background:var(--warn)">montant faux</span><span style="background:var(--ko)">libellé faux ou mauvais secteur</span></div>
+        <div class="tip">Astuce : les montants s'écrivent sans apostrophe (ex. −26570). Les lignes vides sont ignorées.</div>
+      </div>
+    </div>
+    <div class="box">
+      <h3>Tableau de financement <small id="methLabel"></small></h3>
+      <table class="ex" id="tFluxA">
+        <thead><tr><th>Libellé</th><th class="n">Montant</th><th></th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="box">
+      <h3>Tableau de financement <small>(suite)</small></h3>
+      <table class="ex" id="tFluxB">
+        <thead><tr><th>Libellé</th><th class="n">Montant</th><th></th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="dlg" id="dlg" hidden><div class="dlg-h" id="dlg-h"><b id="dlgTitle">📋 Données</b><button data-tab="b">Bilan</button><button data-tab="r">Résultat</button><button data-tab="s" id="tabSol" hidden>Solution</button><button id="dzm" title="Réduire">A−</button><button id="dzp" title="Agrandir">A+</button><button id="dx" title="Fermer">✕</button></div><div class="dlg-b" id="dlg-b"></div></div>
+
+<div class="footer"><p>"Je fais de la compta et c'est ma joie", DG, EPC Fribourg</p></div>
+
+<script>
+document.addEventListener('keydown', e=>{
+  if (e.keyCode==123 || (e.ctrlKey && e.shiftKey && e.keyCode==73) || (e.ctrlKey && e.keyCode==85)) e.preventDefault();
+});
+
+/* ---------- Outils ---------- */
+const Y = new Date().getFullYear() - 1, Y0 = Y - 1;      // exercice N = l'année précédente
+const $ = id => document.getElementById(id);
+const R = (a,b) => a + Math.random()*(b-a);
+const r100 = x => Math.round(x/100)*100, r1000 = x => Math.round(x/1000)*1000;
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const chance = p => Math.random() < p;
+const fmt = n => { if (n==null || isNaN(n)) return ''; const neg = n<0; const s = Math.abs(Math.round(n)).toString().replace(/\B(?=(\d{3})+(?!\d))/g,"'"); return (neg?'−':'')+s; };
+const num = s => { s = String(s||'').replace(/[\s'’]/g,'').replace(/[−–]/g,'-').replace(',','.'); if (s===''||s==='-') return null; const n = Number(s); return isFinite(n) ? n : NaN; };
+const NOMS = ['Alpina SA','Lumen SA','Vertex SA','Helvetix SA','Sarine Distribution SA','Moléson Trading SA','Gruyère Import SA','Lac Bleu SA','Edelweiss Commerce SA','Rhône Négoce SA','Jura Mobilier SA','Belvédère SA'];
+const PRETS = ['Bongo SA','Kappa SA','Orion SA','Zéphyr SA'];
+
+/* ---------- Générateur : un exercice cohérent, aux chiffres réalistes ---------- */
+// Bilan N-1 équilibré, opérations de l'année, compte de résultat, puis bilan N (équilibré par construction)
+function tryGen(full){
+  const V = r1000(R(800000, 2500000));
+  const achats = r100(V*R(.52,.62)), sal = r100(V*R(.14,.20)), loy = r100(V*R(.04,.07)), ace = r100(V*R(.02,.04));
+  const pfi = full ? r100(R(2000,12000)) : 0;
+  const b0 = {}, b1 = {};
+  b0.cai = r100(R(2000,15000)); b0.pos = r100(R(15000,60000)); b0.ban = r100(R(20000,120000)); b0.tit = full ? r1000(R(20000,80000)) : 0;
+  b0.cli = r100(V*R(.03,.07)); b1.cli = r100(b0.cli*R(.75,1.3));
+  b0.par = full ? r100(R(1500,8000)) : 0; b1.par = full ? r100(R(1000,8000)) : 0;
+  b0.sto = r100(achats*R(.05,.12)); b1.sto = r100(b0.sto*R(.7,1.3));
+  b0.mob = r1000(R(40000,120000)); const amm = r100(b0.mob*R(.10,.25)); const pmob = chance(.85) ? r100(R(8000,60000)) : 0; b1.mob = b0.mob - amm + pmob;
+  b0.mac = r1000(R(100000,300000)); const amc = r100(b0.mac*R(.10,.20)); const pmac = chance(.6) ? r1000(R(20000,100000)) : 0; b1.mac = b0.mac - amc + pmac;
+  b0.ptc = full ? r1000(R(30000,120000)) : 0;
+  const dptc = full ? pick([0, r1000(R(10000,40000)), -r1000(R(10000,Math.min(30000, b0.ptc-10000)))]) : 0; b1.ptc = b0.ptc + dptc;
+  b0.pre = full ? r1000(R(50000,200000)) : 0;
+  const dpre = full ? pick([-r1000(R(10000,40000)), -r1000(R(10000,40000)), r1000(R(10000,50000))]) : 0; b1.pre = b0.pre + dpre;
+  b0.fou = r100(achats*R(.04,.08)); b1.fou = r100(b0.fou*R(.75,1.3));
+  b0.cap = full ? r100(R(1500,9000)) : 0; b1.cap = full ? r100(R(1000,9000)) : 0;
+  b0.div = r1000(R(10000,40000));
+  b0.dlt = r1000(R(100000,400000)); const ddlt = chance(.65) ? -r1000(R(10000,60000)) : r1000(R(20000,100000)); b1.dlt = b0.dlt + ddlt;
+  const intr = r100(b0.dlt*R(.025,.045));
+  b0.ca = Math.round(R(20,60))*10000; const aug = full && chance(.3) ? Math.round(R(5,15))*10000 : 0; b1.ca = b0.ca + aug;
+  // Compte de résultat
+  const vst = b0.sto - b1.sto;                     // > 0 : diminution du stock (charge) ; < 0 : augmentation (produit)
+  const BN = V + pfi - achats - vst - sal - loy - ace - intr - amm - amc;
+  if (BN < V*.012 || BN > V*.07) return null;
+  const D1 = r1000(BN*R(.35,.7)); if (D1 < 5000) return null;
+  b1.div = D1;
+  // Réserve N-1 : équilibre le bilan N-1
+  const ACT = ['cai','pos','ban','tit','cli','par','sto','mob','mac','ptc','pre'];
+  const A0 = ACT.reduce((s,k)=>s+b0[k],0);
+  b0.res = A0 - (b0.fou + b0.cap + b0.div + b0.dlt + b0.ca);
+  if (b0.res < 30000 || b0.res > b0.ca*1.5) return null;
+  b1.res = b0.res + BN - D1;
+  // Flux de l'année
+  const d = k => b1[k] - b0[k];
+  const CF = BN + amm + amc - d('cli') - d('par') - d('sto') + d('fou') + d('cap');
+  const INV = -pmob - pmac - dptc - dpre;
+  const FIN = ddlt + aug - b0.div;
+  const L0 = b0.cai + b0.pos + b0.ban + b0.tit, L1 = L0 + CF + INV + FIN;
+  b1.cai = r100(R(2000,15000)); b1.pos = r100(R(15000,60000)); b1.tit = full ? r1000(R(10000,80000)) : 0;
+  b1.ban = L1 - b1.cai - b1.pos - b1.tit;
+  if (b1.ban < 5000 || b1.ban > 250000) return null;
+  // Contrôle : le bilan N doit être équilibré
+  const A1 = ACT.reduce((s,k)=>s+b1[k],0), P1 = b1.fou + b1.cap + b1.div + b1.dlt + b1.ca + b1.res;
+  if (Math.abs(A1-P1) > 0.5) return null;
+  return {full, V, achats, sal, loy, ace, pfi, intr, amm, amc, vst, BN, D1, pmob, pmac, dptc, dpre, ddlt, aug, b0, b1, CF, INV, FIN, L0, L1,
+          nom: pick(NOMS), pret: pick(PRETS)};
+}
+function generate(full){ for (let i=0; i<2000; i++){ const g = tryGen(full); if (g) return g; } return null; }
+
+/* ---------- La solution attendue ---------- */
+// Une variation d'un compte : libellé « Augmentation … » ou « Diminution … » et le montant avec son signe
+const VAR = { cli:['des clients','A'], par:['des produits à recevoir','A'], sto:['du stock','A'], fou:['des dettes fournisseurs','P'], cap:['des charges à payer','P'] };
+function varLine(g, k){
+  const dv = g.b1[k] - g.b0[k]; if (!dv) return null;
+  const [lb, s] = VAR[k];
+  return { lb: (dv>0 ? 'Augmentation ' : 'Diminution ') + lb, v: s==='A' ? -dv : dv };
+}
+function solution(g, meth){
+  const L = (lb, v) => v ? {lb, v} : null;
+  const exp = meth==='dir'
+    ? [L('Produits des ventes', g.V), varLine(g,'cli'), L('Produits financiers', g.pfi), varLine(g,'par'),
+       L('Achats de marchandises', -g.achats), varLine(g,'fou'),
+       L('Salaires', -g.sal), varLine(g,'cap'), L('Loyers', -g.loy), L('ACE', -g.ace), L('Charges d\'intérêts', -g.intr)]
+    : [L('Bénéfice net', g.BN), L('Amortissement mobilier', g.amm), L('Amortissement machines', g.amc),
+       varLine(g,'cli'), varLine(g,'par'), varLine(g,'sto'), varLine(g,'fou'), varLine(g,'cap')];
+  const inv = [L('Achat de mobilier', -g.pmob), L('Achat de machines', -g.pmac),
+    g.dptc>0 ? L('Achat de participations', -g.dptc) : g.dptc<0 ? L('Vente de participations', -g.dptc) : null,
+    g.dpre<0 ? L(`Remboursement du prêt par ${g.pret}`, -g.dpre) : g.dpre>0 ? L(`Prêt accordé à ${g.pret}`, -g.dpre) : null];
+  const fin = [g.ddlt<0 ? L('Remboursement de la dette bancaire', g.ddlt) : L('Nouvel emprunt bancaire', g.ddlt),
+    L('Augmentation de capital', g.aug), L('Paiement du dividende', -g.b0.div)];
+  const liq = [['Caisse','cai'],['Poste','pos'],['Banque','ban'],['Titres','tit']].filter(([,k])=>g.b0[k]||g.b1[k]).map(([lb,k])=>({lb, a:g.b0[k], b:g.b1[k]}));
+  return {exp: exp.filter(Boolean), inv: inv.filter(Boolean), fin: fin.filter(Boolean), liq};
+}
+// Liste des libellés proposés : toutes les bonnes réponses, leurs contraires et des pièges
+function pool(g, meth, S){
+  const P = new Set();
+  [...S.exp, ...S.inv, ...S.fin].forEach(l=>P.add(l.lb));
+  Object.keys(VAR).forEach(k=>{ if (!g.full && (k==='par'||k==='cap')) return; if (meth==='dir' && k==='sto') { P.add('Diminution du stock'); P.add('Augmentation du stock'); return; }
+    P.add('Augmentation '+VAR[k][0]); P.add('Diminution '+VAR[k][0]); });
+  const traps = meth==='dir'
+    ? ['Bénéfice net','Amortissement mobilier','Amortissement machines','Variation de stock']
+    : ['Produits des ventes','Achats de marchandises','Salaires','Loyers','ACE','Charges d\'intérêts'];
+  traps.forEach(t=>P.add(t));
+  ['Augmentation de la réserve légale','Attribution du dividende','Vente de mobilier','Achat de titres','Nouvel emprunt bancaire','Remboursement de la dette bancaire','Achat de machines','Achat de mobilier']
+    .forEach(t=>P.add(t));
+  if (g.full){ P.add('Augmentation de capital'); P.add('Achat de participations'); P.add('Vente de participations'); P.add(`Prêt accordé à ${g.pret}`); P.add(`Remboursement du prêt par ${g.pret}`); }
+  return [...P].sort((a,b)=>a.localeCompare(b,'fr'));
+}
+const LIQPOOL = ['Banque','Caisse','Créances clients','Poste','Produits à recevoir','Stock de marchandises','Titres'];
+
+/* ---------- État ---------- */
+let G = null, METH = 'dir', SOL = null, POOL = [], HINT = false;
+const SECT = [['exp','Secteur d\'exploitation','exp',10],['inv','Secteur d\'investissement','inv',4],['fin','Secteur de financement','fin',4]];
+
+/* ---------- Construction des tableaux ---------- */
+function liqRow(){
+  return `<tr class="lrow"><td><select class="sel lsel"></select></td><td><input class="a" inputmode="decimal"></td><td><input class="b" inputmode="decimal"></td><td class="n var"></td><td class="st"></td><td class="del"><button title="Effacer la ligne">×</button></td></tr>`;
+}
+function fluxRow(s){
+  return `<tr class="frow" data-s="${s}"><td><select class="sel fsel"></select></td><td><input class="m" inputmode="decimal"></td><td class="st"></td><td class="del"><button title="Effacer la ligne">×</button></td></tr>`;
+}
+function build(){
+  $('hY0').textContent = '31.12.'+Y0; $('hY1').textContent = '31.12.'+Y;
+  $('tLiq').tBodies[0].innerHTML = Array.from({length:5}, liqRow).join('')
+    + `<tr class="add"><td colspan="6"><button data-add="liq">+ ajouter une ligne</button></td></tr>`
+    + `<tr class="tot"><td>Total des liquidités</td><td class="n" id="lA"></td><td class="n" id="lB"></td><td class="n" id="lV"></td><td></td><td></td></tr>`;
+  // Exploitation dans la 2e colonne, investissement + financement dans la 3e : tout tient sur une page
+  const sectHTML = ([s,t,c,n]) => `<tr class="sect" style="--c:var(--${c});--cbg:var(--${c}-bg)"><td colspan="4">${t}${s==='exp'?` · méthode ${METH==='dir'?'directe':'indirecte'}`:''}<span class="cnt" id="cnt-${s}"></span></td></tr>`
+      + Array.from({length:n}, ()=>fluxRow(s)).join('')
+      + `<tr class="add" style="--c:var(--${c})"><td colspan="4"><button data-add="${s}">+ ajouter une ligne</button></td></tr>`
+      + `<tr class="tot" style="--c:var(--${c})"><td>${s==='exp'?'Cash flow':'Flux du '+t.toLowerCase()}</td><td class="n" id="t-${s}"></td><td></td><td></td></tr>`;
+  $('tFluxA').tBodies[0].innerHTML = sectHTML(SECT[0]);
+  $('tFluxB').tBodies[0].innerHTML = sectHTML(SECT[1]) + sectHTML(SECT[2])
+    + `<tr class="big"><td>Variation des liquidités<br><small style="font-weight:600">(cash flow + investissement + financement)</small></td><td class="n" id="t-all"></td><td></td><td></td></tr>`;
+  $('methLabel').textContent = METH==='dir' ? 'exploitation : méthode directe' : 'exploitation : méthode indirecte';
+  $('subtitle').textContent = `${G.nom} · exercice ${Y} · ${G.full?'niveau complet':'niveau simple'}`;
+  refreshSelects(); recalc(); showHint();
+}
+// Chaque libellé choisi disparaît des autres listes
+function refreshSelects(){
+  const used = new Set([...document.querySelectorAll('.fsel')].map(s=>s.value).filter(Boolean));
+  document.querySelectorAll('.fsel').forEach(s=>{ const v = s.value;
+    s.innerHTML = '<option value="">— choisir —</option>' + POOL.filter(x=>x===v || !used.has(x)).map(x=>`<option${x===v?' selected':''}>${x}</option>`).join(''); });
+  const usedL = new Set([...document.querySelectorAll('.lsel')].map(s=>s.value).filter(Boolean));
+  document.querySelectorAll('.lsel').forEach(s=>{ const v = s.value;
+    s.innerHTML = '<option value="">— choisir —</option>' + LIQPOOL.filter(x=>x===v || !usedL.has(x)).map(x=>`<option${x===v?' selected':''}>${x}</option>`).join(''); });
+}
+// Totaux automatiques
+function recalc(){
+  let A = 0, B = 0, anyL = false;
+  document.querySelectorAll('.lrow').forEach(tr=>{ const a = num(tr.querySelector('.a').value), b = num(tr.querySelector('.b').value);
+    const v = (a!=null && b!=null && !isNaN(a) && !isNaN(b)) ? b-a : null;
+    tr.querySelector('.var').textContent = v==null ? '' : fmt(v); tr.querySelector('.var').classList.toggle('neg', v<0);
+    if (a!=null && !isNaN(a)) { A += a; anyL = true; } if (b!=null && !isNaN(b)) { B += b; anyL = true; } });
+  $('lA').textContent = anyL ? fmt(A) : ''; $('lB').textContent = anyL ? fmt(B) : ''; $('lV').textContent = anyL ? fmt(B-A) : '';
+  const T = {exp:0, inv:0, fin:0}; let anyF = false;
+  document.querySelectorAll('.frow').forEach(tr=>{ const m = num(tr.querySelector('.m').value); if (m!=null && !isNaN(m)) { T[tr.dataset.s] += m; anyF = true; } });
+  ['exp','inv','fin'].forEach(s=>{ $('t-'+s).textContent = anyF ? fmt(T[s]) : ''; $('t-'+s).classList.toggle('neg', T[s]<0); });
+  const all = T.exp + T.inv + T.fin;
+  $('t-all').textContent = anyF ? fmt(all) : '';
+  // Contrôle : les deux variations doivent être égales
+  const ok = anyF && anyL && Math.round(all) === Math.round(B-A);
+  $('ctrl').innerHTML = `<b>Contrôle</b><div class="row"><span>Variation selon le tableau des liquidités</span><span>${anyL?fmt(B-A):'…'}</span></div>
+    <div class="row"><span>Variation selon le tableau de financement</span><span>${anyF?fmt(all):'…'}</span></div>
+    <div class="res ${anyF&&anyL?(ok?'good':'bad'):''}">${!(anyF&&anyL) ? 'À compléter' : ok ? '✓ Les deux variations sont égales' : '✗ Les deux variations ne sont pas égales'}</div>`;
+}
+function showHint(){
+  SECT.forEach(([s])=>{ $('cnt-'+s).textContent = HINT ? `${SOL[s].length} ligne${SOL[s].length>1?'s':''}` : ''; });
+}
+
+/* ---------- Vérification ---------- */
+function clearMarks(tr){ tr.classList.remove('ok','warn','ko'); tr.querySelector('.st').textContent = ''; tr.title = ''; }
+function check(){
+  let good = 0, total = 0, notes = [];
+  // Liquidités
+  const expL = Object.fromEntries(SOL.liq.map(l=>[l.lb, l]));
+  const seenL = new Set();
+  document.querySelectorAll('.lrow').forEach(tr=>{ clearMarks(tr);
+    const lb = tr.querySelector('.lsel').value, a = num(tr.querySelector('.a').value), b = num(tr.querySelector('.b').value);
+    if (!lb && a==null && b==null) return;
+    const st = tr.querySelector('.st');
+    if (!expL[lb]) { tr.classList.add('ko'); st.textContent = '✗'; tr.title = lb ? 'Ce compte ne fait pas partie des liquidités de cet exercice.' : 'Choisir un compte.'; return; }
+    seenL.add(lb);
+    if (a===expL[lb].a && b===expL[lb].b) { tr.classList.add('ok'); st.textContent = '✓'; good++; }
+    else { tr.classList.add('warn'); st.textContent = '!'; tr.title = 'Bon compte, mais montant(s) faux.'; }
+  });
+  total += SOL.liq.length;
+  const missL = SOL.liq.length - seenL.size; if (missL>0) notes.push(`Liquidités : il manque ${missL} compte${missL>1?'s':''}.`);
+  // Les trois secteurs
+  const where = {}; ['exp','inv','fin'].forEach(s=>SOL[s].forEach(l=>where[l.lb] = {s, v:l.v}));
+  const seen = {exp:new Set(), inv:new Set(), fin:new Set()};
+  document.querySelectorAll('.frow').forEach(tr=>{ clearMarks(tr);
+    const s = tr.dataset.s, lb = tr.querySelector('.fsel').value, m = num(tr.querySelector('.m').value), st = tr.querySelector('.st');
+    if (!lb && m==null) return;
+    const w = where[lb];
+    if (!w) { tr.classList.add('ko'); st.textContent = '✗'; tr.title = lb ? 'Ce libellé ne figure pas dans le tableau de cet exercice.' : 'Choisir un libellé.'; return; }
+    if (w.s !== s) { tr.classList.add('ko'); st.textContent = '✗'; tr.title = 'Bon libellé, mais mauvais secteur.'; return; }
+    seen[s].add(lb);
+    if (m === w.v) { tr.classList.add('ok'); st.textContent = '✓'; good++; }
+    else { tr.classList.add('warn'); st.textContent = '!'; tr.title = (m!=null && Math.abs(m)===Math.abs(w.v)) ? 'Bon montant, mais mauvais signe : entrée (+) ou sortie (−) ?' : 'Bon libellé, mais montant faux.'; }
+  });
+  SECT.forEach(([s,t])=>{ total += SOL[s].length; const miss = SOL[s].length - seen[s].size; if (miss>0) notes.push(`${t} : il manque ${miss} ligne${miss>1?'s':''}.`); });
+  const pc = Math.round(good/total*100);
+  const mot = pc===100 ? 'Parfait ! On tient notre comptable.' : pc>=80 ? 'Presque ! Regarder les lignes orange ou rouges.' : pc>=50 ? 'Bon début, continuer.' : 'Encore un effort : ouvrir 📋 Données et reprendre secteur par secteur.';
+  $('msg').innerHTML = `<b class="s">${good} / ${total}</b> lignes justes (${pc} %). ${mot}${notes.length?'<br>'+notes.join(' '):''}<br><small>Passer la souris sur une ligne colorée pour lire la remarque.</small>`;
+  $('msg').classList.add('on');
+}
+
+/* ---------- Fenêtre « Données » (bilan, résultat, informations, solution) ---------- */
+let DTAB = 'b', DZ = 1;
+try { DZ = +localStorage.getItem('fluxex-data-zoom') || 1; } catch(e){}
+function dataHTML(){
+  const g = G, b0 = g.b0, b1 = g.b1;
+  const row = (lb, a, b) => `<tr><td>${lb}</td><td>${fmt(a)}</td>${b===undefined?'':`<td>${fmt(b)}</td>`}</tr>`;
+  if (DTAB==='b'){
+    const A = [['Actifs circulants',[['Caisse','cai'],['Poste','pos'],['Banque','ban'],['Titres','tit'],['Créances clients','cli'],['Produits à recevoir','par'],['Stock de marchandises','sto']]],
+               ['Actifs immobilisés',[['Mobilier','mob'],['Machines','mac'],['Participations','ptc'],[`Prêt à ${g.pret}`,'pre']]]];
+    const P = [['Capitaux étrangers à court terme',[['Dettes fournisseurs','fou'],['Charges à payer','cap'],['Dividendes','div']]],
+               ['Capitaux étrangers à long terme',[['Dette bancaire','dlt']]],
+               ['Capitaux propres',[['Capital-actions','ca'],['Réserve légale issue du bénéfice','res']]]];
+    const tot = (grp, o) => grp.reduce((s,[,ks])=>s+ks.reduce((t,[,k])=>t+o[k],0),0);
+    const side = (ttl, grp) => `<table class="dt"><tr><th>${ttl}</th><th>31.12.${Y0}</th><th>31.12.${Y}</th></tr>
+      ${grp.map(([gn,ks])=>`<tr class="g"><td colspan="3">${gn}</td></tr>`+ks.filter(([,k])=>b0[k]||b1[k]).map(([lb,k])=>row(lb,b0[k],b1[k])).join('')).join('')}
+      <tr class="tot"><td>Totaux</td><td>${fmt(tot(grp,b0))}</td><td>${fmt(tot(grp,b1))}</td></tr></table>`;
+    return `<div class="dbil"><div>${side('Actif',A)}</div><div>${side('Passif',P)}</div></div>
+      <div class="dinfo"><b>Informations supplémentaires</b>${infos().map(x=>`<div>${x}</div>`).join('')}</div>`;
+  }
+  if (DTAB==='r'){
+    const ch = [['Achats de marchandises',g.achats], g.vst>0?['Variation de stock (diminution)',g.vst]:null, ['Salaires',g.sal],['Loyers',g.loy],['ACE',g.ace],
+      ['Charges d\'intérêts',g.intr],['Amortissement mobilier',g.amm],['Amortissement machines',g.amc],['Bénéfice net',g.BN]].filter(Boolean);
+    const pr = [['Produits des ventes',g.V], g.pfi?['Produits financiers',g.pfi]:null, g.vst<0?['Variation de stock (augmentation)',-g.vst]:null].filter(Boolean);
+    const T = pr.reduce((s,x)=>s+x[1],0);
+    const side = (ttl, arr) => `<table class="dt"><tr><th>${ttl}</th><th>${Y}</th></tr>${arr.map(([lb,v])=>row(lb,v)).join('')}<tr class="tot"><td>Total</td><td>${fmt(T)}</td></tr></table>`;
+    return `<div class="dbil"><div>${side('Charges',ch)}</div><div>${side('Produits',pr)}</div></div>`;
+  }
+  // Solution
+  const sec = (t,c,arr,tl,tv) => `<tr class="sec" style="--c:var(--${c})"><td colspan="2">${t}</td></tr>${arr.map(l=>row(l.lb,l.v)).join('')}<tr class="tot"><td>${tl}</td><td>${fmt(tv)}</td></tr>`;
+  const S = SOL, sum = a => a.reduce((s,l)=>s+l.v,0);
+  return `<div class="dbil"><div><table class="dt"><tr><th>Liquidités</th><th>${Y0}</th><th>${Y}</th></tr>${S.liq.map(l=>row(l.lb,l.a,l.b)).join('')}
+      <tr class="tot"><td>Total</td><td>${fmt(G.L0)}</td><td>${fmt(G.L1)}</td></tr><tr class="tot"><td>Variation</td><td colspan="2">${fmt(G.L1-G.L0)}</td></tr></table></div>
+    <div><table class="dt"><tr><th>Tableau de financement</th><th></th></tr>
+      ${sec(`Exploitation (méthode ${METH==='dir'?'directe':'indirecte'})`,'exp',S.exp,'Cash flow',sum(S.exp))}
+      ${sec('Investissement','inv',S.inv,'Flux d\'investissement',sum(S.inv))}
+      ${sec('Financement','fin',S.fin,'Flux de financement',sum(S.fin))}
+      <tr class="tot"><td>Variation des liquidités</td><td>${fmt(sum(S.exp)+sum(S.inv)+sum(S.fin))}</td></tr></table></div></div>`;
+}
+function infos(){
+  const g = G, I = [];
+  if (g.b0.tit || g.b1.tit) I.push('Les titres correspondent à des réserves de liquidités.');
+  if (g.full) { I.push('Les produits à recevoir concernent des intérêts à encaisser.'); I.push('Les charges à payer correspondent à des salaires dus.'); }
+  I.push('Les amortissements sont comptabilisés de manière directe. Aucun immobilisé n\'a été vendu durant l\'année.');
+  I.push(`Le dividende de l'exercice ${Y0} (${fmt(g.b0.div)}) a été versé en ${Y}. Le bénéfice ${Y} a été réparti : dividende ${fmt(g.D1)}, le solde à la réserve légale.`);
+  if (g.aug) I.push(`Augmentation du capital-actions de ${fmt(g.aug)}, entièrement libérée en espèces.`);
+  if (g.dptc<0) I.push('Des participations ont été vendues à leur valeur comptable.');
+  if (g.dpre>0) I.push(`Un nouveau prêt a été accordé à ${g.pret}.`);
+  if (g.dpre<0) I.push(`${g.pret} a remboursé une partie du prêt.`);
+  return I;
+}
+function dataRefresh(){
+  const d = $('dlg'); if (d.hidden) return;
+  $('dlg-b').style.setProperty('--dz', DZ);
+  d.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('on', b.dataset.tab===DTAB));
+  $('dlgTitle').textContent = `📋 ${G.nom} · ${Y}`;
+  $('dlg-b').innerHTML = dataHTML();
+}
+function dataOpen(open, tab){
+  const d = $('dlg'); d.hidden = open===undefined ? !d.hidden : !open;
+  if (tab) DTAB = tab;
+  if (!d.hidden && !d.style.width) d.style.width = Math.min(innerWidth-24, Math.round(640*DZ))+'px';
+  dataRefresh();
+}
+
+/* ---------- Démarrage ---------- */
+function newExercise(){
+  const full = document.querySelector('input[name="niv"]:checked').value === 'c';
+  const m = document.querySelector('input[name="meth"]:checked').value;
+  METH = m==='alea' ? pick(['dir','ind']) : m;
+  G = generate(full); SOL = solution(G, METH); POOL = pool(G, METH, SOL); HINT = false;
+  $('tabSol').hidden = true; if (DTAB==='s') DTAB = 'b';
+  $('msg').classList.remove('on');
+  build(); dataRefresh();
+}
+$('start').addEventListener('click', ()=>{ $('menu').style.display = 'none'; $('ex').style.display = 'block'; newExercise(); dataOpen(true, 'b'); });
+$('bNew').addEventListener('click', newExercise);
+$('bMenu').addEventListener('click', ()=>{ $('ex').style.display = 'none'; $('menu').style.display = 'block'; dataOpen(false); });
+$('quit').addEventListener('click', ()=>window.close());
+document.querySelectorAll('input[name="niv"]').forEach(r=>r.addEventListener('change', ()=>{
+  $('nivComment').textContent = r.value==='c' && r.checked ? 'Complet : en plus, titres, produits à recevoir, charges à payer, participations, prêt accordé et parfois une augmentation de capital.'
+    : 'Simple : liquidités, clients, stock, fournisseurs, immobilisés, dette bancaire, dividende.'; }));
+$('bData').addEventListener('click', ()=>dataOpen());
+$('bHint').addEventListener('click', ()=>{ HINT = !HINT; showHint(); });
+$('bCheck').addEventListener('click', check);
+$('bSol').addEventListener('click', ()=>{ if (!confirm('Afficher la solution ?')) return; $('tabSol').hidden = false; dataOpen(true, 's'); });
+
+// Saisie : listes, montants, lignes
+document.addEventListener('change', e=>{ if (e.target.classList.contains('sel')) { refreshSelects(); clearMarks(e.target.closest('tr')); recalc(); } });
+document.addEventListener('input', e=>{ if (e.target.matches('table.ex input')) { clearMarks(e.target.closest('tr')); recalc(); } });
+document.addEventListener('focusout', e=>{ if (e.target.matches('table.ex input')) { const n = num(e.target.value); if (n!=null && !isNaN(n)) e.target.value = fmt(n); } });
+document.addEventListener('click', e=>{
+  const del = e.target.closest('td.del button');
+  if (del){ const tr = del.closest('tr'); tr.querySelectorAll('input').forEach(i=>i.value=''); tr.querySelectorAll('select').forEach(s=>s.value=''); clearMarks(tr); refreshSelects(); recalc(); return; }
+  const add = e.target.closest('[data-add]');
+  if (add){ const s = add.dataset.add, tr = add.closest('tr');
+    tr.insertAdjacentHTML('beforebegin', s==='liq' ? liqRow() : fluxRow(s)); refreshSelects(); }
+});
+
+// Fenêtre : onglets, taille, déplacement
+$('dx').addEventListener('click', ()=>dataOpen(false));
+$('dlg').querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click', ()=>{ DTAB = b.dataset.tab; dataRefresh(); }));
+const dZoom = d => { DZ = Math.round(Math.max(0.8, Math.min(1.8, DZ+d))*10)/10; try { localStorage.setItem('fluxex-data-zoom', DZ); } catch(e){}
+  const w = $('dlg'); w.style.width = Math.min(innerWidth-24, Math.round(640*DZ))+'px'; w.style.height = '';
+  const r = w.getBoundingClientRect(); if (r.right > innerWidth-8){ w.style.left = Math.max(8, innerWidth-8-r.width)+'px'; w.style.right = 'auto'; }
+  dataRefresh(); };
+$('dzm').addEventListener('click', ()=>dZoom(-0.1));
+$('dzp').addEventListener('click', ()=>dZoom(0.1));
+(function(){ const d = $('dlg'), h = $('dlg-h'); let sx, sy, ox, oy, drag = false;
+  h.addEventListener('pointerdown', e=>{ if (e.target.closest('button')) return; const r = d.getBoundingClientRect(); drag = true; sx = e.clientX; sy = e.clientY; ox = r.left; oy = r.top; h.setPointerCapture(e.pointerId); });
+  h.addEventListener('pointermove', e=>{ if (!drag) return; d.style.left = Math.max(0, Math.min(innerWidth-80, ox+e.clientX-sx))+'px'; d.style.top = Math.max(0, Math.min(innerHeight-40, oy+e.clientY-sy))+'px'; d.style.right = 'auto'; });
+  h.addEventListener('pointerup', ()=>{ drag = false; });
+})();
+document.addEventListener('keydown', e=>{ if (e.key==='Escape') dataOpen(false); });
+</script>
+</body>
+</html>
