@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Les immeubles – théorie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theorie.css">
+<style>
+:root{
+  --bg:#f5f3ee; --card:#fff; --ink:#1e2226; --muted:#6a6f76; --line:#e2ddd2; --soft:#efebe3;
+  --charge:#c2671f; --charge-bg:#fcefe3;
+  --produit:#2b8352; --produit-bg:#e6f4eb;
+  --res:#6d48b3; --res-bg:#efe9f9;
+  --passif:#a3333d; --passif-bg:#f8e8ea;
+  --bilan:#20394f; --bilan-bg:#e6ecf1;
+  --actif:#2a52be; --actif-bg:#e8eefb;
+  --accent:#c98a10; --accent-bg:#fff3d6;
+}
+.calc.q{background:var(--bilan-bg)}
+.ch.ko{background:var(--charge);border-color:var(--charge);color:#fff;opacity:1}
+.fb.ko{border-left:4px solid var(--charge)}
+.ch.blink{animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{0%,100%{box-shadow:0 0 0 0 rgba(32,57,79,0)}50%{box-shadow:0 0 0 5px rgba(201,138,16,.75);background:var(--accent-bg)}}
+
+/* Comptes en T */
+.t{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 9px 8px;position:relative;min-width:0}
+.t-head{font-weight:700;font-size:13.5px;text-align:center;padding:0 4px;white-space:normal;line-height:1.2;hyphens:auto;-webkit-hyphens:auto}
+.t-body{display:grid;grid-template-columns:1fr 1fr;min-height:46px}
+.col{padding:4px 4px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.col.d{border-right:2px solid var(--ink)}
+.ln{display:flex;flex-wrap:wrap;justify-content:space-between;gap:3px;font-size:11.5px;border-radius:4px;padding:1px 2px}
+.ln .lb{color:var(--muted);line-height:1.25;min-width:0}
+.eff{margin-top:6px;font-size:12px}
+.eff .tag{font-size:11.5px}
+.t-sides .sg{font-weight:700}
+.plus{color:var(--produit)}
+.k-passif .t-head{color:var(--passif)}
+
+/* Liste des comptes */
+.acrow{display:grid;grid-template-columns:minmax(0,360px) 1fr;gap:18px;align-items:center;margin-bottom:12px}
+.acrow .ln{font-size:13px}.acrow .ln .lb{color:var(--ink)}
+.acrow .ln.or .lb::after{content:" ou";color:var(--passif);font-weight:700}
+.acx{font-size:14px}
+.acgrp{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin:12px 0 6px}
+
+/* Tableaux */
+.box{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.box h4{margin:0 0 6px;font-size:14px}
+.syn{width:100%;border-collapse:collapse;font-size:13.5px;table-layout:fixed}
+.syn th,.syn td{padding:8px 10px;border-bottom:1px dashed #9c9282;vertical-align:top;text-align:left}
+.syn tr>th:first-child{width:150px;font-weight:600;color:var(--muted);font-size:12.5px}
+.syn th.hd{font-family:Fraunces,Georgia,serif;font-size:19px;text-align:center;border-radius:10px 10px 0 0}
+.syn th.hd.a{background:var(--actif-bg);color:var(--actif)}.syn th.hd.o{background:var(--produit-bg);color:var(--produit)}
+.syn .acc{display:block;font-weight:600}
+.rems{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px;font-size:14.5px;max-width:760px}
+.slip td{padding:6px 10px;border-bottom:1px dashed var(--line)}
+.slip td.n{text-align:right;white-space:nowrap}
+.slip tr.sub td:first-child{border-left:4px solid var(--charge)}
+.slip tr.tot td{font-weight:700;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
+.jl2 th.n,.jl2 td.n{text-align:right}
+.jl2 td{padding:6px 8px;border-bottom:1px dashed var(--line)}
+.jl2 td.sit{color:var(--muted);font-size:12.5px;max-width:230px}
+.jl2 th.grp{text-align:center;border-bottom:1px solid var(--line)}
+.jl2 td.sep,.jl2 th.sep{border-left:2px solid var(--line)}
+.lk{display:inline-block;padding:1px 8px;border-radius:7px;border:1.5px solid;font-weight:700}
+.jr-stage{max-width:760px;margin-bottom:16px}
+.donnee{font-size:14.5px;background:#f6f3ec;border-left:4px solid var(--accent);border-radius:6px;padding:8px 12px}
+.steps3{display:flex;flex-direction:column;gap:4px;max-width:620px}
+.steps3 .calc{margin:6px 0}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center}
+.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:0 6px 2px}
+.frac>span:last-child{padding:2px 6px 0}
+.calc .row.fr{align-items:center}
+.card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:opacity .3s,box-shadow .3s}
+.card.on{box-shadow:0 0 0 2px var(--ink)}
+.card.off{opacity:.45}
+.card h4{margin:0 0 4px;font-size:15px}
+.card .ex{font-size:12.5px;color:var(--muted);margin:2px 0 0}
+
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;padding:12px 12px 90px}
+  aside{position:static;max-height:none;overflow:visible}
+  .nav-wrap{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(245,243,238,.95);backdrop-filter:blur(6px);padding:10px 12px;border-top:1px solid var(--line)}
+  .acrow{grid-template-columns:1fr}
+  .syn tr>th:first-child{width:90px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="panel">
+      <h1>Les immeubles</h1>
+      <p class="sub">Immeuble commercial ou locatif · Annuité hypothécaire · Écritures internes · Achat et vente · Rendement</p>
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <div class="panel" id="explain"></div>
+
+    <div class="nav-wrap">
+      <div class="nav">
+        <button class="btn" id="prev">← Précédent</button>
+        <button class="btn primary" id="next">Suite →</button>
+      </div>
+    </div>
+
+    <div class="nav exit">
+      <button class="btn quit" id="quit">Quitter</button>
+    </div>
+    <p class="note" id="quit-msg" style="display:none;color:#fff">Le navigateur ne permet pas de fermer cette fenêtre automatiquement : fermer l'onglet.</p>
+  </aside>
+
+  <main class="stage" id="stage"></main>
+</div>
+<div class="zoombar"><button id="zm" title="Réduire la taille" aria-label="Réduire la taille">A−</button><button id="zp" title="Agrandir la taille" aria-label="Agrandir la taille">A+</button></div>
+
+<script>
+/* ---------- Réglages ---------- */
+const ANS = {};
+const fmt = n => { const neg=n<0; n=Math.abs(Math.round(n*100)/100); const [i,d]=n.toFixed(2).split('.');
+  return (neg?'−':'') + i.replace(/\B(?=(\d{3})+(?!\d))/g,"'") + (d!=='00' ? '.'+d : ''); };
+const pct = x => (Math.round(x*100)/100).toFixed(2)+'&nbsp;%';
+const $ = id => document.getElementById(id);
+const KIND = {'Immeubles':'actif','Banque':'actif','Autres créances':'actif',
+  'Dette hypothécaire':'passif','Autres dettes':'passif','Privé':'passif',
+  'Charges d\'immeubles':'charge','Loyers':'charge','Charges financières':'charge',
+  'Produits d\'immeubles':'produit','Produits exceptionnels':'produit'};
+const PLUS_D = k => k==='actif' || k==='charge';
+
+/* Couleur de liaison = compte de destination du montant */
+const LINK = {'Dette hypothécaire':'#a3333d', 'Charges d\'immeubles':'#c2671f', 'Banque':'#4b5563'};
+const pill = (acc, txt) => acc ? `<span class="lk" style="color:${LINK[acc]};background:${LINK[acc]}1f;border-color:${LINK[acc]}">${txt}</span>` : txt;
+
+/* ---------- Comptes en T ---------- */
+const sum = a => a.reduce((s,l)=>s+(l.amt||0),0);
+const bal = (acc,P) => PLUS_D(KIND[acc]) ? sum(P.d)-sum(P.c) : sum(P.c)-sum(P.d);
+function tHTML(acc, P, focus, eff, label){
+  const k = KIND[acc], pd = PLUS_D(k);
+  const col = arr => arr.map(l=>`<div class="ln ${l.or?'or':''}"><span class="lb">${l.lb}</span><span class="am">${l.amt==null?'':fmt(l.amt)}</span></div>`).join('');
+  return `<div class="t k-${k} ${focus?'focus':''}">
+    <div class="t-sides"><span>D <b class="sg ${pd?'plus':'minus'}">${pd?'+':'−'}</b></span><span class="t-head">${label||acc}</span><span><b class="sg ${pd?'minus':'plus'}">${pd?'−':'+'}</b> C</span></div>
+    <div class="t-body"><div class="col d">${col(P.d)}</div><div class="col c">${col(P.c)}</div></div>
+    ${eff?`<div class="eff">${eff}</div>`:''}</div>`;
+}
+// compte en T avec une liste de contenus (sans montants) ; « lb| » = suivi de « ou »
+const tList = (acc, label, d, c) => tHTML(acc, {d:d.map(x=>({lb:x.replace('|',''), or:x.endsWith('|')})), c:c.map(x=>({lb:x.replace('|',''), or:x.endsWith('|')}))}, false, '', label);
+
+/* ---------- Comptabilisation pas à pas : ligne du journal, puis report dans les comptes ---------- */
+function mergeRows(J){
+  const byN = {}; J.forEach(e=>(byN[e.n] = byN[e.n] || []).push(e));
+  return Object.values(byN).flatMap(g => g.length===2 && g[0].d && g[1].c && g[0].amt===g[1].amt
+    ? [{n:g[0].n, d:g[0].d, c:g[1].c, amt:g[0].amt, q:g[0].q, qtext:g[0].qtext}]
+    : g.map(e=>({...e})));
+}
+const sensTxt = (acc, side) => { const k = KIND[acc], plus = (side==='d')===PLUS_D(k);
+  return `${plus?'augmentation':'diminution'} d'${k==='charge'?'une':'un'} ${k}`; };
+let ANSWERED = false;
+function microSteps(R){
+  return R.map((e,i)=>{
+    const part = s => `<b>${e[s]}</b> au ${s==='d'?'débit':'crédit'} (${sensTxt(e[s],s)})`;
+    return {row:i, q:e.q, text: e.q ? e.qtext : `${[e.d&&part('d'), e.c&&part('c')].filter(Boolean).join(', ')} : ${fmt(e.amt)}.`};
+  });
+}
+const effK = (S, k) => { k = Math.min(k, S.length); return k - (k>0 && S[k-1].q && !ANSWERED ? 1 : 0); };
+// open : {compte:[{side,amt,lab}]} soldes à nouveau ; eff(acc,P) : ligne sous le compte
+function comptaK(J, accs, k, o={}){
+  const R = mergeRows(J), S = microSteps(R); k = effK(S, k);
+  const done = S.slice(0,k), last = done[done.length-1];
+  const maxRow = last ? last.row : -1;
+  let prevN = null;
+  const jr = `<table class="jl2"><tr><th>N°</th><th>Compte débité</th><th>Compte crédité</th><th class="n">Débit</th><th class="n">Crédit</th></tr>
+    ${R.map((e,i)=>{ const showN = e.n!==prevN; prevN = e.n;
+      return `<tr class="${i>maxRow?'hide':''}"><td>${showN?e.n:''}</td><td>${e.d||''}</td><td>${e.c||''}</td>
+      <td class="n">${e.d?fmt(e.amt):''}</td><td class="n">${e.c?fmt(e.amt):''}</td></tr>`; }).join('')}</table>`;
+  const P = {}; accs.forEach(a=>P[a]={d:[],c:[]});
+  Object.entries(o.open||{}).forEach(([a,L])=>L.forEach(l=>P[a][l.side].push({lb:l.lab||'sàn', amt:l.amt})));
+  done.forEach(s=>{ const e = R[s.row]; ['d','c'].forEach(sd=>{ if (e[sd]) P[e[sd]][sd].push({lb:e.n, amt:e.amt}); }); });
+  const cur = last ? [R[last.row].d, R[last.row].c] : [];
+  const ts = accs.map(a=>tHTML(a, P[a], cur.includes(a), o.eff ? o.eff(a,P[a],k) : '')).join('');
+  return `<section class="sec"><h2>Dans la comptabilité</h2><div class="jr-stage">${jr}</div><div class="tg">${ts}</div></section>`;
+}
+const jSteps = J => microSteps(mergeRows(J)).map(s=>({btn:'Suite →', text:s.text, q:s.q}));
+
+/* ---------- Données des exemples ---------- */
+// Annuité hypothécaire
+const AN = {dette:400000, taux:2, amort:10000}; AN.int = AN.dette*AN.taux/100; AN.tot = AN.int+AN.amort;
+const AN_J = [{n:1,d:'Dette hypothécaire',amt:AN.amort, qtext:`L'amortissement de ${fmt(AN.amort)}.`,
+               q:{text:'L\'amortissement de la dette hypothécaire est…', opts:[['c','une charge'],['r','un remboursement de la dette']], ok:'r',
+                  fb:'amortir une dette, c\'est la <b>rembourser</b> : la <b>Dette hypothécaire</b> diminue (au débit). Ce n\'est pas une charge.'}},
+              {n:1,d:'Charges d\'immeubles',amt:AN.int},{n:1,c:'Banque',amt:AN.tot}];
+// Écritures internes
+const EI = {com:30000, prive:24000};
+const EI_J = [{n:1,d:'Loyers',amt:EI.com, qtext:`Le loyer des locaux commerciaux : ${fmt(EI.com)} par année.`,
+               q:{text:'Pour l\'entreprise (le commerce), ce loyer est…', opts:[['c','une charge : Loyers'],['p','un produit']], ok:'c',
+                  fb:'le commerce « paie » un loyer à l\'immeuble : <b>Loyers</b> au débit (charge d\'exploitation), <b>Produits d\'immeubles</b> au crédit.'}},
+              {n:1,c:'Produits d\'immeubles',amt:EI.com},
+              {n:2,d:'Privé',amt:EI.prive, qtext:`Le loyer de l'appartement du propriétaire : ${fmt(EI.prive)} par année.`,
+               q:{text:'Quel compte débiter pour le loyer du propriétaire ?', opts:[['l','Loyers'],['p','Privé']], ok:'p',
+                  fb:'l\'appartement sert à la vie <b>privée</b> du propriétaire : on débite son compte <b>Privé</b>.'}},
+              {n:2,c:'Produits d\'immeubles',amt:EI.prive}];
+// Achat et vente (même immeuble)
+const AV = {prix:900000, dette:600000, frais:18000, vc:750000}; AV.bq = AV.prix-AV.dette; AV.pv = AV.prix-AV.vc;
+const ACH_J = [{n:1,d:'Immeubles',amt:AV.prix},{n:1,c:'Dette hypothécaire',amt:AV.dette},{n:1,c:'Banque',amt:AV.bq},
+               {n:2,d:'Immeubles',amt:AV.frais, qtext:`Les frais de notaire et de registre foncier : ${fmt(AV.frais)}.`,
+                q:{text:'Les frais d\'achat (notaire, registre foncier)…', opts:[['i','s\'ajoutent à la valeur de l\'immeuble'],['c','sont une charge d\'immeubles']], ok:'i',
+                   fb:'ils sont à la charge de l\'acheteur et <b>s\'ajoutent à la valeur de l\'immeuble</b> : compte <b>Immeubles</b>.'}},
+               {n:2,c:'Banque',amt:AV.frais}];
+const VEN_J = [{n:1,d:'Dette hypothécaire',amt:AV.dette},{n:1,d:'Banque',amt:AV.bq},{n:1,c:'Immeubles',amt:AV.prix},
+               {n:2,d:'Immeubles',amt:AV.pv, qtext:`Le compte Immeubles a un solde <b>créditeur</b> de ${fmt(AV.pv)}.`,
+                q:{text:`Vendu ${fmt(AV.prix)}, l'immeuble valait ${fmt(AV.vc)} au bilan. La différence est…`, opts:[['b','un bénéfice (plus-value)'],['p','une perte (moins-value)']], ok:'b',
+                   fb:`l'immeuble est vendu plus cher que sa valeur comptable : <b>plus-value</b> de ${fmt(AV.pv)}, virée au crédit d'un compte de produit.`}},
+               {n:2,c:'Produits exceptionnels',amt:AV.pv}];
+// Décompte entre vendeur et acheteur
+const DC = [
+  {sit:'Combustible de chauffage restant', amt:2000, v:['Autres créances','Charges d\'immeubles'], a:['Charges d\'immeubles','Autres dettes'],
+   text:`Il reste pour <b>2'000</b> de combustible de chauffage, payé par le vendeur.`,
+   q:{text:'Le combustible a été payé par le vendeur mais servira à l\'acheteur. Qui doit de l\'argent à qui ?', opts:[['a','l\'acheteur doit au vendeur'],['v','le vendeur doit à l\'acheteur']], ok:'a',
+      fb:'le vendeur a une <b>créance</b> et diminue ses charges d\'immeubles ; l\'acheteur a une <b>charge</b> et une <b>dette</b>.'}},
+  {sit:'Loyers non encaissés, versés plus tard à l\'acheteur', amt:3000, v:['Autres créances','Produits d\'immeubles'], a:['Produits d\'immeubles','Autres dettes'],
+   text:`Il reste pour <b>3'000</b> de loyers non encaissés. Ils concernent la période du vendeur, mais seront versés à l'acheteur.`,
+   q:{text:'Qui doit de l\'argent à qui ?', opts:[['a','l\'acheteur doit au vendeur'],['v','le vendeur doit à l\'acheteur']], ok:'a',
+      fb:'ces loyers appartiennent au vendeur : il a un <b>produit</b> et une <b>créance</b> ; l\'acheteur diminue ses produits et a une <b>dette</b>.'}},
+  {sit:'Loyers du mois déjà encaissés par le vendeur', amt:1500, v:['Produits d\'immeubles','Autres créances'], a:['Autres dettes','Produits d\'immeubles'],
+   text:`Le vendeur a déjà encaissé les loyers du mois : <b>1'500</b>. Ils concernent la période de l'acheteur.`,
+   q:{text:'Qui doit de l\'argent à qui ?', opts:[['a','l\'acheteur doit au vendeur'],['v','le vendeur doit à l\'acheteur']], ok:'v',
+      fb:'le vendeur les ristourne : il diminue ses produits et sa <b>créance</b> (au crédit) ; l\'acheteur diminue sa <b>dette</b> et a un produit.'}},
+  {sit:'Règlement du solde par banque', amt:3500, v:['Banque','Autres créances'], a:['Autres dettes','Banque'],
+   text:`Le solde des comptes temporaires est réglé par banque : 2'000 + 3'000 − 1'500 = <b>3'500</b>. Les comptes Autres créances et Autres dettes sont soldés.`}];
+// Rendement
+const RD = {prix:900000, dette:600000, loyers:54000, charges:39000, interets:12000};
+RD.brut = RD.loyers*100/RD.prix; RD.gain = RD.loyers-RD.charges; RD.cp = RD.prix-RD.dette; RD.net = RD.gain*100/RD.cp;
+
+/* ---------- Les étapes ---------- */
+const STEPS = [
+ { title:'Catégories d\'immeubles',
+   ph:[{btn:'Suite →', text:`On distingue deux catégories d'immeubles.<br><br>L'<b>immeuble commercial</b> n'est utilisé que par l'entreprise.<br><br>L'<b>immeuble locatif</b> est loué à des tiers.`},
+       {btn:'Suite →', text:`Pour l'immeuble commercial, on utilise les <b>comptes de charges du 2<sup>e</sup> degré</b> (charges d'exploitation), selon la nature de la charge.`},
+       {btn:'Suite →', text:`Pour l'immeuble locatif, on utilise les <b>comptes du 3<sup>e</sup> degré</b> : toutes les charges vont dans <b>Charges d'immeubles</b>, les loyers dans <b>Produits d'immeubles</b>.`},
+       {btn:'Les comptes →', text:`L'immeuble locatif peut aussi être utilisé en partie par l'entreprise (locaux commerciaux) ou par le propriétaire (appartement privé).`,
+        q:{text:'Une entreprise loue des appartements de son immeuble à des tiers. Les réparations vont…', opts:[['2','dans Entretien et réparations'],['3','dans Charges d\'immeubles']], ok:'3',
+           fb:'c\'est un <b>immeuble locatif</b> : toutes ses charges vont dans <b>Charges d\'immeubles</b> (3<sup>e</sup> degré).'}}],
+   stage: ph => {
+     const L = [['Réparation','Entretien et réparations'],['Électricité','Électricité'],['Amortissements','Amortissements'],
+                ['Salaire du concierge','Salaires'],['Intérêts hypothécaires','Charges financières'],['Assurance (ECAB)','Assurances']];
+     const row = (i, lb, a, o) => ph>=i ? `<tr><th>${lb}</th><td>${a}</td><td>${o}</td></tr>` : '';
+     return `<section class="sec"><h2>Immeuble commercial ou locatif</h2><table class="syn">
+       <tr><th></th><th class="hd a">Immeuble commercial</th><th class="hd o">Immeuble locatif</th></tr>
+       ${row(0, 'Utilisé par…', 'l\'entreprise <b>seulement</b>', 'des <b>locataires</b> (tiers)')}
+       ${row(1, 'Comptes', 'comptes du <b>2<sup>e</sup> degré</b> (exploitation)', ph>=2?'comptes du <b>3<sup>e</sup> degré</b> (hors exploitation)':'')}
+       ${L.map(([lb,c],j)=>row(1, lb, `<span class="acc">${c}</span>`, ph>=2?`<span class="acc">Charges d'immeubles</span>`:'')).join('')}
+       ${row(2, 'Loyers encaissés', '—', '<span class="acc">Produits d\'immeubles</span>')}</table></section>
+       ${ph>=3?`<section class="sec"><div class="box" style="max-width:760px"><h4>Immeuble utilisé aussi par l'entreprise ou à des fins privées</h4>
+         <p style="margin:0;font-size:14.5px">Si une partie de l'immeuble locatif sert au commerce ou au logement du propriétaire, on passe des <b>écritures internes</b> (partie D).</p></div></section>`:''}`; } },
+
+ { title:'Les comptes',
+   ph:[{btn:'Suite →', text:`Le compte <b>Immeubles</b> est un compte d'actif. Il enregistre la valeur de l'immeuble : achat, frais d'achat, amortissements directs, vente.`},
+       {btn:'Suite →', text:`La <b>Dette hypothécaire</b> est un compte de passif : l'emprunt garanti par l'immeuble.`},
+       {btn:'Suite →', text:`Le compte <b>Charges d'immeubles</b> regroupe toutes les charges de l'immeuble locatif.`},
+       {btn:'Suite →', text:`Le compte <b>Produits d'immeubles</b> regroupe les loyers, y compris ceux des écritures internes.`},
+       {btn:'Suite →', text:`À la clôture, les soldes des Charges et des Produits d'immeubles sont <b>virés au Compte de résultat au 3è degré</b>.`}],
+   stage: ph => { const row = (i, t, txt) => ph>=i ? `<div class="acrow">${t}<div class="acx">${txt}</div></div>` : '';
+     return `<section class="sec"><h2>Les comptes utilisés</h2>
+       <div class="acgrp" style="color:var(--actif)">Actif</div>
+       ${row(0, tList('Immeubles','Immeubles',['Sàn','Achat','Frais d\'achat (notaire, RF)','Plus-value|','Bénéfice sur vente'],['Vente','Amortissement direct','Moins-value|','Perte sur vente','Spb']),
+         'Les frais d\'achat s\'ajoutent à la valeur de l\'immeuble. À la vente, la plus-value ou la moins-value solde le compte.')}
+       ${ph>=1?`<div class="acgrp" style="color:var(--passif)">Passif</div>`:''}
+       ${row(1, tList('Dette hypothécaire','Dette hypothécaire',['Remboursement (amortissement)','Reprise par l\'acheteur (vente)','Spb'],['Sàn','Nouvel emprunt','Reprise de la dette du vendeur (achat)']),
+         'L\'amortissement de la dette est un <b>remboursement</b>, pas une charge.')}
+       ${ph>=2?`<div class="acgrp" style="color:var(--charge)">Charge</div>`:''}
+       ${row(2, tList('Charges d\'immeubles','Charges d\'immeubles',['Amortissement de l\'immeuble','Entretien et réparations','Électricité','Chauffage (mazout, gaz)','Assurances','Impôt foncier','Frais de conciergerie','Intérêts hypothécaires'], ph>=4?['Solde viré au <b>3è degré</b> du Compte de résultat']:[]),
+         'Toutes les charges de l\'immeuble locatif, y compris les intérêts hypothécaires et l\'amortissement de l\'immeuble.')}
+       ${ph>=3?`<div class="acgrp" style="color:var(--produit)">Produit</div>`:''}
+       ${row(3, tList('Produits d\'immeubles','Produits d\'immeubles', ph>=4?['Solde viré au <b>3è degré</b> du Compte de résultat']:[], ['Loyers des locataires','Loyer du propriétaire','Loyer des locaux commerciaux']),
+         'Les loyers encaissés et les loyers des écritures internes (propriétaire, commerce).')}</section>`; } },
+
+ { title:'Annuité hypothécaire',
+   ph:[{btn:'Suite →', text:`Chaque année, l'entreprise verse à la banque une <b>annuité</b> : les intérêts de la dette et, souvent, un amortissement.`},
+       {btn:'Comptabiliser →', text:`L'<b>amortissement</b> de la dette est un <b>remboursement</b> : il diminue la Dette hypothécaire.<br><br>Seuls les <b>intérêts</b> sont une charge.`},
+       ...jSteps(AN_J),
+       {btn:'Suite →', text:`Pour un <b>immeuble commercial</b>, les intérêts hypothécaires vont dans <b>Charges financières</b> au lieu de Charges d'immeubles.`}],
+   stage: ph => `<section class="sec"><h2>La donnée</h2><div class="donnee">Dette hypothécaire de <b>${fmt(AN.dette)}</b> au taux de <b>${AN.taux}&nbsp;%</b>. Amortissement annuel : <b>${fmt(AN.amort)}</b>. Immeuble locatif.</div></section>
+     <section class="sec"><h2>L'annuité</h2><table class="slip" style="max-width:620px">
+       <tr class="add"><td>Intérêts de la dette</td><td class="calc2">${fmt(AN.dette)} × ${AN.taux} %</td><td class="calc2">${ph>=1?'→ Charges d\'immeubles':''}</td><td class="n">${ph>=1?pill('Charges d\'immeubles',fmt(AN.int)):fmt(AN.int)}</td></tr>
+       <tr class="add"><td>+ Amortissement</td><td class="calc2">remboursement !</td><td class="calc2">${ph>=1?'→ Dette hypothécaire':''}</td><td class="n">${ph>=1?pill('Dette hypothécaire',fmt(AN.amort)):fmt(AN.amort)}</td></tr>
+       <tr class="tot"><td>= Annuité</td><td></td><td class="calc2">${ph>=1?'→ Banque':''}</td><td class="n">${ph>=1?pill('Banque',fmt(AN.tot)):fmt(AN.tot)}</td></tr></table></section>
+     ${ph>=2?comptaK(AN_J,['Dette hypothécaire','Charges d\'immeubles','Banque'],ph-1):''}` },
+
+ { title:'Écritures internes',
+   ph:[{btn:'Comptabiliser →', text:`Les écritures internes ne concernent que les <b>immeubles locatifs</b>. Elles permettent d'obtenir un <b>résultat d'exploitation</b> (2<sup>e</sup> degré) plus juste.<br><br>Aucun argent n'est encaissé : l'entreprise « se paie » un loyer à elle-même.`},
+       ...jSteps(EI_J),
+       {btn:'Suite →', text:`Sans l'écriture 1, le commerce occuperait des locaux sans payer de loyer : son résultat d'exploitation serait <b>trop beau</b>.<br><br>Avec l'écriture 2, le loyer de l'appartement est mis à la charge du propriétaire (Privé), et non de l'entreprise.`}],
+   stage: ph => `<section class="sec"><h2>La donnée</h2><div class="donnee">L'entreprise possède un immeuble locatif. Elle y occupe des <b>locaux commerciaux</b> (loyer annuel : <b>${fmt(EI.com)}</b>) et le propriétaire y habite un <b>appartement</b> (loyer annuel : <b>${fmt(EI.prive)}</b>).</div></section>
+     ${ph>=1?comptaK(EI_J,['Loyers','Privé','Produits d\'immeubles'],ph):''}
+     ${ph>=3?`<section class="sec"><div class="cards">
+       <div class="card"><h4>1. Loyer pour le commerce</h4><div class="ex">Loyers / Produits d'immeubles</div></div>
+       <div class="card"><h4>2. Loyer pour le propriétaire</h4><div class="ex">Privé / Produits d'immeubles</div></div></div></section>`:''}` },
+
+ { title:'Achat d\'immeuble',
+   ph:[{btn:'Suite →', text:`L'achat d'un immeuble se comptabilise en <b>2 étapes</b> :<br>1. l'achat, avec reprise éventuelle de la dette hypothécaire ;<br>2. le règlement des frais et des loyers divers (partie G).`},
+       {btn:'Comptabiliser →', text:`L'acheteur <b>reprend la dette hypothécaire</b> du vendeur : il ne paie par banque que la différence.`},
+       ...jSteps(ACH_J)],
+   stage: ph => `<section class="sec"><h2>La donnée</h2><div class="donnee">Nous achetons un immeuble locatif pour <b>${fmt(AV.prix)}</b>. Nous reprenons la dette hypothécaire de <b>${fmt(AV.dette)}</b>, le solde est payé par banque. Frais de notaire et de registre foncier : <b>${fmt(AV.frais)}</b>, payés par banque.</div></section>
+     ${ph>=1?`<section class="sec"><h2>Le prix</h2><div class="steps3"><div class="calc"><div class="row"><span>Prix d'achat</span><span>${fmt(AV.prix)}</span></div>
+       <div class="row"><span>− Reprise de la dette hypothécaire</span><span>${fmt(AV.dette)}</span></div><div class="row big"><span>= Payé par banque</span><span>${fmt(AV.bq)}</span></div></div></div></section>`:''}
+     ${ph>=2?comptaK(ACH_J,['Immeubles','Dette hypothécaire','Banque'],ph-1,
+        {eff:(a,P)=>a==='Immeubles'?`Valeur : <span class="tag neutral">${fmt(bal(a,P))}</span>`:''}):''}` },
+
+ { title:'Vente d\'immeuble',
+   ph:[{btn:'Comptabiliser →', text:`Chez le <b>vendeur</b>, l'immeuble figure au bilan pour ${fmt(AV.vc)}. L'acheteur reprend la dette hypothécaire et paie le solde par banque.`},
+       ...jSteps(VEN_J),
+       {btn:'Suite →', text:`Le compte Immeubles est soldé. S'il était vendu en dessous de sa valeur comptable, on aurait une <b>moins-value</b> : une charge, au crédit du compte Immeubles.`}],
+   stage: ph => `<section class="sec"><h2>La donnée</h2><div class="donnee">Le vendeur vend l'immeuble <b>${fmt(AV.prix)}</b>. Valeur comptable : <b>${fmt(AV.vc)}</b>. L'acheteur reprend la dette hypothécaire de <b>${fmt(AV.dette)}</b> et paie le solde par banque.</div></section>
+     ${comptaK(VEN_J,['Immeubles','Dette hypothécaire','Banque','Produits exceptionnels'],ph,
+        {open:{'Immeubles':[{side:'d',amt:AV.vc}],'Dette hypothécaire':[{side:'c',amt:AV.dette}]},
+         eff:(a,P)=>a==='Immeubles'?`Solde : <span class="tag ${bal(a,P)===0?'good':'bad'}">${fmt(bal(a,P))}</span>`:''})}` },
+
+ { title:'Décompte vendeur – acheteur',
+   ph:[{btn:'Suite →', text:`Le jour de la vente, il faut encore régler les frais et les loyers qui concernent l'autre partie.<br><br>Il est judicieux d'utiliser un <b>compte temporaire</b> : <b>Autres créances</b> chez le vendeur, <b>Autres dettes</b> chez l'acheteur.`},
+       ...DC.map(c=>({btn:'Suite →', text:c.text, q:c.q}))],
+   stage: ph => {
+     const vis = i => ph>i+1 || (ph===i+1 && (!DC[i].q || ANSWERED));
+     const Pv = {d:[],c:[]}, Pa = {d:[],c:[]};
+     DC.forEach((c,i)=>{ if (!vis(i)) return;
+       if (c.v[0]==='Autres créances') Pv.d.push({lb:i+1, amt:c.amt}); if (c.v[1]==='Autres créances') Pv.c.push({lb:i+1, amt:c.amt});
+       if (c.a[0]==='Autres dettes') Pa.d.push({lb:i+1, amt:c.amt}); if (c.a[1]==='Autres dettes') Pa.c.push({lb:i+1, amt:c.amt}); });
+     return `<section class="sec"><h2>Les écritures</h2><div style="overflow-x:auto"><table class="jl2">
+       <tr><th></th><th></th><th class="grp sep" colspan="2" style="color:var(--charge)">Chez le vendeur</th><th class="grp sep" colspan="2" style="color:var(--actif)">Chez l'acheteur</th><th></th></tr>
+       <tr><th>N°</th><th>Situation</th><th class="sep">Débit</th><th>Crédit</th><th class="sep">Débit</th><th>Crédit</th><th class="n">Montant</th></tr>
+       ${DC.map((c,i)=>`<tr class="${vis(i)?'':'hide'}"><td>${i+1}</td><td class="sit">${c.sit}</td><td class="sep">${c.v[0]}</td><td>${c.v[1]}</td><td class="sep">${c.a[0]}</td><td>${c.a[1]}</td><td class="n">${fmt(c.amt)}</td></tr>`).join('')}
+       </table></div></section>
+       <section class="sec"><h2>Les comptes temporaires</h2><div class="tg" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">
+       ${tHTML('Autres créances', Pv, false, `Solde : <span class="tag ${ph>=4&&vis(3)?'good':'neutral'}">${fmt(bal('Autres créances',Pv))}</span>`, 'Autres créances (vendeur)')}
+       ${tHTML('Autres dettes', Pa, false, `Solde : <span class="tag ${ph>=4&&vis(3)?'good':'neutral'}">${fmt(bal('Autres dettes',Pa))}</span>`, 'Autres dettes (acheteur)')}</div></section>`; } },
+
+ { title:'Calcul de rendement',
+   ph:[{btn:'Rendement brut →', text:`On calcule deux taux de rendement pour un immeuble locatif : le rendement <b>brut</b> et le rendement <b>net</b>.`},
+       {btn:'Gain net →', text:`<b>Rendement brut</b> = produits des locations × 100, divisé par le prix d'achat de l'immeuble.`},
+       {btn:'Capital propre →', text:`Pour le rendement net, on part du <b>gain net</b> : produits d'immeubles − charges d'immeubles.`},
+       {btn:'Rendement net →', text:`Le gain net est rapporté au <b>capital propre investi</b> : prix d'achat − dette hypothécaire.`,
+        q:{text:'Pourquoi ne pas diviser par le prix d\'achat ?', opts:[['i','les intérêts hypothécaires sont déjà déduits du gain'],['l','c\'est plus simple']], ok:'i',
+           fb:'la dette hypothécaire est « payée » par les intérêts, déjà compris dans les charges d\'immeubles : on mesure ce que rapporte <b>l\'argent du propriétaire</b>.'}},
+       {btn:'Suite →', text:`<b>Rendement net</b> = gain net × 100, divisé par le capital propre investi.`}],
+   stage: ph => `<section class="sec"><h2>La donnée</h2><div class="donnee">Immeuble locatif acheté <b>${fmt(RD.prix)}</b>, dette hypothécaire de <b>${fmt(RD.dette)}</b>.<br>
+       Loyers annuels : <b>${fmt(RD.loyers)}</b>. Charges d'immeubles annuelles : <b>${fmt(RD.charges)}</b> (dont ${fmt(RD.interets)} d'intérêts hypothécaires).</div></section>
+     <section class="sec" ${ph<1?'style="display:none"':''}><h2>Calcul du rendement</h2><div class="steps3">
+       ${ph>=1?`<div class="calc q"><b>1. Rendement brut</b><div class="row big fr"><span class="frac"><span>${fmt(RD.loyers)} × 100</span><span>${fmt(RD.prix)}</span></span><span>${pct(RD.brut)}</span></div></div>`:''}
+       ${ph>=2?`<div class="calc"><b>2. Gain net</b><div class="row"><span>Produits d'immeubles</span><span>${fmt(RD.loyers)}</span></div><div class="row"><span>− Charges d'immeubles</span><span>${fmt(RD.charges)}</span></div><div class="row big"><span>= Gain net</span><span>${fmt(RD.gain)}</span></div></div>`:''}
+       ${ph>=3?`<div class="calc"><b>3. Capital propre investi</b><div class="row"><span>Prix d'achat</span><span>${fmt(RD.prix)}</span></div><div class="row"><span>− Dette hypothécaire</span><span>${fmt(RD.dette)}</span></div><div class="row big"><span>= Capital propre investi</span><span>${fmt(RD.cp)}</span></div></div>`:''}
+       ${ph>=4?`<div class="calc q"><b>4. Rendement net</b><div class="row big fr"><span class="frac"><span>${fmt(RD.gain)} × 100</span><span>${fmt(RD.cp)}</span></span><span>${pct(RD.net)}</span></div></div>`:''}</div></section>` }
+];
+
+/* ---------- Actions ---------- */
+const A = [];
+STEPS.forEach((s,i)=>s.ph.forEach((_,p)=>A.push({step:i, ph:p})));
+let pos = 0;
+
+/* ---------- Rendu ---------- */
+function qBox(key, q){
+  const ch = ANS[key];
+  const btn = (a,lb) => `<button class="ch ${ch===a?(a===q.ok?'ok':'ko'):''} ${ch?'':'blink'}" data-a="${a}" ${ch?'disabled':''}>${lb}</button>`;
+  const fb = ch ? `<div class="fb ${ch===q.ok?'ok':'ko'}">${ch===q.ok?'✓ En effet':'✗ En fait'}, ${q.fb}</div>` : `<div class="hint">Cliquer sur la bonne réponse.</div>`;
+  return `<div class="calc q"><div style="font-weight:600;margin-bottom:4px">La question à se poser</div>${q.text}
+    <div class="choices" style="flex-wrap:wrap">${q.opts.map(([a,lb])=>btn(a,lb)).join('')}</div>${fb}</div>`;
+}
+const LET = i => String.fromCharCode(65+i);   // A, B, C…
+function render(){
+  pos = Math.max(0, Math.min(A.length-1, pos));
+  const {step, ph} = A[pos], S = STEPS[step], P = S.ph[ph], key = step+'.'+ph;
+  document.querySelectorAll('#dots .dot').forEach((b,i)=>{ b.classList.toggle('cur', i===step); b.classList.toggle('done', i<step); });
+  $('prev').disabled = pos===0;
+  $('next').disabled = pos===A.length-1 || (P.q && !ANS[key]);
+  $('next').textContent = pos===A.length-1 ? 'Terminé ✓' : P.btn;
+  $('explain').innerHTML = `<h2 class="steptitle">${LET(step)}. ${S.title}</h2>
+    <p class="steptext">${P.text}</p>${P.q?qBox(key,P.q):''}`;
+  ANSWERED = !!ANS[key];
+  $('stage').innerHTML = S.stage(ph);
+}
+
+/* ---------- Navigation ---------- */
+function goTo(p){ pos = p; render(); }
+function goStep(s){ goTo(A.findIndex(a=>a.step===s)); }
+let Z = 1;
+try { Z = +localStorage.getItem('immeubles-zoom') || 1; } catch(e){}
+function applyZoom(){
+  Z = Math.round(Math.max(0.8, Math.min(1.6, Z))*10)/10;
+  document.documentElement.style.setProperty('--z', Z);
+  try { localStorage.setItem('immeubles-zoom', Z); } catch(e){}
+}
+$('dots').innerHTML = STEPS.map((s,i)=>`<button class="dot" data-s="${i}" title="${LET(i)}. ${s.title}" aria-label="${LET(i)}. ${s.title}"></button>`).join('');
+$('zm').addEventListener('click', ()=>{ Z -= 0.1; applyZoom(); });
+$('zp').addEventListener('click', ()=>{ Z += 0.1; applyZoom(); });
+$('next').addEventListener('click', ()=>goTo(pos+1));
+$('prev').addEventListener('click', ()=>goTo(pos-1));
+$('explain').addEventListener('click', e=>{ const b=e.target.closest('.ch'); if (!b || b.disabled) return; const {step,ph}=A[pos]; ANS[step+'.'+ph] = b.dataset.a; render(); });
+$('quit').addEventListener('click', ()=>{ window.close(); setTimeout(()=>{ $('quit-msg').style.display='block'; }, 300); });
+$('dots').addEventListener('click', e=>{ const b=e.target.closest('.dot'); if (b) goStep(+b.dataset.s); });
+document.addEventListener('keydown', e=>{
+  if (e.key==='ArrowRight' && !$('next').disabled) goTo(pos+1);
+  if (e.key==='ArrowLeft') goTo(pos-1);
+});
+render();
+applyZoom();
+</script>
+<script src="theorie.js"></script>
+</body>
+</html>
