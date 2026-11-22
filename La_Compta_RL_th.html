@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Réserves latentes – théorie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theorie.css">
+<style>
+:root{
+  --bg:#f5f3ee; --card:#fff; --ink:#1e2226; --muted:#6a6f76; --line:#e2ddd2; --soft:#efebe3;
+  --charge:#c2671f; --charge-bg:#fcefe3;
+  --produit:#2b8352; --produit-bg:#e6f4eb;
+  --res:#6d48b3; --res-bg:#efe9f9;
+  --passif:#a3333d; --passif-bg:#f8e8ea;
+  --bilan:#20394f; --bilan-bg:#e6ecf1;
+  --actif:#2a52be; --actif-bg:#e8eefb;
+  --accent:#c98a10; --accent-bg:#fff3d6;
+}
+.calc.q{background:var(--bilan-bg)}
+.ch.ko{background:var(--charge);border-color:var(--charge);color:#fff;opacity:1}
+.fb.ko{border-left:4px solid var(--charge)}
+.ch.blink{animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{0%,100%{box-shadow:0 0 0 0 rgba(32,57,79,0)}50%{box-shadow:0 0 0 5px rgba(201,138,16,.75);background:var(--accent-bg)}}
+.box{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.box h4{margin:0 0 6px;font-size:14px}
+.box p{margin:0 0 6px;font-size:14.5px}.box p:last-child{margin:0}
+.donnee{font-size:14.5px;background:#f6f3ec;border-left:4px solid var(--accent);border-radius:6px;padding:8px 12px}
+.steps3{display:flex;flex-direction:column;gap:4px;max-width:640px}
+.steps3 .calc{margin:6px 0}
+.rems{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px;font-size:14.5px;max-width:760px}
+.new{animation:pop 1.4s ease-out}
+.up{color:var(--produit);font-weight:700}.down{color:var(--charge);font-weight:700}
+
+/* Règles d'évaluation */
+.syn{width:100%;border-collapse:collapse;font-size:14px;max-width:860px}
+.syn th,.syn td{padding:9px 10px;border-bottom:1px dashed #9c9282;vertical-align:top;text-align:left}
+.syn tr>th:first-child{width:190px;font-weight:700;font-size:13.5px}
+.syn ol,.syn ul{margin:4px 0 0;padding-left:20px}
+.syn .fisc{display:inline-block;margin-top:4px;font-size:12.5px;background:var(--accent-bg);border-radius:6px;padding:2px 8px}
+
+/* Bilan */
+.bl{display:grid;grid-template-columns:1fr 1fr;max-width:640px;font-size:14px}
+.bl-title{grid-column:1/-1;text-align:center;font-family:Fraunces,Georgia,serif;font-weight:700;font-size:17px;padding-bottom:4px;border-bottom:2px solid var(--ink)}
+.bl-side{padding:6px 10px;display:flex;flex-direction:column;gap:3px}
+.bl-side.a{border-right:2px solid var(--ink)}
+.bi{padding:3px 8px;border-radius:6px;display:flex;justify-content:space-between;gap:6px;transition:background .3s}
+.bi.sub{padding-left:22px}
+.bi.gap{margin-top:8px}
+.bi.no{background:#eef0f2;color:var(--muted)}
+.bi.rl{background:var(--produit-bg);color:var(--produit);font-weight:600}
+.bi.fp{background:var(--res-bg);color:var(--res);font-weight:600}
+.bi small{font-weight:500;font-size:11.5px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;margin-top:10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:14px;border-radius:4px;display:inline-block}
+
+/* Tableaux de calcul */
+.ct{border-collapse:collapse;font-size:15px;font-variant-numeric:tabular-nums}
+.ct th{color:var(--muted);font-weight:500;font-size:12.5px;text-align:right;padding:4px 12px;border-bottom:2px solid var(--ink)}
+.ct th:first-child{text-align:left}
+.ct td{padding:5px 12px;border-bottom:1px dashed var(--line);text-align:right;white-space:nowrap}
+.ct td:first-child{text-align:left;font-weight:600}
+.ct tr.eq td{border-top:1.5px solid var(--ink);font-weight:700}
+.ct td.pc{color:var(--muted)}
+.ct td.hl{background:var(--accent-bg);font-weight:700}
+.ct td.qm{color:var(--accent);font-weight:700}
+
+/* Journal */
+.jl2{width:100%;max-width:760px;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.jl2 th.n,.jl2 td.n{text-align:right}
+.jl2 td{padding:6px 8px;border-bottom:1px dashed var(--line);vertical-align:top}
+.jl2 td.sit{color:var(--muted);font-size:12.5px;max-width:260px}
+.jl2 td.ef{white-space:nowrap;font-size:12.5px}
+
+/* Tableau des RL */
+.trl{border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums;width:100%;max-width:860px}
+.trl th{font-weight:600;font-size:12.5px;color:var(--muted);padding:5px 8px;text-align:right;border-bottom:1px solid var(--line)}
+.trl th:first-child{text-align:left}
+.trl th.grp{text-align:center;color:var(--ink);font-size:13.5px;border-bottom:2px solid var(--ink)}
+.trl td{padding:6px 8px;text-align:right;border-bottom:1px dashed var(--line);white-space:nowrap}
+.trl td:first-child{text-align:left;font-weight:600}
+.trl .sep{border-left:2px solid var(--line)}
+.trl td.rl{color:var(--produit);font-weight:700}
+.trl td.var{color:var(--res);font-weight:700}
+.trl tr.tot td{border-top:2px solid var(--ink);font-weight:700}
+.trl td.cur{background:var(--accent-bg)}
+
+/* Comptes en T */
+.tcs{display:flex;gap:40px;flex-wrap:wrap}
+.tc{border-collapse:collapse;font-size:15px;font-variant-numeric:tabular-nums}
+.tc th{font-weight:600;font-size:15px;padding:4px 10px;border-bottom:1.5px solid var(--ink)}
+.tc td{width:110px;height:30px;padding:3px 10px;text-align:right;transition:background .3s}
+.tc td.lb{width:30px;text-align:left;color:var(--muted);font-size:13px}
+.tc td.lb.r{padding-left:4px}
+.tc tr td:nth-child(2){border-right:1.5px solid var(--ink)}
+.tc td.si{background:#d6ecf8}.tc td.sf{background:#fbe3d5}
+.tc td.cur{background:var(--accent-bg)}
+.tc tr.tt td:nth-child(2),.tc tr.tt td:nth-child(3){border-top:1.5px solid var(--ink);border-bottom:3px double var(--ink);font-weight:700}
+
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;padding:12px 12px 90px}
+  aside{position:static;max-height:none;overflow:visible}
+  .nav-wrap{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(245,243,238,.95);backdrop-filter:blur(6px);padding:10px 12px;border-top:1px solid var(--line)}
+  .syn tr>th:first-child{width:110px}
+  .bl{grid-template-columns:1fr}.bl-side.a{border-right:0;border-bottom:2px solid var(--ink)}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="panel">
+      <h1>Réserves latentes</h1>
+      <p class="sub">Règles d'évaluation · Création et dissolution · Bénéfice interne et externe · Tableau des RL</p>
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <div class="panel" id="explain"></div>
+
+    <div class="nav-wrap">
+      <div class="nav">
+        <button class="btn" id="prev">← Précédent</button>
+        <button class="btn primary" id="next">Suite →</button>
+      </div>
+    </div>
+
+    <div class="nav exit">
+      <button class="btn quit" id="quit">Quitter</button>
+    </div>
+    <p class="note" id="quit-msg" style="display:none;color:#fff">Le navigateur ne permet pas de fermer cette fenêtre automatiquement : fermer l'onglet.</p>
+  </aside>
+
+  <main class="stage" id="stage"></main>
+</div>
+<div class="zoombar"><button id="zm" title="Réduire la taille" aria-label="Réduire la taille">A−</button><button id="zp" title="Agrandir la taille" aria-label="Agrandir la taille">A+</button></div>
+
+<script>
+/* ---------- Réglages ---------- */
+const ANS = {};
+let ANSWERED = false;
+const fmt = n => { const neg=n<0; n=Math.abs(Math.round(n*100)/100); const [i,d]=n.toFixed(2).split('.');
+  return (neg?'−':'') + i.replace(/\B(?=(\d{3})+(?!\d))/g,"'") + (d!=='00' ? '.'+d : ''); };
+const sg = n => (n>0?'+':n<0?'−':'') + fmt(Math.abs(n));
+const $ = id => document.getElementById(id);
+
+/* Tableau de calcul : rows {lb, c:[cellules], eq} ; cellule = nombre, texte, '' ou {v,k} */
+const cell = x => { if (x==null || x==='') return '<td></td>'; const o = typeof x==='object' ? x : {v:x};
+  return `<td class="${o.k||''}">${typeof o.v==='number'?fmt(o.v):o.v}</td>`; };
+const ct = (cols, rows) => `<div style="overflow-x:auto"><table class="ct"><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr>
+  ${rows.map(r=>`<tr class="${r.eq?'eq':''}"><td>${r.lb}</td>${r.c.map(cell).join('')}</tr>`).join('')}</table></div>`;
+
+/* Journal : rows {sit, d, c, amt, ef} ; n = nombre de lignes affichées */
+const jr = (rows, n, withSit=true, fresh=true) =>`<div style="overflow-x:auto"><table class="jl2"><tr><th>N°</th>${withSit?'<th>Situation</th>':''}<th>Compte débité</th><th>Compte crédité</th><th class="n">Montant</th><th>Bénéfice</th></tr>
+  ${rows.slice(0,n).map((r,i)=>`<tr class="${fresh&&i===n-1?'new':''}"><td>${i+1}</td>${withSit?`<td class="sit">${r.sit}</td>`:''}<td>${r.d}</td><td>${r.c}</td><td class="n">${fmt(r.amt)}</td><td class="ef">${r.ef>0?'<span class="up">▲ augmente</span>':'<span class="down">▼ diminue</span>'}</td></tr>`).join('')}</table></div>`;
+
+/* ---------- Données ---------- */
+// 2 bilans : i = interne (réel), e = externe (publié)
+const B2 = {
+  A:[{lb:'Liquidités',i:50,e:50},{lb:'Créances clients',i:100,e:100},{lb:'− Ducroire',i:5,e:10,sub:1,neg:1},{lb:'Stock de marchandises',i:120,e:80},{lb:'Machines',i:200,e:150,gap:1}],
+  P:[{lb:'Dettes',i:180,e:180},{lb:'Capital-actions',i:100,e:100,gap:1},{lb:'Réserves',i:90,e:90}]};
+B2.rl = B2.A.reduce((s,r)=>s+(r.neg?r.e-r.i:r.i-r.e),0);
+// Création de RL
+const CRE = [
+  {sit:'Réserve de 20 sur le stock', d:'Variation de stock', c:'Stock de marchandises', amt:20, ef:-1},
+  {sit:'Réserve de 12 sur les créances (ducroire)', d:'Pertes sur créances', c:'Ducroire', amt:12, ef:-1},
+  {sit:'Réserve de 20 sur l\'équipement', d:'Amortissements', c:'Équipement', amt:20, ef:-1},
+  {sit:'Réserve de 30 sur l\'immeuble locatif', d:'Charges d\'immeuble', c:'FAC sur immeubles', amt:30, ef:-1}];
+// Ajustement du stock (RL de 1/3 maintenue)
+const AJ = {siP:400, sfR:750, bnR:170}; AJ.siR = AJ.siP*3/2; AJ.sfP = AJ.sfR*2/3; AJ.vsR = AJ.sfR-AJ.siR; AJ.vsP = AJ.sfP-AJ.siP;
+AJ.var = (AJ.sfR-AJ.sfP)-(AJ.siR-AJ.siP); AJ.bnP = AJ.bnR-AJ.var;
+// Tableau des RL
+const TR = [['Ducroire',-12,-10,-15,-10],['Titres',80,95,92,110],['Stock de marchandises',100,150,110,165],['Installations',178,200,140,172]]
+  .map(([lb,ci,ri,cf,rf])=>({lb,ci,ri,cf,rf,rli:ri-ci,rlf:rf-cf,v:(rf-cf)-(ri-ci)}));
+const TT = k => TR.reduce((s,r)=>s+r[k],0);
+const TRB = {bnP:350, fpP:1450}; TRB.bnR = TRB.bnP+TT('v'); TRB.fpR = TRB.fpP+TT('rlf');
+
+/* ---------- Les étapes ---------- */
+const STEPS = [
+ { title:'Règles d\'évaluation',
+   ph:[{btn:'Les stocks →', text:`La loi fixe une <b>valeur maximale</b> pour les postes du bilan (principe de prudence).<br><br>Les <b>actifs en général</b> : au maximum au prix d'acquisition (PRA), moins les amortissements.`},
+       {btn:'Les titres →', text:`Les <b>stocks</b> : au PRA, ou au prix du marché à la clôture s'il est plus bas.`,
+        q:{text:'Un stock a coûté 120 (PRA). À la clôture, son prix du marché est de 100. Valeur maximale au bilan ?', opts:[['a','120'],['b','100']], ok:'b',
+           fb:'on prend la valeur la <b>plus basse</b> des deux : <b>100</b>.'}},
+       {btn:'Les participations →', text:`Les <b>titres de placement</b> : au PRA. À la clôture, on compare avec la valeur en bourse.`},
+       {btn:'Les provisions →', text:`Les <b>titres de participation</b> (l'entreprise possède plus de 20&nbsp;% du capital-actions d'une SA) : comme les actifs en général.`},
+       {btn:'Les RL →', text:`Les <b>provisions</b> (au passif) sont autorisées, avec des limites.`}],
+   stage: ph => { const row = (i, lb, txt) => ph>=i ? `<tr class="${ph===i?'new':''}"><th>${lb}</th><td>${txt}</td></tr>` : '';
+     return `<section class="sec"><h2>Valeur maximale au bilan</h2><table class="syn">
+       ${row(0,'Actifs en général','Au maximum au <b>prix d\'acquisition</b> (PRA), moins les amortissements.')}
+       ${row(1,'Stocks','Au <b>PRA</b>, ou au <b>prix du marché</b> à la clôture s\'il est plus bas.<br><span class="fisc">La pratique fiscale autorise un abattement de 1/3.</span>')}
+       ${row(2,'Titres de placement','Au <b>PRA</b>.<ul><li>Valeur boursière plus <b>basse</b> à la clôture : il <b>faut</b> baisser la valeur comptable.</li><li>Valeur boursière plus <b>haute</b> : 3 options.<ol><li>On laisse tel quel.</li><li>On augmente la valeur comptable (le bénéfice augmente).</li><li>On augmente la valeur comptable <b>et</b> on crée une provision pour fluctuation.</li></ol></li></ul>')}
+       ${row(3,'Titres de participation<br><small style="font-weight:500;color:var(--muted)">plus de 20 % du capital-actions</small>','Comme les actifs en général.')}
+       ${row(4,'Provisions (passif)','Autorisées, avec des limites. Ex. : ducroire, provision pour entretien, provision pour litige.<ul><li>À part le ducroire, les provisions doivent être <b>justifiées</b>.</li><li>Elles ne doivent pas obligatoirement être dissoutes si elles ne sont plus justifiées.</li></ul>')}
+       </table></section>`; } },
+
+ { title:'Définition',
+   ph:[{btn:'Suite →', text:`La loi permet de <b>sous-évaluer</b> certains actifs et de <b>sur-évaluer</b> certains passifs.<br><br>La différence entre la valeur réelle et la valeur publiée est une <b>réserve latente</b> (RL) : une réserve cachée.`},
+       {btn:'Suite →', text:`Tous les postes peuvent-ils être sous-évalués ?`,
+        q:{text:'Peut-on inscrire la Banque au bilan pour moins que son solde réel ?', opts:[['o','oui'],['n','non']], ok:'n',
+           fb:'les liquidités, les créances et les dettes ont une valeur <b>exacte</b> : on ne peut pas y créer de réserve latente.'}},
+       {btn:'Suite →', text:`Les réserves latentes se trouvent dans les <b>actifs sous-évalués</b> (titres, stocks, immobilisations) et les <b>passifs sur-évalués</b> (ducroire, provisions).<br><br>Les créances clients restent à la valeur des factures ouvertes : c'est le <b>Ducroire</b> qui peut être sur-évalué.`},
+       {btn:'2 bilans →', text:`Une réserve latente est un <b>fonds propre caché</b> : les fonds propres réels sont plus grands que les fonds propres publiés.<br><br>Certaines réserves latentes se constituent <b>sans écriture</b> : p.&nbsp;ex. des titres ou des terrains dont la valeur augmente.`},
+       {btn:'Créer une RL →', text:`<b>2 bilans : interne et externe.</b><br><br>Le bilan <b>interne</b> présente les valeurs <b>réelles</b> (= valeurs au PRA = valeurs internes).<br><br>Le bilan <b>externe</b> présente les valeurs <b>publiées</b> (= valeurs comptables = valeurs externes) : il contient les réserves latentes.<br><br>La différence entre les deux se retrouve dans les fonds propres : <b>${fmt(B2.rl)}</b> de réserves latentes.`}],
+   stage: ph => {
+     if (ph>=4) {
+       const ln = (lb, v, cls='') => `<div class="bi ${cls}"><span>${lb}</span><span>${fmt(v)}</span></div>`;
+       const side = (rows, ext) => rows.map(r=>ln(r.lb, ext?r.e:r.i, (r.sub?'sub ':'')+(r.gap?'gap ':'')+(r.i!==r.e && ext?'rl':''))).join('');
+       const totA = x => B2.A.reduce((s,r)=>s+(r.neg?-1:1)*r[x],0);
+       const TOT = 'class="bi" style="margin-top:auto;border-top:1.5px solid var(--ink);border-radius:0;font-weight:700"';
+       const bil = (ext) =>`<div><div class="bl" style="max-width:none"><div class="bl-title">Bilan ${ext?'externe':'interne'}<br><small style="font-family:Inter,sans-serif;font-weight:500;font-size:12.5px;color:var(--muted)">${ext?'valeurs publiées = comptables':'valeurs réelles = au PRA'}</small></div>
+         <div class="bl-side a">${side(B2.A, ext)}<div ${TOT}><span>Total</span><span>${fmt(totA(ext?'e':'i'))}</span></div></div>
+         <div class="bl-side p">${side(B2.P, ext)}${ext?'':ln('Réserves latentes', B2.rl, 'fp new')}<div ${TOT}><span>Total</span><span>${fmt(totA(ext?'e':'i'))}</span></div></div></div></div>`;
+       return `<section class="sec"><h2>2 bilans : interne et externe</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;max-width:900px">${bil(false)}${bil(true)}</div>
+         <div class="legend"><span><i style="background:var(--produit-bg)"></i>poste sous-évalué (ou sur-évalué) dans le bilan externe</span><span><i style="background:var(--res-bg)"></i>réserves latentes = fonds propres cachés</span></div></section>
+         <section class="sec"><div class="box" style="max-width:640px"><h4>Synonymes</h4>
+         <p>Valeur comptable = valeur <b>publiée</b> = valeur <b>externe</b></p><p>Valeur réelle = valeur au <b>PRA</b> = valeur <b>interne</b></p></div></section>`;
+     }
+     const k = c => ph>=1 && (ph>1 || ANSWERED) ? (c==='no' ? 'no' : ph>=2 ? (c==='fp' ? (ph>=3?'fp':'') : 'rl') : '') : '';
+     const it = (lb, c, cls='', note='') => `<div class="bi ${cls} ${k(c)}"><span>${lb}</span>${note&&k(c)?`<small>${note}</small>`:''}</div>`;
+     const A = it('Caisse','no')+it('Poste','no')+it('Banque','no')+it('Créances clients','no','gap')+it('− Ducroire','rl','sub','sur-évalué')+it('Titres','rl')+it('Stock de marchandises','rl')
+       +it('Titres de participation','rl','gap')+it('Machines','rl')+it('Immeubles','rl')+it('− FAC sur immeubles','rl','sub','sur-évalué')+it('Véhicules','rl');
+     const P = it('Autres dettes','no')+it('Dettes fournisseurs','no')+it('Dettes hypothécaires','no')+it('Provisions','rl','','sur-évaluées')
+       +it('Capital-actions','fp','gap')+it('Réserve légale','fp')+it('Bénéfice reporté','fp')+(ph>=3?`<div class="bi fp new"><span>+ Réserves latentes</span><small>cachées</small></div>`:'');
+     return `<section class="sec"><h2>Le bilan</h2><div class="bl"><div class="bl-title">Bilan</div><div class="bl-side a">${A}</div><div class="bl-side p">${P}</div></div>
+       ${ph>=1&&(ph>1||ANSWERED)?`<div class="legend"><span><i style="background:#eef0f2"></i>valeur exacte : pas de RL</span>${ph>=2?'<span><i style="background:var(--produit-bg)"></i>RL possible</span>':''}${ph>=3?'<span><i style="background:var(--res-bg)"></i>fonds propres</span>':''}</div>`:''}</section>`; } },
+
+ { title:'Créer et dissoudre une réserve latente',
+   ph:[{btn:'Le stock →', text:`On peut créer volontairement des réserves latentes, en <b>sous-évaluant un actif</b> ou en <b>sur-évaluant une provision</b>.<br><br>On diminue un actif (ou on augmente une provision) en contrepartie d'une <b>charge</b> : le bénéfice publié <b>diminue</b>.`},
+       {btn:'Les créances →', text:`<b>Sur le stock</b> : on diminue le stock, en contrepartie de la Variation de stock (charge).`},
+       {btn:'L\'équipement →', text:`<b>Sur les créances</b> : on sur-évalue le Ducroire, en contrepartie des Pertes sur créances.`,
+        q:{text:'Quel compte est crédité ?', opts:[['d','Ducroire'],['c','Créances clients']], ok:'d',
+           fb:'on ne touche pas aux créances : on augmente le <b>Ducroire</b> (au crédit).'}},
+       {btn:'L\'immeuble →', text:`<b>Sur les immobilisations</b> : un amortissement supplémentaire.`},
+       {btn:'Dissolution →', text:`<b>Sur l'immeuble locatif</b> : l'amortissement passe par les Charges d'immeuble et le FAC sur immeubles.`},
+       {btn:'Les écritures →', text:`<b>Dissoudre</b> une réserve latente, c'est l'inverse : on augmente l'actif (ou on diminue la provision) et on <b>annule une charge</b>. Le bénéfice publié <b>augmente</b>.`},
+       {btn:'Suite →', text:`Les écritures de dissolution sont l'<b>inverse</b> de celles de la création : on intervertit le débit et le crédit.`}],
+   stage: ph => { const n = ph===0 ? 0 : ph===2 && !ANSWERED ? 1 : Math.min(ph, 4);
+     const INV = CRE.map(r=>({sit:r.sit.replace('Réserve','Dissolution de la réserve'), d:r.c, c:r.d, amt:r.amt, ef:1}));
+     return `<section class="sec"><div class="box" style="max-width:640px"><h4>Créer une réserve latente = enregistrer une charge</h4>
+         <p>Bénéfice interne (réel) − création de RL = <b>bénéfice externe (publié)</b></p><p>Fonds propres publiés + réserves latentes = <b>fonds propres réels</b></p></div></section>
+       ${ph>=1?`<section class="sec"><h2>Les écritures de création</h2>${jr(CRE, n, true, ph<=4)}</section>`:''}
+       ${ph>=5?`<section class="sec"><div class="box ${ph===5?'new':''}" style="max-width:640px"><h4>Dissoudre une réserve latente = annuler une charge</h4>
+         <p>Bénéfice interne (réel) + dissolution de RL = <b>bénéfice externe (publié)</b></p></div></section>`:''}
+       ${ph>=6?`<section class="sec"><h2>Les écritures de dissolution</h2>${jr(INV, 4, true, false)}</section>`:''}`; } },
+
+ { title:'Ajuster la réserve sur le stock',
+   ph:[{btn:'Stock au 1.1 →', text:`On résout pas à pas à l'aide de deux comptes Stock : le stock <b>réel</b> (au PRA) et le stock <b>publié</b>.`},
+       {btn:'Stock au 31.12 →', text:`Le solde publié au 1.1 est de ${fmt(AJ.siP)}, avec une réserve latente de 1/3.`,
+        q:{text:`Quel est le stock réel au 1.1 ?`, opts:[['a',fmt(AJ.siR)],['b','533.33']], ok:'a',
+           fb:`la réserve est de 1/3 de la valeur <b>réelle</b> : ${fmt(AJ.siP)} représente les <b>2/3</b>, donc ${fmt(AJ.siP)} × 3/2 = <b>${fmt(AJ.siR)}</b>.`}},
+       {btn:'Variation de stock →', text:`L'inventaire final au PRA donne le stock réel au 31.12 : <b>${fmt(AJ.sfR)}</b>.<br><br>On maintient la réserve de 1/3 : le stock publié vaut les 2/3, ${fmt(AJ.sfR)} × 2/3 = <b>${fmt(AJ.sfP)}</b>.`},
+       {btn:'Variation des RL →', text:`La variation de stock (VS) est la différence entre le solde final et le solde initial.<br><br>Réel : ${fmt(AJ.sfR)} − ${fmt(AJ.siR)} = ${fmt(AJ.vsR)}. Publié : ${fmt(AJ.sfP)} − ${fmt(AJ.siP)} = ${fmt(AJ.vsP)}.`},
+       {btn:'Bénéfice publié →', text:`RL = stock réel − stock publié, au 1.1 et au 31.12.<br><br>La réserve latente <b>augmente</b> de ${fmt(AJ.var)} : c'est une création de RL.`},
+       {btn:'Suite →', text:`Le bénéfice réel est de ${fmt(AJ.bnR)}.`,
+        q:{text:`Quel est le bénéfice publié ?`, opts:[['a',fmt(AJ.bnR+AJ.var)],['b',fmt(AJ.bnP)]], ok:'b',
+           fb:`créer une RL, c'est enregistrer une <b>charge</b> : le bénéfice publié est plus petit, ${fmt(AJ.bnR)} − ${fmt(AJ.var)} = <b>${fmt(AJ.bnP)}</b>.`}}],
+   stage: ph => { const a1 = ph>1 || (ph===1 && ANSWERED), a5 = ph===5 && ANSWERED;
+     const T = (t, si, vs, sf, showSi, showSf, showVs) => `<table class="tc"><tr><th></th><th colspan="2">${t}</th></tr>
+       <tr><td class="lb">si</td><td class="si">${showSi?fmt(si):''}</td><td></td></tr>
+       <tr><td class="lb">VS</td><td class="${ph===3?'cur':''}">${showVs?fmt(vs):''}</td><td></td></tr>
+       <tr><td class="lb"></td><td></td><td class="sf">${showSf?fmt(sf):''}</td><td class="lb r">${showSf?'sf':''}</td></tr>
+       <tr class="tt"><td class="lb"></td><td>${showVs?fmt(sf):''}</td><td>${showVs?fmt(sf):''}</td></tr></table>`;
+     return `<section class="sec"><h2>La donnée</h2><div class="donnee">L'entreprise maintient une réserve latente de <b>1/3</b> sur ses stocks. Au 1.1, le solde publié du compte Stock de marchandises atteint <b>${fmt(AJ.siP)}</b>. L'inventaire final au PRA atteint <b>${fmt(AJ.sfR)}</b>.<br>Le bénéfice réel est de <b>${fmt(AJ.bnR)}</b> : quel est le bénéfice publié ?</div></section>
+     ${ph>=1?`<section class="sec"><h2>Les comptes Stock</h2><div class="tcs">
+       ${T('Stock réel', AJ.siR, AJ.vsR, AJ.sfR, a1, ph>=2, ph>=3)}${T('Stock publié', AJ.siP, AJ.vsP, AJ.sfP, true, ph>=2, ph>=3)}</div></section>`:''}
+     ${ph>=4?`<section class="sec"><h2>Variation des RL</h2>${ct(['','Réel','Publié','RL'],[{lb:'Au 1.1',c:[AJ.siR,AJ.siP,AJ.siR-AJ.siP]},{lb:'Au 31.12',c:[AJ.sfR,AJ.sfP,AJ.sfR-AJ.sfP]},{lb:'Augmentation',eq:true,c:['','',{v:AJ.var,k:'hl'}]}])}</section>`:''}
+     ${a5?`<section class="sec"><h2>Bénéfice publié</h2><div class="steps3"><div class="calc q"><div class="row"><span>Bénéfice réel − augmentation des RL = bénéfice publié</span></div><div class="row big"><span>${fmt(AJ.bnR)} − ${fmt(AJ.var)}</span><span>${fmt(AJ.bnP)}</span></div></div></div></section>`:''}`; } },
+
+ { title:'Le tableau des réserves latentes',
+   ph:[{btn:'RL initiales →', text:`Le tableau des RL compare, pour chaque poste, la valeur <b>comptable</b> (publiée) et la valeur <b>réelle</b>, au bilan initial et au bilan final.<br><br>Les valeurs du <b>Ducroire</b> (provision) sont notées en <b>négatif</b>.`},
+       {btn:'RL finales →', text:`RL = valeur réelle − valeur comptable.`,
+        q:{text:'Ducroire : comptable −12, réelle −10. La RL vaut…', opts:[['p','2'],['m','−2']], ok:'p',
+           fb:'−10 − (−12) = <b>2</b>. Une RL est toujours <b>positive</b> : le ducroire publié (12) est plus grand que le risque réel (10).'}},
+       {btn:'Variation →', text:`Même calcul pour le bilan final.`},
+       {btn:'Totaux →', text:`Variation = RL finale − RL initiale. Elle est <b>+</b> si la RL augmente, <b>−</b> si elle diminue.`},
+       {btn:'Le bénéfice →', text:`On additionne chaque colonne.`},
+       {btn:'Les fonds propres →', text:`Le bénéfice publié est de <b>${fmt(TRB.bnP)}</b>. Les RL ont augmenté de ${fmt(TT('v'))} : le bénéfice réel est plus grand.<br><br>Bénéfice réel − augmentation des RL = bénéfice publié.`},
+       {btn:'Suite →', text:`Les fonds propres publiés sont de <b>${fmt(TRB.fpP)}</b>. Les fonds propres réels contiennent en plus <b>toutes</b> les RL du bilan final.`}],
+   stage: ph => { const a1 = ph>1 || (ph===1 && ANSWERED);
+     const c = (show, v, k='') => `<td class="${k}">${show?fmt(v):''}</td>`;
+     const rows = TR.map(r=>`<tr><td>${r.lb}</td>${c(1,r.ci,'sep')}${c(1,r.ri)}${c(a1,r.rli,'rl'+(ph===1?' cur':''))}${c(1,r.cf,'sep')}${c(1,r.rf)}${c(ph>=2,r.rlf,'rl'+(ph===2?' cur':''))}<td class="sep var ${ph===3?'cur':''}">${ph>=3?sg(r.v):''}</td></tr>`).join('');
+     const tot = `<tr class="tot"><td>Total</td>${c(ph>=4,TT('ci'),'sep')}${c(ph>=4,TT('ri'))}${c(ph>=4,TT('rli'),'rl')}${c(ph>=4,TT('cf'),'sep')}${c(ph>=4,TT('rf'))}${c(ph>=4,TT('rlf'),'rl'+(ph===6?' cur':''))}<td class="sep var ${ph===5?'cur':''}">${ph>=4?sg(TT('v')):''}</td></tr>`;
+     return `<section class="sec"><h2>Tableau des réserves latentes</h2><div style="overflow-x:auto"><table class="trl">
+       <tr><th></th><th class="grp sep" colspan="3">Bilan initial</th><th class="grp sep" colspan="3">Bilan final</th><th class="grp sep">Variation</th></tr>
+       <tr><th>Compte</th><th class="sep">Comptable</th><th>Réelle</th><th>RL</th><th class="sep">Comptable</th><th>Réelle</th><th>RL</th><th class="sep">RL</th></tr>
+       ${rows}${tot}</table></div></section>
+       ${ph>=5?`<section class="sec"><h2>Bénéfice et fonds propres réels</h2><div class="steps3">
+         <div class="calc q"><b>Bénéfice réel</b><div class="row"><span>Bénéfice réel − augmentation des RL = bénéfice publié</span></div><div class="row big"><span>? − ${fmt(TT('v'))} = ${fmt(TRB.bnP)} &nbsp;⇒&nbsp; ${fmt(TRB.bnP)} + ${fmt(TT('v'))}</span><span>${fmt(TRB.bnR)}</span></div></div>
+         ${ph>=6?`<div class="calc q"><b>Fonds propres réels</b><div class="row"><span>Fonds propres publiés + RL finales</span></div><div class="row big"><span>${fmt(TRB.fpP)} + ${fmt(TT('rlf'))}</span><span>${fmt(TRB.fpR)}</span></div></div>`:''}</div></section>`:''}
+       ${ph>=6?`<section class="sec"><div class="box" style="max-width:640px"><h4>À retenir</h4><ul class="rems">
+         <li>La valeur réelle est toujours <b>plus grande</b> que la valeur comptable (pour le ducroire : moins négative).</li>
+         <li>La RL est toujours un nombre <b>positif</b>.</li><li>La variation des RL peut être <b>+</b> (augmentation) ou <b>−</b> (diminution).</li></ul></div></section>`:''}`; } }
+];
+
+/* ---------- Actions ---------- */
+const A = [];
+STEPS.forEach((s,i)=>s.ph.forEach((_,p)=>A.push({step:i, ph:p})));
+let pos = 0;
+
+/* ---------- Rendu ---------- */
+function qBox(key, q){
+  const ch = ANS[key];
+  const btn = (a,lb) => `<button class="ch ${ch===a?(a===q.ok?'ok':'ko'):''} ${ch?'':'blink'}" data-a="${a}" ${ch?'disabled':''}>${lb}</button>`;
+  const fb = ch ? `<div class="fb ${ch===q.ok?'ok':'ko'}">${ch===q.ok?'✓ En effet':'✗ En fait'}, ${q.fb}</div>` : `<div class="hint">Cliquer sur la bonne réponse.</div>`;
+  return `<div class="calc q"><div style="font-weight:600;margin-bottom:4px">La question à se poser</div>${q.text}
+    <div class="choices" style="flex-wrap:wrap">${q.opts.map(([a,lb])=>btn(a,lb)).join('')}</div>${fb}</div>`;
+}
+const LET = i => String.fromCharCode(65+i);   // A, B, C…
+function render(){
+  pos = Math.max(0, Math.min(A.length-1, pos));
+  const {step, ph} = A[pos], St = STEPS[step], P = St.ph[ph], key = step+'.'+ph;
+  document.querySelectorAll('#dots .dot').forEach((b,i)=>{ b.classList.toggle('cur', i===step); b.classList.toggle('done', i<step); });
+  $('prev').disabled = pos===0;
+  $('next').disabled = pos===A.length-1 || (P.q && !ANS[key]);
+  $('next').textContent = pos===A.length-1 ? 'Terminé ✓' : P.btn;
+  $('explain').innerHTML = `<h2 class="steptitle">${LET(step)}. ${St.title}</h2>
+    <p class="steptext">${P.text}</p>${P.q?qBox(key,P.q):''}`;
+  ANSWERED = !!ANS[key];
+  $('stage').innerHTML = St.stage(ph);
+}
+
+/* ---------- Navigation ---------- */
+function goTo(p){ pos = p; render(); }
+function goStep(s){ goTo(A.findIndex(a=>a.step===s)); }
+let Z = 1;
+try { Z = +localStorage.getItem('rl-zoom') || 1; } catch(e){}
+function applyZoom(){
+  Z = Math.round(Math.max(0.8, Math.min(1.6, Z))*10)/10;
+  document.documentElement.style.setProperty('--z', Z);
+  try { localStorage.setItem('rl-zoom', Z); } catch(e){}
+}
+$('dots').innerHTML = STEPS.map((s,i)=>`<button class="dot" data-s="${i}" title="${LET(i)}. ${s.title}" aria-label="${LET(i)}. ${s.title}"></button>`).join('');
+$('zm').addEventListener('click', ()=>{ Z -= 0.1; applyZoom(); });
+$('zp').addEventListener('click', ()=>{ Z += 0.1; applyZoom(); });
+$('next').addEventListener('click', ()=>goTo(pos+1));
+$('prev').addEventListener('click', ()=>goTo(pos-1));
+$('explain').addEventListener('click', e=>{ const b=e.target.closest('.ch'); if (!b || b.disabled) return; const {step,ph}=A[pos]; ANS[step+'.'+ph] = b.dataset.a; render(); });
+$('quit').addEventListener('click', ()=>{ window.close(); setTimeout(()=>{ $('quit-msg').style.display='block'; }, 300); });
+$('dots').addEventListener('click', e=>{ const b=e.target.closest('.dot'); if (b) goStep(+b.dataset.s); });
+document.addEventListener('keydown', e=>{
+  if (e.key==='ArrowRight' && !$('next').disabled) goTo(pos+1);
+  if (e.key==='ArrowLeft') goTo(pos-1);
+});
+render();
+applyZoom();
+</script>
+<script src="theorie.js"></script>
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Effets d'ouverture animés</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            font-size: 2.8rem;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .option {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        .option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+        
+        .option h2 {
+            color: #78004f;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .option p {
+            color: #555;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        
+        .preview-btn {
+            background: #78004f;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .preview-btn:hover {
+            background: #a1006b;
+            transform: scale(1.05);
+        }
+        
+        .header {
+            text-align: center;
+            padding: 30px 10px;
+            margin: 40px auto;
+            max-width: 1000px;
+            background-color: #78004f;
+            color: white;
+            border-radius: 20px;
+            border-top: 8px solid #24f400;
+            border-bottom: 8px solid #ffff00;
+            box-shadow: 0px 0px 15px 5px rgba(246,255,117,0.8);
+            display: none;
+            opacity: 0;
+        }
+        
+        .header h2 {
+            font-size: 2.5rem;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Animations */
+        .zoom-in {
+            animation: zoomIn 1.2s ease-out forwards;
+        }
+        
+        @keyframes zoomIn {
+            0% {
+                transform: scale(3);
+                opacity: 0;
+            }
+            70% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .slide-down {
+            animation: slideDown 1.2s ease-out forwards;
+        }
+        
+        @keyframes slideDown {
+            0% {
+                transform: translateY(-200px);
+                opacity: 0;
+            }
+            80% {
+                transform: translateY(10px);
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .typewriter {
+            animation: typewriter 1.5s steps(20) forwards, blink 0.8s infinite;
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 3px solid white;
+            width: 0;
+        }
+        
+        @keyframes typewriter {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        @keyframes blink {
+            from { border-color: transparent; }
+            to { border-color: white; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 2s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        
+        .rotate-in {
+            animation: rotateIn 1.5s ease-out forwards;
+        }
+        
+        @keyframes rotateIn {
+            0% {
+                transform: rotate(-180deg) scale(0.1);
+                opacity: 0;
+            }
+            100% {
+                transform: rotate(0) scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .controls {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .reset-btn {
+            background: #24f400;
+            color: #000;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .reset-btn:hover {
+            background: #ffff00;
+            transform: scale(1.05);
+        }
+        
+        .instructions {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 40px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .instructions h2 {
+            color: #78004f;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .instructions p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .instructions code {
+            background: #f5f5f5;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        @media (max-width: 768px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-star"></i> Effets d'ouverture animés <i class="fas fa-star"></i></h1>
+        
+        <div class="options">
+            <div class="option">
+                <h2>Zoom Entrant</h2>
+                <p>Le titre apparaît en très gros et se réduit progressivement jusqu'à sa taille normale.</p>
+                <button class="preview-btn" onclick="previewAnimation('zoom-in')">Voir l'effet</button>
+            </div>
+            
+            <div class="option">
+                <h2>Glissement Descendant</h2>
+                <p>Le titre tombe du haut de la page et rebondit légèrement avant de se stabiliser.</p>
+                <button class="preview-btn" onclick="previewAnimation('slide-down')">Voir l'effet</button>
+            </div>
+            
+            <div class="option">
+                <h2>Effet Machine à Écrire</h2>
+                <p>Le texte apparaît caractère par caractère comme une machine à écrire.</p>
+                <button class="preview-btn" onclick="previewAnimation('typewriter')">Voir l'effet</button>
+            </div>
+            
+            <div class="option">
+                <h2>Apparition en Fondu</h2>
+                <p>Le titre apparaît progressivement avec un effet de fondu élégant.</p>
+                <button class="preview-btn" onclick="previewAnimation('fade-in')">Voir l'effet</button>
+            </div>
+            
+            <div class="option">
+                <h2>Rotation Entrante</h2>
+                <p>Le titre effectue une rotation complète en entrant à l'écran.</p>
+                <button class="preview-btn" onclick="previewAnimation('rotate-in')">Voir l'effet</button>
+            </div>
+        </div>
+        
+        <div class="header" id="animated-header">
+            <h2>Mon Super Titre</h2>
+        </div>
+        
+        <div class="controls">
+            <button class="reset-btn" onclick="resetAnimation()"><i class="fas fa-sync-alt"></i> Réinitialiser</button>
+        </div>
+        
+        <div class="instructions">
+            <h2>Comment utiliser ces effets</h2>
+            <p>Pour utiliser un de ces effets dans votre projet, ajoutez simplement la classe d'animation souhaitée à votre élément <code>.header</code> :</p>
+            <p><code>class="header zoom-in"</code> pour l'effet de zoom</p>
+            <p>Ou utilisez JavaScript pour appliquer l'animation au chargement de la page :</p>
+            <p><code>document.querySelector('.header').classList.add('zoom-in');</code></p>
+            <p>Vous pouvez ajuster la durée et le timing de l'animation en modifiant les valeurs dans le CSS.</p>
+        </div>
+    </div>
+
+    <script>
+        function previewAnimation(animationType) {
+            const header = document.getElementById('animated-header');
+            header.style.display = 'block';
+            header.style.opacity = '0';
+            
+            // Réinitialiser les classes d'animation
+            header.className = 'header';
+            
+            // Forcer un reflow pour permettre la réanimation
+            void header.offsetWidth;
+            
+            // Appliquer la nouvelle animation
+            header.classList.add(animationType);
+            
+            // Scroll to the header to see the animation
+            header.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        function resetAnimation() {
+            const header = document.getElementById('animated-header');
+            header.style.display = 'none';
+            header.className = 'header';
+        }
+    </script>
+</body>
+</html>

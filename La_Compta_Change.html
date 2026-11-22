@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" href="favicon.svg" type="image/svg+xml">
     <title>Convertisseur de Devises - Exercices</title>
     <style>
         body {
@@ -414,34 +415,24 @@
                 <h2 class="theory-title">Rappel théorique - Changes</h2>
                 <div class="theory-content">
                 <p>
-                    Méthode 1 : Par simple règle de trois<br>
-                    <span class="monospace">CAN&nbsp;&nbsp;&nbsp;: 78'000   =>  CAN au PM ?</span><br>
-                    <span class="monospace">PRAMV&nbsp;: 52'000</span><br>
-                    <span class="monospace">BB&nbsp;&nbsp;&nbsp;&nbsp;: 26'000   =>  22'000</span><br>
-                    <span class="monospace">FF&nbsp;&nbsp;&nbsp;&nbsp;: 22'000   =>  22'000</span><br>
-                    <span class="monospace">BN&nbsp;&nbsp;&nbsp;&nbsp;:  4'000   =>       0</span><br>
-                    <span class="monospace">PM = 78'000 × 22'000 ÷ 26'000 = <strong>CHF 66'000.-</strong></span><br>
+                    Recherche des CHF<br>
+                    <span class="monospace">ce qu'on sait : 1 USD&nbsp;=> 0.80 CHF</span><br>
+					<span class="monospace">ce qu'on cherche : 1'500 USD&nbsp;=> x CHF</span><br>
+                    <span class="monospace">x = 1'500 x 0.8 : 1</span><br>
                 </p>
 
                 <p>
-                    Méthode 2 : Avec le % de marge brute<br>
-                    <span class="monospace">CAN&nbsp;&nbsp;&nbsp;: 78'000 => 100%&nbsp;&nbsp;&nbsp;=> x</span><br>
-                    <span class="monospace">PRAMV&nbsp;: 52'000</span><br>
-                    <span class="monospace">BB&nbsp;&nbsp;&nbsp;&nbsp;: 26'000 => 33.33% => 22'000</span><br>
-                    <span class="monospace">FF&nbsp;&nbsp;&nbsp;&nbsp;: 22'000</span><br>
-                    <span class="monospace">BN&nbsp;&nbsp;&nbsp;&nbsp;:  4'000 =>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=>&nbsp;&nbsp;0</span><br>
-                    <span class="monospace">PM = 22'000 × 100 ÷ 33.3333 = <strong>CHF 66'000.-</strong></span><br>
+                    Recherche des devises<br>
+                    <span class="monospace">ce qu'on sai : 1 USD&nbsp;=> 0.80 CHF</span><br>
+					<span class="monospace">ce qu'on cherche : x USD&nbsp;=> 2'000 CHF</span><br>
+                    <span class="monospace">x = 2'000 x 1 : 0.8</span><br>
                 </p>
 
                 <p>
-                    Méthode 3 : Par calcul unitaire<br>
-                    <span class="monospace">PV unitaire : CHF 18</span><br>
-                    <span class="monospace">PA unitaire : CHF  8</span><br>
-                    <span class="monospace">BB unitaire : CHF 10</span><br>
-                    <span class="monospace">Frais fixe : 750</span>
-                    <br>Quantité au point mort = FF ÷ Marge unitaire
-                    <br>Calcul : 750 ÷ 10 = 75 unités
-                    <br>CA au point mort = 75 × 18 = CHF 1'350.-
+                    Recherche du cours<br>
+                    <span class="monospace">ce qu'on sait : 1'400 USD&nbsp;=> 960 CHF</span><br>
+					<span class="monospace">ce qu'on cherche : 1 USD&nbsp;=> x CHF</span><br>
+                    <span class="monospace">x = 960 x 1 : 1'400</span><br>
                 </p>
                 </div>
             </div>

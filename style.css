@@ -198,3 +198,96 @@ button:hover {
     margin: 20px 0;
     display: none;
 }
+
+/* =====================================================================
+   TÉLÉPHONE (écran ≤ 700 px) — ne change rien sur ordinateur
+   ===================================================================== */
+@media (max-width: 700px) {
+    body { padding: 8px; }
+    header, footer { border-radius: 12px; margin-bottom: 12px; }
+    header h1 { font-size: 1.5em; }
+    header h2 { font-size: 1.1em; }
+    header h4 { font-size: 0.9em; }
+    .container { padding: 12px; border-radius: 12px; }
+
+    /* Énoncé : texte plus petit pour garder les colonnes alignées */
+    #exercice .entry-description {
+        font-size: 0.8em;
+        padding: 8px;
+        overflow-x: auto;
+    }
+    #exercice .stats { font-size: 0.9em; gap: 10px; }
+
+    /* 16 px minimum : évite le zoom automatique de l'iPhone */
+    #exercice select, #exercice input { font-size: 16px; }
+
+    /* Tableau de saisie : chaque ligne devient une carte
+         Compte débité    | Montant
+         Compte crédité   | Montant          */
+    #entries-table, #entries-table tbody { display: block; }
+    #entries-table thead { display: none; }
+    #entries-table tr {
+        display: grid;
+        grid-template-columns: 1fr 34%;
+        grid-template-areas: "cd md" "cc mc";
+        gap: 4px 8px;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-left: 4px solid #3498db;
+        border-radius: 8px;
+        background: #f8fbff;
+    }
+    #entries-table td {
+        display: block;
+        border: none;
+        padding: 0;
+        width: auto;
+    }
+    #entries-table td:nth-child(1) { grid-area: cd; }
+    #entries-table td:nth-child(2) { grid-area: cc; }
+    #entries-table td:nth-child(3) { grid-area: md; }
+    #entries-table td:nth-child(4) { grid-area: mc; }
+    #entries-table td::before {
+        display: block;
+        font-size: 0.75em;
+        font-weight: bold;
+        color: #555;
+        text-align: left;
+    }
+    #entries-table td:nth-child(1)::before { content: "Compte débité"; }
+    #entries-table td:nth-child(2)::before { content: "Compte crédité"; }
+    #entries-table td:nth-child(3)::before { content: "Montant débit"; }
+    #entries-table td:nth-child(4)::before { content: "Montant crédit"; }
+    #entries-table select,
+    #entries-table input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px 6px;
+    }
+
+    /* Tableau de correction : reste un tableau, mais compact */
+    #solution-table { font-size: 0.8em; }
+    #solution-table th, #solution-table td {
+        padding: 5px 4px;
+        width: auto;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        -webkit-hyphens: auto;
+    }
+
+    /* Boutons : sur plusieurs lignes, larges et faciles à toucher */
+    #exercice .buttons {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    #exercice .buttons > * { flex: 1 1 100%; display: flex; gap: 8px; }
+    #exercice .buttons button {
+        flex: 1;
+        margin: 0;
+        padding: 12px 8px;
+    }
+    #exercice .buttons > #add-line-btn { flex: 1 1 100%; justify-content: center; }
+    #exercice .buttons > div:nth-child(2) { order: 3; }  /* « Quitter » en dernier */
+    #exercice .completion-message { padding: 15px; }
+}

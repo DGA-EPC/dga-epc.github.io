@@ -1,134 +1,153 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>À propos de moi</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: #f5f7fa;
-            color: #333;
-            line-height: 1.6;
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-        
-        .subtitle {
-            font-size: 1.2rem;
-            font-weight: normal;
-            opacity: 0.9;
-        }
-        
-        .image-container {
-            text-align: center;
-            margin: 30px 0;
-        }
-        
-        .profile-image {
-            width: 250px;
-            height: 250px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 5px solid #2575fc;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease;
-        }
-        
-        .profile-image:hover {
-            transform: scale(1.05);
-        }
-        
-        .bibliography {
-            background-color: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
-        }
-        
-        .bibliography h2 {
-            color: #2575fc;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 10px;
-        }
-        
-        .bibliography p {
-            margin-bottom: 15px;
-            text-align: justify;
-        }
-        
-        .close-button {
-            display: block;
-            width: 200px;
-            margin: 0 auto;
-            padding: 12px 20px;
-            background-color: #ff4757;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        
-        .close-button:hover {
-            background-color: #ff3742;
-        }
-        
-        footer {
-            text-align: center;
-            margin-top: 30px;
-            color: #777;
-            font-size: 0.9rem;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+<script>if(location.protocol==='http:'&&!/^(localhost|127\.0\.0\.1)$/.test(location.hostname))location.replace('https:'+location.href.slice(5));</script>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<title>À propos – Qui suis-je ?</title>
+<meta name="description" content="La véritable (et légèrement exagérée) histoire du prof derrière « Je fais de la compta et c'est ma joie ! ».">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Bangers&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0b1f;--card:rgba(255,255,255,.07);--line:rgba(255,255,255,.14);--ink:#f4f2ff;--muted:#b9b4d6;
+      --y:#fde047;--p:#ff5fa2;--b:#38bdf8;--g:#4ade80;--v:#c084fc}
+*{box-sizing:border-box}
+body{margin:0;font-family:Poppins,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;overflow-x:hidden}
+.blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.4;z-index:0;animation:float 18s ease-in-out infinite alternate}
+.blob.a{width:480px;height:480px;background:#7c3aed;top:-140px;left:-120px}
+.blob.b{width:420px;height:420px;background:#ec4899;bottom:-160px;right:-100px;animation-delay:-6s}
+@keyframes float{to{transform:translate(60px,-40px) scale(1.15)}}
+.wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:28px 16px 40px}
+.comic{font-family:Bangers,Impact,sans-serif;letter-spacing:.04em;font-weight:400}
+
+/* Héros */
+.hero{text-align:center;padding:10px 0 24px}
+.tag{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#e9d5ff;background:rgba(255,255,255,.08);border:1px solid var(--line);padding:5px 13px;border-radius:999px}
+h1{margin:12px 0 4px;font-size:clamp(30px,5.5vw,56px);line-height:1;
+   background:linear-gradient(90deg,var(--y),var(--p),var(--v),var(--b),var(--g),var(--y));background-size:300% 100%;
+   -webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 8s linear infinite;
+   filter:drop-shadow(4px 4px 0 rgba(0,0,0,.5))}
+@keyframes shine{to{background-position:300% 0}}
+.sub{color:var(--muted);font-size:16px;margin:0}
+.portrait{position:relative;width:220px;height:220px;margin:26px auto 6px}
+.portrait img,.portrait .fallback{width:100%;height:100%;border-radius:50%;object-fit:cover;border:5px solid var(--y);box-shadow:0 0 0 8px rgba(253,224,71,.15),0 20px 50px rgba(0,0,0,.5)}
+.portrait .fallback{display:grid;place-items:center;font-size:110px;background:linear-gradient(135deg,#7c3aed,#ec4899)}
+.burst{position:absolute;right:-30px;top:-6px;background:var(--p);color:#fff;font-size:22px;padding:10px 14px;border-radius:50%;transform:rotate(14deg);
+       box-shadow:3px 3px 0 #000;animation:wob 2.4s ease-in-out infinite}
+@keyframes wob{50%{transform:rotate(-8deg) scale(1.1)}}
+
+/* Blocs */
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px 20px;margin:18px 0;backdrop-filter:blur(10px)}
+h2{margin:0 0 10px;font-size:30px;color:var(--y)}
+p{margin:0 0 10px;font-size:15.5px}
+.origin p:first-of-type::first-letter{font-family:Bangers,Impact,sans-serif;font-size:52px;float:left;line-height:.9;margin:4px 8px 0 0;color:var(--p)}
+
+/* Pouvoirs */
+.powers{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.pw{display:flex;gap:12px;align-items:flex-start;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:16px;padding:14px;
+    transition:transform .2s,border-color .2s,box-shadow .2s}
+.pw:hover{transform:translateY(-4px) rotate(-.6deg);border-color:var(--c);box-shadow:0 12px 28px rgba(0,0,0,.4)}
+.pw .ic{flex:none;font-size:30px;width:52px;height:52px;display:grid;place-items:center;border-radius:14px;background:rgba(255,255,255,.08);transition:transform .3s}
+.pw:hover .ic{transform:scale(1.2) rotate(-10deg)}
+.pw h3{margin:0 0 3px;font-size:15px;color:var(--c)}
+.pw .real{font-size:11.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.pw p{font-size:14px;margin:4px 0 0}
+
+/* Jauges */
+.stat{display:grid;grid-template-columns:190px 1fr 60px;align-items:center;gap:10px;margin:9px 0;font-size:14px;font-weight:600}
+.bar{height:14px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--c),#fff);animation:fill 1.6s cubic-bezier(.2,1,.3,1) forwards;animation-delay:var(--d)}
+@keyframes fill{to{width:var(--w)}}
+.stat span:last-child{text-align:right;color:var(--muted);font-size:12.5px}
+
+/* Kryptonite */
+.kryp ul{list-style:none;padding:0;margin:0}
+.kryp li{padding:8px 0;border-bottom:1px dashed var(--line);font-size:15px}
+.kryp li:last-child{border:0}
+
+.motto{text-align:center;font-size:clamp(24px,4vw,36px);margin:28px 0 10px;color:#fff;text-shadow:3px 3px 0 var(--p)}
+.close{display:block;margin:20px auto 0;font:inherit;font-weight:700;color:#fff;background:linear-gradient(135deg,#f43f5e,#e11d48);border:0;border-radius:999px;padding:11px 26px;cursor:pointer;box-shadow:0 8px 24px rgba(244,63,94,.35);transition:transform .2s}
+.close:hover{transform:scale(1.06)}
+.foot{text-align:center;margin-top:22px;font-size:12px;color:var(--muted);opacity:.65}
+.foot a{color:inherit;text-decoration:none}.foot a:hover{text-decoration:underline}
+
+@media (max-width:600px){
+  .stat{grid-template-columns:1fr 50px}.stat .bar{grid-column:1/-1;grid-row:2}
+  .burst{right:-10px;font-size:18px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}.bar i{width:var(--w)}}
+</style>
 </head>
 <body>
-    <header>
-        <h1>À propos de moi</h1>
-        <p class="subtitle">Informations très modestes sur un professeur non moins modeste!</p>
-    </header>
-    
-    <div class="image-container">
-        <!-- Remplacez "votre-image.jpg" par le chemin vers votre image -->
-        <img src="Pilote suisse-hunter.png" alt="Photo du professeur" class="profile-image">
+<div class="blob a"></div><div class="blob b"></div>
+<div class="wrap">
+
+  <header class="hero">
+    <span class="tag">Dossier classé top secret · déclassifié pour toi</span>
+    <h1 class="comic">Appelez-moi Maître, tout simplement.</h1>
+    <p class="sub">Le héros que la comptabilité ne méritait pas… mais dont elle avait besoin.</p>
+    <div class="portrait">
+      <img src="Pilote suisse-hunter.png" alt="Portrait du prof" onerror="this.outerHTML='<div class=&quot;fallback&quot;>🦸</div>'">
+      <span class="burst comic">POW!</span>
     </div>
-    
-    <section class="bibliography">
-        <h2>Bibliographie</h2>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
-    </section>
-    
-    <button class="close-button" onclick="window.close()">Fermer</button>
-    
-    <footer>
-        <p>&copy; 2023 - Page personnelle</p>
-    </footer>
+  </header>
+
+  <section class="card origin">
+    <h2 class="comic">📜 Les origines du héros</h2>
+    <p>Tout héros a une origine. Spider-Man s'est fait piquer par une araignée. Moi, j'ai été piqué par un <strong>apprentissage de commerce</strong>. Les effets secondaires sont irréversibles : depuis ce jour, je vois des débits et des crédits partout, même dans mes céréales.</p>
+    <p>Et c'est là mon pouvoir originel : contrairement à certains qui parlent aux apprentis depuis leur tour d'ivoire, <strong>moi, j'y étais</strong>. J'ai classé, photocopié, agrafé. J'ai connu le café du matin préparé pour toute l'équipe. Alors quand tu me dis que tu es crevé·e après ta journée au bureau, je ne fais pas semblant de comprendre : <em>je comprends</em>.</p>
+    <p>Ensuite, pendant <strong>plus de dix ans</strong>, j'ai parcouru le monde impitoyable du privé, accumulant les super-pouvoirs comme d'autres collectionnent les cartes Pokémon. Voici le dossier complet.</p>
+  </section>
+
+  <section class="card">
+    <h2 class="comic">⚡ Super-pouvoirs</h2>
+    <div class="powers">
+      <div class="pw" style="--c:var(--y)"><span class="ic">🏦</span><div><span class="real">Banque</span><h3>L'Homme-Coffre-Fort</h3><p>A survécu au monde bancaire. Peut flairer un taux d'intérêt mal calculé à 300 mètres, par vent contraire.</p></div></div>
+      <div class="pw" style="--c:var(--p)"><span class="ic">🛒</span><div><span class="real">Vendeur</span><h3>Le Persuadeur</h3><p>A vendu des choses à des gens qui n'en voulaient pas. Aujourd'hui, il te vend la compta. C'est dire le niveau.</p></div></div>
+      <div class="pw" style="--c:var(--b)"><span class="ic">📦</span><div><span class="real">Responsable des achats</span><h3>Le Négociateur Fou</h3><p>Rabais, escomptes, frais de port : il connaît le prix d'achat net de tout. Les fournisseurs tremblent encore.</p></div></div>
+      <div class="pw" style="--c:var(--g)"><span class="ic">🧮</span><div><span class="real">Comptable</span><h3>Le Bilan Vivant</h3><p>Son cœur bat en partie double. Actif à gauche, passif à droite, et toujours, toujours équilibré.</p></div></div>
+      <div class="pw" style="--c:var(--v)"><span class="ic">🔭</span><div><span class="real">Démonstrateur en astronomie</span><h3>L'Observateur Cosmique</h3><p>A montré des galaxies lointaines au public. Peut donc repérer ton erreur de report à des années-lumière.</p></div></div>
+      <div class="pw" style="--c:var(--y)"><span class="ic">📸</span><div><span class="real">Photographe indépendant · président du photo-club</span><h3>L'Œil de Lynx</h3><p>Rien n'échappe à son objectif. Surtout pas le natel caché sous ton pupitre pendant le test.</p></div></div>
+      <div class="pw" style="--c:var(--b)"><span class="ic">💻</span><div><span class="real">Webmaster · 3 sites à son actif</span><h3>Le Tisseur de Toile</h3><p>Trois sites web, et maintenant celui-ci. Oui, c'est lui qui a codé le bouton « Quitter » qui te culpabilise.</p></div></div>
+      <div class="pw" style="--c:var(--p)"><span class="ic">🎬</span><div><span class="real">Créateur de contenu associatif</span><h3>Le Conteur</h3><p>Transforme n'importe quel sujet aride en contenu captivant. Même les transitoires. Si, si.</p></div></div>
+      <div class="pw" style="--c:var(--g)"><span class="ic">✈️</span><div><span class="real">Pilote privé</span><h3>Le Faucon des Alpes</h3><p>Vole au-dessus de la Suisse à ses heures perdues. Vu d'en haut, ton point mort a l'air tout petit.</p></div></div>
+      <div class="pw" style="--c:var(--v)"><span class="ic">🐎</span><div><span class="real">Officier de cavalerie</span><h3>Le Chevalier Galopant</h3><p>A mené des chevaux et des hommes. Mener une classe de 3<sup>e</sup> année un vendredi après-midi ? Défi accepté.</p></div></div>
+      <div class="pw" style="--c:var(--p)"><span class="ic">💍</span><div><span class="real">Marié depuis <span id="ansMariage">plus de 25</span> ans · père heureux de 3 filles</span><h3>L'Indestructible</h3><p><span id="ansMariage2">Plus de 25</span> ans de mariage, trois filles, une seule salle de bain. Il a survécu aux crises d'ado en triple exemplaire. Alors la souffrance, il connaît : ta révision de l'examen final, à côté, c'est une sieste.</p></div></div>
+      <div class="pw" style="--c:var(--y)"><span class="ic">🏆</span><div><span class="real">Modestie</span><h3>Le Plus Humble de l'Univers</h3><p>Des bulletins scolaires à faire pâlir les HPI, des moyennes qui ont fait pleurer des calculatrices, un QI qu'on mesure en années-lumière… et pourtant, pas un mot à ce sujet. Jamais. Il est même le meilleur du monde en humilité. Et il ne s'en vante pas. MDR.</p></div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 class="comic">📊 Statistiques de combat</h2>
+    <div class="stat" style="--c:var(--g)"><span>🧮 Maîtrise du bilan</span><div class="bar"><i style="--w:100%;--d:.1s"></i></div><span>100 %</span></div>
+    <div class="stat" style="--c:var(--b)"><span>🎓 Compréhension des apprentis</span><div class="bar"><i style="--w:100%;--d:.3s"></i></div><span>vécu</span></div>
+    <div class="stat" style="--c:var(--y)"><span>😂 Blagues de compta</span><div class="bar"><i style="--w:97%;--d:.5s"></i></div><span>trop</span></div>
+    <div class="stat" style="--c:var(--p)"><span>🍵 Niveau de zénitude (thé vert)</span><div class="bar"><i style="--w:92%;--d:.7s"></i></div><span>ommm</span></div>
+    <div class="stat" style="--c:var(--v)"><span>🙈 Tolérance aux excuses</span><div class="bar"><i style="--w:3%;--d:.9s"></i></div><span>3 %</span></div>
+  </section>
+
+  <section class="card kryp">
+    <h2 class="comic">☢️ Kryptonite connue</h2>
+    <ul>
+      <li>🔄 Un débit et un crédit inversés. (Il le sentira. Il le sent toujours.)</li>
+      <li>🐶 « Mon chien a mangé mon exercice. » En 2026. Sur un site web.</li>
+      <li>📉 Un bilan qui ne joue pas « à 2 francs près ».</li>
+      <li>❓ « Est-ce que ça compte pour l'examen ? » (Réponse : oui.)</li>
+    </ul>
+  </section>
+
+  <p class="motto comic">« Je fais de la compta et c'est ma joie ! »</p>
+
+  <button class="close" onclick="window.close()">✕ Fermer le dossier</button>
+  <div class="foot"><a href="index.html">Programme</a> · <a href="confidentialite.html">Confidentialité</a> · <a href="conditions.html">Conditions générales</a></div>
+</div>
+<script>
+// Années de mariage calculées automatiquement (mariage en 1998)
+(function(){ var n = new Date().getFullYear() - 1998;
+  document.getElementById('ansMariage').textContent = n;
+  document.getElementById('ansMariage2').textContent = n; })();
+</script>
 </body>
 </html>
