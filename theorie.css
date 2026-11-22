@@ -40,8 +40,8 @@ h1{font-family:Fraunces,Georgia,serif;font-size:26px;line-height:1.15;margin:0 0
 .tag.neutral{background:var(--soft);color:var(--muted)}
 .journal{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
 .journal caption{text-align:left;font-weight:600;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding-bottom:4px}
-.journal th{text-align:left;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);padding:4px 4px}
-.journal td{padding:4px 4px;border-bottom:1px dashed var(--line)}
+.journal th{text-align:left;color:var(--muted);font-weight:500;border-bottom:2px solid var(--ink);padding:4px 4px}
+.journal td{padding:4px 4px;border-bottom:1px solid #9a9488}
 .journal td.am,.journal th.am{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .journal tr.cur td{background:var(--hl);font-weight:600}
 .nav{display:flex;gap:8px}

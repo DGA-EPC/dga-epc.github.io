@@ -166,7 +166,11 @@
 .syn tr>th:first-child{width:130px;font-weight:600;color:var(--muted);font-size:12.5px}
 .syn th.hd{font-family:Fraunces,Georgia,serif;font-size:19px;text-align:center;border-radius:10px 10px 0 0}
 .syn th.hd.a{background:var(--actif-bg);color:var(--actif)}.syn th.hd.o{background:var(--produit-bg);color:var(--produit)}
-.syn td.cur{background:var(--hl)}
+.rems{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px;font-size:14.5px;max-width:760px}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;text-align:center}
+.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:0 6px 2px}
+.frac>span:last-child{padding:2px 6px 0}
+.calc .row.fr{align-items:center}
 .syn .code{justify-content:flex-start;gap:8px;padding:0}.syn .ctok{font-size:20px;padding:6px 8px}.syn .clab{font-size:11.5px}.syn .cpart{max-width:110px}
 /* Dividendes et intérêts */
 .divt{max-width:620px}.divt td{font-size:15px}
@@ -177,6 +181,12 @@
 .jours td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .jours tr.tot td{font-weight:700;border-bottom:0;border-top:2px solid var(--ink)}
 .jnote{font-size:12px;color:var(--muted);margin-top:4px}
+/* Pas de surlignage jaune : le pas à pas suffit à montrer les changements */
+.jl2 tr.cur td,.slip tr.cur td{background:none}
+.jl2 tr.new td{animation:none}
+.ln.fresh{animation:none;background:none}
+.t.focus{box-shadow:none}
+.card.on{box-shadow:0 0 0 2px var(--ink)}
 </style>
 </head>
 <body>
@@ -184,7 +194,7 @@
   <aside>
     <div class="panel">
       <h1>Les titres</h1>
-      <p class="sub">Actions · obligations · Calcul de rendement</p>
+      <p class="sub">Actions · obligations · Ajustement du compte Titres  · Calcul de rendement</p>
       <div class="dots" id="dots"></div>
     </div>
 
@@ -221,7 +231,7 @@ const PLUS_D = k => k==='actif' || k==='charge';
 const chip = a => `<span class="chip ${KIND[a]==='produit'?'actif" style="background:var(--produit-bg);color:var(--produit)':KIND[a]}">${a}</span>`;
 
 /* Couleur de liaison = compte de destination du montant */
-const LINK = {'Titres':'#0e7c86', 'Produits des titres':'#1f7a4d', 'Banque':'#4b5563', 'Créances AFC':'#2a52be', 'Charges des titres':'#c2671f'};
+const LINK = {'Titres':'#0e7c86', 'Produits des titres':'#c0262d', 'Banque':'#4b5563', 'Créances AFC':'#2a52be', 'Charges des titres':'#c2671f'};
 const pill = (acc, txt) => acc ? `<span class="lk" style="color:${LINK[acc]};background:${LINK[acc]}1f;border-color:${LINK[acc]}">${txt}</span>` : txt;
 
 /* ---------- Bordereau (décompte de la banque) ---------- */
@@ -231,15 +241,20 @@ function bordHTML(title, rows, curAcc){
 
 /* ---------- Journal à deux colonnes + comptes en T ---------- */
 // J : lignes {ph, n, d|c, amt}  ·  {ph, open:compte, side, amt, lab}
-function journalHTML(J, ph){
+function journalHTML(J, ph, plain){
   let rows = J.filter(e=>!e.open);
   // écriture simple (un compte au débit, un au crédit, même montant) : sur une seule ligne
   const byN = {}; rows.forEach(e=>(byN[e.n+'/'+e.ph] = byN[e.n+'/'+e.ph] || []).push(e));
   rows = Object.values(byN).flatMap(g => g.length===2 && g[0].d && g[1].c && g[0].amt===g[1].amt
-    ? [{ph:g[0].ph, n:g[0].n, d:g[0].d, c:g[1].c, amt:g[0].amt}] : g);
+    ? [{ph:g[0].ph, n:g[0].n, d:g[0].d, c:g[1].c, amt:g[0].amt, dl:g[0].lk, cl:g[1].lk}]
+    : g.map(e=>({...e, dl:e.d&&e.lk, cl:e.c&&e.lk})));
+  // couleur du montant = ligne du bordereau d'où il vient (lk), sinon le compte lui-même
+  const col = (acc, lk) => { const a = lk || acc; return !plain && LINK[a] ? a : null; };
+  let prevN = null;
   return `<table class="jl2"><tr><th>N°</th><th>Compte débité</th><th>Compte crédité</th><th class="n">Débit</th><th class="n">Crédit</th></tr>
-    ${rows.map(e=>`<tr class="${e.ph>ph?'hide':''}"><td>${e.n}</td><td>${e.d?chip(e.d):''}</td><td>${e.c?chip(e.c):''}</td>
-      <td class="n">${e.d?pill(LINK[e.d]?e.d:null,fmt(e.amt)):''}</td><td class="n">${e.c?pill(LINK[e.c]?e.c:null,fmt(e.amt)):''}</td></tr>`).join('')}</table>`;
+    ${rows.map(e=>{ const showN = e.n!==prevN; prevN = e.n;
+      return `<tr class="${e.ph>ph?'hide':''}"><td>${showN?e.n:''}</td><td>${e.d||''}</td><td>${e.c||''}</td>
+      <td class="n">${e.d?pill(col(e.d,e.dl),fmt(e.amt)):''}</td><td class="n">${e.c?pill(col(e.c,e.cl),fmt(e.amt)):''}</td></tr>`; }).join('')}</table>`;
 }
 function postings(J, acc, ph){
   const P = {d:[], c:[]};
@@ -254,19 +269,73 @@ function postings(J, acc, ph){
 }
 const sum = a => a.reduce((s,l)=>s+l.amt,0);
 const bal = (acc,P) => PLUS_D(KIND[acc]) ? sum(P.d)-sum(P.c) : sum(P.c)-sum(P.d);
-function tHTML(acc, P, focus, eff){
+function tHTML(acc, P, focus, eff, label){
   const k = KIND[acc], pd = PLUS_D(k);
   const col = arr => arr.map(l=>`<div class="ln ${l.fresh?'fresh':''}"><span class="lb">${l.lb}</span><span class="am">${fmt(l.amt)}</span></div>`).join('');
   return `<div class="t k-${k} ${focus?'focus':''}">
-    <div class="t-sides"><span>D <b class="sg ${pd?'plus':'minus'}">${pd?'+':'−'}</b></span><span class="t-head" title="${acc}">${acc}</span><span><b class="sg ${pd?'minus':'plus'}">${pd?'−':'+'}</b> C</span></div>
+    <div class="t-sides"><span>D <b class="sg ${pd?'plus':'minus'}">${pd?'+':'−'}</b></span><span class="t-head" title="${label||acc}">${label||acc}</span><span><b class="sg ${pd?'minus':'plus'}">${pd?'−':'+'}</b> C</span></div>
     <div class="t-body"><div class="col d">${col(P.d)}</div><div class="col c">${col(P.c)}</div></div>
     ${eff?`<div class="eff">${eff}</div>`:''}</div>`;
 }
-function compta(J, accs, ph, eff){
+function compta(J, accs, ph, eff, plain){
   const ts = accs.map(acc=>{ const P = postings(J, acc, ph);
     const focus = J.some(e=>e.ph===ph && !e.open && (e.d===acc||e.c===acc));
     return tHTML(acc, P, focus, eff ? eff(acc,P,ph) : ''); }).join('');
-  return `<section class="sec"><h2>Dans la comptabilité</h2><div class="jr-stage">${journalHTML(J, ph)}</div><div class="tg">${ts}</div></section>`;
+  return `<section class="sec"><h2>Dans la comptabilité</h2><div class="jr-stage">${journalHTML(J, ph, plain)}</div><div class="tg">${ts}</div></section>`;
+}
+
+/* ---------- Comptabilisation pas à pas : ligne du journal, puis report dans les comptes ---------- */
+function mergeRows(J){
+  const byN = {}; J.forEach(e=>(byN[e.n] = byN[e.n] || []).push(e));
+  return Object.values(byN).flatMap(g => g.length===2 && g[0].d && g[1].c && g[0].amt===g[1].amt
+    ? [{n:g[0].n, d:g[0].d, c:g[1].c, amt:g[0].amt, dl:g[0].lk, cl:g[1].lk, q:g[0].q, qtext:g[0].qtext}]
+    : g.map(e=>({...e, dl:e.d&&e.lk, cl:e.c&&e.lk})));
+}
+const sensTxt = (acc, side) => { const k = KIND[acc], plus = (side==='d')===PLUS_D(k);
+  return `${plus?'augmentation':'diminution'} d'${k==='charge'?'une':'un'} ${k}`; };
+// une étape par ligne du journal : la ligne et le report dans le(s) compte(s) en même temps
+// une ligne avec q : la question est posée d'abord, la ligne s'affiche une fois la réponse donnée
+let ANSWERED = false;
+function microSteps(R){
+  return R.map((e,i)=>{
+    const part = s => `<b>${e[s]}</b> au ${s==='d'?'débit':'crédit'} (${sensTxt(e[s],s)})`;
+    return {row:i, q:e.q, text: e.q ? e.qtext : `${[e.d&&part('d'), e.c&&part('c')].filter(Boolean).join(', ')} : ${fmt(e.amt)}.`};
+  });
+}
+const effK = (S, k) => k - (k>0 && S[k-1].q && !ANSWERED ? 1 : 0);   // étapes réellement affichées
+function comptaK(J, accs, k, plain, unknown){   // unknown : compte affiché « ? » (tant que la question n'est pas répondue)
+  const R = mergeRows(J), S = microSteps(R); k = effK(S, k);
+  const done = S.slice(0,k), last = done[done.length-1];
+  const maxRow = last ? last.row : -1;
+  const col = (acc, lk) => { const a = lk || acc; return !plain && LINK[a] ? a : null; };
+  let prevN = null;
+  const jr = `<table class="jl2"><tr><th>N°</th><th>Compte débité</th><th>Compte crédité</th><th class="n">Débit</th><th class="n">Crédit</th></tr>
+    ${R.map((e,i)=>{ const showN = e.n!==prevN; prevN = e.n;
+      return `<tr class="${i>maxRow?'hide':''} ${last&&i===last.row?'cur':''}"><td>${showN?e.n:''}</td><td>${e.d||''}</td><td>${e.c||''}</td>
+      <td class="n">${e.d?pill(col(e.d,e.dl),fmt(e.amt)):''}</td><td class="n">${e.c?pill(col(e.c,e.cl),fmt(e.amt)):''}</td></tr>`; }).join('')}</table>`;
+  const P = {}; accs.forEach(a=>P[a]={d:[],c:[]});
+  done.forEach((s,j)=>{ const e = R[s.row]; ['d','c'].forEach(sd=>{ if (e[sd]) P[e[sd]][sd].push({lb:e.n, amt:e.amt, fresh:j===k-1}); }); });
+  const cur = last ? [R[last.row].d, R[last.row].c] : [];
+  const ts = accs.map(a=>tHTML(a, P[a], cur.includes(a), '', a===unknown ? '?' : '')).join('');
+  return `<section class="sec"><h2>Dans la comptabilité</h2><div class="jr-stage">${jr}</div><div class="tg">${ts}</div></section>`;
+}
+
+/* Achat / vente : la donnée seule, puis le bordereau ligne par ligne ; au total, journal et comptes vides, puis pas à pas */
+function bordStep(o){
+  const nL = o.lines.length, cs = microSteps(mergeRows(o.J));
+  const ph = [{btn:'Le bordereau →', text:o.intro},
+    ...o.lines.map((l,i)=>({btn: i===nL-1 ? 'Comptabiliser →' : 'Suite →', text:l.text, q:l.q})),
+    ...cs.map(s=>({btn:'Suite →', text:s.text, q:s.q}))];
+  // une ligne du bordereau avec q n'apparaît qu'une fois la réponse donnée ;
+  // la destination d'une ligne liée à une écriture avec question (qto) n'apparaît qu'après cette écriture
+  const qIdx = cs.findIndex(s=>s.q);
+  const stage = p => { const k = p>=nL ? effK(cs, p-nL) : -1;
+    const vis = i => i < p-1 || (i===p-1 && (!o.lines[i].q || ANSWERED));
+    const showTo = l => p>=nL && (!l.qto || k>qIdx);
+    return `<section class="sec"><h2>La donnée</h2><div class="donnee">${o.donnee}</div></section>
+    ${p>=1 ? `<section class="sec"><h2>Le bordereau · d'où viennent les montants</h2>${bordHTML(o.title, o.lines.map((l,i)=>({...l, k:l.k+(vis(i)?'':' hide'), to: showTo(l) ? l.to : null})))}</section>` : ''}
+    ${p>=nL ? comptaK(o.J, o.accs, p-nL) : ''}`; };
+  return {title:o.name, ph, stage};
 }
 
 /* ---------- Données des exemples ---------- */
@@ -278,7 +347,12 @@ const ic = j => Math.round(OB.nom*OB.taux*j/36000*100)/100;
 const ACH_O = {cours:98, frais:60, val:'18.10', j:d30(15,3,18,10)}; ACH_O.prix = OB.nom*ACH_O.cours/100; ACH_O.ic = ic(ACH_O.j); ACH_O.tot = ACH_O.prix+ACH_O.ic+ACH_O.frais;
 const VEN_O = {cours:99, frais:70, val:'15.06', j:d30(15,3,15,6)}; VEN_O.prix = OB.nom*VEN_O.cours/100; VEN_O.ic = ic(VEN_O.j); VEN_O.tot = VEN_O.prix+VEN_O.ic-VEN_O.frais;
 const CL_J = d30(15,3,30,12)+0, CL_IC = ic(CL_J);                  // 15.03 → 31.12 (le 31 compte comme 30)
+const CL_JR = [{n:1,d:'Actifs transitoires',amt:CL_IC, qtext:`Comptabilisation des intérêts courus de ${fmt(CL_IC)}.`,
+                q:{text:'Actif ou passif transitoire ?', opts:[['a','actif transitoire'],['p','passif transitoire']], ok:'a',
+                   fb:'les intérêts sont gagnés mais pas encore encaissés : c\'est un <b>produit à recevoir</b>, un <b>actif transitoire</b>.'}},
+               {n:1,c:'Produits des titres',amt:CL_IC}];
 const DIV = 1000, DIV_IA = DIV*IA/100, DIV_NET = DIV-DIV_IA;
+const DIV_J = [{n:1,d:'Banque',amt:DIV_NET},{n:1,d:'Créances AFC',amt:DIV_IA},{n:1,c:'Produits des titres',amt:DIV}];
 
 /* Détail du calcul des jours (mois de 30 jours, année de 360 jours) */
 function joursHTML(j1, m1, j2, m2, ans=0, y1='', note=''){
@@ -296,6 +370,7 @@ function joursHTML(j1, m1, j2, m2, ans=0, y1='', note=''){
 const RA = {nb:1000, achat:25, vente:32, div:[1.2,1.3,1.3,1.4]};
 const RO = {nom:20000, achat:101, vente:100.5, taux:2};
 const JOURS = 3*360 + 100;                                          // 5.03 de l'an −4 au 15.06 de l'an −1
+const JOURS_TXT = `du 05.03.${Y-4} au 15.06.${Y-1} = (30 − 5) + 3 × 360 + 2 × 30 + 15`;
 const RA_cap = RA.nb*RA.achat, RA_div = RA.div.reduce((s,x)=>s+x*RA.nb,0), RA_pv = RA.nb*(RA.vente-RA.achat), RA_gain = RA_div+RA_pv;
 const RA_an = RA_gain*360/JOURS, RA_r = RA_an*100/RA_cap;
 const RO_cap = RO.nom*RO.achat/100, RO_int = RO.nom*RO.taux/100, RO_pv = RO.nom*(RO.vente-RO.achat)/100, RO_pvan = RO_pv*360/JOURS;
@@ -306,174 +381,210 @@ const decode = (parts) => `<div class="code">${parts.map(([t,lb,col])=>`<div cla
 
 const STEPS = [
  { title:'Action vs Obligation',
-   ph:[{btn:'Suite →', text:`Une <b>action</b> est une part du capital d'une SA. Celui qui l'achète devient <b>actionnaire</b> : propriétaire d'une petite partie de l'entreprise.`,
-        q:{text:'Le cours d\'une action est exprimé…', opts:[['chf','en francs par action'],['pc','en % de la valeur nominale']], ok:'chf',
-           fb:'le cours d\'une action est un <b>prix en francs par action</b>.'}},
-       {btn:'Les obligations →', text:`Le <b>dividende</b> est la part du bénéfice versée aux actionnaires. Il est indiqué en CHF par action ou en % de la valeur nominale.`},
-       {btn:'Suite →', text:`Une <b>obligation</b> est une part d'un <b>emprunt</b> d'une entreprise ou d'une collectivité publique. Celui qui l'achète est <b>créancier</b> : il prête de l'argent et reçoit des intérêts.`,
-        q:{text:'Le cours d\'une obligation est exprimé…', opts:[['chf','en francs par obligation'],['pc','en % de la valeur nominale']], ok:'pc',
-           fb:'le cours d\'une obligation est un <b>pourcentage de la valeur nominale</b>.'}},
-       {btn:'Suite →', text:`La valeur nominale est un montant « rond » : 1'000, 5'000, 10'000…<br><br>Les manuels disent : « On achète 10 obligations à 1'000.- de nominal ». En pratique, on dit : « On achète pour <b>10'000.- d'obligations</b> ».`}],
-   stage: ph => { const A_ = ph>=0, O_ = ph>=2;   // colonne actions dès le début, obligations dès la 3e phase
-     const cell = (show, html, cur) => `<td class="${cur?'cur':''}">${show ? html : ''}</td>`;
-     const row = (lb, a, o, sa=A_, so=O_, ca=false, co=false) => `<tr><th>${lb}</th>${cell(sa,a,ca)}${cell(so,o,co)}</tr>`;
+   ph:[{btn:'Suite →', text:`Une <b>action</b> est une part du capital d'une SA. Celui qui l'achète devient <b>actionnaire</b> : propriétaire d'une petite partie de l'entreprise.<br><br>Une <b>obligation</b> est une part d'un <b>emprunt</b> d'une entreprise ou d'une collectivité publique. Celui qui l'achète est <b>créancier</b> : il prête de l'argent et reçoit des intérêts.`},
+       {btn:'Suite →', text:`Dans la presse ou sur un relevé, chaque titre est désigné par un code. Pour une obligation, le code indique aussi le taux d'intérêt et la durée.<p>Le cours d'une action est en franc par action.<p>Le cours d'une obligation est en `},
+       {btn:'Suite →', text:`La <b>valeur nominale</b> est la valeur inscrite sur le titre.`},
+       {btn:'Suite →', text:`Le cours d'une action est un <b>prix en francs par action</b>.<p>Le cours d'une obligation est un <b>pourcentage de la valeur nominale</b>.`},
+       {btn:'Remarques →', text:`Le <b>dividende</b> est la part du bénéfice versée aux actionnaires.<p>L'obligation rapporte des <b>intérêts</b>.`},
+       {btn:'Suite →', text:`Que signifie « au pair » ?`},
+       {btn:'Suite →', text:`Achète-t-on un nombre d'obligation ou pour une certaine valeur en obligation ?`}],
+   stage: ph => {
+     const row = (i, lb, a, o) => ph>=i ? `<tr><th>${lb}</th><td>${a}</td><td>${o}</td></tr>` : '';
+     const rem = [`<b>Au pair</b> = à la valeur nominale. Pour une obligation, c'est donc un cours de <b>100&nbsp;%</b>. Une action peut, par exemple, être émise « au pair ».`,
+                  `Les manuels disent : « On achète 10 obligations à 1'000.- de nominal ». En pratique, on dit : « On achète pour <b>10'000.- d'obligations</b> ».`];
      return `<section class="sec"><h2>Action ou obligation : vue d'ensemble</h2><table class="syn">
        <tr><th></th><th class="hd a">Actions</th><th class="hd o">Obligations</th></tr>
-       ${row('C\'est…', 'une part du <b>capital</b> d\'une SA : on devient <b>actionnaire</b> (propriétaire)', 'une part d\'un <b>emprunt</b> : on devient <b>créancier</b> (on prête de l\'argent)')}
-       ${row('Lire un cours', decode([['NESN','action Nestlé nominative','#2a52be'],['98','cours : 98 francs par action','#1f7a4d']]),
-                              decode([['2','taux : 2 %','#6d48b3'],['NES','Nestlé','#2a52be'],['18-28','durée : 2018 à 2028','#c2671f'],['98','cours : 98 % du nominal','#1f7a4d']]))}
-       ${row('Valeur nominale', 'Valeur inscrite sur l\'action au départ. Selon la loi, elle doit être supérieure à 0.', 'Valeur inscrite sur le titre, en montant « rond ».')}
-       ${row('Cours', 'Valeur d\'échange en bourse : le prix <b>en francs</b> d\'une action.', 'En <b>%</b> de la valeur nominale.')}
-       ${row('Ce que ça rapporte', '<b>Dividende</b> : en CHF par action, ou en % de la valeur nominale.', '<b>Intérêts</b> : en % de la valeur nominale.', ph>=1, O_, ph===1, false)}
-       ${row('Au pair', '—', 'Cours de 100 % : le prix est égal à la valeur nominale.', ph>=3, ph>=3, false, ph===3)}</table></section>`; } },
+       ${row(0, 'C\'est…', 'une part du <b>capital</b> d\'une SA : on devient <b>actionnaire</b> (propriétaire)', 'une part d\'un <b>emprunt</b> : on devient <b>créancier</b> (on prête de l\'argent)')}
+       ${row(1, 'Lire un cours', decode([['NESN','action Nestlé nominative','#2a52be'],['98','cours : 98 francs par action','#1f7a4d']]),
+                              decode([['2','taux : 2 %','#6d48b3'],['NES','Nestlé','#2a52be'],[`${String(Y-8).slice(2)}-${String(Y+2).slice(2)}`,`durée : ${Y-8} à ${Y+2}`,'#c2671f'],['98','cours : 98 % du nominal','#1f7a4d']]))}
+       ${row(2, 'Valeur nominale', 'Valeur de l\'action à la fondation. Selon la loi, elle doit être supérieure à 0.', 'Toujours un chiffre rond. Souvent 1\'000, 5\'000, 10\'000.')}
+       ${row(3, 'Cours', 'Valeur d\'échange en bourse : le prix <b>en francs par action</b>.', 'En <b>% de la valeur nominale</b>.')}
+       ${row(4, 'Ce que ça rapporte', '<b>Dividende</b> : en CHF par action, ou en % de la valeur nominale.', '<b>Intérêts</b> : en % de la valeur nominale.')}</table></section>
+       ${ph>=5?`<section class="sec"><div class="box" style="max-width:760px"><h4>Remarques</h4><ol class="rems">${rem.map((r,i)=>ph>=5+i?`<li>${r}</li>`:'').join('')}</ol></div></section>`:''}`; } },
 
  { title:'Les comptes',
-   ph:[{btn:'Suite →', text:`Quatre comptes sont utilisés pour les titres.`}],
-   stage: () => { const row = (acc, txt) => `<div class="acrow">${tHTML(acc,{d:[],c:[]},false,'')}<div class="acx">${txt}</div></div>`;
+   ph:[{btn:'Suite →', text:`Quatre comptes sont utilisés pour les titres. Le compte <b>Titres</b> est un compte d'actif.`},
+       {btn:'Suite →', text:`Le compte <b>Créances AFC</b> est aussi un compte d'actif.`},
+       {btn:'Suite →', text:`Le compte <b>Charges des titres</b> est un compte de charge.`},
+       {btn:'Suite →', text:`Le compte <b>Produits des titres</b> est un compte de produit.`}],
+   stage: ph => { const row = (i, acc, txt) => ph>=i ? `<div class="acrow">${tHTML(acc,{d:[],c:[]},false,'')}<div class="acx">${txt}</div></div>` : '';
      return `<section class="sec"><h2>Les comptes utilisés</h2>
        <div class="acgrp" style="color:var(--actif)">Actif</div>
-       ${row('Titres','Les actions et les obligations achetées.')}
-       ${row('Créances AFC','L\'impôt anticipé à récupérer auprès de l\'Administration fédérale des contributions.')}
-       <div class="acgrp" style="color:var(--charge)">Charge</div>
-       ${row('Charges des titres','Les frais de gestion, les moins-values.')}
-       <div class="acgrp" style="color:var(--produit)">Produit</div>
-       ${row('Produits des titres','Les dividendes bruts, les intérêts bruts, les plus-values.')}</section>`; } },
+       ${row(0,'Titres','Les actions et les obligations achetées (au débit) ou vendues (au crédit).')}
+       ${row(1,'Créances AFC','L\'impôt anticipé à récupérer auprès de l\'Administration fédérale des contributions.')}
+       ${ph>=2?`<div class="acgrp" style="color:var(--charge)">Charge</div>`:''}
+       ${row(2,'Charges des titres','Les frais de gestion, les moins-values.')}
+       ${ph>=3?`<div class="acgrp" style="color:var(--produit)">Produit</div>`:''}
+       ${row(3,'Produits des titres','Les dividendes bruts, les intérêts bruts, les plus-values.')}</section>`; } },
 
  { title:'Dividendes et intérêts',
    ph:[{btn:'Comptabiliser →', text:`Sur les dividendes et les intérêts, la banque retient l'<b>impôt anticipé</b> : ${IA}&nbsp;% du montant brut. Le titulaire ne reçoit que le montant <b>net</b>.`,
         q:{text:'L\'impôt anticipé retenu est-il perdu ?', opts:[['p','oui, perdu'],['r','non, récupérable']], ok:'r',
            fb:'l\'entreprise le récupère auprès de l\'AFC : c\'est une <b>créance</b>, le compte <b>Créances AFC</b>.'}},
-       {btn:'Suite →', text:`Le produit est enregistré <b>brut</b> : ${fmt(DIV)} au crédit des Produits des titres. La banque reçoit le net, l'AFC doit le reste.`}],
-   stage: ph => { const J=[{ph:1,n:1,d:'Banque',amt:DIV_NET},{ph:1,n:1,d:'Créances AFC',amt:DIV_IA},{ph:1,n:1,c:'Produits des titres',amt:DIV}];
+       {btn:'Suite →', text:`Le produit est enregistré <b>brut</b> : ${fmt(DIV)} au crédit des Produits des titres. La banque reçoit le net, l'AFC doit le reste.`},
+       ...microSteps(mergeRows(DIV_J)).map(s=>({btn:'Suite →', text:s.text}))],
+   stage: ph => {
      return `<section class="sec"><h2>Dividende ou intérêt de ${fmt(DIV)}</h2><table class="slip divt">
        <tr><td>Dividende / intérêt brut</td><td class="n">${pill('Produits des titres', fmt(DIV))}</td><td class="n">100&nbsp;%</td><td class="calc2">→ Produits des titres</td></tr>
        <tr><td>− Impôt anticipé</td><td class="n">${pill('Créances AFC', fmt(DIV_IA))}</td><td class="n">${IA}&nbsp;%</td><td class="calc2">→ Créances AFC</td></tr>
        <tr class="tot"><td>= Net</td><td class="n">${pill('Banque', fmt(DIV_NET))}</td><td class="n">${100-IA}&nbsp;%</td><td class="calc2">→ Banque</td></tr></table></section>
-       ${ph>=1?compta(J,['Banque','Créances AFC','Produits des titres'],ph):''}`; } },
+       ${ph>=1?comptaK(DIV_J,['Banque','Créances AFC','Produits des titres'],ph-1):''}`; } },
 
- { title:'Achat d\'actions',
-   ph:[{btn:'Comptabiliser →', text:`Nous achetons ${ACH_A.n} actions Nestlé au cours de ${ACH_A.cours}. La banque envoie un <b>bordereau</b> (décompte). La date « valeur au… » est la date effective de la transaction.`,
-        q:{text:'Les frais d\'achat…', opts:[['t','s\'ajoutent au prix, dans le compte Titres'],['c','sont une charge des titres']], ok:'t',
-           fb:'on enregistre le <b>montant total</b> du bordereau dans le compte Titres.'}},
-       {btn:'Suite →', text:`<b>Titres / Banque</b> pour le montant total : ${fmt(ACH_A.tot)}.`}],
-   stage: ph => `<section class="sec"><h2>Le bordereau · d'où viennent les montants</h2>${bordHTML(`Achat · valeur au 10.02.${Y}`,[
-       {k:'add', lb:'Prix', calc:`${ACH_A.n} actions × ${ACH_A.cours}`, amt:ACH_A.prix, to:ph>=1?'Titres':null},
-       {k:'add', lb:'+ Frais', calc:'courtage, taxes', amt:ACH_A.frais, to:ph>=1?'Titres':null},
-       {k:'tot', lb:'= Total débité', amt:ACH_A.tot, to:ph>=1?'Banque':null}])}</section>
-     ${ph>=1?compta([{ph:1,n:1,d:'Titres',amt:ACH_A.tot},{ph:1,n:1,c:'Banque',amt:ACH_A.tot}],['Titres','Banque'],ph):''}` },
+ bordStep({ name:'Achat d\'actions', title:`Achat · valeur au 10.02.${Y}`,
+   donnee:`Nous achetons <b>${ACH_A.n} actions Nestlé</b> au cours de <b>${ACH_A.cours}</b>.`,
+   intro:`Nous recevons de la banque un <b>bordereau</b> (décompte). La date « valeur au… » est la date effective de la transaction.`,
+   lines:[
+     {k:'add', lb:'Prix', calc:`${ACH_A.n} actions × ${ACH_A.cours}`, amt:ACH_A.prix, to:'Titres',
+      text:`Le <b>prix</b> : ${ACH_A.n} actions × ${ACH_A.cours} = ${fmt(ACH_A.prix)}.`},
+     {k:'add', lb:'+ Frais', calc:'courtage, taxes', amt:ACH_A.frais, to:'Titres',
+      text:`La banque facture aussi des <b>frais</b> : courtage, taxes.`,
+      q:{text:'Les frais d\'achat…', opts:[['t','s\'ajoutent au prix, dans le compte Titres'],['c','sont une charge des titres']], ok:'t',
+         fb:'on enregistre le <b>montant total</b> du bordereau dans le compte Titres.'}},
+     {k:'tot', lb:'= Total débité', amt:ACH_A.tot, to:'Banque',
+      text:`La comptabilisation ne touche que 2 comptes : <b>Titres</b> et <b>Banque</b> pour le montant total.`}],
+   J:[{n:1,d:'Titres',amt:ACH_A.tot,lk:'Banque'},{n:1,c:'Banque',amt:ACH_A.tot}], accs:['Titres','Banque'] }),
 
- { title:'Vente d\'actions',
-   ph:[{btn:'Comptabiliser →', text:`Nous vendons ${VEN_A.n} actions Nestlé au cours de ${VEN_A.cours}.`,
-        q:{text:'À la vente, les frais…', opts:[['m','se déduisent du prix'],['p','s\'ajoutent au prix']], ok:'m',
-           fb:'la banque <b>retient</b> ses frais : on reçoit le prix moins les frais.'}},
-       {btn:'Suite →', text:`<b>Banque / Titres</b> pour le montant total reçu : ${fmt(VEN_A.tot)}.`}],
-   stage: ph => `<section class="sec"><h2>Le bordereau · d'où viennent les montants</h2>${bordHTML(`Vente · valeur au 20.11.${Y}`,[
-       {k:'add', lb:'Prix', calc:`${VEN_A.n} actions × ${VEN_A.cours}`, amt:VEN_A.prix},
-       {k:'sub', lb:'− Frais', calc:'courtage, taxes', amt:VEN_A.frais},
-       {k:'tot', lb:'= Total crédité', amt:VEN_A.tot, to:ph>=1?'Banque':null}])}</section>
-     ${ph>=1?compta([{ph:1,n:1,d:'Banque',amt:VEN_A.tot},{ph:1,n:1,c:'Titres',amt:VEN_A.tot}],['Banque','Titres'],ph):''}` },
+ bordStep({ name:'Vente d\'actions', title:`Vente · valeur au 20.11.${Y}`,
+   donnee:`Nous vendons <b>${VEN_A.n} actions Nestlé</b> au cours de <b>${VEN_A.cours}</b>.`,
+   intro:`La banque envoie le <b>bordereau</b> de vente.`,
+   lines:[
+     {k:'add', lb:'Prix', calc:`${VEN_A.n} actions × ${VEN_A.cours}`, amt:VEN_A.prix,
+      text:`Le <b>prix</b> : ${VEN_A.n} actions × ${VEN_A.cours} = ${fmt(VEN_A.prix)}.`},
+     {k:'sub', lb:'− Frais', calc:'courtage, taxes', amt:VEN_A.frais,
+      text:`La banque facture aussi des <b>frais</b> : courtage, taxes.`,
+      q:{text:'À la vente, les frais…', opts:[['m','se déduisent du prix'],['p','s\'ajoutent au prix']], ok:'m',
+         fb:'la banque <b>retient</b> ses frais : on reçoit le prix moins les frais.'}},
+     {k:'tot', lb:'= Total crédité', amt:VEN_A.tot, to:'Banque',
+      text:`La comptabilisation ne touche que 2 comptes : <b>Titres</b> et <b>Banque</b> pour le montant total.`}],
+   J:[{n:1,d:'Banque',amt:VEN_A.tot},{n:1,c:'Titres',amt:VEN_A.tot,lk:'Banque'}], accs:['Banque','Titres'] }),
 
  { title:'Les intérêts courus',
-   ph:[{btn:'Suite →', text:`Une obligation à ${OB.taux}&nbsp;% verse ses intérêts <b>une fois par an</b>, à l'échéance du <b>${OB.ech}</b>. Elle est achetée avec valeur au <b>${ACH_O.val}.${Y}</b>.`,
+   ph:[{btn:'Suite →', text:`Qui touche les intérêts de l'obligation ?`,
         q:{text:`Le ${OB.ech}.${Y+1}, qui touche les intérêts de toute l'année ?`, opts:[['a','l\'acheteur'],['v','le vendeur']], ok:'a',
            fb:'à l\'échéance, les intérêts vont à celui qui possède l\'obligation : l\'<b>acheteur</b>.'}},
-       {btn:'Suite →', text:`Mais les intérêts du ${OB.ech}.${Y} au ${ACH_O.val}.${Y} reviennent au <b>vendeur</b> : il possédait l'obligation pendant ce temps.<br><br>L'acheteur paie donc au vendeur, en plus du prix, les <b>intérêts courus</b> : de la dernière échéance à la date valeur.`},
-       {btn:'Suite →', text:`Calcul des intérêts courus (mois de 30 jours) :<br>du ${OB.ech} au ${ACH_O.val} = <b>${ACH_O.j} jours</b><br>${fmt(OB.nom)} × ${OB.taux} × ${ACH_O.j} ÷ 36'000 = <b>${fmt(ACH_O.ic)}</b>`}],
+       {btn:'Suite →', text:`Mais les intérêts du ${OB.ech}.${Y} au ${ACH_O.val}.${Y} reviennent au <b>vendeur</b> : il possédait l'obligation pendant ce temps.<br><br>L'acheteur paie donc au vendeur, en plus du prix, les <b>intérêts courus</b> : de la dernière échéance à la date valeur.`}],
    stage: ph => { const x1 = ACH_O.j/360*100;
-     return `<section class="sec"><h2>Une année d'intérêts</h2>
+     return `<section class="sec"><h2>La donnée</h2><div class="donnee">Une obligation à <b>${OB.taux}&nbsp;%</b> verse ses intérêts <b>une fois par an</b>, à l'échéance du <b>${OB.ech}</b>. Elle est achetée avec valeur au <b>${ACH_O.val}.${Y}</b>.</div></section>
+       <section class="sec"><h2>Une année d'intérêts</h2>
        <div class="icbar"><div class="ics" style="width:${x1}%;background:${ph>=1?'#c2671f':'#cbd5e1'}">${ph>=1?`vendeur · ${ACH_O.j} jours`:''}</div><div class="ics" style="width:${100-x1}%;background:${ph>=1?'#0e7c86':'#cbd5e1'}">${ph>=1?`acheteur · ${360-ACH_O.j} jours`:''}</div></div>
-       <div class="icdates"><span>${OB.ech}.${Y}<br>échéance</span><span style="left:${x1}%">${ACH_O.val}.${Y}<br>achat (valeur)</span><span style="right:0;text-align:right">${OB.ech}.${Y+1}<br>échéance : 1 an d'intérêts</span></div>
-       ${ph>=2?`<div class="calc" style="max-width:520px;margin-top:20px"><b>Les jours</b>${joursHTML(15,3,18,10)}</div>
-       <div class="calc" style="max-width:520px">Intérêts courus = nominal × taux × jours ÷ 36'000<div class="row big"><span>${fmt(OB.nom)} × ${OB.taux} × ${ACH_O.j} ÷ 36'000</span><span>${fmt(ACH_O.ic)}</span></div></div>`:''}</section>`; } },
+       <div class="icdates"><span>${OB.ech}.${Y}<br>échéance</span><span style="left:${x1}%">${ACH_O.val}.${Y}<br>achat (valeur)</span><span style="right:0;text-align:right">${OB.ech}.${Y+1}<br>échéance : 1 année d'intérêts</span></div>
+       </section>`; } },
 
- { title:'Achat d\'obligations',
-   ph:[{btn:'Comptabiliser →', text:`Nous achetons pour ${fmt(OB.nom)} d'obligations à ${OB.taux}&nbsp;%, au cours de ${ACH_O.cours}&nbsp;%, valeur au ${ACH_O.val}.${Y}.<br><br>Le bordereau contient en plus les intérêts courus.`,
-        q:{text:'Les intérêts courus payés au vendeur sont débités…', opts:[['t','au compte Titres'],['p','aux Produits des titres']], ok:'p',
-           fb:'ils seront « rendus » à l\'échéance avec l\'intérêt annuel : on les enregistre en <b>diminution des Produits des titres</b> (au débit).'}},
-       {btn:'Suite →', text:`Écriture composée :<br>• <b>Titres</b> : prix + frais = ${fmt(ACH_O.prix+ACH_O.frais)}<br>• <b>Produits des titres</b> : intérêts courus ${fmt(ACH_O.ic)}<br>• à <b>Banque</b> : total ${fmt(ACH_O.tot)}`}],
-   stage: ph => `<section class="sec"><h2>Le bordereau · d'où viennent les montants</h2>${bordHTML(`Achat · valeur au ${ACH_O.val}.${Y}`,[
-       {k:'add', lb:'Prix', calc:`${fmt(OB.nom)} × ${ACH_O.cours} %`, amt:ACH_O.prix, to:ph>=1?'Titres':null},
-       {k:'add', lb:'+ Intérêts courus', calc:`du ${OB.ech} au ${ACH_O.val} : ${ACH_O.j} jours`, amt:ACH_O.ic, to:ph>=1?'Produits des titres':null},
-       {k:'add', lb:'+ Frais', calc:'', amt:ACH_O.frais, to:ph>=1?'Titres':null},
-       {k:'tot', lb:'= Total débité', amt:ACH_O.tot, to:ph>=1?'Banque':null}])}</section>
-     ${ph>=1?compta([{ph:1,n:1,d:'Titres',amt:ACH_O.prix+ACH_O.frais},{ph:1,n:1,d:'Produits des titres',amt:ACH_O.ic},{ph:1,n:1,c:'Banque',amt:ACH_O.tot}],['Titres','Produits des titres','Banque'],ph):''}` },
+ bordStep({ name:'Achat d\'obligations', title:`Achat · valeur au ${ACH_O.val}.${Y}`,
+   donnee:`Nous achetons pour <b>${fmt(OB.nom)}</b> d'obligations à <b>${OB.taux}&nbsp;%</b>, au cours de <b>${ACH_O.cours}&nbsp;%</b>, valeur au <b>${ACH_O.val}.${Y}</b>. Échéance des intérêts : le ${OB.ech}.`,
+   intro:`La banque envoie le <b>bordereau</b> d'achat. Il contient en plus les <b>intérêts courus</b>.`,
+   lines:[
+     {k:'add', lb:'Prix', calc:`${fmt(OB.nom)} × ${ACH_O.cours} %`, amt:ACH_O.prix, to:'Titres',
+      text:`Le <b>prix</b> : nominal × cours = ${fmt(OB.nom)} × ${ACH_O.cours}&nbsp;% = ${fmt(ACH_O.prix)}.`},
+     {k:'add', lb:'+ Intérêts courus', calc:`du ${OB.ech} au ${ACH_O.val} : ${ACH_O.j} jours`, amt:ACH_O.ic, to:'Produits des titres', qto:true,
+      text:`Les <b>intérêts courus</b> payés au vendeur : du ${OB.ech} au ${ACH_O.val} = ${ACH_O.j} jours.`},
+     {k:'add', lb:'+ Frais', calc:'', amt:ACH_O.frais, to:'Titres',
+      text:`La banque ajoute ses <b>frais</b>.`},
+     {k:'tot', lb:'= Total débité', amt:ACH_O.tot, to:'Banque',
+      text:`Le <b>total</b> est débité sur notre compte bancaire : ${fmt(ACH_O.tot)}.<br><br>Écriture composée, ligne par ligne. D'abord le prix et les frais : ${fmt(ACH_O.prix+ACH_O.frais)}.`}],
+   J:[{n:1,d:'Titres',amt:ACH_O.prix+ACH_O.frais},
+      {n:1,d:'Produits des titres',amt:ACH_O.ic, qtext:`Les intérêts courus de ${fmt(ACH_O.ic)} payés au vendeur.`,
+       q:{text:'Les intérêts courus payés au vendeur sont débités…', opts:[['t','au compte Titres'],['p','aux Produits des titres']], ok:'p',
+          fb:'ils seront « rendus » à l\'échéance avec l\'intérêt annuel : on les enregistre en <b>diminution des Produits des titres</b> (au débit).'}},
+      {n:1,c:'Banque',amt:ACH_O.tot}],
+   accs:['Titres','Produits des titres','Banque'] }),
 
- { title:'Vente d\'obligations',
-   ph:[{btn:'Comptabiliser →', text:`Nous vendons ces obligations au cours de ${VEN_O.cours}&nbsp;%, valeur au ${VEN_O.val}.${Y+1}. Cette fois, c'est l'<b>acheteur</b> qui nous paie les intérêts courus.`,
-        q:{text:'Les intérêts courus reçus de l\'acheteur sont crédités…', opts:[['t','au compte Titres'],['p','aux Produits des titres']], ok:'p',
-           fb:'ce sont des intérêts gagnés pendant que nous possédions l\'obligation : un <b>produit des titres</b>.'}},
-       {btn:'Suite →', text:`Écriture composée :<br>• <b>Banque</b> : total ${fmt(VEN_O.tot)}<br>• à <b>Titres</b> : prix − frais = ${fmt(VEN_O.prix-VEN_O.frais)}<br>• à <b>Produits des titres</b> : intérêts courus ${fmt(VEN_O.ic)}`}],
-   stage: ph => `<section class="sec"><h2>Le bordereau · d'où viennent les montants</h2>${bordHTML(`Vente · valeur au ${VEN_O.val}.${Y+1}`,[
-       {k:'add', lb:'Prix', calc:`${fmt(OB.nom)} × ${VEN_O.cours} %`, amt:VEN_O.prix, to:ph>=1?'Titres':null},
-       {k:'add', lb:'+ Intérêts courus', calc:`du ${OB.ech} au ${VEN_O.val} : ${VEN_O.j} jours`, amt:VEN_O.ic, to:ph>=1?'Produits des titres':null},
-       {k:'sub', lb:'− Frais', calc:'', amt:VEN_O.frais, to:ph>=1?'Titres':null},
-       {k:'tot', lb:'= Total crédité', amt:VEN_O.tot, to:ph>=1?'Banque':null}])}</section>
-     ${ph>=1?compta([{ph:1,n:1,d:'Banque',amt:VEN_O.tot},{ph:1,n:1,c:'Titres',amt:VEN_O.prix-VEN_O.frais},{ph:1,n:1,c:'Produits des titres',amt:VEN_O.ic}],['Banque','Titres','Produits des titres'],ph):''}` },
+ bordStep({ name:'Vente d\'obligations', title:`Vente · valeur au ${VEN_O.val}.${Y+1}`,
+   donnee:`Nous vendons ces obligations (<b>${fmt(OB.nom)}</b> à <b>${OB.taux}&nbsp;%</b>) au cours de <b>${VEN_O.cours}&nbsp;%</b>, valeur au <b>${VEN_O.val}.${Y+1}</b>.`,
+   intro:`La banque envoie le <b>bordereau</b> de vente. Cette fois, c'est l'<b>acheteur</b> qui nous paie les intérêts courus.`,
+   lines:[
+     {k:'add', lb:'Prix', calc:`${fmt(OB.nom)} × ${VEN_O.cours} %`, amt:VEN_O.prix, to:'Titres',
+      text:`Le <b>prix</b> : nominal × cours = ${fmt(OB.nom)} × ${VEN_O.cours}&nbsp;% = ${fmt(VEN_O.prix)}.`},
+     {k:'add', lb:'+ Intérêts courus', calc:`du ${OB.ech} au ${VEN_O.val} : ${VEN_O.j} jours`, amt:VEN_O.ic, to:'Produits des titres', qto:true,
+      text:`Les <b>intérêts courus</b> reçus de l'acheteur : du ${OB.ech} au ${VEN_O.val} = ${VEN_O.j} jours.`},
+     {k:'sub', lb:'− Frais', calc:'', amt:VEN_O.frais, to:'Titres',
+      text:`La banque <b>retient</b> ses frais.`},
+     {k:'tot', lb:'= Total crédité', amt:VEN_O.tot, to:'Banque',
+      text:`Le <b>total</b> est crédité sur notre compte bancaire : ${fmt(VEN_O.tot)}.<br><br>Écriture composée, ligne par ligne. D'abord le total reçu, puis le prix moins les frais : ${fmt(VEN_O.prix-VEN_O.frais)}.`}],
+   J:[{n:1,d:'Banque',amt:VEN_O.tot},{n:1,c:'Titres',amt:VEN_O.prix-VEN_O.frais},
+      {n:1,c:'Produits des titres',amt:VEN_O.ic, qtext:`Les intérêts courus de ${fmt(VEN_O.ic)} reçus de l'acheteur.`,
+       q:{text:'Les intérêts courus reçus de l\'acheteur sont crédités…', opts:[['t','au compte Titres'],['p','aux Produits des titres']], ok:'p',
+          fb:'ce sont des intérêts gagnés pendant que nous possédions l\'obligation : un <b>produit des titres</b>.'}}],
+   accs:['Banque','Titres','Produits des titres'] }),
 
- { title:'Clôture : la bourse baisse',
-   ph:[{btn:'Corriger →', text:`À la clôture, on compare le solde du compte Titres à la <b>valeur en bourse</b> des titres.<br><br>Solde du compte Titres : <b>1'000</b>. Valeur en bourse au 31.12 : <b>800</b>.`,
+ { title:'Clôture : valeur en bourse',
+   ph:[{btn:'Corriger →', text:`À la clôture, on compare le solde du compte Titres à la <b>valeur en bourse</b> des titres.<br><br>Cas A : la bourse a baissé.`,
         q:{text:'La valeur en bourse est plus basse que la valeur comptable. Faut-il corriger ?', opts:[['o','oui, obligatoirement'],['c','au choix']], ok:'o',
-           fb:'par prudence, il faut <b>obligatoirement abaisser</b> la valeur comptable : les titres ne valent plus que 800.'}},
-       {btn:'Suite →', text:`La moins-value de 200 est une charge : <b>Charges des titres / Titres</b> 200. Le compte Titres vaut maintenant 800.`}],
-   stage: ph => compta([{ph:0,open:'Titres',side:'d',amt:1000,lab:'spb'},{ph:1,n:1,d:'Charges des titres',amt:200},{ph:1,n:1,c:'Titres',amt:200}],['Titres','Charges des titres'],ph,
-     (acc,P,p)=> acc==='Titres' ? `Solde : <span class="tag ${p>=1?'good':'bad'}">${fmt(bal(acc,P))}</span> · bourse : <b>800</b>` : '').replace('<span class="n">2</span>','<span class="n">1</span>') },
-
- { title:'Clôture : la bourse monte',
-   ph:[{btn:'Les possibilités →', text:`Solde du compte Titres : <b>1'000</b>. Valeur en bourse au 31.12 : <b>1'300</b>.`,
+           fb:', il faut <b>obligatoirement abaisser</b> la valeur comptable : les titres ne valent plus que 800.'}},
+       {btn:'Cas B →', text:`La moins-value de 200 est une charge : <b>Charges des titres / Titres</b> 200. Le compte Titres vaut maintenant 800.`},
+       {btn:'Les possibilités →', text:`Cas B : la bourse a monté.`,
         q:{text:'La valeur en bourse est plus élevée que la valeur comptable. Faut-il corriger ?', opts:[['o','oui, obligatoirement'],['c','au choix']], ok:'c',
            fb:'on a <b>le choix</b> entre trois possibilités.'}},
        {btn:'B2 →', text:`<b>B1 : ne passer aucune écriture.</b> Les titres restent à 1'000 alors qu'ils valent 1'300 : on crée automatiquement une <b>réserve latente</b> (cachée) de 300.`},
        {btn:'B3 →', text:`<b>B2 : ajuster la valeur comptable à la hausse.</b> La plus-value de 300 est un produit : <b>Titres / Produits des titres</b> 300.`},
        {btn:'Suite →', text:`<b>B3 : ajuster à la hausse, mais annuler le produit</b> en créant une provision. Le bilan montre la valeur en bourse, mais le bénéfice ne change pas.<br>• Titres / Produits des titres 300<br>• Produits des titres / Provision pour fluctuation 300`}],
-   stage: ph => { const J = ph<2 ? [{ph:0,open:'Titres',side:'d',amt:1000,lab:'spb'}]
-       : ph===2 ? [{ph:0,open:'Titres',side:'d',amt:1000,lab:'spb'},{ph:2,n:1,d:'Titres',amt:300},{ph:2,n:1,c:'Produits des titres',amt:300}]
+   stage: ph => {
+     // Cas A (phases 0-1) ; une fois terminé, reste affiché sans mise en évidence (ph 9)
+     const pa = ph<=1 ? ph : 9;
+     const casA = `<section class="sec"><h2>Cas A · la bourse baisse</h2><div class="donnee">Solde du compte Titres : <b>1'000</b>. Valeur en bourse au 31.12 : <b>800</b>.</div></section>
+       ${compta([{ph:0,open:'Titres',side:'d',amt:1000,lab:'spb'},{ph:1,n:1,d:'Charges des titres',amt:200},{ph:1,n:1,c:'Titres',amt:200}],['Titres','Charges des titres'],pa,
+         (acc,P,p)=> acc==='Titres' ? `Solde : <span class="tag ${p>=1?'good':'bad'}">${fmt(bal(acc,P))}</span> · bourse : <b>800</b>` : '', true)}`;
+     if (ph<2) return casA;
+     // Cas B (phases 2-5)
+     const pb = ph-2;
+     const J = pb<2 ? [{ph:0,open:'Titres',side:'d',amt:1000,lab:'spb'}]
+       : pb===2 ? [{ph:0,open:'Titres',side:'d',amt:1000,lab:'spb'},{ph:2,n:1,d:'Titres',amt:300},{ph:2,n:1,c:'Produits des titres',amt:300}]
        : [{ph:0,open:'Titres',side:'d',amt:1000,lab:'spb'},{ph:3,n:1,d:'Titres',amt:300},{ph:3,n:1,c:'Produits des titres',amt:300},{ph:3,n:2,d:'Produits des titres',amt:300},{ph:3,n:2,c:'Provision pour fluctuation',amt:300}];
-     const accs = ph<2 ? ['Titres'] : ph===2 ? ['Titres','Produits des titres'] : ['Titres','Produits des titres','Provision pour fluctuation'];
-     const cards = `<section class="sec"><h2>Trois possibilités</h2><div class="cards">
-       ${[['B1','Aucune écriture','réserve latente de 300'],['B2','Ajuster à la hausse','Titres / Produits des titres'],['B3','Ajuster et provisionner','+ Produits des titres / Provision pour fluctuation']].map(([k,t,x],i)=>`<div class="card ${ph>=1?(ph===i+1?'on':''):'off'}"><h4>${k} · ${t}</h4><div class="ex">${x}</div></div>`).join('')}</div></section>`;
-     return cards + compta(J, accs, ph, (acc,P)=> acc==='Titres' ? `Solde : <span class="tag neutral">${fmt(bal(acc,P))}</span> · bourse : <b>1'300</b>` : ''); } },
+     const accs = pb<2 ? ['Titres'] : pb===2 ? ['Titres','Produits des titres'] : ['Titres','Produits des titres','Provision pour fluctuation'];
+     const cards = `<section class="sec"><h2>Cas B · la bourse monte</h2><div class="donnee">Solde du compte Titres : <b>1'000</b>. Valeur en bourse au 31.12 : <b>1'300</b>.</div>
+       <div class="cards" style="margin-top:12px">
+       ${[['B1','Aucune écriture','réserve latente de 300'],['B2','Ajuster à la hausse','Titres / Produits des titres'],['B3','Ajuster et provisionner','+ Produits des titres / Provision pour fluctuation']].map(([k,t,x],i)=>`<div class="card ${pb>=1?(pb===i+1?'on':''):'off'}"><h4>${k} · ${t}</h4><div class="ex">${x}</div></div>`).join('')}</div></section>`;
+     return casA + cards + compta(J, accs, pb, (acc,P)=> acc==='Titres' ? `Solde : <span class="tag neutral">${fmt(bal(acc,P))}</span> · bourse : <b>1'300</b>` : '', true); } },
 
  { title:'Clôture : les intérêts courus',
-   ph:[{btn:'Comptabiliser →', text:`À la clôture, il faut encore tenir compte des <b>intérêts courus</b> sur les obligations : les intérêts gagnés depuis la dernière échéance, mais pas encore encaissés.<br><br>Obligations : ${fmt(OB.nom)} à ${OB.taux}&nbsp;%, échéance le ${OB.ech}.`,
-        q:{text:'Au 31.12, ces intérêts courus sont…', opts:[['p','un produit à recevoir'],['c','une charge à payer']], ok:'p',
-           fb:'les intérêts sont gagnés mais pas encore encaissés : c\'est un <b>produit à recevoir</b>, un <b>actif transitoire</b>.'}},
-       {btn:'Suite →', text:`Jours : de l'échéance (${OB.ech}) à la clôture (31.12) = <b>${CL_J} jours</b>.<br>${fmt(OB.nom)} × ${OB.taux} × ${CL_J} ÷ 36'000 = <b>${fmt(CL_IC)}</b><br><br><b>Actifs transitoires / Produits des titres</b> ${fmt(CL_IC)}.`}],
-   stage: ph => (ph>=1 ? `<section class="sec"><h2>Les jours et les intérêts courus</h2><div class="calc" style="max-width:520px"><b>Les jours</b>${joursHTML(15,3,30,12,0,'','Le 31.12 compte comme le 30 (mois de 30 jours).').replace('au 30.12','au 31.12')}</div>
-       <div class="calc" style="max-width:520px"><div class="row big"><span>${fmt(OB.nom)} × ${OB.taux} × ${CL_J} ÷ 36'000</span><span>${fmt(CL_IC)}</span></div></div></section>` : '')
-     + compta([{ph:1,n:1,d:'Actifs transitoires',amt:CL_IC},{ph:1,n:1,c:'Produits des titres',amt:CL_IC}],['Actifs transitoires','Produits des titres'],ph) },
+   ph:[{btn:'Les jours →', text:`À la clôture, il faut encore tenir compte des <b>intérêts courus</b> sur les obligations : les intérêts gagnés depuis la dernière échéance, mais pas encore encaissés.`},
+       {btn:'L\'intérêt →', text:`On compte les jours de l'échéance à la clôture (mois de 30 jours ; le 31.12 compte comme le 30).`},
+       {btn:'Comptabiliser →', text:`Intérêt couru = nominal × taux × jours, divisé par 36'000.`},
+       ...microSteps(mergeRows(CL_JR)).map(s=>({btn:'Suite →', text:s.text, q:s.q}))],
+   stage: ph => `<section class="sec"><h2>La donnée</h2><div class="donnee">Obligations : <b>${fmt(OB.nom)}</b> à <b>${OB.taux}&nbsp;%</b>, échéance le <b>${OB.ech}</b>.</div></section>
+     ${ph>=1 ? `<section class="sec"><h2>Les jours et les intérêts courus</h2><div class="steps3">
+       <div class="calc"><b>Nombre de jours</b><div class="row big"><span>de l'échéance à la clôture = du ${OB.ech} au 31.12 = 15 + 8 × 30 + 30</span><span>${CL_J} jours</span></div></div>
+       ${ph>=2 ? `<div class="calc"><b>Intérêt couru</b><div class="row big fr"><span class="frac"><span>${fmt(OB.nom)} × ${OB.taux} × ${CL_J}</span><span>36'000</span></span><span>${fmt(CL_IC)}</span></div></div>` : ''}</div></section>` : ''}
+     ${ph>=3 ? comptaK(CL_JR, ['Actifs transitoires','Produits des titres'], ph-2, true, ANSWERED ? null : 'Actifs transitoires') : ''}` },
 
  { title:'Rendement d\'actions',
    ph:[{btn:'Capital engagé →', text:`Le <b>taux de rendement</b> mesure ce qu'un placement rapporte par année, en % du capital engagé.`},
        {btn:'Les gains →', text:`On commence par le <b>capital engagé</b> : le prix d'achat.`},
-       {btn:'Annualiser →', text:`Les gains sont les dividendes encaissés et la plus-value (prix de vente − prix d'achat).`},
+       {btn:'Les jours →', text:`Les gains sont les dividendes encaissés et la plus-value ou la moins-value (différence entre le prix de vente et le prix d'achat).`},
+       {btn:'Annualiser →', text:`Combien de jours a duré le placement ? Mois de 30 jours, année de 360 jours.`},
        {btn:'Le taux →', text:`Le placement a duré ${fmt(JOURS)} jours. Pour comparer, on calcule le gain <b>sur une année</b> (360 jours).`,
-        q:{text:'Pour comparer deux placements, on utilise le gain…', opts:[['t','total'],['a','annualisé']], ok:'a',
-           fb:'deux placements de durées différentes ne se comparent que sur <b>une même durée</b> : une année.'}},
-       {btn:'Suite →', text:`Taux de rendement = gain annualisé × 100 ÷ capital engagé.`}],
+        q:{text:'Pourquoi utiliser le gain annualisé ?', opts:[['t','C\'est la loi'],['a','Un taux est toujours annuel']], ok:'a',
+           fb:'un taux d\'intérêt ou de rendement est toujours pour <b>une année</b> : 5% = 5.- par an.'}},
+       {btn:'Suite →', text:`Taux de rendement = gain annualisé × 100, divisé par le capital engagé.`}],
    stage: ph => `<section class="sec"><h2>La donnée</h2><div class="donnee">${fmt(RA.nb)} actions achetées le <b>5.03.${Y-4}</b> au cours de <b>${RA.achat}</b>, vendues le <b>15.06.${Y-1}</b> au cours de <b>${RA.vente}</b>.<br>
        Dividendes versés par action : ${RA.div.map((d,i)=>`${Y-4+i} : <b>${d.toFixed(2)}</b>`).join(' · ')}.</div></section>
      <section class="sec" ${ph<1?'style="display:none"':''}><h2>Calcul du rendement</h2><div class="steps3">
        ${ph>=1?`<div class="calc"><b>1. Capital engagé</b><div class="row"><span>${fmt(RA.nb)} × ${RA.achat}</span><span>${fmt(RA_cap)}</span></div></div>`:''}
        ${ph>=2?`<div class="calc"><b>2. Gains</b>${RA.div.map((d,i)=>`<div class="row"><span>Dividende ${Y-4+i} : ${fmt(RA.nb)} × ${d.toFixed(2)}</span><span>${fmt(d*RA.nb)}</span></div>`).join('')}
-         <div class="row"><span>Plus-value : ${fmt(RA.nb)} × (${RA.vente} − ${RA.achat})</span><span>${fmt(RA_pv)}</span></div><div class="row big"><span>Gain total sur ${fmt(JOURS)} jours</span><span>${fmt(RA_gain)}</span></div></div>`:''}
-       ${ph>=3?`<div class="calc"><b>Gain annualisé</b><div class="row"><span>${fmt(RA_gain)} × 360 ÷ ${fmt(JOURS)}</span><span>${fmt(RA_an)}</span></div>
-         <div style="margin-top:6px"><b>Les jours</b>${joursHTML(5,3,15,6,3,Y-4)}</div></div>`:''}
-       ${ph>=4?`<div class="calc q"><b>3. Taux de rendement</b><div class="row big"><span>${fmt(RA_an)} × 100 ÷ ${fmt(RA_cap)}</span><span>${(Math.round(RA_r*100)/100).toFixed(2)}&nbsp;%</span></div></div>`:''}</div></section>` },
+         <div class="row"><span>Plus-value à la revente : ${fmt(RA.nb)} × (${RA.vente} − ${RA.achat})</span><span>${fmt(RA_pv)}</span></div><div class="row big"><span>Gain total sur ${ph>=3?fmt(JOURS):'?'} jours</span><span>${fmt(RA_gain)}</span></div></div>`:''}
+       ${ph>=3?`<div class="calc"><b>3. Nombre de jours</b><div class="row big"><span>${JOURS_TXT}</span><span>${fmt(JOURS)} jours</span></div></div>`:''}
+       ${ph>=4?`<div class="calc"><b>4. Gain annualisé</b><div class="row big fr"><span class="frac"><span>${fmt(RA_gain)} × 360</span><span>${fmt(JOURS)}</span></span><span>${fmt(RA_an)}</span></div></div>`:''}
+       ${ph>=5?`<div class="calc q"><b>5. Taux de rendement</b><div class="row big fr"><span class="frac"><span>${fmt(RA_an)} × 100</span><span>${fmt(RA_cap)}</span></span><span>${(Math.round(RA_r*100)/100).toFixed(2)}&nbsp;%</span></div></div>`:''}</div></section>` },
 
  { title:'Rendement d\'obligations',
    ph:[{btn:'Capital engagé →', text:`Même calcul pour des obligations.`},
-       {btn:'Les gains →', text:`Le capital engagé est le prix d'achat : nominal × cours.`},
-       {btn:'Le taux →', text:`Les gains annuels sont l'intérêt annuel, moins la perte de cours ramenée à une année.`},
+       {btn:'La revente →', text:`Le capital engagé est le prix d'achat : nominal × cours.`},
+       {btn:'Les jours →', text:`À la revente, le cours est plus bas qu'à l'achat : c'est une <b>perte</b>.`},
+       {btn:'Annualiser →', text:`Combien de jours a duré le placement ? Mois de 30 jours, année de 360 jours.`},
+       {btn:'L\'intérêt →', text:`La perte est ramenée à <b>une année</b> (360 jours).`},
+       {btn:'Le total →', text:`S'ajoute l'<b>intérêt annuel</b> : ${RO.taux}&nbsp;% du nominal.`},
+       {btn:'Le taux →', text:`Le gain annualisé est l'intérêt annuel moins la perte annualisée.`},
        {btn:'Suite →', text:`Le taux de rendement est plus bas que le taux d'intérêt de ${RO.taux}&nbsp;% : l'obligation a été achetée au-dessus du pair (${RO.achat}&nbsp;%) et vendue plus bas.`}],
    stage: ph => `<section class="sec"><h2>La donnée</h2><div class="donnee">Obligations à <b>${RO.taux}&nbsp;%</b> pour <b>${fmt(RO.nom)}</b> de nominal, achetées le <b>5.03.${Y-4}</b> au cours de <b>${RO.achat}&nbsp;%</b>, vendues le <b>15.06.${Y-1}</b> au cours de <b>${RO.vente}&nbsp;%</b>.</div></section>
      <section class="sec" ${ph<1?'style="display:none"':''}><h2>Calcul du rendement</h2><div class="steps3">
        ${ph>=1?`<div class="calc"><b>1. Capital engagé</b><div class="row"><span>${fmt(RO.nom)} × ${RO.achat} %</span><span>${fmt(RO_cap)}</span></div></div>`:''}
-       ${ph>=2?`<div class="calc"><b>2. Gains annuels</b><div class="row"><span>Intérêt annuel : ${RO.taux} % de ${fmt(RO.nom)}</span><span>${fmt(RO_int)}</span></div>
-         <div class="row"><span>Perte de cours : ${fmt(RO.nom)} × (${RO.vente} − ${RO.achat}) %</span><span>${fmt(RO_pv)}</span></div>
-         <div style="margin:4px 0"><b>Les jours</b>${joursHTML(5,3,15,6,3,Y-4)}</div>
-         <div class="row"><span>Perte annualisée : ${fmt(RO_pv)} × 360 ÷ ${fmt(JOURS)}</span><span>${fmt(RO_pvan)}</span></div>
-         <div class="row big"><span>Gain annualisé</span><span>${fmt(RO_an)}</span></div></div>`:''}
-       ${ph>=3?`<div class="calc q"><b>3. Taux de rendement</b><div class="row big"><span>${fmt(RO_an)} × 100 ÷ ${fmt(RO_cap)}</span><span>${(Math.round(RO_r*100)/100).toFixed(2)}&nbsp;%</span></div></div>`:''}</div></section>` }
+       ${ph>=2?`<div class="calc"><b>2. ${RO_pv<0?'Perte':'Gain'} à la revente</b><div class="row"><span>${fmt(RO.nom)} × (${RO.vente} − ${RO.achat}) %</span><span>${fmt(RO_pv)}</span></div></div>`:''}
+       ${ph>=3?`<div class="calc"><b>3. Nombre de jours</b><div class="row big"><span>${JOURS_TXT}</span><span>${fmt(JOURS)} jours</span></div></div>`:''}
+       ${ph>=4?`<div class="calc"><b>4. Gain/Perte à la revente annualisé</b>
+         <div class="row fr"><span>${RO_pv<0?'Perte':'Gain'} annualisé${RO_pv<0?'e':''} : <span class="frac"><span>${fmt(RO_pv)} × 360</span><span>${fmt(JOURS)}</span></span></span><span>${fmt(RO_pvan)}</span></div>
+         ${ph>=5?`<div class="row"><span>+ Intérêt annuel : ${RO.taux} % de ${fmt(RO.nom)}</span><span>${fmt(RO_int)}</span></div>`:''}
+         ${ph>=6?`<div class="row big"><span>= Gain annualisé</span><span>${fmt(RO_an)}</span></div>`:''}</div>`:''}
+       ${ph>=7?`<div class="calc q"><b>5. Taux de rendement</b><div class="row big fr"><span class="frac"><span>${fmt(RO_an)} × 100</span><span>${fmt(RO_cap)}</span></span><span>${(Math.round(RO_r*100)/100).toFixed(2)}&nbsp;%</span></div></div>`:''}</div></section>` }
 ];
 const LAST = STEPS.length-1;
 
@@ -500,6 +611,7 @@ function render(){
   $('next').textContent = pos===A.length-1 ? 'Terminé ✓' : P.btn;
   $('explain').innerHTML = `<h2 class="steptitle">${LET(step)}. ${S.title}</h2>
     <p class="steptext">${P.text}</p>${P.q?qBox(key,P.q):''}`;
+  ANSWERED = !!ANS[key];
   $('stage').innerHTML = S.stage(ph);
 }
 

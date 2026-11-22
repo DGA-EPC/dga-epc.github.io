@@ -312,7 +312,7 @@ const chip = a => `<span>${a}</span>`;   // journal : comptes en noir
 /* Couleur de liaison = compte de destination du montant */
 const LINK = {'Caisse':'#4b5563','Banque':'#4b5563','Machines':'#2a52be','Véhicules':'#2a52be','Stock de marchandises':'#2a52be','Actionnaires':'#0e7490','Participants':'#0e7490',
   'Capital-actions':'#7a2730','Capital-participations':'#7a2730','Réserve légale sur capital':'#6d48b3','Réserve légale sur bénéfice':'#6d48b3',
-  'Bénéfice reporté':'#1f7a4d','Bénéfice de l\'exercice':'#2a52be','Dividendes':'#a3333d','Tantièmes':'#0e7490','Dettes AFC':'#a3333d','Dettes AVS':'#15803d','FAO':'#c2671f'};
+  'Bénéfice reporté':'#1f7a4d','Bénéfice de l\'exercice':'#2a52be','Dividendes':'#a3333d','Tantièmes':'#0e7490','Dettes AFC':'#b58900','Dettes AVS':'#15803d','FAO':'#c2671f'};
 const pill = (acc, txt) => acc ? `<span class="lk" style="color:${LINK[acc]};background:${LINK[acc]}1f;border-color:${LINK[acc]}">${txt}</span>` : txt;
 
 /* ---------- Décompte : d'où viennent les montants ---------- */
@@ -331,7 +331,7 @@ function journalHTML(J, ph){
   const am = (acc, v) => MONO ? f2(v) : pill(acc, f2(v));
   return `<table class="jl2"><tr><th>N°</th><th>Compte débité</th><th>Compte crédité</th><th class="n">Débit</th><th class="n">Crédit</th></tr>
     ${rows.map((e,i)=>{ const sd = e.d && e.phd<=ph, sc = e.c && e.phc<=ph;
-      return `<tr class="${!sd && !sc ? 'hide' : ''}"><td>${i>0 && rows[i-1].n===e.n ? '' : e.n}</td><td>${sd?chip(e.d):''}</td><td>${sc?chip(e.c):''}</td>
+      return `<tr class="${!sd && !sc ? 'hide' : ''}"><td>${i>0 && rows[i-1].n===e.n ? '' : e.n}</td><td>${sd?e.d:''}</td><td>${sc?e.c:''}</td>
       <td class="n">${sd?am(e.d,e.amt):''}</td><td class="n">${sc?am(e.c,e.amt):''}</td></tr>`; }).join('')}</table>`;
 }
 function postings(J, acc, ph){
@@ -438,9 +438,9 @@ function tabDist(ph, done, col, hl=[]){
      const R = [[0,'Bénéfice de l\'exercice','',DB.be,'','Bénéfice de l\'exercice'],[0,'+ Bénéfice reporté','',DB.br,'','Bénéfice reporté'],[0,'= À distribuer','',DB.dist,'tot'],
        [1,'− Réserve légale sur bénéfice',`${TX.resMin}&nbsp;% de ${fmt(DB.be)}`,DB.att,'sub','Réserve légale sur bénéfice'],[2,'− Dividende',`${TX.divOrd}&nbsp;% de ${fmt(DB.lib)}`,DB.div,'sub','Dividendes'],
        [3,'− Tantièmes',`${DB.tant}&nbsp;% de ${fmt(DB.be)}`,DB.tan,'sub','Tantièmes'],[3,'= Solde avant superdividende','',DB.solde,'tot'],
-       [4,'− Superdividende',done?`${pc(DB.taux)} de ${fmt(DB.lib)}`:'? % de '+fmt(DB.lib),done?DB.sup:null,'sub','Dividendes'],[5,'= Bénéfice à reporter','',DB.rep,'tot','Bénéfice reporté']];
+       [5,'− Superdividende',done?`${pc(DB.taux)} de ${fmt(DB.lib)}`:'? % de '+fmt(DB.lib),done?DB.sup:null,'sub','Dividendes'],[6,'= Bénéfice à reporter','',DB.rep,'tot','Bénéfice reporté']];
      return `<section class="sec"><h2>Tableau de distribution du bénéfice</h2><table class="slip nob plain">
-       ${R.filter(r=>ph>=r[0]).map(([p,l,c,v,k,to],i)=>`<tr class="${k||''} ${p===ph||hl.includes(i)?'cur':''}"><td>${l}</td><td class="calc2">${c}</td><td class="n">${v===null?'?':col&&to?pill(to,f2(v)):f2(v)}</td></tr>`).join('')}</table></section>`; }
+       ${R.filter(r=>ph>=r[0] && (r[0]!==5 || done)).map(([p,l,c,v,k,to],i)=>`<tr class="${k||''} ${p===ph||hl.includes(i)?'cur':''}"><td>${l}</td><td class="calc2">${c}</td><td class="n">${v===null?'?':col&&to?pill(to,f2(v)):f2(v)}</td></tr>`).join('')}</table></section>`; }
 
 /* Les séquences des étapes en pas à pas */
 const SC = seq([
@@ -606,28 +606,37 @@ const STEPS = [
  { title:'Avant la distribution du bénéfice',
    ph:[{btn:'Le capital libéré →', text:`Avant de distribuer le bénéfice, on fait deux <b>calculs préliminaires</b> à partir du bilan.`},
        {btn:'Les réserves →', text:`a) Le <b>capital libéré</b> : le dividende se calcule sur le capital <b>versé</b>, pas sur le capital souscrit.<br><br>${fmt(DB.ca)} − ${fmt(DB.nonlib)} = <b>${fmt(DB.lib)}</b> (ou ${DB.pct}&nbsp;% de ${fmt(DB.ca)}).`},
-       {btn:'Le tableau →', text:`b) Les <b>réserves</b> (sur capital + sur bénéfice) atteignent-elles <b>50 %</b> du capital inscrit ?<br><br>${fmt(DB.rc)} + ${fmt(DB.rb)} = ${fmt(DB.res)}. 50&nbsp;% de ${fmt(DB.ca)} = ${fmt(DB.moitie)}.`,
+       {btn:'Le 50 % →', text:`b) Les <b>réserves</b> : réserve légale sur capital + réserve légale sur bénéfice.`},
+       {btn:'Le tableau →', text:`c) Les <b>réserves</b> atteignent-elles <b>50 %</b> du capital-actions inscrit ?<br><br>Si ce n'est pas le cas, il faut attribuer <b>${TX.resMin}&nbsp;% du bénéfice</b> à la réserve légale sur bénéfice.`,
         q:{text:'Faut-il attribuer 5 % du bénéfice à la réserve sur bénéfice ?', opts:[['o','oui'],['n','non']], ok: DB.oblig?'o':'n',
            fb: DB.oblig ? `les réserves (${fmt(DB.res)}, soit ${pc2(DB.resPct)} du capital) n'atteignent pas 50 % : il faut attribuer <b>${TX.resMin} % du bénéfice</b> à la réserve sur bénéfice.`
                         : `les réserves atteignent 50 % du capital : <b>pas d'attribution obligatoire</b>.`}}],
    stage: ph => `<section class="sec"><h2>Extrait du bilan avant la distribution</h2>${bilanHTML('Bilan (extrait)',
-       [['#Capital non libéré'],['Actionnaires',DB.nonlib, ph===1?'cap new':'cap']],
-       [['#Capitaux propres'],[`Capital-actions (libéré à ${DB.pct}&nbsp;%)`,DB.ca, ph===1?'new':''],['Réserve légale sur capital',DB.rc, ph===2?'new':''],['Réserve légale sur bénéfice',DB.rb, ph===2?'new':''],
-        ['Bénéfice reporté',DB.br],['Bénéfice de l\'exercice',DB.be]], false)}</section>
+       [['Actionnaires',DB.nonlib, ph===1?'cap new':'cap']],
+       [['#Capitaux propres'],[`Capital-actions (libéré à ${DB.pct}&nbsp;%)`,DB.ca, ph===1||ph===3?'new':''],['Réserve légale sur capital',DB.rc, ph===2?'new':''],['Réserve légale sur bénéfice',DB.rb, ph===2?'new':''],
+        ['Bénéfice reporté',DB.br],['Bénéfice de l\'exercice',DB.be]], false)
+       /* Actionnaires en bas, à la hauteur du bénéfice de l'exercice */
+       .replace('<div class="bl-side a">','<div class="bl-side a" style="display:flex;flex-direction:column;justify-content:flex-end">')}</section>
      ${ph>=1?`<section class="sec"><h2>Calculs préliminaires</h2>
        <div class="fml2">a) Capital libéré = ${fmt(DB.ca)} − ${fmt(DB.nonlib)} = <span class="sol">${fmt(DB.lib)}</span></div>
-       ${ph>=2?`<div class="fml2">b) Réserves = ${fmt(DB.rc)} + ${fmt(DB.rb)} = ${fmt(DB.res)} ${DB.oblig?'&lt;':'≥'} 50&nbsp;% de ${fmt(DB.ca)} = ${fmt(DB.moitie)}${ph>2||ANS['6.2']?` → <span class="sol">${DB.oblig?`attribuer ${TX.resMin}&nbsp;% du bénéfice`:'pas d\'attribution'}</span>`:''}</div>`:''}</section>`:''}` },
+       ${ph>=2?`<div class="fml2">b) Réserves = ${fmt(DB.rc)} + ${fmt(DB.rb)} = ${fmt(DB.res)}</div>`:''}
+       ${ph>=3?`<div class="fml2">c) 50&nbsp;% du capital-actions inscrit = 50&nbsp;% de ${fmt(DB.ca)} = ${fmt(DB.moitie)}${ph>3||ANS[DB_STEP+'.3']?` → <span class="sol">${DB.oblig?`attribuer ${TX.resMin}&nbsp;% du bénéfice`:'pas d\'attribution'}</span>`:''}</div>`:''}</section>`:''}` },
 
+	   
  { title:'Le tableau de distribution',
    ph:[{btn:'La réserve →', text:`On part du bénéfice de l'exercice, auquel on ajoute le bénéfice reporté : c'est le montant <b>à distribuer</b>.`},
        {btn:'Le dividende →', text:`Réserve sur bénéfice : ${TX.resMin}&nbsp;% du <b>bénéfice de l'exercice</b> (pas du montant à distribuer).<br><br>${TX.resMin}&nbsp;% de ${fmt(DB.be)} = <b>${f2(DB.att)}</b>.`},
        {btn:'Les tantièmes →', text:`Le <b>dividende</b> ordinaire : ${TX.divOrd}&nbsp;% du <b>capital libéré</b>.<br><br>${TX.divOrd}&nbsp;% de ${fmt(DB.lib)} = <b>${f2(DB.div)}</b>.`},
        {btn:'Le superdividende →', text:`Les <b>tantièmes</b> : ${DB.tant}&nbsp;% du bénéfice de l'exercice (selon les statuts ou la décision de l'AG).<br><br>${DB.tant}&nbsp;% de ${fmt(DB.be)} = <b>${f2(DB.tan)}</b>. D'autres attributions sont possibles selon la donnée (réserve facultative, dons…).`},
-       {btn:'Le report →', text:`Avec le <b>solde</b> (${f2(DB.solde)}), on verse un <b>superdividende</b>, en % du capital libéré, arrondi <b>vers le bas</b> à ${pc(TX.arrSuper)}.<br><br>1&nbsp;% du capital libéré = ${fmt(DB.un)}.`,
+       {btn:'Le taux →', text:`Avec le <b>solde</b> (${f2(DB.solde)}), on verse un <b>superdividende</b>, en % du capital libéré.<br><br>On calcule d'abord <b>1&nbsp;%</b> du capital libéré.`},
+       {btn:'Le report →', text:`Combien de « 1&nbsp;% » dans le solde ? Le taux est arrondi <b>vers le bas</b> à ${pc(TX.arrSuper)}.`,
         q:{text:`${fmt(DB.solde)} : ${fmt(DB.un)} = ${DB.tauxBrut.toFixed(2)}. Le taux du superdividende est de…`, opts:[['a',pc(DB.taux)],['b',pc(DB.taux+TX.arrSuper)],['c',pc2(DB.tauxBrut)]], ok:'a',
            fb:`on arrondit <b>vers le bas</b> à ${pc(TX.arrSuper)} : on ne peut pas verser plus que le solde. <b>${pc(DB.taux)}</b> de ${fmt(DB.lib)} = ${f2(DB.sup)}.`}},
        {btn:'Comptabiliser →', text:`Ce qui reste est le <b>bénéfice à reporter</b> : ${f2(DB.solde)} − ${f2(DB.sup)} = <b>${f2(DB.rep)}</b>.<br><br>Dividendes en tout : ${f2(DB.div)} + ${f2(DB.sup)} = <b>${f2(DB.divTot)}</b>.`}],
-   stage: ph => tabDist(ph, ph>4 || ANS['7.4'], false) },
+   stage: ph => { const done = ph>5 || ANS['7.5'];
+     return tabDist(ph, done, false) + (ph>=4 ? `<section class="sec"><h2>Calcul du superdividende</h2>
+       <div class="fml2">1&nbsp;% du capital libéré = 1&nbsp;% de ${fmt(DB.lib)} = ${fmt(DB.un)}</div>
+       ${ph>=5 ? `<div class="fml2">Taux du superdividende = ${fmt(DB.solde)} : ${fmt(DB.un)} = ${DB.tauxBrut.toFixed(2)}${done ? ` → arrondi vers le bas : <span class="sol">${pc(DB.taux)}</span>` : ''}</div>` : ''}</section>` : ''); } },
 
  { title:'Comptabiliser la distribution',
    ph:SI.P,
@@ -655,6 +664,7 @@ const STEPS = [
 ];
 
 const LAST = STEPS.length-1;
+const DB_STEP = STEPS.findIndex(s=>s.title==='Avant la distribution du bénéfice');
 
 /* ---------- Actions ---------- */
 const A = [];

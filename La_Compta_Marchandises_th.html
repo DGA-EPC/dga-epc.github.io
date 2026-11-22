@@ -310,7 +310,7 @@ function tHTML(acc, P, focus, eff){
 function journalHTML(J, ph){
   const rows = J.filter(e=>!e.open);
   return `<table class="jl2"><tr><th>N°</th><th>Compte débité</th><th>Compte crédité</th><th class="n">Montant</th></tr>
-    ${rows.map(e=>`<tr class="${e.ph>ph?'hide':''}"><td>${e.n}</td><td>${chip(e.d)}</td><td>${chip(e.c)}</td><td class="n">${fmt(e.amt)}</td></tr>`).join('')}</table>`;
+    ${rows.map(e=>`<tr class="${e.ph>ph?'hide':''}"><td>${e.n}</td><td>${e.d}</td><td>${e.c}</td><td class="n">${fmt(e.amt)}</td></tr>`).join('')}</table>`;
 }
 function compta(J, accs, ph, eff){
   const ts = accs.map(acc=>{ const P = postings(J, acc, ph);

@@ -313,7 +313,7 @@ const STEPS = [
        <tr><td>AC (chômage)</td><td class="n">${pc(TAUX.ac)}</td><td class="n">${pc(TAUX.ac)}</td><td>salaire AVS, jusqu'à ${fmt(TAUX.acPlafond)} par mois</td></tr>
        <tr><td>LAA : AANP (accident non professionnel)</td><td class="n">env. ${pc(TAUX.aanp)}</td><td class="n">—</td><td>salaire AVS, jusqu'à ${fmt(TAUX.acPlafond)} par mois · taux selon l'assureur</td></tr>
        <tr><td>LAA : AAP (accident professionnel)</td><td class="n">—</td><td class="n">selon l'assureur</td><td>payée par l'entreprise seule</td></tr>
-       <tr class="hl"><td>LPP (2<sup>e</sup> pilier)</td><td class="n">maximum la moitié</td><td class="n">au moins la moitié</td><td>salaire coordonné · voir ci-dessous</td></tr></table>
+       <tr><td>LPP (2<sup>e</sup> pilier)</td><td class="n">maximum la moitié</td><td class="n">au moins la moitié</td><td>salaire coordonné · voir ci-dessous</td></tr></table>
        ${Y>TAUX.annee?`<div class="warn2">Attention : ces taux datent de ${TAUX.annee}. Ils doivent être vérifiés pour ${Y}.</div>`:''}</div></section>
      <section class="sec"><div class="lpp"><h3>Informations LPP ${TAUX.annee}</h3><table class="tt">
        <div style="margin:10px 0 4px;font-weight:600">Salaire coordonné = salaire AVS − déduction de coordination</div>
@@ -322,7 +322,7 @@ const STEPS = [
        <tr><td>Salaire coordonné minimal</td><td class="n"><b>${fmt(TAUX.lppMinCoord/12)}</b> par mois</td><td class="n">${fmt(TAUX.lppMinCoord)} par an</td></tr>
        <tr><td>Salaire coordonné maximal (obligatoire)</td><td class="n"><b>${fmt(TAUX.lppMaxAssure/12)}</b> par mois</td><td class="n">${fmt(TAUX.lppMaxAssure)} par an</td></tr></table>
        <table class="tt"><tr><th>Âge</th><th class="n">Taux total minimal</th><th class="n">dont employé (moitié)</th></tr>
-       ${TAUX.lppAge.map(([a,t])=>`<tr class="${t/2===TAUX.lppExemple?'hl':''}"><td>${a}</td><td class="n">${pc(t)}</td><td class="n">${pc(t/2)}</td></tr>`).join('')}</table>
+       ${TAUX.lppAge.map(([a,t])=>`<tr><td>${a}</td><td class="n">${pc(t)}</td><td class="n">${pc(t/2)}</td></tr>`).join('')}</table>
        <p class="note">Ce sont les minimums légaux. Chaque caisse de pension peut prévoir des taux plus élevés.</p></div></section>` },
 
  { title:'Les assurances sociales',

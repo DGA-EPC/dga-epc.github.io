@@ -264,7 +264,7 @@ function journalHTML(J, ph){
   rows = Object.values(byN).flatMap(g => g.length===2 && g[0].d && g[1].c && g[0].amt===g[1].amt
     ? [{ph:g[0].ph, n:g[0].n, d:g[0].d, c:g[1].c, amt:g[0].amt}] : g);
   return `<table class="jl2"><tr><th>N°</th><th>Compte débité</th><th>Compte crédité</th><th class="n">Débit</th><th class="n">Crédit</th></tr>
-    ${rows.map(e=>`<tr class="${e.ph>ph?'hide':''}"><td>${e.n}</td><td>${e.d?chip(e.d):''}</td><td>${e.c?chip(e.c):''}</td>
+    ${rows.map(e=>`<tr class="${e.ph>ph?'hide':''}"><td>${e.n}</td><td>${e.d||''}</td><td>${e.c||''}</td>
       <td class="n">${e.d?pill(LINK[e.d]?e.d:null,fmt(e.amt)):''}</td><td class="n">${e.c?pill(LINK[e.c]?e.c:null,fmt(e.amt)):''}</td></tr>`).join('')}</table>`;
 }
 function postings(J, acc, ph){

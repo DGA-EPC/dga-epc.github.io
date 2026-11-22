@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le tableau de financement – théorie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theorie.css">
+<style>
+:root{
+  --bg:#f5f3ee; --card:#fff; --ink:#1e2226; --muted:#6a6f76; --line:#e2ddd2; --soft:#efebe3;
+  --charge:#c2671f; --charge-bg:#fcefe3;
+  --produit:#2b8352; --produit-bg:#e6f4eb;
+  --res:#6d48b3; --res-bg:#efe9f9;
+  --passif:#a3333d; --passif-bg:#f8e8ea;
+  --bilan:#20394f; --bilan-bg:#e6ecf1;
+  --actif:#2a52be; --actif-bg:#e8eefb;
+  --accent:#c98a10; --accent-bg:#fff3d6;
+  /* les trois secteurs et les liquidités (mêmes couleurs que le schéma Flux.xlsx) */
+  --exp:#2f6db5; --exp-bg:#dbe8f6;
+  --inv:#3f8f3a; --inv-bg:#dff0d6;
+  --fin:#c95a24; --fin-bg:#fbe0d2;
+  --liq:#b0418c; --liq-bg:#f4d6ee;
+  --nm:#17739e;  --nm-bg:#9fd8f1;     /* non monétaire */
+}
+
+/* Fenêtre « Données de l'exercice » */
+.btn.data{width:100%;margin-bottom:8px;background:var(--liq-bg);border-color:var(--liq);color:var(--ink)}
+.btn.data.on{background:var(--liq);color:#fff}
+.dlg{position:fixed;right:18px;top:60px;z-index:80;width:min(600px,calc(100vw - 24px));max-height:calc(100vh - 80px);max-width:calc(100vw - 16px);min-width:320px;min-height:140px;resize:both;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:2px solid var(--liq);border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.35);color:var(--ink)}
+.dlg[hidden]{display:none}
+.dlg-h{display:flex;align-items:center;gap:6px;padding:6px 8px 6px 12px;background:var(--liq-bg);border-radius:12px 12px 0 0;cursor:move;user-select:none;touch-action:none}
+.dlg-h b{flex:1;font-size:13.5px}
+.dlg-h button{font:600 12.5px Inter,system-ui,sans-serif;border:1px solid var(--line);background:#fff;border-radius:7px;padding:3px 8px;cursor:pointer}
+.dlg-h button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.dlg-b{flex:1;min-height:0;overflow:auto;padding:8px 10px 10px;font-size:calc(12px * var(--dz,1))}
+.dbil{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.dbil>div:first-child{border-right:2px solid var(--ink);padding-right:6px}
+.dbil>div:last-child{padding-left:6px}
+.dt{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.dt th{font-size:.92em;color:var(--muted);font-weight:600;text-align:right;border-bottom:2px solid var(--ink);padding:2px 3px}
+.dt th:first-child{text-align:left;color:var(--ink);font-size:1.05em}
+.dt td{padding:1px 3px;border-bottom:1px dotted var(--line);text-align:right;white-space:nowrap}
+.dt td:first-child{text-align:left;white-space:normal}
+.dt tr.g td{font-weight:700;font-size:.9em;color:var(--muted);border-bottom:0;padding-top:5px}
+.dt tr.tot td{font-weight:800;border-top:2px solid var(--ink);border-bottom:0}
+.dt tr.hl td{background:var(--hl);font-weight:600}
+.dinfo{margin-top:8px;font-size:.95em;background:#f6f3ec;border-left:4px solid var(--accent);border-radius:6px;padding:4px 8px}
+.dinfo div::before{content:"• "}
+
+/* Repère « Où en est-on dans le tableau ? » */
+.plansec{padding:10px 14px 12px}
+.plansec h2{margin-bottom:8px}
+.plan{display:flex;gap:6px;flex-wrap:wrap;align-items:stretch}
+.pg{flex:1 1 130px;border:2px solid var(--c);border-radius:10px;padding:6px 10px;font-size:12.5px;font-weight:700;color:var(--c);background:#fff;opacity:.3;display:flex;flex-direction:column;justify-content:center}
+.pg.on{opacity:1;background:var(--cbg)}
+.pg.exp{--c:var(--exp);--cbg:var(--exp-bg);flex:2.2 1 280px}
+.pg.inv{--c:var(--inv);--cbg:var(--inv-bg)}.pg.fin{--c:var(--fin);--cbg:var(--fin-bg)}.pg.liq{--c:var(--liq);--cbg:var(--liq-bg)}
+.pm{display:flex;gap:6px;margin-top:4px}
+.pm span{flex:1;text-align:center;border-radius:7px;padding:2px 6px;font-size:12px;font-weight:600;background:#fff;border:1px dashed var(--c);opacity:.55}
+.pm span.on{opacity:1;border-style:solid;background:var(--c);color:#fff}
+
+/* Tri des autres charges */
+.sortl{border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:13.5px;font-variant-numeric:tabular-nums}
+.sorth{font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:4px}
+.sortr{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:6px 6px;border-bottom:1px dashed var(--line);border-radius:6px;animation:fadein .4s ease-out}
+.sortr .am{text-align:right;font-weight:600}
+.sortr .stg{grid-column:1/-1;font-size:12.5px;color:var(--muted)}
+.sortr.cur{background:var(--hl);font-weight:700}
+.sortr.out .lb,.sortr.out .am{text-decoration:line-through;color:var(--muted)}
+
+/* Trois instruments de gestion */
+.insg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.ins table{width:100%;border-collapse:collapse;font-size:13.5px;animation:fadein .5s ease-out}
+.ins th,.ins td{border:1px solid #6b6b6b;padding:6px 8px;text-align:center}
+.ins th.t1{background:#7a1f2b;color:#fff;font-weight:600;font-size:14.5px}
+.ins th.t2{background:#ecd3d8;font-weight:700;width:50%}
+.ins td{text-align:left}
+.ins td.big{height:74px;text-align:center}
+.ins .cap{font-size:12px;color:var(--muted);text-align:center;margin-top:4px}
+.law{margin-top:12px;border-left:4px solid #7a1f2b;background:#f9eef0;border-radius:6px;padding:8px 12px;font-size:14px}
+.def.liq{border-color:var(--liq);background:#fdf5fb}
+.def.liq h3{color:var(--liq)}
+@media (max-width:1100px){ .insg{grid-template-columns:1fr} }
+
+/* Résumé : du bilan au tableau des flux */
+.rs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start}
+.rs h4{margin:0 0 4px;text-align:center;font-family:Fraunces,Georgia,serif;font-size:16px}
+.rsT{display:grid;grid-template-columns:1fr 1fr;border-top:2px solid var(--ink)}
+.rsT>div{display:flex;flex-direction:column;gap:3px;padding:4px}
+.rsT>div:first-child{border-right:2px solid var(--ink)}
+.rb{border-radius:6px;padding:6px 8px;font-size:13px;font-weight:600;background:#eeece7;color:#9a968c;transition:background .5s,color .5s,box-shadow .3s}
+.rb small{display:block;font-weight:500;font-size:11.5px}
+.rb.tall{min-height:58px}
+.rb.on{color:var(--ink)}
+.rb.cur{box-shadow:0 0 0 3px var(--accent)}
+.rb.liq.on{background:var(--liq-bg)}.rb.exp.on{background:var(--exp-bg)}.rb.inv.on{background:var(--inv-bg)}.rb.fin.on{background:var(--fin-bg)}.rb.nm.on{background:var(--nm-bg)}
+.rb.ad.on{background:repeating-linear-gradient(135deg,var(--exp-bg) 0 8px,var(--inv-bg) 8px 16px)}
+.rsarr{display:grid;grid-template-columns:1fr 1fr;text-align:center;font-size:12.5px;font-weight:600;color:var(--muted);margin:4px 0 14px}
+.rsarr span::before{content:"↑";display:block;font-size:18px;line-height:1}
+.rsF{display:flex;flex-direction:column;gap:6px}
+.rsF .rb{font-size:13.5px}
+.rsF .rb .f{font-weight:500;font-size:12.5px;margin-top:3px}
+.rsF .meth{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.rsnote{font-size:12.5px;color:var(--muted);margin-top:8px}
+.calc.q{background:var(--bilan-bg)}
+.ch.ko{background:var(--charge);border-color:var(--charge);color:#fff;opacity:1}
+.fb.ko{border-left:4px solid var(--charge)}
+.ch.blink{animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{0%,100%{box-shadow:0 0 0 0 rgba(32,57,79,0)}50%{box-shadow:0 0 0 5px rgba(201,138,16,.75);background:var(--accent-bg)}}
+@keyframes fadein{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.new-card{animation:fadein .5s ease-out}
+
+/* Parties */
+.parts{display:flex;gap:6px;margin-top:12px}
+.parts button{flex:1;font:inherit;font-size:12px;font-weight:600;border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 4px;cursor:pointer;line-height:1.2}
+/* B et C : les deux méthodes du même secteur d'exploitation (même couleur) */
+.parts button[data-p="B"],.parts button[data-p="C"]{border:2px solid var(--exp);background:var(--exp-bg)}
+.parts button[data-p="B"].on,.parts button[data-p="C"].on{background:var(--exp) !important;border-color:var(--exp) !important}
+.parts button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.parts button small{display:block;font-weight:500;font-size:10.5px;opacity:.75}
+.dots .sep{width:8px;flex:none}
+
+/* Comptes en T */
+.t{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 9px 8px;position:relative;min-width:0;max-width:380px}
+.t-head{font-weight:700;font-size:13.5px;text-align:center;padding:0 4px;white-space:normal;line-height:1.2}
+.t-body{display:grid;grid-template-columns:1fr 1fr;min-height:46px}
+.col{padding:4px 4px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.ln{display:flex;flex-wrap:wrap;justify-content:space-between;gap:3px;font-size:12px;border-radius:4px;padding:1px 3px}
+.ln .lb{color:var(--muted);line-height:1.25;min-width:0}
+.ln.q{background:var(--accent-bg);outline:2px dashed var(--accent);outline-offset:-2px;font-weight:700}
+.ln.q .am{color:var(--accent);font-size:14px}
+.ln.new{background:var(--hl);font-weight:700;animation:pop 1.6s ease-out}
+.ln.tot{border-top:1.5px solid var(--ink);margin-top:auto;font-weight:700;border-radius:0}
+.ln.tot .lb{color:var(--ink)}
+
+/* Tableau des flux */
+.ft{width:100%;max-width:660px;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.ft td{padding:5px 10px;border-bottom:1px dashed var(--line)}
+.ft td.n{text-align:right;white-space:nowrap;width:120px}
+.ft td.neg{color:var(--charge)}
+.ft tr.sh td{font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--c,var(--muted));border-bottom:2px solid var(--c,var(--ink));padding-top:12px}
+.ft tr.sh:first-child td{padding-top:2px}
+.ft tr.sh.sub td{border-bottom:0;font-size:11.5px;padding-bottom:2px}   /* sous-titres (encaissements, achats…) : sans trait */
+.ft tr.t td{font-weight:700;border-top:1.5px solid var(--ink)}
+.ft tr.cf td{font-weight:800;font-size:15px;background:var(--exp-bg);color:var(--exp);border-top:2px solid var(--ink)}
+.ft tr.vl td{font-weight:800;font-size:15px;background:var(--liq-bg);border-top:2px solid var(--ink)}
+.ft tr.vl td.neg,.ft tr.cf td.neg{color:inherit}
+.ft tr.new td{background:var(--hl);animation:pop 1.6s ease-out}
+.ft tr.ok td{color:var(--produit);font-weight:800}
+
+/* Extrait du bilan */
+.bx{max-width:760px}
+.bx td.up{color:var(--actif);font-weight:600}
+.bx td.dn{color:var(--charge);font-weight:600}
+.bx tr.hl td{background:var(--hl);font-weight:600}
+.side{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-radius:5px;padding:1px 5px;margin-right:4px;vertical-align:1px}
+.side.A{background:var(--actif-bg);color:var(--actif)}
+.side.P{background:var(--passif-bg);color:var(--passif)}
+.fx{display:inline-block;padding:2px 9px;border-radius:7px;font-weight:600;font-size:12px;white-space:nowrap}
+.fx.s{background:var(--produit-bg);color:var(--produit)}
+.fx.u{background:var(--charge-bg);color:var(--charge)}
+.fx.z{background:var(--soft);color:var(--muted)}
+.fx.m{background:var(--produit-bg);color:var(--produit)}
+.fx.n{background:#ece9f5;color:var(--res)}
+
+/* Compte de résultat */
+.crt{display:grid;grid-template-columns:1fr 1fr;max-width:760px;font-size:13.5px;font-variant-numeric:tabular-nums}
+.crt>div{display:flex;flex-direction:column}
+.crt>div:first-child{border-right:2px solid var(--ink);padding-right:12px}
+.crt>div:last-child{padding-left:12px}
+.crh{font-weight:700;border-bottom:2px solid var(--ink);padding:3px 4px}
+.crr{display:flex;justify-content:space-between;gap:8px;padding:4px;border-bottom:1px dashed var(--line);align-items:center}
+.crr span:first-child{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
+.crr.bn{color:var(--res);font-weight:700}
+.crr.hl{background:var(--hl)}
+.crr.tot{font-weight:800;border-top:2px solid var(--ink);border-bottom:0;margin-top:auto}
+
+/* Grandes tuiles */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:660px}
+.tile{border-radius:14px;padding:14px 16px;text-align:center;border:2px solid var(--c);background:#fff}
+.tile .lb{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.tile .big{font-family:Fraunces,Georgia,serif;font-size:36px;font-weight:700;color:var(--c);line-height:1.2;margin:4px 0}
+.tile small{color:var(--muted)}
+.tile.pop .big{animation:fadein .6s ease-out}
+
+/* Secteurs */
+.sects{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.sect{border:1px solid var(--line);border-top:6px solid var(--c);border-radius:12px;padding:12px 14px;transition:opacity .3s}
+.sect .ico{font-size:26px;margin-bottom:4px}
+.sect h4{margin:0 0 6px;color:var(--c);font-size:16px}
+.sect p{margin:0 0 6px;font-size:13.5px}
+.sect.off{opacity:.15}
+.sect.on{box-shadow:0 0 0 2px var(--accent);animation:fadein .5s ease-out}
+.eqbar{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;margin-top:18px;justify-content:center;animation:fadein .5s ease-out}
+.eqb{border:2px solid var(--c);border-radius:10px;padding:8px 14px;text-align:center;font-weight:700;color:var(--c);min-width:120px;font-variant-numeric:tabular-nums;background:#fff}
+.eqb small{display:block;font-weight:600;font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.eqop{align-self:center;font-size:22px;font-weight:800}
+
+/* Règle sources / utilisations */
+.rg{border-collapse:separate;border-spacing:6px;font-size:14px}
+.rg th{font-weight:700;padding:4px 10px;font-size:15px}
+.rg th.a{color:var(--actif)}.rg th.p{color:var(--passif)}
+.rg td{padding:10px 16px;border-radius:10px;text-align:center;font-weight:700;min-width:170px;transition:box-shadow .3s}
+.rg td.lb{text-align:right;color:var(--muted);min-width:0;padding:0 4px}
+.rg td.src{background:var(--produit-bg);color:var(--produit)}
+.rg td.use{background:var(--charge-bg);color:var(--charge)}
+.rg td small{display:block;font-weight:500;font-size:12px;color:var(--ink)}
+.rg td.on{box-shadow:0 0 0 3px var(--accent)}
+.rg.sm td{padding:6px 10px;min-width:120px;font-size:13px}
+
+/* Divers */
+.donnee{font-size:14.5px;background:#f6f3ec;border-left:4px solid var(--accent);border-radius:6px;padding:8px 12px;margin-bottom:12px}
+.dcalc{border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+.dcalc td{padding:4px 10px;border-bottom:1px dashed #9c9282}
+.dcalc td.am{text-align:right;font-weight:600;white-space:nowrap}
+.dcalc tr.tot td{border-bottom:0;border-top:2px solid var(--ink);font-weight:700;background:var(--hl)}
+.dcalc caption{text-align:left;font-weight:700;padding-bottom:6px}
+.split{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:18px;align-items:start}
+.stack{display:flex;flex-direction:column;gap:12px}
+.def{border:3px solid var(--produit);border-radius:14px;padding:12px 16px;background:#f6fbf7;max-width:660px;animation:fadein .5s ease-out}
+.def h3{margin:0 0 6px;font-family:Fraunces,Georgia,serif;color:var(--produit)}
+.def .f{font-size:15px;font-weight:700;margin-top:6px}
+.qa{animation:fadein .5s ease-out}
+.qa p{margin:0 0 6px}
+.cards .qa.ok{box-shadow:0 0 0 2px var(--produit)}
+.chart.wf text{font-size:12px}
+.chart.wf .v{font-size:14px;font-weight:700}
+.chart.wf .q{font-size:30px;font-weight:700}
+.chart.wf .bar{animation:fadein .6s ease-out}
+
+@media (max-width:1100px){ .split{grid-template-columns:1fr} }
+@media print{ .dlg{display:none !important} }
+@media (max-width:860px){ .rs{grid-template-columns:1fr} .dlg{top:auto;bottom:120px;right:12px;max-height:65vh} }
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;padding:12px 12px 90px}
+  aside{position:static;max-height:none;overflow:visible}
+  .nav-wrap{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(245,243,238,.95);backdrop-filter:blur(6px);padding:10px 12px;border-top:1px solid var(--line)}
+  .two,.sects,.tiles{grid-template-columns:1fr}
+  .rg td{min-width:0}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="panel">
+      <h1>Le tableau de financement</h1>
+      <p class="sub">Tableau des flux de trésorerie · méthodes directe et indirecte</p>
+      <div class="parts" id="parts"></div>
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <div class="panel" id="explain"></div>
+
+    <div class="nav-wrap">
+      <button class="btn data" id="data-btn" title="Afficher le bilan et le compte de résultat de l'exercice">📋 Données : bilan · compte de résultat</button>
+      <div class="nav">
+        <button class="btn" id="prev">← Précédent</button>
+        <button class="btn primary" id="next">Suite →</button>
+      </div>
+    </div>
+
+    <div class="nav exit">
+      <button class="btn quit" id="quit">Quitter</button>
+    </div>
+    <p class="note" id="quit-msg" style="display:none;color:#fff">Le navigateur ne permet pas de fermer cette fenêtre automatiquement : fermer l'onglet.</p>
+  </aside>
+
+  <main class="stage" id="stage"></main>
+</div>
+<div class="dlg" id="dlg" hidden><div class="dlg-h" id="dlg-h"><b>📋 NovaNet SA · données de départ</b><button data-tab="b">Bilan</button><button data-tab="r">Résultat</button><button id="dzm" title="Réduire">A−</button><button id="dzp" title="Agrandir">A+</button><button id="dx" title="Fermer">✕</button></div><div class="dlg-b" id="dlg-b"></div></div>
+<div class="zoombar"><button id="zm" title="Réduire la taille" aria-label="Réduire la taille">A−</button><button id="zp" title="Agrandir la taille" aria-label="Agrandir la taille">A+</button></div>
+
+<script>
+/* ---------- Réglages ---------- */
+const Y = new Date().getFullYear() - 1, Y0 = Y - 1;   // exercice analysé (N) : l'année précédente ; N-1 : celle d'avant
+const ANS = {};                                    // réponses choisies, clé "étape.phase"
+const fmt = n => { const neg=n<0; n=Math.abs(Math.round(n*100)/100); const [i,d]=n.toFixed(2).split('.');
+  return (neg?'−':'') + i.replace(/\B(?=(\d{3})+(?!\d))/g,"'") + (d!=='00' ? '.'+d : ''); };
+const sgn = n => n>0 ? '+'+fmt(n) : fmt(n);
+const $ = id => document.getElementById(id);
+let CUR = {step:0, ph:0};
+const done = () => !!ANS[CUR.step+'.'+CUR.ph];     // la question de la phase en cours a reçu une réponse
+
+/* ---------- L'exemple : NovaNet SA (exercice 57.16) ---------- */
+// [clé, compte, N-1, N, A/P]
+const BIL = [
+  ['cai','Caisse',12300,6450,'A'], ['pos','Poste',46780,62980,'A'], ['tit','Titres',64000,38000,'A'],
+  ['cli','Créances clients',46720,74290,'A'], ['duc','− Ducroire',-2000,-3000,'A'],
+  ['clin','Clients nets (créances − ducroire)',44720,71290,'A'],
+  ['par','Produits à recevoir',5800,2600,'A'], ['sto','Stock de marchandises',86400,42600,'A'],
+  ['mob','Mobilier',63000,86100,'A'], ['equ','Équipement',160000,160000,'A'],
+  ['ptc','Participations',60000,80000,'A'], ['pre','Prêt à Bongo SA',160000,140000,'A'],
+  ['fou','Dettes fournisseurs',48500,42420,'P'], ['div','Dividendes',20000,20000,'P'],
+  ['cap','Charges à payer (salaires dus)',4500,2400,'P'], ['ban','Dette bancaire',50000,31000,'P'],
+  ['ca','Capital-actions',400000,400000,'P'], ['res','Réserve légale s/bénéfices',180000,194200,'P']];
+const B = {}; BIL.forEach(([k,lb,a,b,s])=>B[k]={lb,a,b,s});
+
+// Compte de résultat N : [clé, libellé, montant, type] m = monétaire, n = non monétaire, s = correction du stock, b = bénéfice
+const CR_CH = [['ach','Achats de marchandises',980600,'m'],['vst','Variation de stocks',43800,'s'],['sal','Salaires',256200,'m'],
+  ['loy','Loyers',130000,'m'],['ace','ACE',36200,'m'],['amm','Amortissement mobilier',26000,'n'],['ame','Amortissement équipement',40000,'n'],
+  ['bn','Bénéfice net',34200,'b']];
+const CR_PR = [['ven','Produits des ventes',1540000,'m'],['pfi','Produits financiers',7000,'m']];
+
+// Lignes des tableaux : [clé, libellé, montant, classe] ; deux éléments = titre de groupe
+const DIR = [
+  ['h1','Encaissements d\'exploitation'],
+  ['ven','+ Produits des ventes',1540000],
+  ['cli','− Augmentation des clients nets',-26570],
+  ['pfi','+ Produits financiers',7000],
+  ['par','+ Diminution des produits à recevoir',3200],
+  ['tenc','= Encaissements',1523630,'t'],
+  ['h2','Décaissements liés aux achats'],
+  ['ach','− Achats de marchandises',-980600],
+  ['fou','− Diminution des dettes fournisseurs',-6080],
+  ['tach','= Décaissements pour les achats',-986680,'t'],
+  ['h3','Autres décaissements'],
+  ['sal','− Salaires',-256200],
+  ['cap','− Diminution des charges à payer',-2100],
+  ['loy','− Loyers',-130000],
+  ['ace','− ACE',-36200],
+  ['taut','= Autres décaissements',-424500,'t'],
+  ['cf','Cash flow',112450,'cf']];
+const IND = [
+  ['bn','Bénéfice net',34200],
+  ['amm','+ Amortissement mobilier',26000],
+  ['ame','+ Amortissement équipement',40000],
+  ['t1','= Bénéfice + charges non monétaires',100200,'t'],
+  ['h2','Corrections avec le circulant'],
+  ['cli','− Augmentation des clients nets',-26570],
+  ['par','+ Diminution des produits à recevoir',3200],
+  ['sto','+ Diminution du stock',43800],
+  ['fou','− Diminution des dettes fournisseurs',-6080],
+  ['cap','− Diminution des charges à payer',-2100],
+  ['t2','= Total des corrections',12250,'t'],
+  ['cf','Cash flow',112450,'cf']];
+const INV = [
+  ['mob','− Achat de mobilier',-49100],
+  ['equ','− Achat d\'équipement',-40000],
+  ['ptc','− Achat de participations',-20000],
+  ['pre','+ Remboursement du prêt par Bongo SA',20000],
+  ['tinv','= Flux du secteur d\'investissement',-89100,'t']];
+const FIN = [
+  ['ban','− Remboursement de la dette bancaire',-19000],
+  ['div','− Paiement du dividende',-20000],
+  ['tfin','= Flux du secteur de financement',-39000,'t']];
+
+/* ---------- Briques d'affichage ---------- */
+// Lignes d'un tableau jusqu'à la clé "upto" ; à partir de la clé "from" : lignes nouvelles (surlignées)
+function trs(rows, upto, from){
+  const iu = upto==null ? rows.length-1 : rows.findIndex(r=>r[0]===upto);
+  const ifr = from==null ? 1e9 : rows.findIndex(r=>r[0]===from);
+  return rows.slice(0, iu+1).map((r,i)=> r.length===2
+    ? `<tr class="sh sub"><td colspan="2">${r[1]}</td></tr>`
+    : `<tr class="${r[3]||''} ${i>=ifr?'new':''}" ${i===iu&&ifr<1e9?'data-scroll':''}><td>${r[1]}</td><td class="n ${r[2]<0?'neg':''}">${fmt(r[2])}</td></tr>`).join('');
+}
+const ftab = (title, c, inner) => `<table class="ft" style="--c:var(--${c})"><tr class="sh"><td colspan="2">${title}</td></tr>${inner}</table>`;
+const shRow = (title, c) => `<tr class="sh" style="--c:var(--${c})"><td colspan="2">${title}</td></tr>`;
+
+// Effet d'une variation du bilan : source (+) ou utilisation (−)
+function effOf(k){ const r = B[k], v = r.b-r.a;
+  if (!v) return '<span class="fx z">aucun effet</span>';
+  const src = r.s==='A' ? v<0 : v>0;
+  return `<span class="fx ${src?'s':'u'}">${src?'+ source':'− utilisation'}</span>`; }
+// Extrait du bilan : o.hl = lignes surlignées, o.eff = effets affichés (true = tous), o.ask = effets à trouver (?), o.noEff = sans colonne Effet
+function bx(ids, o={}){
+  const hl = o.hl||[], ef = o.eff||[], ask = o.ask||[];
+  const e = k => ef===true || ef.includes(k) ? effOf(k) : ask.includes(k) ? '<span class="fx z">?</span>' : '';
+  return `<table class="tab bx"><tr><th>Compte</th><th>${Y0}</th><th>${Y}</th><th>Variation</th>${o.noEff?'':'<th style="text-align:center">Effet</th>'}</tr>
+    ${ids.map(k=>{ const r = B[k], v = r.b-r.a;
+      return `<tr class="${hl.includes(k)?'hl':''}"><td><span class="side ${r.s}">${r.s==='A'?'actif':'passif'}</span>${r.lb}</td><td>${fmt(r.a)}</td><td>${fmt(r.b)}</td>
+        <td class="${v<0?'dn':v>0?'up':''}">${v>0?'↑ ':v<0?'↓ ':''}${v?sgn(v):'='}</td>${o.noEff?'':`<td style="text-align:center">${e(k)}</td>`}</tr>`; }).join('')}</table>`;
+}
+
+// Compte en T ; un montant null est à trouver (?)
+function tAcc(title, kind, D, C){
+  const pd = kind==='actif', sum = a => a.reduce((s,x)=>s+(x[1]||0),0), tot = Math.max(sum(D), sum(C));
+  const col = arr => arr.map(([lb,amt,cls])=>`<div class="ln ${amt==null?'q':cls||''}"><span class="lb">${lb}</span><span class="am">${amt==null?'?':fmt(amt)}</span></div>`).join('')
+    + `<div class="ln tot"><span class="lb">Total</span><span class="am">${fmt(tot)}</span></div>`;
+  return `<div class="t k-${kind}"><div class="t-sides"><span>D <b>${pd?'+':'−'}</b></span><span class="t-head">${title}</span><span><b>${pd?'−':'+'}</b> C</span></div>
+    <div class="t-body"><div class="col d">${col(D)}</div><div class="col c">${col(C)}</div></div></div>`;
+}
+// Petit calcul en colonne
+const calc = (cap, lines) => `<table class="dcalc">${cap?`<caption>${cap}</caption>`:''}${lines.map(([lb,v,c])=>`<tr class="${c||''}"><td>${lb}</td><td class="am">${fmt(v)}</td></tr>`).join('')}</table>`;
+
+// Compte de résultat : mode 0 sans étiquette, 1 monétaires seulement, 2 toutes
+function crBox(mode, hl=[]){
+  const tag = t => mode===0 ? '' : t==='m' ? '<span class="fx m">monétaire</span>'
+    : mode<2 ? '' : t==='n' ? '<span class="fx n">non monétaire</span>' : t==='s' ? '<span class="fx z">correction du stock</span>' : '';
+  const side = (ttl, arr) => `<div><div class="crh">${ttl}</div>${arr.map(([k,lb,v,t])=>`<div class="crr ${t==='b'?'bn':''} ${hl.includes(k)?'hl':''}"><span>${lb} ${tag(t)}</span><span>${fmt(v)}</span></div>`).join('')}
+    <div class="crr tot"><span>Total</span><span>1'547'000</span></div></div>`;
+  return `<div class="crt">${side('Charges', CR_CH)}${side('Produits', CR_PR)}</div>`;
+}
+
+// Règle des sources et utilisations ; on = case(s) mise(s) en évidence : 'au','ad','pu','pd'
+function rule(on=[], sm){
+  const c = (k, src, ex) => `<td class="${src?'src':'use'} ${on.includes(k)?'on':''}">${src?'+ source':'− utilisation'}${ex&&!sm?`<small>${ex}</small>`:''}</td>`;
+  return `<table class="rg ${sm?'sm':''}"><tr><th></th><th class="a">Actif</th><th class="p">Passif</th></tr>
+    <tr><td class="lb">augmente ↑</td>${c('au',false,'on a acheté, payé, prêté')}${c('pu',true,'on a emprunté, reçu')}</tr>
+    <tr><td class="lb">diminue ↓</td>${c('ad',true,'on a vendu, encaissé')}${c('pd',false,'on a remboursé, payé')}</tr></table>`;
+}
+
+// Cascade des liquidités : n = nombre de secteurs dévoilés (0 à 3)
+function wf(n){
+  const S = [[0,123080,'Liquidités','au 1.1','var(--liq)','123\'080'],
+             [123080,235530,'Exploitation','(cash flow)','var(--exp)','+112\'450'],
+             [146430,235530,'Investissement','','var(--inv)','−89\'100'],
+             [107430,146430,'Financement','','var(--fin)','−39\'000'],
+             [0,107430,'Liquidités','au 31.12','var(--liq)','107\'430']];
+  const base = 245, sc = v => v*205/240000, W = 92, X = i => 34+i*122;
+  let g = '';
+  S.forEach(([lo,hi,l1,l2,col,val],i)=>{
+    const x = X(i), y = base-sc(hi), h = sc(hi-lo), hid = i>=1 && i<=3 && i>n;
+    g += hid ? `<rect x="${x}" y="${base-205}" width="${W}" height="205" rx="6" fill="none" stroke="#bbb" stroke-dasharray="6 5"/><text class="q" x="${x+W/2}" y="${base-90}" text-anchor="middle" style="fill:#bbb">?</text>`
+             : `<g class="bar"><rect x="${x}" y="${y}" width="${W}" height="${h}" rx="4" style="fill:${col}" opacity=".88"/><text class="v" x="${x+W/2}" y="${y-7}" text-anchor="middle" style="fill:${col}">${val}</text></g>`;
+    g += `<text x="${x+W/2}" y="${base+18}" text-anchor="middle" style="fill:var(--ink);font-weight:600">${l1}</text><text x="${x+W/2}" y="${base+33}" text-anchor="middle">${l2}</text>`;
+    if (i<4){ const lvl = [123080,235530,146430,107430][i], nextHid = i+1>=1 && i+1<=3 && i+1>n, curHid = hid;
+      if (!nextHid && !curHid) g += `<line x1="${x+W}" x2="${X(i+1)}" y1="${base-sc(lvl)}" y2="${base-sc(lvl)}" stroke="#999" stroke-dasharray="3 3"/>`; }
+  });
+  return `<svg class="chart wf" viewBox="0 0 650 290" style="max-width:680px">${g}<line x1="20" x2="640" y1="${base}" y2="${base}" stroke="var(--ink)" stroke-width="2"/></svg>`;
+}
+
+// Les trois secteurs
+const SECT = [
+  ['exp','🛒','Exploitation','L\'activité de tous les jours : vendre, acheter les marchandises, payer les salaires, les loyers, les ACE…','Son résultat s\'appelle le <b>cash flow</b>.'],
+  ['inv','🏗️','Investissement','Acheter ou vendre des immobilisés : mobilier, machines, véhicules, participations. Accorder un prêt ou en recevoir le remboursement.',''],
+  ['fin','🏦','Financement','L\'argent des banques et des actionnaires : emprunter, rembourser un emprunt, augmenter le capital, verser des dividendes.','']];
+function eqbar(v){ const b = (c,lb,x) => `<div class="eqb" style="--c:var(--${c})"><small>${lb}</small>${x==null?'?':sgn(x)}</div>`;
+  return `<div class="eqbar">${b('exp','Exploitation',v&&v[0])}<span class="eqop">+</span>${b('inv','Investissement',v&&v[1])}<span class="eqop">+</span>${b('fin','Financement',v&&v[2])}<span class="eqop">=</span>
+    <div class="eqb" style="--c:var(--liq)"><small>Variation des liquidités</small>${v?sgn(v[3]):'?'}</div></div>`; }
+
+/* ---------- Fenêtre « Données de l'exercice » (bilan et compte de résultat de départ) ---------- */
+const DB = {
+  A:[['Actifs circulants',['cai','pos','tit','cli','duc','par','sto']],['Actifs immobilisés',['mob','equ','ptc','pre']]],
+  P:[['Capitaux étrangers à court terme',['fou','div','cap']],['Capitaux étrangers à long terme',['ban']],['Capitaux propres',['ca','res']]]};
+const DINFO = ['Les titres correspondent à des réserves de liquidités.','Les produits à recevoir sont des intérêts à encaisser.','Les charges à payer correspondent à des salaires dus.'];
+const CRKEYS = [...CR_CH, ...CR_PR].map(r=>r[0]);
+let DTAB = 'b', DZ = 1;
+try { DZ = +localStorage.getItem('flux-data-zoom') || 1; } catch(e){}
+function dataHTML(hl){
+  const row = (k, lb, a, b) => `<tr class="${hl.includes(k)?'hl':''}"><td>${lb}</td><td>${fmt(a)}</td>${b==null?'':`<td>${fmt(b)}</td>`}</tr>`;
+  if (DTAB==='b'){
+    const side = (ttl, groups) => `<table class="dt"><tr><th>${ttl}</th><th>${Y0}</th><th>${Y}</th></tr>
+      ${groups.map(([g,ks])=>`<tr class="g"><td colspan="3">${g}</td></tr>`+ks.map(k=>row(k, k==='duc'?'./. Ducroire':B[k].lb, B[k].a, B[k].b)).join('')).join('')}
+      <tr class="tot"><td>Totaux</td><td>703'000</td><td>690'020</td></tr></table>`;
+    return `<div class="dbil"><div>${side('Actif', DB.A)}</div><div>${side('Passif', DB.P)}</div></div>
+      <div class="dinfo"><b>Informations supplémentaires</b>${DINFO.map(x=>`<div>${x}</div>`).join('')}</div>`;
+  }
+  const side = (ttl, arr) => `<table class="dt"><tr><th>${ttl}</th><th>${Y}</th></tr>${arr.map(([k,lb,v])=>row(k, lb, v)).join('')}
+    <tr class="tot"><td>Total</td><td>1'547'000</td></tr></table>`;
+  return `<div class="dbil"><div>${side('Charges', CR_CH)}</div><div>${side('Produits', CR_PR)}</div></div>`;
+}
+function dataRefresh(){
+  const d = $('dlg'); $('data-btn').classList.toggle('on', !d.hidden);
+  if (d.hidden) return;
+  $('dlg-b').style.setProperty('--dz', DZ);
+  // quand les comptes surlignés changent, l'onglet suit (bilan ou résultat) ; un clic sur un onglet reste possible
+  const see = seeOf(), sk = see.join();
+  if (sk !== dataRefresh.last){ dataRefresh.last = sk;
+    if (see.length) DTAB = see.every(k=>CRKEYS.includes(k)) ? 'r' : !see.some(k=>CRKEYS.includes(k)) ? 'b' : DTAB; }
+  d.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('on', b.dataset.tab===DTAB));
+  $('dlg-b').innerHTML = dataHTML(seeOf());
+}
+function dataOpen(open){
+  const d = $('dlg'), see = seeOf();
+  d.hidden = open===undefined ? !d.hidden : !open;
+  if (!d.hidden && !d.style.width) d.style.width = Math.min(innerWidth-24, Math.round(600*DZ))+'px';   // largeur selon la taille des caractères mémorisée
+  // onglet proposé à l'ouverture : celui des comptes dont parle l'étape
+  if (!d.hidden && see.length) DTAB = see.every(k=>CRKEYS.includes(k)) ? 'r' : !see.some(k=>CRKEYS.includes(k)) ? 'b' : DTAB;
+  dataRefresh();
+}
+
+/* ---------- Résumé : du bilan et du compte de résultat au tableau des flux ---------- */
+const RS_ORDER = ['liq','exp','nm','inv','fin','ad'];
+function resume(ph){
+  const rev = RS_ORDER.slice(0, ph), cur = RS_ORDER[ph-1];
+  const rb = (g, lb, sm, cls='') => `<div class="rb ${g} ${cls} ${rev.includes(g)?'on':''} ${g===cur?'cur':''}">${lb}${sm?`<small>${sm}</small>`:''}</div>`;
+  const on = g => `${g} ${rev.includes(g)?'on':''} ${g===cur?'cur':''}`;
+  return `<section class="sec"><h2>Du bilan et du compte de résultat au tableau des flux</h2><div class="rs">
+    <div>
+      <h4>Bilan <small style="font-family:Inter;font-weight:500;color:var(--muted)">(${Y0} et ${Y})</small></h4>
+      <div class="rsT"><div>${rb('liq','Liquidités','caisse, poste, banque, titres')}${rb('exp','Créances clients · Stock · Actifs transitoires','reste de l\'actif circulant')}${rb('inv','Actifs immobilisés','mobilier, machines, participations, prêts accordés','tall')}</div>
+        <div>${rb('exp','Dettes à court terme','fournisseurs, passifs transitoires')}${rb('ad','Autres dettes ***','selon leur origine')}${rb('fin','Dettes à long terme','emprunts, hypothèques')}${rb('fin','Capitaux propres','capital, réserves')}</div></div>
+      <div class="rsarr"><span>Utilisation de fonds (actif ↑ = −)</span><span>Sources des fonds (passif ↑ = +)</span></div>
+      <h4>Compte de résultat <small style="font-family:Inter;font-weight:500;color:var(--muted)">(${Y})</small></h4>
+      <div class="rsT"><div>${rb('exp','Achats')}${rb('exp','Autres charges','salaires, loyers, ACE…')}${rb('nm','Pertes sur créances (provision) · Amortissements')}${rb('nm','Charges exceptionnelles')}${rb('nm','Bénéfice net (BN)')}</div>
+        <div>${rb('exp','Ventes')}${rb('exp','Autres produits','produits financiers…')}${rb('nm','Produits exceptionnels')}${rb('nm','Pertes sur créances (au crédit)')}</div></div>
+    </div>
+    <div>
+      <h4>Tableau des flux ${Y}</h4>
+      <div class="rsF">
+        <div class="rb ${on('exp')}">Secteur d'exploitation
+          <div class="meth"><div class="rb ${on('exp')}">Méthode directe<div class="f">produits monétaires − charges monétaires ± variations du circulant</div></div>
+            <div class="rb ${on('nm')}">Méthode indirecte<div class="f">BN + charges non monétaires − produits non monétaires ± variations du circulant</div></div></div>
+          <div class="f"><b>= Cash flow</b></div></div>
+        ${rb('inv','Secteur d\'investissement','achats et ventes d\'immobilisés, prêts accordés ou remboursés')}
+        ${rb('fin','Secteur de financement','emprunts, remboursements, augmentation de capital, dividendes')}
+        <div style="text-align:center;font-weight:800;font-size:18px">=</div>
+        ${rb('liq','Variation des liquidités','caisse + poste + banque c/c (actif ou passif) + titres (si indiqué dans la donnée)')}
+      </div>
+      ${ph>=6?`<div class="rsnote">*** Autres dettes : facture d'un immobilisé → investissement ; sinon → exploitation.</div>`:''}
+    </div></div></section>`;
+}
+
+/* ---------- Les trois instruments de gestion (bilan, compte de résultat, tableau des flux) ---------- */
+function instruments(){
+  const tb = (ttl, h1, h2, body, cap) => `<div class="ins"><table><tr><th colspan="2" class="t1">${ttl}</th></tr><tr><th class="t2">${h1}</th><th class="t2">${h2}</th></tr>${body}</table><div class="cap">${cap}</div></div>`;
+  return `<section class="sec" data-scroll><h2>Tableau des flux de trésorerie : troisième instrument de gestion</h2><div class="insg">
+    ${tb('Bilan','Actif','Passif',`<tr><td rowspan="2">Actifs circulants</td><td>CE* à court terme</td></tr><tr><td>CE à long terme</td></tr><tr><td>Actifs immobilisés</td><td>Capitaux propres</td></tr>`,'Ce que l\'entreprise possède et doit, au 31.12')}
+    ${tb('Compte de résultat','Charges','Produits',`<tr><td class="big">Coûts</td><td class="big">Chiffre d'affaires</td></tr>`,'Le résultat de l\'année')}
+    ${tb('Tableau des flux de trésorerie','Recettes','Dépenses',`<tr><td class="big">Encaissements</td><td class="big">Décaissements</td></tr>`,'L\'argent entré et sorti pendant l\'année')}</div>
+    <div class="legend">* CE = capitaux étrangers</div>
+    <div class="law">⚖️ <b>CO 961</b> : les entreprises soumises au <b>contrôle ordinaire</b> doivent présenter un <b>tableau de financement</b> en plus du bilan et du compte de résultat.</div></section>`;
+}
+
+/* ---------- Tri des autres charges (partie B, autres décaissements) : [clé, compte, montant, m = monétaire / n = non monétaire] ---------- */
+const SORT = [['loy','Loyers',130000,'m'],['ace','ACE',36200,'m'],['amm','Amortissement mobilier',26000,'n'],['ame','Amortissement équipement',40000,'n']];
+const SORT_FB = {
+  loy:'les loyers ont été <b>payés</b> : charge monétaire. Aucun compte de régularisation au bilan : on reprend <b>130\'000</b>.',
+  ace:'les ACE ont été <b>payées</b> : charge monétaire. Aucun compte de régularisation au bilan : on reprend <b>36\'200</b>.',
+  amm:'l\'amortissement ne fait sortir <b>aucun argent</b> : charge non monétaire. On ne la prend <b>pas</b> dans la méthode directe.',
+  ame:'même raisonnement : charge <b>non monétaire</b>, on ne la prend pas.'};
+// o : liste, titre, textes après monétaire / non monétaire, élément barré (m ou n)
+function sortList(cur, d, o={}){
+  const L = o.list||SORT, tm = o.tm||'→ tableau', tn = o.tn||'→ ignorée', out = o.out||'n';
+  return `<div class="sortl"><div class="sorth">${o.title||'Tri des autres charges'}</div>${L.filter((_,i)=>i<=cur).map(([k,lb,v,m],i)=>{ const res = i<cur || d;
+    return `<div class="sortr ${i===cur&&!d?'cur':''} ${res&&m===out?'out':''}"><span class="lb">${lb}</span><span class="am">${fmt(v)}</span>
+      <span class="stg">${!res?'<span class="fx z">?</span>':m==='m'?`<span class="fx m">monétaire</span> ${tm}`:`<span class="fx n">non monétaire</span> ${typeof tn==='function'?tn(v):tn}`}</span></div>`; }).join('')}</div>`;
+}
+/* Partie C : tri du compte de résultat (méthode indirecte) et corrections du circulant */
+const SORTC = [['loy','Loyers',130000,'m'],['amm','Amortissement mobilier',26000,'n'],['ame','Amortissement équipement',40000,'n']];
+const SORTC_O = {list:SORTC, title:'Tri du compte de résultat', tm:'→ déjà dans le bénéfice, rien à corriger', tn:v=>`→ on rajoute <b>+${fmt(v)}</b>`, out:'m'};
+// [clé du tableau, clé du bilan, case de la règle, bonne réponse, retour]
+const CIRC = [
+  ['cli','clin','au','sub','les clients nets <b>augmentent</b> (actif ↑ → −). Ces ventes sont dans le bénéfice, mais pas encore encaissées : on enlève <b>26\'570</b>.'],
+  ['par','par','ad','add','les produits à recevoir <b>diminuent</b> (actif ↓ → +). On a encaissé les intérêts de l\'an passé, qui ne sont pas dans le bénéfice de cette année : <b>+3\'200</b>.'],
+  ['sto','sto','ad','add','le stock <b>diminue</b> (actif ↓ → +). La charge « variation de stocks » (43\'800) a diminué le bénéfice, mais elle n\'a pas été payée cette année : <b>+43\'800</b>.'],
+  ['fou','fou','pd','sub','les dettes fournisseurs <b>diminuent</b> (passif ↓ → −). On a payé des dettes de l\'an passé : de l\'argent est sorti qui n\'est pas dans les charges de l\'année : <b>−6\'080</b>.'],
+  ['cap','cap','pd','sub','les charges à payer <b>diminuent</b> (passif ↓ → −). On a payé les salaires dus de l\'an passé : <b>−2\'100</b>.']];
+
+/* ---------- Les étapes ---------- */
+// [lettre, nom court (boutons), nom complet (titre de l'étape)]
+const PARTS = [['A','L\'idée','L\'idée et le cash flow'],['B','Exploit. directe','Secteur d\'exploitation · méthode directe'],['C','Exploit. indirecte','Secteur d\'exploitation · méthode indirecte'],
+  ['D','Invest. et financ.','Investissement, financement et tableau complet'],['E','Résumé','Résumé']];
+const LIQC = [['💵','Caisse','Les billets et les pièces.'],['📮','Poste','Le compte postal.'],
+  ['🏦','Banque c/c','Le compte courant. À l\'actif, ou au passif en cas de découvert : il compte alors en moins.'],
+  ['📈','Titres','Seulement si la donnée l\'indique (par exemple « réserves de liquidités »).']];
+const PIEGES = [
+  ['🧾','Les autres dettes','On les classe selon leur <b>origine</b> :<p>• facture de charges (ACE…) → secteur d\'<b>exploitation</b> ;<br>• facture d\'achat d\'un immobilisé → secteur d\'<b>investissement</b>.</p>Exemple : factures ACE 50 → 40 : exploitation <b>−10</b>. Factures d\'immobilisés 10 → 30 : investissement <b>+20</b>.'],
+  ['⚖️','Le ducroire et les pertes sur créances','Augmentation du ducroire pour un <b>risque réel</b> : méthode directe, on déduit les pertes sur créances des encaissements.<p>Augmentation du ducroire pour un <b>risque fictif</b> (provision) : charge non monétaire, méthode indirecte, on rajoute les pertes sur créances au bénéfice.</p>'],
+  ['🏦','La banque','Le compte courant fait partie des liquidités, même au passif (découvert). Une <b>dette bancaire</b> (emprunt) va dans le secteur de <b>financement</b>.'],
+  ['📦','PRAMV ou PRAMA','Méthode directe : on part des <b>achats</b> (PRAMA). Si le compte de résultat donne seulement le PRAMV : + augmentation du stock ou − diminution du stock.'],
+  ['🔁','Charges et produits exceptionnels','Souvent liés à des provisions (création ou dissolution) : ils sont <b>non monétaires</b>. Méthode indirecte : + charges exceptionnelles, − produits exceptionnels.']];
+
+const STEPS = [
+ /* ===== PARTIE A : L'IDÉE ===== */
+ { part:'A', title:'Le bénéfice : de l\'argent&nbsp;?',
+   ph:[{btn:'Et les liquidités ? →', text:`L'entreprise <b>NovaNet SA</b> a réalisé en ${Y} un <b>bénéfice net de 34'200</b>.<br><br>On pourrait croire qu'elle a 34'200 de plus en caisse et à la poste. Vérifions dans le bilan (bouton <b>📋 Données</b>).`},
+       {btn:'Pourquoi ? →', text:`On compare les liquidités au début (31.12.${Y0}) et à la fin (31.12.${Y}) de l'exercice.`,
+        q:{text:'Les liquidités ont-elles augmenté de 34\'200 ?', opts:[['oui','oui'],['non','non']], ok:'non',
+           fb:'elles ont même <b>diminué</b> de 15\'650 : de 123\'080 à 107\'430.'}},
+       {btn:'Un 3e instrument →', text:`Un bénéfice n'est pas que monétaire : les amortissements ne sont pas une sortie d'argent, des ventes n'ont pas été encaissées, l'entreprise a acheté du mobilier, remboursé la banque, …<br><br>Le <b>tableau de financement</b> (ou tableau des flux de trésorerie) explique, d'un exercice à l'autre, <b>d'où vient l'argent et où il est parti</b>.`},
+       {btn:'Suite →', text:`Le tableau des flux de trésorerie est le <b>troisième instrument de gestion</b>, à côté du bilan et du compte de résultat :<br>• le <b>bilan</b> : ce que l'entreprise possède et doit ;<br>• le <b>compte de résultat</b> : ses coûts et son chiffre d'affaires ;<br>• le <b>tableau des flux</b> : l'argent encaissé et décaissé.<br><br>La loi (<b>CO 961</b>) oblige les entreprises soumises au <b>contrôle ordinaire</b> à présenter un tableau de financement en plus du bilan et du compte de résultat.`}],
+   stage: ph => { const show = ph>1 || (ph===1 && done());
+     return `<section class="sec"><h2>NovaNet SA · exercice ${Y}</h2><div class="tiles">
+       <div class="tile" style="--c:var(--res)"><div class="lb">Bénéfice net ${Y}</div><div class="big">34'200</div><small>compte de résultat</small></div>
+       <div class="tile ${show?'pop':''}" style="--c:var(--liq)"><div class="lb">Variation des liquidités</div><div class="big">${show?'−15\'650':'?'}</div><small>${ph>=1?`bilan : ${show?'123\'080 → 107\'430':`${Y0} → ${Y}`}`:'bilan'}</small></div></div></section>
+       ${ph>=2?`<section class="sec" ${ph===2?'data-scroll':''}><h2>D'où vient l'argent, où est-il parti ?</h2>${wf(0)}</section>`:''}
+       ${ph>=3?instruments():''}`; } },
+
+ { part:'A', title:'Le fonds de trésorerie',
+   ph:[{btn:'Et les titres ? →', text:`Le tableau explique la variation d'un <b>fonds</b> : les <b>liquidités</b>.<br><br>Ce sont les comptes d'argent disponible tout de suite.`},
+       {btn:'Le tableau des liquidités →', text:`Lire les informations supplémentaires de l'exercice.`,
+        q:{text:'Les titres de NovaNet SA font-ils partie des liquidités ?', opts:[['oui','oui'],['non','non']], ok:'oui',
+           fb:'la donnée précise que les titres sont des <b>réserves de liquidités</b>.'}},
+       {btn:'Suite →', text:`On dresse le <b>tableau des liquidités</b> : chaque compte en ${Y0} et en ${Y}.<br><br>Les liquidités diminuent de <b>15'650</b>. C'est ce chiffre que le tableau de financement doit expliquer… et retrouver à la fin.<br><br>NovaNet SA n'a pas de compte bancaire courant : sa dette bancaire est un emprunt.`}],
+   stage: ph => `<section class="sec" ${ph===2?'data-scroll':''}><h2>Le tableau des liquidités</h2>
+       <div class="def liq">Il permet de <b>vérifier l'exactitude</b> du tableau de financement et met en évidence les <b>comptes de trésorerie</b> de l'entreprise.</div>
+       ${ph>=2?`<table class="tab bx" style="max-width:560px;margin-top:12px"><tr><th>Fonds</th><th>${Y0}</th><th>${Y}</th><th>Variation</th></tr>
+       ${['cai','pos','tit'].map(k=>`<tr><td>${B[k].lb}</td><td>${fmt(B[k].a)}</td><td>${fmt(B[k].b)}</td><td class="${B[k].b<B[k].a?'dn':'up'}">${sgn(B[k].b-B[k].a)}</td></tr>`).join('')}
+       <tr class="hl"><td><b>Total des liquidités</b></td><td>123'080</td><td>107'430</td><td class="dn">−15'650</td></tr></table>`:''}</section>
+     <section class="sec"><h2>Quels comptes ?</h2><div class="cards">
+       ${LIQC.map(([ic,t,x],i)=>`<div class="qa ${i===3&&(ph>1||(ph===1&&done()))?'ok':''}"><div class="ico">${ic}</div><h4>${t}</h4>${x}</div>`).join('')}</div></section>
+     ${ph>=1?`<section class="sec" ${ph===1?'data-scroll':''}><h2>Informations supplémentaires</h2><div class="donnee">Les titres correspondent à des réserves de liquidités.</div></section>`:''}` },
+
+ { part:'A', title:'Les trois secteurs',
+   ph:[{btn:'Investissement →', text:`Chaque entrée ou sortie d'argent est classée dans <b>un des trois secteurs</b>.<br><br>1. Le secteur d'<b>exploitation</b> : l'activité courante de l'entreprise.`},
+       {btn:'Financement →', text:`2. Le secteur d'<b>investissement</b> : ce que l'entreprise achète pour plusieurs années, ou revend.`},
+       {btn:'Le total →', text:`3. Le secteur de <b>financement</b> : l'argent qui vient des banques et des actionnaires, ou qui leur est rendu.`},
+       {btn:'Suite →', text:`Le <b>total des trois secteurs</b> est égal à la <b>variation des liquidités</b>.<br><br>C'est le contrôle final : si le total ne tombe pas juste, il y a une erreur.`}],
+   stage: ph => `<section class="sec"><h2>Les trois secteurs du tableau</h2><div class="sects">
+       ${SECT.map(([c,ic,t,x,y],i)=>`<div class="sect ${i>ph?'off':''} ${i===ph?'on':''}" style="--c:var(--${c})"><div class="ico">${ic}</div><h4>${i+1}. ${t}</h4><p>${x}</p>${y?`<p>${y}</p>`:''}</div>`).join('')}</div>
+       ${ph>=3?eqbar(null):''}</section>` },
+
+ { part:'A', title:'Sources et utilisations de fonds',
+   ph:[{btn:'Exemple →', text:`Comment savoir si une variation du bilan fait entrer ou sortir de l'argent ?<br><br>• Un <b>actif augmente</b> : l'argent a été <b>utilisé</b> (on a acheté du mobilier…).<br>• Un <b>passif augmente</b> : c'est une <b>source</b> d'argent (on a emprunté…).<br><br>Et l'inverse quand ils diminuent.`},
+       {btn:'Autre exemple →', text:``,
+        q:{text:'Le stock passe de 86\'400 à 42\'600. C\'est…', opts:[['s','une source (+)'],['u','une utilisation (−)']], ok:'s',
+           fb:'le stock (actif) <b>diminue</b> : on a vendu des marchandises achetées avant, sans les remplacer. Cela libère de l\'argent : <b>source, +43\'800</b>.'}},
+       {btn:'Suite →', text:``,
+        q:{text:'Les dettes fournisseurs passent de 48\'500 à 42\'420. C\'est…', opts:[['s','une source (+)'],['u','une utilisation (−)']], ok:'u',
+           fb:'une dette (passif) qui <b>diminue</b> : on a payé des fournisseurs. L\'argent est sorti : <b>utilisation, −6\'080</b>.'}},
+       {btn:'Suite →', text:`À retenir :<br>• <b>actif ↑ → −</b> &nbsp;·&nbsp; <b>actif ↓ → +</b><br>• <b>passif ↑ → +</b> &nbsp;·&nbsp; <b>passif ↓ → −</b><br><br>Cette règle sert dans les trois secteurs.`}],
+   stage: ph => { const on = ph===1&&done() ? ['ad'] : ph===2&&done() ? ['pd'] : ph===3 ? ['au','ad','pu','pd'] : [];
+     const ids = ph===0 ? [] : ph===1 ? ['sto'] : ['sto','fou'];
+     const eff = ph>=3 ? true : ph===2 ? (done()?['sto','fou']:['sto']) : (done()?['sto']:[]);
+     return `<section class="sec"><h2>La règle</h2>${rule(on)}</section>
+       ${ids.length?`<section class="sec" data-scroll><h2>Exemples de NovaNet SA</h2>${bx(ids,{eff, ask:ids})}</section>`:''}`; } },
+
+ { part:'A', title:'Construction du tableau : le cash flow', plan:['dir','ind'],
+   ph:[{btn:'Le cash flow →', text:`On connaît maintenant les outils. Construisons le tableau, <b>secteur par secteur</b>.<br><br>On commence par le <b>1. secteur d'exploitation</b> : l'argent que l'activité courante (vendre, acheter, payer les salaires, les loyers…) a fait entrer ou sortir.`},
+       {btn:'Monétaire ou non ? →', text:`Le résultat du secteur d'exploitation s'appelle le <b>cash flow</b>.<br><br>Il n'est pas égal au bénéfice. Pour le calculer, il faut trier les charges et les produits du compte de résultat : lesquels ont <b>vraiment</b> fait bouger de l'argent ?`}],
+   stage: ph => `<section class="sec"><h2>1. Le secteur d'exploitation</h2><div class="sect on" style="--c:var(--exp);max-width:660px"><div class="ico">${SECT[0][1]}</div><h4>Secteur d'exploitation</h4><p>${SECT[0][3]}</p><p>${SECT[0][4]}</p></div></section>
+     ${ph>=1?`<section class="sec" data-scroll><h2>Définition</h2><div class="def"><h3>Le cash flow</h3>Le bénéfice (ou la perte) <b>uniquement monétaire</b> : ce que l'activité de l'année a réellement fait entrer (ou sortir) comme argent. On dit qu'il a « drainé du cash ».</div>
+       <div class="tiles" style="margin-top:14px"><div class="tile" style="--c:var(--res)"><div class="lb">Bénéfice net ${Y}</div><div class="big">34'200</div><small>compte de résultat</small></div>
+       <div class="tile" style="--c:var(--exp)"><div class="lb">Cash flow ${Y}</div><div class="big">?</div><small>à calculer : parties B et C</small></div></div></section>`:''}` },
+
+ { part:'A', title:'Monétaire ou non monétaire ?', plan:['dir','ind'],
+   ph:[{btn:'Et les amortissements ? →', text:`Pour le cash flow, on trie le compte de résultat. Certaines charges et certains produits font vraiment entrer ou sortir de l'argent : ils sont <b>monétaires</b> (ventes, achats, salaires, loyers…).`},
+       {btn:'Suite →', text:``,
+        q:{text:'Les amortissements (26\'000 + 40\'000) font-ils sortir de l\'argent ?', opts:[['oui','oui'],['non','non']], ok:'non',
+           fb:'l\'argent est sorti le jour de l\'<b>achat</b> du mobilier. L\'amortissement constate seulement la perte de valeur : c\'est une charge <b>non monétaire</b>.'}},
+       {btn:'Deux méthodes →', text:`<b>Charges non monétaires</b> : amortissements, pertes sur créances (provision), charges exceptionnelles.<br><b>Produits non monétaires</b> : produits exceptionnels, pertes sur créances au crédit.<br><br>La <b>variation de stocks</b> n'est pas un paiement non plus : c'est une correction du stock.`},
+       {btn:'Méthode directe →', text:`Grâce à ce tri, deux méthodes calculent le <b>même cash flow</b> :<br>• partie B, <b>méthode directe</b> : on part des charges et produits <b>monétaires</b> ;<br>• partie C, <b>méthode indirecte</b> : on part du <b>bénéfice net</b> et on corrige les éléments <b>non monétaires</b>.<br><br>Dans les deux cas, on tient compte ensuite des variations du circulant (clients, stock, fournisseurs…).`}],
+   stage: ph => `<section class="sec"><h2>Compte de résultat ${Y} de NovaNet SA</h2>${crBox(ph>=2||(ph===1&&done())?2:1, ph===1?['amm','ame']:[])}</section>
+     ${ph>=3?`<section class="sec" data-scroll><h2>Deux méthodes pour un même cash flow</h2><div class="two">
+       <div class="def" style="border-color:var(--exp);background:#f5f9fe"><h3 style="color:var(--exp)">B. Méthode directe</h3>produits <span class="fx m">monétaires</span><br>− charges <span class="fx m">monétaires</span><div class="f">± variations du circulant<br>= Cash flow</div></div>
+       <div class="def" style="border-color:var(--nm);background:#f2fafd"><h3 style="color:var(--nm)">C. Méthode indirecte</h3>bénéfice net<br>+ charges <span class="fx n">non monétaires</span><br>− produits <span class="fx n">non monétaires</span><div class="f">± variations du circulant<br>= Cash flow</div></div></div></section>`:''}` },
+
+ /* ===== PARTIE B : MÉTHODE DIRECTE ===== */
+ { part:'B', title:'Les encaissements',
+   ph:[{btn:'Les clients →', text:`On calcule le cash flow du <b>secteur d'exploitation</b> par la <b>méthode directe</b>.<br><br>Principe : on reprend chaque produit et chaque charge <b>monétaire</b> du compte de résultat et on le corrige pour trouver ce qui a été <b>vraiment encaissé ou payé</b> pendant l'année.<br><br>On commence par les ventes : 1'540'000.`,
+        q:{text:'Le montant des ventes a-t-il été totalement encaissé ? La réponse se trouve dans le bilan.', opts:[['non','Non'],['oui','Oui']], ok:'non',
+           fb:'le compte <b>créances clients</b> a évolué : 46\'720 → 74\'290 (ducroire : −2\'000 → −3\'000).'}},
+       {btn:'Les intérêts →', text:`Les <b>clients</b> : on prend les clients <b>nets</b> (créances clients − ducroire).`,
+        q:{text:'Les clients nets passent de 44\'720 à 71\'290 (+26\'570). A-t-on encaissé…', opts:[['plus','plus que les ventes'],['moins','moins que les ventes']], ok:'moins',
+           fb:'une partie des ventes n\'est <b>pas encore payée</b> : les clients nous doivent 26\'570 de plus. Actif ↑ → <b>−26\'570</b>. Encaissé : 1\'540\'000 − 26\'570 = <b>1\'513\'430</b>.'}},
+       {btn:'Les produits à recevoir →', text:`Les <b>produits financiers</b> : 7'000.`,
+        q:{text:'Doit-on corriger les intérêts ? La réponse est dans la donnée (onglet Bilan) !', opts:[['non','Non'],['oui','Oui']], ok:'oui',
+           fb:'les informations supplémentaires disent que les <b>produits à recevoir</b> concernent des intérêts.'}},
+       {btn:'Suite →', text:`Les <b>produits à recevoir</b> (intérêts à encaisser) passent de 5'800 à 2'600 : on a encaissé ceux de l'an passé.<br><br>Actif ↓ → <b>+3'200</b>.`}],
+   stage: ph => { const d = done();
+     const side = ph===1 ? `${bx(['clin'],{noEff:true})}${tAcc('Clients nets','actif',[['Solde au 1.1',44720],['Ventes',1540000]],[['Encaissements',d?1513430:null,'new'],['Solde au 31.12',71290]])}`
+       : ph===3 ? `${bx(['par'],{noEff:true})}${calc('Intérêts encaissés',[[`Produits financiers ${Y}`,7000],[`+ à recevoir au 1.1 (encaissés en ${Y})`,5800],['− à recevoir au 31.12 (pas encore encaissés)',-2600],['= Intérêts encaissés',10200,'tot']])}` : '';
+     const up = [ 'ven', d?'cli':'ven', 'pfi', 'tenc' ][ph], fr = [ 'ven', d?'cli':null, 'pfi', 'par' ][ph];
+     return `<section class="sec"><h2>Tableau de financement · méthode directe</h2><div class="split">
+       ${ftab('Secteur d\'exploitation','exp', trs(DIR, up, fr))}
+       <div class="stack">${side}</div></div></section>`; } },
+
+ { part:'B', title:'Les décaissements pour les achats',
+   ph:[{btn:'Les fournisseurs →', text:`Les <b>achats de marchandises</b> : 980'600 (PRAMA).`,
+        q:{text:'Les achats ont-ils été payés exactement pour ce montant ? La réponse se trouve dans le bilan.', opts:[['non','Non'],['oui','Oui']], ok:'non',
+           fb:'le compte <b>dettes fournisseurs</b> a évolué : 48\'500 → 42\'420.'}},
+       {btn:'Suite →', text:`Les <b>fournisseurs</b>.`,
+        q:{text:'Les dettes fournisseurs diminuent de 6\'080. A-t-on payé…', opts:[['plus','plus que les achats'],['moins','moins que les achats']], ok:'plus',
+           fb:'on a payé les achats de l\'année <b>et</b> une partie des dettes de l\'an passé : 980\'600 + 6\'080 = <b>986\'680</b>.'}},
+       {btn:'Suite →', text:`Passif ↓ → <b>−6'080</b>.<br><br>On ne prend <b>pas</b> la variation de stocks : ce n'est pas un paiement.<br><br>Attention : si le compte de résultat donne le <b>PRAMV</b>, il faut d'abord retrouver les achats : + augmentation du stock ou − diminution du stock.`}],
+   stage: ph => { const d = done();
+     const T = tAcc('Dettes fournisseurs','passif',[['Paiements',ph>1||d?986680:null,'new'],['Solde au 31.12',42420]],[['Solde au 1.1',48500],['Achats',980600]]);
+     const up = ['ach', d?'fou':'ach', 'tach'][ph], fr = ['ach', d?'fou':null, 'tach'][ph];
+     return `<section class="sec"><h2>Tableau de financement · méthode directe</h2><div class="split">
+       ${ftab('Secteur d\'exploitation','exp', trs(DIR, up, fr))}
+       <div class="stack">${ph>=1?`${bx(['fou'],{noEff:true})}${T}`:''}</div></div></section>`; } },
+
+ { part:'B', title:'Les autres décaissements',
+   ph:[{btn:'Les charges à payer →', text:`Les <b>salaires</b> : 256'200.`,
+        q:{text:'Les salaires ont-ils été payés exactement pour ce montant ? La réponse est dans la donnée (onglet Bilan) !', opts:[['non','Non'],['oui','Oui']], ok:'non',
+           fb:'les informations supplémentaires disent que les <b>charges à payer</b> correspondent à des salaires dus.'}},
+       {btn:'Les autres charges →', text:`Les <b>charges à payer</b> (salaires dus) passent de 4'500 à 2'400.<br><br>On a payé les salaires dus de l'an passé, mais pas encore 2'400 de cette année. Passif ↓ → <b>−2'100</b>.`},
+       ...SORT.map(([k,lb,v,m],i)=>({btn: i<SORT.length-1 ? `${SORT[i+1][1]} →` : 'Le cash flow →', text:`On passe en revue les autres charges du compte de résultat, une par une.<br><br><b>${lb}</b> : ${fmt(v)}.`,
+        q:{text:'Cette charge est-elle…', opts:[['m','monétaire'],['n','non monétaire']], ok:m, fb:SORT_FB[k]}})),
+       {btn:'Suite →', text:`Encaissements − décaissements = <b>cash flow de 112'450</b>.<br><br>L'activité de l'année a fait entrer 112'450 d'argent, bien plus que le bénéfice de 34'200.`}],
+   stage: ph => { const d = done(), si = ph-2;   // si : rang de la charge triée (0 à 3)
+     // lignes du tableau : salaires, charges à payer, puis loyers et ACE quand on a répondu « monétaire »
+     const up = ph===0 ? 'sal' : ph===1 ? 'cap' : ph===SORT.length+2 ? 'cf' : (si>1 || (si===1&&d)) ? 'ace' : (si===1 || (si===0&&d)) ? 'loy' : 'cap';
+     const fr = ph===0 ? 'sal' : ph===1 ? 'cap' : ph===SORT.length+2 ? 'taut' : (si===0&&d) ? 'loy' : (si===1&&d) ? 'ace' : null;
+     const side = ph===1 ? `${bx(['cap'],{noEff:true})}${calc('Salaires payés',[[`Salaires ${Y}`,256200],[`+ dus au 1.1 (payés en ${Y})`,4500],['− dus au 31.12 (pas encore payés)',-2400],['= Salaires payés',258300,'tot']])}`
+       : ph>=2 ? sortList(Math.min(si, SORT.length), d) : '';
+     return `<section class="sec"><h2>Tableau de financement · méthode directe</h2><div class="split">
+       ${ftab('Secteur d\'exploitation','exp', trs(DIR, up, fr))}
+       <div class="stack">${side}</div></div></section>`; } },
+
+ /* ===== PARTIE C : MÉTHODE INDIRECTE ===== */
+ { part:'C', title:'Partir du bénéfice',
+   ph:[{btn:'Le tri →', text:`Toujours le <b>secteur d'exploitation</b>, même cash flow, mais un autre chemin : la <b>méthode indirecte</b>.<br><br>Principe : on part du <b>bénéfice net</b> (34'200) et on corrige tout ce qui n'est pas de l'argent.`,
+        q:{text:'Le bénéfice net (34\'200) est-il déjà le cash flow ?', opts:[['non','Non'],['oui','Oui']], ok:'non',
+           fb:'il contient des charges <b>non monétaires</b> (amortissements…) et des ventes ou des achats <b>pas encore encaissés ou payés</b>. Il faut le corriger.'}},
+       {btn:'Amortissement mobilier →', text:`On passe en revue les charges du compte de résultat. Les charges <b>monétaires</b> sont déjà dans le bénéfice : rien à faire.<br><br><b>Loyers</b> : 130'000.`,
+        q:{text:'Cette charge est-elle…', opts:[['m','monétaire'],['n','non monétaire']], ok:'m',
+           fb:'les loyers ont été payés : <b>monétaire</b>. Ils ont diminué le bénéfice <b>et</b> les liquidités : il n\'y a rien à corriger.'}},
+       {btn:'Amortissement équipement →', text:`<b>Amortissement mobilier</b> : 26'000.`,
+        q:{text:'Cette charge est-elle…', opts:[['m','monétaire'],['n','non monétaire']], ok:'n',
+           fb:'<b>non monétaire</b> : elle a diminué le bénéfice sans faire sortir d\'argent. On la <b>rajoute</b> pour annuler son effet : <b>+26\'000</b>.'}},
+       {btn:'Suite →', text:`<b>Amortissement équipement</b> : 40'000, une charge non monétaire.`,
+        q:{text:'Dans la méthode indirecte, on…', opts:[['add','la rajoute (+)'],['sub','la soustrait (−)']], ok:'add',
+           fb:'on la <b>rajoute</b> : <b>+40\'000</b>. Bénéfice + charges non monétaires = 34\'200 + 66\'000 = <b>100\'200</b>.'}},
+       {btn:'Suite →', text:`Règle :<br>• <b>+ charges non monétaires</b> (amortissements, provisions…) ;<br>• <b>− produits non monétaires</b> (dissolution de provisions…).<br><br>Les charges et produits monétaires restent dans le bénéfice.`}],
+   stage: ph => { const d = done();
+     const up = ['bn','bn', d?'amm':'bn', d?'t1':'amm', 't1'][ph], fr = ['bn',null, d?'amm':null, d?'ame':null, 't1'][ph];
+     return `<section class="sec"><h2>Tableau de financement · méthode indirecte</h2><div class="split">
+       ${ftab('Secteur d\'exploitation','exp', trs(IND, up, fr))}
+       <div class="stack">${ph>=1 ? sortList(Math.min(ph-1, SORTC.length), ph===4 || d, SORTC_O) : ''}</div></div></section>`; } },
+
+ { part:'C', title:'Corriger avec le circulant',
+   ph:[{btn:'Les clients →', text:`Il reste à corriger les ventes pas encore encaissées et les achats pas encore payés.<br><br>On applique la règle des sources et utilisations aux <b>actifs circulants</b> et aux <b>dettes à court terme</b>, compte par compte.`},
+       ...CIRC.map(([k,bk,cell,ok,fb],i)=>({btn: i<CIRC.length-1 ? `${['Les clients','Les produits à recevoir','Le stock','Les fournisseurs','Les charges à payer'][i+1]} →` : 'Le contrôle →',
+         text:`<b>${B[bk].lb}</b> : ${fmt(B[bk].a)} → ${fmt(B[bk].b)}.`,
+         q:{text:'Dans la méthode indirecte, on…', opts:[['add','rajoute (+)'],['sub','soustrait (−)']], ok, fb}})),
+       {btn:'Suite →', text:`Bénéfice + charges non monétaires ± corrections du circulant = <b>cash flow de 112'450</b>.`,
+        q:{text:'Ce cash flow est-il le même que par la méthode directe ?', opts:[['oui','Oui'],['non','Non']], ok:'oui',
+           fb:'<b>112\'450</b> dans les deux cas ✓ Les deux méthodes calculent le même secteur d\'exploitation.'}}],
+   stage: ph => { const d = done(), ci = ph-1, n = CIRC.length;   // ci : rang du compte du circulant (0 à 4)
+     const last = ph===n+1, shown = ph===0 ? 0 : last ? n : ci + (d?1:0);   // comptes déjà ajoutés au tableau
+     const up = ph===0 ? 't1' : last ? 'cf' : shown ? CIRC[shown-1][0] : 'h2';   // à la fin : total des corrections et cash flow, avant la question
+     const fr = ph===0 ? null : last ? 't2' : d ? CIRC[ci][0] : null;
+     const ids = ph===0 ? [] : CIRC.slice(0, last ? n : ci+1).map(c=>c[1]);
+     const eff = CIRC.slice(0, shown).map(c=>c[1]);
+     const on = ph>=1 && !last && d ? [CIRC[ci][2]] : last ? ['au','ad','pu','pd'] : [];
+     return `<section class="sec"><h2>Tableau de financement · méthode indirecte</h2><div class="split">
+       ${ftab('Secteur d\'exploitation','exp', trs(IND, up, fr))}
+       <div class="stack">${rule(on, true)}</div></div></section>
+       ${ids.length?`<section class="sec"><h2>Le circulant de NovaNet SA</h2>${bx(ids,{eff, ask:ids, hl:last?[]:[CIRC[ci][1]]})}</section>`:''}`; } },
+
+ { part:'C', title:'Deux méthodes, un seul cash flow',
+   ph:[{btn:'Suite →', text:`Les deux méthodes donnent <b>le même cash flow : 112'450</b>.<br><br>• La <b>méthode directe</b> montre d'où vient l'argent et où il va.<br>• La <b>méthode indirecte</b> explique pourquoi le cash flow est différent du bénéfice.<br><br>Les corrections du circulant sont les mêmes ; seul le signe dépend du point de départ.`}],
+   stage: () => `<section class="sec"><h2>Comparaison</h2><div class="two">
+       ${ftab('Méthode directe','exp', trs(DIR))}${ftab('Méthode indirecte','exp', trs(IND))}</div></section>` },
+
+ /* ===== PARTIE D : INVESTISSEMENT, FINANCEMENT, TABLEAU COMPLET ===== */
+ { part:'D', title:'Le secteur d\'investissement',
+   ph:[{btn:'Le compte en T →', text:`Le secteur d'investissement : on regarde les <b>immobilisés</b>, compte par compte.<br><br><b>Mobilier</b> : 63'000 → 86'100.`,
+        q:{text:'L\'achat de mobilier est-il de 23\'100 (la différence) ? Regarder aussi le compte de résultat.', opts:[['non','Non'],['oui','Oui']], ok:'non',
+           fb:'le compte de résultat montre un <b>amortissement mobilier de 26\'000</b> : le mobilier a perdu de la valeur pendant l\'année. Il a donc fallu acheter davantage.'}},
+       {btn:'L\'équipement →', text:`Le compte en T du mobilier : solde au 1.1 + achats − amortissement = solde au 31.12.`,
+        q:{text:'Combien a-t-on acheté de mobilier ?', opts:[['a','23\'100'],['b','49\'100'],['c','89\'100']], ok:'b',
+           fb:'63\'000 + achats − 26\'000 = 86\'100 → achats = <b>49\'100</b>. Actif ↑ : utilisation, <b>−49\'100</b>.'}},
+       {btn:'Les participations →', text:`<b>Équipement</b> : 160'000 → 160'000.`,
+        q:{text:'Le solde n\'a pas changé. A-t-on investi dans de l\'équipement ?', opts:[['non','Non'],['oui','Oui']], ok:'oui',
+           fb:'l\'équipement a été amorti de <b>40\'000</b>. Pour rester à 160\'000, on a acheté pour <b>40\'000</b> : <b>−40\'000</b>.'}},
+       {btn:'Le prêt →', text:`<b>Participations</b> : 60'000 → 80'000.`,
+        q:{text:'L\'entreprise a…', opts:[['a','acheté des participations (−)'],['v','vendu des participations (+)']], ok:'a',
+           fb:'actif ↑ : <b>utilisation</b>. Achat de participations : <b>−20\'000</b>.'}},
+       {btn:'Le total →', text:`<b>Prêt à Bongo SA</b> : 160'000 → 140'000.`,
+        q:{text:'Ce prêt diminue. C\'est…', opts:[['in','une entrée d\'argent (+)'],['out','une sortie d\'argent (−)']], ok:'in',
+           fb:'Bongo SA nous a <b>remboursé</b> 20\'000. Actif ↓ : <b>source</b>, <b>+20\'000</b>.'}},
+       {btn:'Suite →', text:`Le secteur d'investissement fait sortir <b>89'100</b> : NovaNet SA a investi (mobilier, équipement, participations) plus qu'elle n'a récupéré (prêt).`}],
+   stage: ph => { const d = done(), K = ['mob','mob','equ','ptc','pre'];
+     const n = ph===5 ? 4 : ph===0 ? 0 : ph===1 ? (d?1:0) : 1 + (ph-2) + (d?1:0);   // nombre de lignes du tableau
+     const up = ph===5 ? 'tinv' : n ? INV[n-1][0] : '', fr = ph===5 ? 'tinv' : (d && ph>=1) ? INV[n-1][0] : null;
+     const ids = ph===5 ? ['mob','equ','ptc','pre'] : ['mob','equ','ptc','pre'].slice(0, Math.max(1, ph));
+     const eff = ['ptc','pre'].filter(k=> ph===5 || (k==='ptc' && (ph>3 || (ph===3&&d))) || (k==='pre' && ph===4 && d));
+     const side = ph===1 ? tAcc('Mobilier','actif',[['Solde au 1.1',63000],['Achats',d?49100:null,'new']],[['Amortissement',26000],['Solde au 31.12',86100]])
+       : ph===2 ? tAcc('Équipement','actif',[['Solde au 1.1',160000],['Achats',d?40000:null,'new']],[['Amortissement',40000],['Solde au 31.12',160000]])
+       : ph===3 || ph===4 ? rule(d ? [ph===3?'au':'ad'] : [], true) : '';
+     return `<section class="sec"><h2>Les immobilisés de NovaNet SA</h2>${bx(ids,{eff, hl: ph===5 ? [] : [K[ph]]})}</section>
+       <section class="sec" data-scroll><h2>Secteur d'investissement</h2><div class="split">
+         ${ftab('Secteur d\'investissement','inv', trs(INV, up, fr))}
+         <div class="stack">${side}</div></div></section>`; } },
+
+ { part:'D', title:'Le secteur de financement',
+   ph:[{btn:'Le capital →', text:`Le secteur de financement : les <b>dettes à long terme</b> et les <b>capitaux propres</b>, compte par compte.<br><br><b>Dette bancaire</b> : 50'000 → 31'000.`,
+        q:{text:'L\'entreprise a…', opts:[['emp','emprunté (+)'],['rem','remboursé (−)']], ok:'rem',
+           fb:'passif ↓ : <b>utilisation</b>. Remboursement de la dette bancaire : <b>−19\'000</b>.'}},
+       {btn:'La réserve →', text:`<b>Capital-actions</b> : 400'000 → 400'000.`,
+        q:{text:'Y a-t-il un mouvement d\'argent ?', opts:[['non','Non'],['oui','Oui']], ok:'non',
+           fb:'pas d\'augmentation de capital : <b>rien</b> à inscrire dans le tableau.'}},
+       {btn:'Les dividendes →', text:`<b>Réserve légale s/bénéfices</b> : 180'000 → 194'200.`,
+        q:{text:'La réserve augmente de 14\'200. Est-ce de l\'argent qui entre ?', opts:[['non','Non'],['oui','Oui']], ok:'non',
+           fb:'la réserve vient du <b>bénéfice</b> : 34\'200 − 20\'000 de dividende = 14\'200 gardés dans l\'entreprise. Aucun argent ne vient de l\'extérieur : le bénéfice est déjà dans le cash flow.'}},
+       {btn:'Le total →', text:`<b>Dividendes</b> (dette envers les actionnaires) : 20'000 → 20'000.<br><br>Au 1.1, on devait 20'000 (bénéfice de ${Y0}). Un nouveau dividende de 20'000 a été attribué sur le bénéfice de ${Y}.`,
+        q:{text:'Le compte n\'a pas changé. A-t-on versé un dividende pendant l\'année ?', opts:[['non','Non'],['oui','Oui']], ok:'oui',
+           fb:'le compte en T le montre : 20\'000 + 20\'000 − versé = 20\'000 → versé = <b>20\'000</b>. Paiement du dividende : <b>−20\'000</b>.'}},
+       {btn:'Suite →', text:`Le secteur de financement fait sortir <b>39'000</b> : NovaNet SA a remboursé la banque et payé ses actionnaires.`}],
+   stage: ph => { const d = done(), K = ['ban','ca','res','div'];
+     const up = ph===4 ? 'tfin' : ph===3 && d ? 'div' : (ph>0 || d) ? 'ban' : '';
+     const fr = ph===4 ? 'tfin' : ph===3 && d ? 'div' : ph===0 && d ? 'ban' : null;
+     const ids = ph===4 ? K : K.slice(0, ph+1);
+     const eff = ['ban','ca'].filter(k=> ph===4 || (k==='ban' && (ph>0||d)) || (k==='ca' && (ph>1 || (ph===1&&d))));
+     const side = ph===0 ? rule(d?['pd']:[], true)
+       : ph===2 && d ? calc(`Répartition du bénéfice ${Y}`,[[`Bénéfice net ${Y}`,34200],['− Dividende attribué',-20000],['= Attribué à la réserve',14200,'tot']])
+       : ph===3 ? tAcc('Dividendes','passif',[['Versé aux actionnaires',d?20000:null,'new'],['Solde au 31.12',20000]],[['Solde au 1.1',20000],[`Attribué sur le bénéfice ${Y}`,20000]]) : '';
+     return `<section class="sec"><h2>Dettes à long terme et capitaux propres</h2>${bx(ids,{eff, hl: ph===4 ? [] : [K[ph]]})}</section>
+       <section class="sec" data-scroll><h2>Secteur de financement</h2><div class="split">
+         ${ftab('Secteur de financement','fin', trs(FIN, up, fr))}
+         <div class="stack">${side}</div></div></section>`; } },
+
+ { part:'D', title:'Le tableau complet',
+   ph:[{btn:'Investissement →', text:`On réunit les trois secteurs.<br><br>L'<b>exploitation</b> fait entrer 112'450 (cash flow, par la méthode directe ou indirecte).`},
+       {btn:'Financement →', text:`Les <b>investissements</b> font sortir 89'100.`},
+       {btn:'Le contrôle →', text:`Le <b>financement</b> fait sortir 39'000.`},
+       {btn:'Suite →', text:`Total des trois secteurs : 112'450 − 89'100 − 39'000 = <b>−15'650</b>.`,
+        q:{text:'Ce total correspond-il à la variation du tableau des liquidités ?', opts:[['oui','Oui'],['non','Non']], ok:'oui',
+           fb:'liquidités : 123\'080 → 107\'430, soit <b>−15\'650</b> ✓ Le tableau est juste.<br><br><b>Lecture</b> : l\'activité a rapporté 112\'450, mais cela n\'a pas suffi pour payer les investissements, rembourser la banque et verser le dividende. L\'entreprise a puisé 15\'650 dans ses liquidités.'}}],
+   stage: ph => `<section class="sec"><h2>Tableau de financement ${Y} · NovaNet SA</h2><div class="split">
+       <table class="ft">${shRow('Secteur d\'exploitation','exp')}<tr class="cf ${ph===0?'new':''}"><td>Cash flow</td><td class="n">112'450</td></tr>
+         ${ph>=1?shRow('Secteur d\'investissement','inv')+trs(INV, null, ph===1?'mob':null):''}
+         ${ph>=2?shRow('Secteur de financement','fin')+trs(FIN, null, ph===2?'ban':null):''}
+         ${ph>=3?`<tr class="vl new"><td>Variation du fonds de liquidités</td><td class="n">−15'650</td></tr>`:''}
+         ${ph>=3&&done()?`${shRow('Contrôle : tableau des liquidités','liq')}
+           <tr><td>Liquidités au 31.12</td><td class="n">107'430</td></tr><tr><td>− Liquidités au 1.1</td><td class="n neg">−123'080</td></tr><tr class="ok new"><td>= Variation des liquidités ✓</td><td class="n">−15'650</td></tr>`:''}</table>
+       <div>${wf(ph+1>3?3:ph+1)}</div></div>
+       ${eqbar(ph>=3&&done()?[112450,-89100,-39000,-15650]:null)}</section>` },
+
+ { part:'D', title:'Les pièges à éviter',
+   ph: PIEGES.map((_,i)=>({btn:'Suite →', text:`Quelques cas particuliers à reconnaître dans les exercices.`})),
+   stage: ph => `<section class="sec"><h2>Cas particuliers</h2><div class="cards">
+       ${PIEGES.filter((_,k)=>k<=ph).map(([ic,t,x],k)=>`<div class="qa ${k===ph?'new-card':''}" ${k===ph?'data-scroll':''}><div class="ico">${ic}</div><h4>${t}</h4>${x}</div>`).join('')}</div></section>` },
+
+ /* ===== PARTIE E : RÉSUMÉ ===== */
+ { part:'E', title:'Du bilan au tableau des flux',
+   ph:[{btn:'Les liquidités →', text:`Une vue d'ensemble : comment passe-t-on du <b>bilan</b> (deux années) et du <b>compte de résultat</b> au <b>tableau des flux</b> ?<br><br>Règle des couleurs : <b>même couleur = même secteur</b>.`},
+       {btn:'Exploitation →', text:`<b>Rose</b> : les <b>liquidités</b> du bilan. Leur variation est le total que le tableau doit retrouver.`},
+       {btn:'Méthode indirecte →', text:`<b>Bleu</b> : le secteur d'<b>exploitation</b>. Il utilise le reste de l'actif circulant, les dettes à court terme et les charges et produits <b>monétaires</b> (achats, ventes, autres charges et produits).<br><br>Méthode directe : produits monétaires − charges monétaires, corrigés avec les variations du circulant.`},
+       {btn:'Investissement →', text:`<b>Bleu foncé</b> : la <b>méthode indirecte</b> part du bénéfice net et corrige les charges et produits <b>non monétaires</b> (amortissements, provisions, exceptionnels).<br><br>Les deux méthodes donnent le même <b>cash flow</b>.`},
+       {btn:'Financement →', text:`<b>Vert</b> : les <b>actifs immobilisés</b> vont dans le secteur d'<b>investissement</b>. Tenir compte des amortissements pour retrouver les achats.`},
+       {btn:'Les autres dettes →', text:`<b>Orange</b> : les <b>dettes à long terme</b> et les <b>capitaux propres</b> vont dans le secteur de <b>financement</b>.`},
+       {btn:'Suite →', text:`<b>Rayé</b> : les <b>autres dettes</b> dépendent de leur origine : achat d'un immobilisé → investissement ; sinon → exploitation.<br><br>Pour chaque variation du bilan : <b>actif ↑ = utilisation (−)</b>, <b>passif ↑ = source (+)</b>.`}],
+   stage: ph => resume(ph) }
+];
+// Comptes à surligner dans la fenêtre « Données », étape par étape (dans l'ordre des étapes ; une fonction = selon la phase)
+const LIQK = ['cai','pos','tit'];
+const SEE = [
+  ph => ph>=1 ? LIQK : [],                       // A1 : surligné après « Et les liquidités ? »
+  LIQK,                                          // A2 fonds de trésorerie
+  [],                                            // A3 trois secteurs
+  ['sto','fou'],                                 // A4 sources et utilisations
+  [],                                            // A5 construction du tableau : le cash flow
+  ['amm','ame','vst'],                           // A6 monétaire ou non
+  ph => [['ven'],['cli','duc'],['pfi'],['par']][ph],                // B1 encaissements, pas à pas
+  ph => [['ach'],['fou'],['fou']][ph],                              // B2 achats
+  ph => [['sal'],['cap'],...SORT.map(r=>[r[0]]),[]][ph],             // B3 salaires, charges à payer, puis chaque charge
+  ph => [['bn'],['loy'],['amm'],['ame'],['bn','amm','ame']][ph],                              // C1 partir du bénéfice, pas à pas
+  ph => [[],['cli','duc'],['par'],['sto'],['fou'],['cap'],['cli','duc','par','sto','fou','cap']][ph],   // C2 circulant, compte par compte
+  [],                                            // C3 deux méthodes
+  ph => [['mob','amm'],['mob','amm'],['equ','ame'],['ptc'],['pre'],['mob','equ','ptc','pre']][ph],   // D1 investissement, compte par compte
+  ph => [['ban'],['ca'],['res','bn'],['div'],['ban','ca','res','div']][ph],                          // D2 financement, compte par compte
+  ph => ph===3 ? LIQK : []];                                                                         // D3 tableau complet : liquidités au contrôle
+STEPS.forEach((s,i)=>{ if (SEE[i]) s.see = SEE[i]; });
+// Repère « Où en est-on dans le tableau ? » en haut des parties B, C et D
+STEPS.forEach((s,i)=>{ if (s.plan) return;
+  const k = STEPS.filter(x=>x.part===s.part).indexOf(s);
+  if (s.part==='B') s.plan = ['dir'];
+  if (s.part==='C') s.plan = k===2 ? ['dir','ind'] : ['ind'];
+  if (s.part==='D') s.plan = [['inv'],['fin'],['dir','ind','inv','fin','tot'],null][k]; });
+function planSec(f){
+  const on = k => f.includes(k) ? 'on' : '';
+  return `<section class="sec plansec"><h2>Où en est-on dans le tableau ?</h2><div class="plan">
+    <div class="pg exp ${f.includes('dir')||f.includes('ind')?'on':''}">1. Secteur d'exploitation → cash flow<div class="pm"><span class="${on('dir')}">B. méthode directe</span><span class="${on('ind')}">C. méthode indirecte</span></div></div>
+    <div class="pg inv ${on('inv')}">2. Secteur d'investissement</div><div class="pg fin ${on('fin')}">3. Secteur de financement</div>
+    <div class="pg liq ${on('tot')}">= Variation des liquidités</div></div></section>`;
+}
+const seeOf = () => { const s = STEPS[CUR.step].see; return typeof s==='function' ? s(CUR.ph) : (s||[]); };
+const LAST = STEPS.length-1;
+
+/* ---------- Actions ---------- */
+const A = [];
+STEPS.forEach((s,i)=>s.ph.forEach((_,p)=>A.push({step:i, ph:p})));
+let pos = 0;
+
+/* ---------- Rendu ---------- */
+function qBox(key, q){
+  const ch = ANS[key];
+  const btn = (a,lb) => `<button class="ch ${ch===a?(a===q.ok?'ok':'ko'):''} ${ch?'':'blink'}" data-a="${a}" ${ch?'disabled':''}>${lb}</button>`;
+  const fb = ch ? `<div class="fb ${ch===q.ok?'ok':'ko'}">${ch===q.ok?'✓ En effet':'✗ En fait'}, ${q.fb}</div>` : `<div class="hint">Cliquer sur la bonne réponse.</div>`;
+  return `<div class="calc q"><div style="font-weight:600;margin-bottom:4px">La question à se poser</div>${q.text}
+    <div class="choices" style="flex-wrap:wrap">${q.opts.map(([a,lb])=>btn(a,lb)).join('')}</div>${fb}</div>`;
+}
+function render(){
+  pos = Math.max(0, Math.min(A.length-1, pos));
+  const {step, ph} = A[pos], S = STEPS[step], P = S.ph[ph], key = step+'.'+ph;
+  CUR = {step, ph};
+  document.querySelectorAll('#dots .dot').forEach(b=>{ const i=+b.dataset.s; b.classList.toggle('cur', i===step); b.classList.toggle('done', i<step); });
+  document.querySelectorAll('#parts button').forEach(b=>b.classList.toggle('on', b.dataset.p===S.part));
+  $('prev').disabled = pos===0;
+  $('next').disabled = pos===A.length-1 || (P.q && !ANS[key]);
+  $('next').textContent = pos===A.length-1 ? 'Terminé ✓' : P.btn;
+  const pn = PARTS.find(p=>p[0]===S.part);
+  $('explain').innerHTML = `<div class="stepno">Partie ${pn[0]} · ${pn[2]||pn[1]}</div><h2 class="steptitle">${STEPS.filter(x=>x.part===S.part).indexOf(S)+1}. ${S.title}</h2>
+    ${P.text?`<p class="steptext">${P.text.replace(/ ([?!;])/g,'&nbsp;$1')}</p>`:''}${P.q?qBox(key,P.q):''}`;
+  $('stage').innerHTML = (S.plan ? planSec(S.plan) : '') + S.stage(ph);
+  dataRefresh();
+  // Défilement automatique vers le nouvel élément s'il sort de l'écran
+  const nw = $('stage').querySelector('tr.new[data-scroll]') || $('stage').querySelector('[data-scroll]');
+  if (nw) requestAnimationFrame(()=>{ const r = nw.getBoundingClientRect(); if (r.bottom > innerHeight || r.top < 0) nw.scrollIntoView({behavior:'smooth', block:'nearest'}); });
+  else window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ---------- Navigation ---------- */
+function goTo(p){ pos = p; render(); }
+function goStep(s){ goTo(A.findIndex(a=>a.step===s)); }
+let Z = 1;
+try { Z = +localStorage.getItem('flux-zoom') || 1; } catch(e){}
+function applyZoom(){
+  Z = Math.round(Math.max(0.8, Math.min(1.6, Z))*10)/10;
+  document.documentElement.style.setProperty('--z', Z);
+  try { localStorage.setItem('flux-zoom', Z); } catch(e){}
+}
+$('parts').innerHTML = PARTS.map(([p,l])=>`<button data-p="${p}">Partie ${p}<small>${l}</small></button>`).join('');
+$('dots').innerHTML = STEPS.map((s,i)=>(i>0 && s.part!==STEPS[i-1].part ? '<span class="sep"></span>' : '') + `<button class="dot" data-s="${i}" title="${s.part} · ${s.title}" aria-label="${s.title}"></button>`).join('');
+$('parts').addEventListener('click', e=>{ const b=e.target.closest('button'); if (b) goStep(STEPS.findIndex(s=>s.part===b.dataset.p)); });
+$('zm').addEventListener('click', ()=>{ Z -= 0.1; applyZoom(); });
+$('zp').addEventListener('click', ()=>{ Z += 0.1; applyZoom(); });
+$('next').addEventListener('click', ()=>goTo(pos+1));
+$('prev').addEventListener('click', ()=>goTo(pos-1));
+$('explain').addEventListener('click', e=>{ const b=e.target.closest('.ch'); if (!b || b.disabled) return; const {step,ph}=A[pos]; ANS[step+'.'+ph] = b.dataset.a; render(); });
+// Fenêtre « Données » : ouvrir / fermer, onglets, taille des caractères, déplacer par la barre de titre
+$('data-btn').addEventListener('click', ()=>dataOpen());
+$('dx').addEventListener('click', ()=>dataOpen(false));
+$('dlg').querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click', ()=>{ DTAB = b.dataset.tab; dataRefresh(); }));
+// A−/A+ : les caractères ET la largeur du cadre suivent (le coin en bas à droite permet aussi de redimensionner à la main)
+const dZoom = d => { DZ = Math.round(Math.max(0.8, Math.min(1.8, DZ+d))*10)/10; try { localStorage.setItem('flux-data-zoom', DZ); } catch(e){}
+  const w = $('dlg'); w.style.width = Math.min(innerWidth-24, Math.round(600*DZ))+'px'; w.style.height = '';
+  const r = w.getBoundingClientRect(); if (r.right > innerWidth-8){ w.style.left = Math.max(8, innerWidth-8-r.width)+'px'; w.style.right = 'auto'; }
+  dataRefresh(); };
+$('dzm').addEventListener('click', ()=>dZoom(-0.1));
+$('dzp').addEventListener('click', ()=>dZoom(0.1));
+(function(){ const d = $('dlg'), h = $('dlg-h'); let sx, sy, ox, oy, drag = false;
+  h.addEventListener('pointerdown', e=>{ if (e.target.closest('button')) return; const r = d.getBoundingClientRect();
+    drag = true; sx = e.clientX; sy = e.clientY; ox = r.left; oy = r.top; h.setPointerCapture(e.pointerId); });
+  h.addEventListener('pointermove', e=>{ if (!drag) return;
+    d.style.left = Math.max(0, Math.min(innerWidth-80, ox+e.clientX-sx))+'px'; d.style.top = Math.max(0, Math.min(innerHeight-40, oy+e.clientY-sy))+'px';
+    d.style.right = 'auto'; d.style.bottom = 'auto'; });
+  h.addEventListener('pointerup', ()=>{ drag = false; });
+})();
+document.addEventListener('keydown', e=>{ if (e.key==='Escape') dataOpen(false); });
+$('quit').addEventListener('click',()=>{ window.close(); setTimeout(()=>{ $('quit-msg').style.display='block'; }, 300); });
+$('dots').addEventListener('click', e=>{ const b=e.target.closest('.dot'); if (b) goStep(+b.dataset.s); });
+document.addEventListener('keydown', e=>{
+  if (e.key==='ArrowRight' && !$('next').disabled) goTo(pos+1);
+  if (e.key==='ArrowLeft') goTo(pos-1);
+});
+render();
+applyZoom();
+dataOpen(true);   // à l'ouverture de la page : le bilan de départ est affiché
+</script>
+<script src="theorie.js"></script>
+</body>
+</html>

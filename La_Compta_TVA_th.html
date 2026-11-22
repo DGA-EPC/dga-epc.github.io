@@ -111,7 +111,9 @@
 .slip td{padding:6px 10px;border-bottom:1px dashed var(--line)}
 .slip td.n{text-align:right;white-space:nowrap}
 .slip tr.sub td:first-child{border-left:4px solid var(--charge)}
-.slip tr.add td.n{color:var(--produit)}.slip tr.sub td.n{color:var(--charge)}.slip tr.pay td.n{color:var(--actif)}
+.slip tr.add td.n,.slip tr.sub td.n,.slip tr.pay td.n{color:var(--ink)}
+/* pas de ligne de couleur à gauche de la facture */
+.slip tr.add td:first-child,.slip tr.sub td:first-child,.slip tr.pay td:first-child{border-left:0}
 .slip tr.tot td{font-weight:700;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
 .slip tr.cur td{background:var(--hl)}
 .chip{display:inline-block;padding:2px 9px;border-radius:7px;font-weight:600;font-size:13px}
@@ -242,6 +244,7 @@
 .va::after{content:"";position:absolute;left:50%;margin-left:-8px;border:8px solid transparent}
 .va.down{color:var(--actif)}.va.down::after{bottom:-6px;border-top:12px solid currentColor;border-bottom:0}
 .va.up{color:var(--charge)}.va.up::after{top:-6px;border-bottom:12px solid currentColor;border-top:0}
+.warnb{display:inline-block;color:#b91c1c;background:#fee2e2;border:2px solid #b91c1c;border-radius:8px;padding:2px 8px;font-weight:700;font-size:12.5px;white-space:nowrap;font-style:normal}
 .va span{position:relative;z-index:1;background:#fff;border:2px solid currentColor;border-radius:8px;padding:2px 6px;font-weight:700;font-size:13px;white-space:nowrap}
 @media (max-width:1000px){ .three{grid-template-columns:1fr} .flowarr{transform:rotate(90deg)} }
 
@@ -292,31 +295,36 @@ const pc = x => String(x).replace('.', '.') + '&nbsp;%';
 const r05 = v => Math.round(v*20 + 1e-9)/20;          // les francs s'arrondissent à 0.05
 const $ = id => document.getElementById(id);
 const KIND = {'Caisse':'actif','Banque':'actif','Créances clients':'actif','IP sur marchandises':'actif','IP sur inv. et ACE':'actif',
-  'Dettes fournisseurs':'passif','TVA due':'passif','Privé':'passif',
+  'Dettes fournisseurs':'passif','TVA due':'passif','Dettes AFC':'passif','Privé':'passif',
   'Achats de marchandises':'charge','Déductions accordées':'charge','Ventes de marchandises':'produit','Prestations propres':'produit'};
 const PLUS_D = k => k==='actif' || k==='charge';
 const chip = a => `<span class="chip ${KIND[a]}">${a}</span>`;
 /* Couleur de liaison = compte de destination du montant */
 const LINK = {'Caisse':'#4b5563','Banque':'#4b5563','Créances clients':'#2a52be','IP sur marchandises':'#0e7490','IP sur inv. et ACE':'#0e7490',
-  'Dettes fournisseurs':'#7a2730','TVA due':'#a3333d','Privé':'#6d48b3','Achats de marchandises':'#b45309','Déductions accordées':'#c2671f',
+  'Dettes fournisseurs':'#7a2730','TVA due':'#a3333d','Dettes AFC':'#b58900','Privé':'#6d48b3','Achats de marchandises':'#b45309','Déductions accordées':'#c2671f',
   'Ventes de marchandises':'#1f7a4d','Prestations propres':'#2b8352'};
 const pill = (acc, txt) => acc ? `<span class="lk" style="color:${LINK[acc]};background:${LINK[acc]}1f;border-color:${LINK[acc]}">${txt}</span>` : txt;
 
 /* ---------- Décompte : d'où viennent les montants ---------- */
 function bordHTML(title, rows){
-  return `<div style="font-weight:700;margin-bottom:6px">${title}</div><table class="slip">${rows.map(r=>`<tr class="${r.k||''}"><td>${r.lb}</td><td class="pct">${r.p||''}</td><td class="calc2">${r.calc||''}</td><td class="calc2">${r.to?'→ '+r.to:''}</td><td class="n">${r.to?pill(r.to,f2(r.amt)):f2(r.amt)}</td></tr>`).join('')}</table>`;
+  return `<div style="font-weight:700;margin-bottom:6px">${title}</div><table class="slip">${rows.map(r=>`<tr class="${r.k||''}"><td>${r.lb}</td><td class="pct">${r.p||''}</td><td class="calc2">${r.calc||''}</td><td class="calc2">${r.to?'→ '+r.to:(r.warn||'')}</td><td class="n">${r.to?pill(r.to,f2(r.amt)):f2(r.amt)}</td></tr>`).join('')}</table>`;
 }
+/* Facture + flèche verticale du TTC (en bas) vers le HT (en haut) */
+const withArrow = (html, label) => `<div style="display:flex;align-items:stretch;gap:6px;max-width:820px"><div style="flex:1;min-width:0">${html}</div>
+  <div style="display:flex;padding:44px 0 18px"><div class="va up" style="animation:none"><span>${label}</span></div></div></div>`;
+const WARN_TTC = `<span class="warnb">⚠ ATTENTION ! TTC</span>`;
 
 /* ---------- Journal à deux colonnes + comptes en T ---------- */
 // J : lignes {ph, n, d|c, amt}  ·  {ph, open:compte, side, amt, lab}
-function journalHTML(J, ph){
+function journalHTML(J, ph, plain){
+  const pill2 = (acc, txt) => plain ? txt : pill(acc, txt);
   let rows = J.filter(e=>!e.open);
   const byN = {}; rows.forEach(e=>(byN[e.n+'/'+e.ph] = byN[e.n+'/'+e.ph] || []).push(e));
   rows = Object.values(byN).flatMap(g => g.length===2 && g[0].d && g[1].c && g[0].amt===g[1].amt
     ? [{ph:g[0].ph, n:g[0].n, d:g[0].d, c:g[1].c, amt:g[0].amt}] : g);
   return `<table class="jl2"><tr><th>N°</th><th>Compte débité</th><th>Compte crédité</th><th class="n">Débit</th><th class="n">Crédit</th></tr>
-    ${rows.map((e,i)=>`<tr class="${e.ph>ph?'hide':''}"><td>${i>0 && rows[i-1].n===e.n ? '' : e.n}</td><td>${e.d?chip(e.d):''}</td><td>${e.c?chip(e.c):''}</td>
-      <td class="n">${e.d?pill(e.d,f2(e.amt)):''}</td><td class="n">${e.c?pill(e.c,f2(e.amt)):''}</td></tr>`).join('')}</table>`;
+    ${rows.map((e,i)=>`<tr class="${e.ph>ph?'hide':''}"><td>${i>0 && rows[i-1].n===e.n ? '' : e.n}</td><td>${e.d||''}</td><td>${e.c||''}</td>
+      <td class="n">${e.d?pill2(e.d,f2(e.amt)):''}</td><td class="n">${e.c?pill2(e.c,f2(e.amt)):''}</td></tr>`).join('')}</table>`;
 }
 function postings(J, acc, ph){
   const P = {d:[], c:[]};
@@ -339,12 +347,17 @@ function tHTML(acc, P, focus, eff){
     <div class="t-body"><div class="col d">${col(P.d)}</div><div class="col c">${col(P.c)}</div></div>
     ${eff?`<div class="eff">${eff}</div>`:''}</div>`;
 }
-function compta(J, accs, ph, eff){
+function compta(J, accs, ph, eff, nofocus, plain){
   const ts = accs.map(acc=>{ const P = postings(J, acc, ph);
-    const focus = J.some(e=>e.ph===ph && !e.open && (e.d===acc||e.c===acc));
+    const focus = !nofocus && J.some(e=>e.ph===ph && !e.open && (e.d===acc||e.c===acc));
     return tHTML(acc, P, focus, eff ? eff(acc,P,ph) : ''); }).join('');
-  return `<section class="sec"><h2>Dans la comptabilité</h2><div class="jr-stage">${journalHTML(J, ph)}</div><div class="tg">${ts}</div></section>`;
+  return `<section class="sec"><h2>Dans la comptabilité</h2><div class="jr-stage">${journalHTML(J, ph, plain)}</div><div class="tg">${ts}</div></section>`;
 }
+/* Pas à pas : k lignes du journal affichées, chacune reportée en même temps dans son compte (sans cadre jaune) */
+let ANSWERED = false;
+const comptaS = (J, accs, k, opens=[], eff, plain) =>
+  compta([...opens.map(o=>({...o, ph:-1})), ...J.map((e,i)=>({...e, ph:i+1}))], accs, k, eff, true, plain);
+const toK = (k, r, acc) => k>r ? acc : null;   // couleur dans la facture dès que la ligne r du journal est passée
 
 /* ---------- Les données (fichier Excel « TVA ») ---------- */
 // Le principe : fournisseur → commerçant → client
@@ -359,6 +372,9 @@ const E3 = {net:2928.5, esc:2}; E3.fac = r05(E3.net*100/(100-E3.esc)); E3.ettc =
 E3.eht = r05(E3.ettc*100/TT); E3.etva = Math.round((E3.ettc - E3.eht)*100)/100;
 // 4. Prestations propres (prix d'achat HT)
 const E4 = {ht:500}; E4.tva = r05(E4.ht*T/100); E4.tot = E4.ht + E4.tva;
+// Décompte TVA de fin de trimestre (montants du trimestre dans les comptes)
+const DC = {ipm_d:3200, ipm_c:200, ipi_d:1500, ipi_c:100, tva_c:8500, tva_d:300};
+DC.ipm = DC.ipm_d-DC.ipm_c; DC.ipi = DC.ipi_d-DC.ipi_c; DC.tva = DC.tva_c-DC.tva_d; DC.afc = DC.tva-DC.ipm-DC.ipi;
 
 const TR = [  // les taux, l'un après l'autre
   {t:pc(TAUX.normal), lb:'Taux normal', ex:'Tous les biens et services, sauf ceux des lignes suivantes.'},
@@ -448,77 +464,100 @@ const STEPS = [
    ph:[{btn:'Comptabiliser →', text:`On utilise la <b>méthode au net</b> : à chaque opération, on sépare le montant HT et la TVA.<br><br>Achat de marchandises à crédit, CHF ${fmt(E1.ht)} HT.`,
         q:{text:'La TVA payée au fournisseur va dans…', opts:[['d','TVA due'],['m','IP sur marchandises']], ok:'m',
            fb:'c\'est de la TVA payée sur des marchandises : <b>IP sur marchandises</b>, au débit.'}},
-       {btn:'Vente au comptant →', text:`<b>Achats de marchandises</b> ${f2(E1.ht)} et <b>IP sur marchandises</b> ${f2(E1.tva)} / <b>Dettes fournisseurs</b> ${f2(E1.ttc)}.<br><br>La charge est enregistrée <b>HT</b> : la TVA n'est pas une charge, l'AFC la rembourse.`}],
-   stage: ph => `<section class="sec"><h2>Exemple 1 : d'où viennent les montants</h2><div class="donnee">Achat de marchandises à crédit, CHF ${fmt(E1.ht)} HT.</div>
+       {btn:'Suite →', text:`<b>Achats de marchandises</b> au débit : ${f2(E1.ht)}.<br><br>La charge est enregistrée <b>HT</b> : la TVA n'est pas une charge, l'AFC la rembourse.`},
+       {btn:'Suite →', text:`<b>IP sur marchandises</b> au débit : ${f2(E1.tva)}.`},
+       {btn:'Vente au comptant →', text:`<b>Dettes fournisseurs</b> au crédit : ${f2(E1.ttc)}, le montant TTC à payer au fournisseur.`}],
+   stage: ph => { const k = ph;
+     return `<section class="sec"><h2>Exemple 1 : d'où viennent les montants</h2><div class="donnee">Achat de marchandises à crédit, CHF ${fmt(E1.ht)} HT.</div>
        ${bordHTML('Facture du fournisseur',[
-         {k:'add', lb:'HT', p:'100&nbsp;%', amt:E1.ht, to:ph>=1?'Achats de marchandises':null},
-         {k:'add', lb:'+ TVA', p:pc(T), calc:`${fmt(E1.ht)} × ${T} : 100`, amt:E1.tva, to:ph>=1?'IP sur marchandises':null},
-         {k:'tot', lb:'= TTC', p:pc(TT), amt:E1.ttc, to:ph>=1?'Dettes fournisseurs':null}])}</section>
-     ${ph>=1?compta([{ph:1,n:1,d:'Achats de marchandises',amt:E1.ht},{ph:1,n:1,d:'IP sur marchandises',amt:E1.tva},{ph:1,n:1,c:'Dettes fournisseurs',amt:E1.ttc}],
-       ['Achats de marchandises','IP sur marchandises','Dettes fournisseurs'],ph):''}` },
+         {k:'add', lb:'HT', p:'100&nbsp;%', amt:E1.ht, to:toK(k,0,'Achats de marchandises')},
+         {k:'add', lb:'+ TVA', p:pc(T), calc:`${fmt(E1.ht)} × ${T} : 100`, amt:E1.tva, to:toK(k,1,'IP sur marchandises')},
+         {k:'tot', lb:'= TTC', p:pc(TT), amt:E1.ttc, to:toK(k,2,'Dettes fournisseurs')}])}</section>
+     ${ph>=1||ANSWERED?comptaS([{n:1,d:'Achats de marchandises',amt:E1.ht},{n:1,d:'IP sur marchandises',amt:E1.tva},{n:1,c:'Dettes fournisseurs',amt:E1.ttc}],
+       ['Achats de marchandises','IP sur marchandises','Dettes fournisseurs'],k):''}`; } },
 
  { title:'Vente au comptant',
-   ph:[{btn:'Le HT et la TVA →', text:`Vente au comptant, CHF ${fmt(E2.ttc)}. Le montant encaissé est <b>TTC</b>.`,
+   ph:[{btn:'Le HT et la TVA →', text:`Vente au comptant, CHF ${fmt(E2.ttc)}. Le montant encaissé est <b>TTC</b>.<br><br>Comment retrouver le HT ?`},
+       {btn:'Comptabiliser →', text:`On retrouve le HT : ${fmt(E2.ttc)} : ${FX} = <b>${f2(E2.ht)}</b>.<br>La TVA est la différence : ${fmt(E2.ttc)} − ${f2(E2.ht)} = <b>${f2(E2.tva)}</b>.`,
         q:{text:'La TVA encaissée chez le client va dans…', opts:[['d','TVA due'],['m','IP sur marchandises']], ok:'d',
            fb:'c\'est la TVA facturée au client : l\'entreprise la doit à l\'AFC. <b>TVA due</b>, au crédit.'}},
-       {btn:'Comptabiliser →', text:`On retrouve le HT : ${fmt(E2.ttc)} × 100 : ${TT} = <b>${f2(E2.ht)}</b>.<br>La TVA est la différence : ${fmt(E2.ttc)} − ${f2(E2.ht)} = <b>${f2(E2.tva)}</b>.`},
-       {btn:'L\'escompte →', text:`<b>Caisse</b> ${f2(E2.ttc)} / <b>Ventes de marchandises</b> ${f2(E2.ht)} et <b>TVA due</b> ${f2(E2.tva)}.<br><br>Le produit est enregistré <b>HT</b> : la TVA appartient à l'AFC.`}],
-   stage: ph => `<section class="sec"><h2>Exemple 2 : d'où viennent les montants</h2><div class="donnee">Vente au comptant, CHF ${fmt(E2.ttc)} (TTC).</div>
-       ${bordHTML('Quittance au client',[
-         {k:'add', lb:'HT', p:'100&nbsp;%', calc:ph>=1?`${fmt(E2.ttc)} × 100 : ${TT}`:'', amt:ph>=1?E2.ht:0, to:ph>=2?'Ventes de marchandises':null},
-         {k:'add', lb:'+ TVA', p:pc(T), calc:ph>=1?`${fmt(E2.ttc)} − ${f2(E2.ht)}`:'', amt:ph>=1?E2.tva:0, to:ph>=2?'TVA due':null},
-         {k:'tot', lb:'= TTC', p:pc(TT), amt:E2.ttc, to:ph>=2?'Caisse':null}]).replace(/<td class="n">0\.00<\/td>/g,'<td class="n">?</td>')}</section>
-     ${ph>=2?compta([{ph:2,n:2,d:'Caisse',amt:E2.ttc},{ph:2,n:2,c:'Ventes de marchandises',amt:E2.ht},{ph:2,n:2,c:'TVA due',amt:E2.tva}],
-       ['Caisse','Ventes de marchandises','TVA due'],ph):''}` },
+       {btn:'Suite →', text:`<b>Caisse</b> au débit : ${f2(E2.ttc)}, le montant TTC encaissé.`},
+       {btn:'Suite →', text:`<b>Ventes de marchandises</b> au crédit : ${f2(E2.ht)}.<br><br>Le produit est enregistré <b>HT</b> : la TVA appartient à l'AFC.`},
+       {btn:'L\'escompte →', text:`<b>TVA due</b> au crédit : ${f2(E2.tva)}.`}],
+   stage: ph => { const k = Math.max(0, ph-1);
+     return `<section class="sec"><h2>Exemple 2 : d'où viennent les montants</h2><div class="donnee">Vente au comptant, CHF ${fmt(E2.ttc)} (TTC).</div>
+       <div style="display:flex;align-items:stretch;gap:6px;max-width:820px"><div style="flex:1;min-width:0">${bordHTML('Quittance au client',[
+         {k:'add', lb:'HT', p:'100&nbsp;%', calc:ph>=1?`${fmt(E2.ttc)} : ${FX}`:'', amt:ph>=1?E2.ht:0, to:toK(k,1,'Ventes de marchandises')},
+         {k:'add', lb:'+ TVA', p:pc(T), calc:ph>=1?`${fmt(E2.ttc)} − ${f2(E2.ht)}`:'', amt:ph>=1?E2.tva:0, to:toK(k,2,'TVA due')},
+         {k:'tot', lb:'= TTC', p:pc(TT), amt:E2.ttc, to:toK(k,0,'Caisse')}]).replace(/<td class="n">0\.00<\/td>/g,'<td class="n">?</td>')}</div>
+         <div style="display:flex;padding:44px 0 18px"><div class="va up" style="animation:none"><span>${ph>=1?`: ${FX}`:'?'}</span></div></div></div></section>
+     ${ph>=2||ANSWERED?comptaS([{n:2,d:'Caisse',amt:E2.ttc},{n:2,c:'Ventes de marchandises',amt:E2.ht},{n:2,c:'TVA due',amt:E2.tva}],
+       ['Caisse','Ventes de marchandises','TVA due'],k):''}`; } },
 
  { title:'L\'escompte accordé',
    ph:[{btn:'L\'escompte →', text:`Un client paie par banque CHF ${f2(E3.net)}, après déduction de <b>${E3.esc}&nbsp;%</b> d'escompte.<br><br>On retrouve d'abord le montant de la facture.`,
         q:{text:`CHF ${f2(E3.net)} correspond à…`, opts:[['a','100 %'],['b',`${100-E3.esc} %`],['c',`${100+E3.esc} %`]], ok:'b',
            fb:`le client a payé la facture <b>moins ${E3.esc} %</b> : ${f2(E3.net)} = ${100-E3.esc} %. Facture = ${f2(E3.net)} × 100 : ${100-E3.esc} = <b>${f2(E3.fac)}</b>.`}},
-       {btn:'Comptabiliser →', text:`L'escompte est la différence : ${f2(E3.fac)} − ${f2(E3.net)} = <b>${f2(E3.ettc)}</b>. Il est <b>TTC</b>.<br><br>Il contient donc de la TVA : HT = ${f2(E3.ettc)} × 100 : ${TT} = <b>${f2(E3.eht)}</b> ; TVA = <b>${f2(E3.etva)}</b>.`},
-       {btn:'Les prestations propres →', text:`<b>Banque</b> ${f2(E3.net)}, <b>Déductions accordées</b> ${f2(E3.eht)} et <b>TVA due</b> ${f2(E3.etva)} / <b>Créances clients</b> ${f2(E3.fac)}.<br><br>L'escompte diminue la vente : il diminue aussi la <b>TVA due</b> (au débit).`}],
-   stage: ph => { const done = ph>0 || ANS['6.0'];
+       {btn:'Le HT et la TVA →', text:`L'escompte est la différence : ${f2(E3.fac)} − ${f2(E3.net)} = <b>${f2(E3.ettc)}</b>.<br><br>Attention : il est calculé sur la facture TTC, il est donc <b>TTC</b>.`},
+       {btn:'Comptabiliser →', text:`L'escompte contient de la TVA : HT = ${f2(E3.ettc)} : ${FX} = <b>${f2(E3.eht)}</b> ; TVA = ${f2(E3.ettc)} − ${f2(E3.eht)} = <b>${f2(E3.etva)}</b>.`},
+       {btn:'Suite →', text:`<b>Banque</b> au débit : ${f2(E3.net)}, le montant reçu.`},
+       {btn:'Suite →', text:`<b>Déductions accordées</b> au débit : ${f2(E3.eht)}, l'escompte HT.`},
+       {btn:'Suite →', text:`<b>TVA due</b> au débit : ${f2(E3.etva)}.<br><br>L'escompte diminue la vente : il diminue aussi la <b>TVA due</b>.`},
+       {btn:'Les prestations propres →', text:`<b>Créances clients</b> au crédit : ${f2(E3.fac)}, toute la facture. Le compte est soldé.`}],
+   stage: ph => { const done = ph>0 || ANS['6.0'], k = Math.max(0, ph-2);
      return `<section class="sec"><h2>Exemple 3 : d'où viennent les montants</h2><div class="donnee">Paiement par banque d'un client, CHF ${f2(E3.net)} après déduction de ${E3.esc}&nbsp;% d'escompte.</div>
        ${bordHTML('La facture et l\'escompte',[
-         {k:'add', lb:'Facture (créance)', p:'100&nbsp;%', calc:done?`${f2(E3.net)} × 100 : ${100-E3.esc}`:'', amt:done?E3.fac:0, to:ph>=2?'Créances clients':null},
-         {k:'sub', lb:'− Escompte', p:`${E3.esc}&nbsp;%`, calc:ph>=1?`${f2(E3.fac)} − ${f2(E3.net)}`:'', amt:ph>=1?E3.ettc:0},
-         {k:'tot', lb:'= Payé par banque', p:`${100-E3.esc}&nbsp;%`, amt:E3.net, to:ph>=2?'Banque':null}]).replace(/<td class="n">0\.00<\/td>/g,'<td class="n">?</td>')}
-       ${ph>=1?`<div style="height:14px"></div>${bordHTML('L\'escompte (TTC)',[
-         {k:'add', lb:'HT', p:'100&nbsp;%', calc:`${f2(E3.ettc)} × 100 : ${TT}`, amt:E3.eht, to:ph>=2?'Déductions accordées':null},
-         {k:'add', lb:'+ TVA', p:pc(T), calc:`${f2(E3.ettc)} − ${f2(E3.eht)}`, amt:E3.etva, to:ph>=2?'TVA due':null},
-         {k:'tot', lb:'= Escompte TTC', p:pc(TT), amt:E3.ettc}])}`:''}</section>
-     ${ph>=2?compta([{ph:0,open:'Créances clients',side:'d',amt:E3.fac,lab:'facture'},{ph:2,n:3,d:'Banque',amt:E3.net},{ph:2,n:3,d:'Déductions accordées',amt:E3.eht},{ph:2,n:3,d:'TVA due',amt:E3.etva},{ph:2,n:3,c:'Créances clients',amt:E3.fac}],
-       ['Banque','Déductions accordées','TVA due','Créances clients'],ph,(acc,P)=> acc==='Créances clients' ? `<span class="tag good">soldé ✓</span>` : ''):''}`; } },
+         {k:'add', lb:'Facture (créance)', p:'100&nbsp;%', calc:done?`${f2(E3.net)} × 100 : ${100-E3.esc}`:'', amt:done?E3.fac:0, to:toK(k,3,'Créances clients')},
+         {k:'sub', lb:'− Escompte', p:`${E3.esc}&nbsp;%`, calc:ph>=1?`${f2(E3.fac)} − ${f2(E3.net)}`:'', amt:ph>=1?E3.ettc:0, warn:ph>=1?WARN_TTC:''},
+         {k:'tot', lb:'= Payé par banque', p:`${100-E3.esc}&nbsp;%`, amt:E3.net, to:toK(k,0,'Banque')}]).replace(/<td class="n">0\.00<\/td>/g,'<td class="n">?</td>')}
+       ${ph>=2?`<div style="height:14px"></div>${withArrow(bordHTML('L\'escompte (TTC)',[
+         {k:'add', lb:'HT', p:'100&nbsp;%', calc:`${f2(E3.ettc)} : ${FX}`, amt:E3.eht, to:toK(k,1,'Déductions accordées')},
+         {k:'add', lb:'+ TVA', p:pc(T), calc:`${f2(E3.ettc)} − ${f2(E3.eht)}`, amt:E3.etva, to:toK(k,2,'TVA due')},
+         {k:'tot', lb:'= Escompte TTC', p:pc(TT), amt:E3.ettc}]), `: ${FX}`)}`:''}</section>
+     ${ph>=1||ANSWERED?comptaS([{n:3,d:'Banque',amt:E3.net},{n:3,d:'Déductions accordées',amt:E3.eht},{n:3,d:'TVA due',amt:E3.etva},{n:3,c:'Créances clients',amt:E3.fac}],
+       ['Banque','Déductions accordées','TVA due','Créances clients'],k,[{open:'Créances clients',side:'d',amt:E3.fac,lab:'facture'}],
+       acc=> acc==='Créances clients' && k>=4 ? `<span class="tag good">soldé ✓</span>` : ''):''}`; } },
 
  { title:'Les prestations propres',
    ph:[{btn:'Comptabiliser →', text:`Le patron prend des marchandises pour sa famille, valeur d'achat CHF ${fmt(E4.ht)} HT.<br><br>À l'achat, l'entreprise a récupéré la TVA (IP). Mais ces marchandises ne seront pas vendues : il faut <b>corriger</b> l'impôt préalable.`,
         q:{text:`La TVA de ${f2(E4.tva)} sur ces marchandises…`, opts:[['m','diminue l\'IP sur marchandises'],['d','augmente la TVA due']], ok:'m',
            fb:`on rend l'impôt préalable récupéré à tort : <b>IP sur marchandises</b> au crédit, ${f2(E4.tva)}.`}},
-       {btn:'Le décompte TVA →', text:`<b>Privé</b> ${f2(E4.tot)} / <b>Prestations propres</b> ${f2(E4.ht)} et <b>IP sur marchandises</b> ${f2(E4.tva)}.<br><br>Le patron « paie » les marchandises et la TVA avec son compte privé.`}],
-   stage: ph => `<section class="sec"><h2>Exemple 4 : d'où viennent les montants</h2><div class="donnee">Prélèvement de marchandises par le patron, valeur d'achat CHF ${fmt(E4.ht)} HT.</div>
+       {btn:'Suite →', text:`<b>Privé</b> au débit : ${f2(E4.tot)}. Le patron « paie » les marchandises et la TVA avec son compte privé.`},
+       {btn:'Suite →', text:`<b>Prestations propres</b> au crédit : ${f2(E4.ht)}, la valeur HT des marchandises.`},
+       {btn:'Le décompte TVA →', text:`<b>IP sur marchandises</b> au crédit : ${f2(E4.tva)}. L'impôt préalable est corrigé.`}],
+   stage: ph => { const k = ph;
+     return `<section class="sec"><h2>Exemple 4 : d'où viennent les montants</h2><div class="donnee">Prélèvement de marchandises par le patron, valeur d'achat CHF ${fmt(E4.ht)} HT.</div>
        ${bordHTML('Prélèvement du patron',[
-         {k:'add', lb:'Marchandises HT', p:'100&nbsp;%', amt:E4.ht, to:ph>=1?'Prestations propres':null},
-         {k:'add', lb:'+ TVA', p:pc(T), calc:`${fmt(E4.ht)} × ${T} : 100`, amt:E4.tva, to:ph>=1?'IP sur marchandises':null},
-         {k:'tot', lb:'= Total à la charge du patron', p:pc(TT), amt:E4.tot, to:ph>=1?'Privé':null}])}</section>
-     ${ph>=1?compta([{ph:1,n:4,d:'Privé',amt:E4.tot},{ph:1,n:4,c:'Prestations propres',amt:E4.ht},{ph:1,n:4,c:'IP sur marchandises',amt:E4.tva}],
-       ['Privé','Prestations propres','IP sur marchandises'],ph):''}` },
+         {k:'add', lb:'Marchandises HT', p:'100&nbsp;%', amt:E4.ht, to:toK(k,1,'Prestations propres')},
+         {k:'add', lb:'+ TVA', p:pc(T), calc:`${fmt(E4.ht)} × ${T} : 100`, amt:E4.tva, to:toK(k,2,'IP sur marchandises')},
+         {k:'tot', lb:'= Total à la charge du patron', p:pc(TT), amt:E4.tot, to:toK(k,0,'Privé')}])}</section>
+     ${ph>=1||ANSWERED?comptaS([{n:4,d:'Privé',amt:E4.tot},{n:4,c:'Prestations propres',amt:E4.ht},{n:4,c:'IP sur marchandises',amt:E4.tva}],
+       ['Privé','Prestations propres','IP sur marchandises'],k):''}`; } },
 
  { title:'Le décompte TVA',
-   ph:[{btn:'La vente →', text:`À la fin de chaque <b>trimestre</b>, l'entreprise fait son <b>décompte TVA</b> avec l'AFC.<br><br>On reprend le commerçant du principe. 1. Il achète les marchandises à crédit : ${fmt(PR.fht)} HT + ${f2(PR.ftva)} de TVA.`},
-       {btn:'Le transfert →', text:`2. Il les vend au comptant : ${fmt(PR.pv)} HT + ${f2(PR.ctva)} de TVA.`},
-       {btn:'Le paiement →', text:`3. Fin du trimestre : on <b>transfère</b> le solde des impôts préalables dans la TVA due.<br><br><b>TVA due / IP sur marchandises</b> ${f2(PR.ftva)}.`,
-        q:{text:'Après le transfert, le solde de la TVA due est de…', opts:[['a',f2(PR.ctva)],['b',f2(PR.afc)],['c',f2(PR.ftva)]], ok:'b',
-           fb:`${f2(PR.ctva)} − ${f2(PR.ftva)} = <b>${f2(PR.afc)}</b> : c'est le montant à verser à l'AFC.`}},
-       {btn:'Suite →', text:`4. Le solde de la TVA due est payé à l'AFC.<br><br><b>TVA due / Banque</b> ${f2(PR.afc)}.<br><br>Les deux comptes de TVA sont soldés.`}],
-   stage: ph => { const J = [
-       {ph:0,n:1,d:'Achats de marchandises',amt:PR.fht},{ph:0,n:1,d:'IP sur marchandises',amt:PR.ftva},{ph:0,n:1,c:'Dettes fournisseurs',amt:PR.fttc},
-       {ph:1,n:2,d:'Caisse',amt:PR.cttc},{ph:1,n:2,c:'Ventes de marchandises',amt:PR.pv},{ph:1,n:2,c:'TVA due',amt:PR.ctva},
-       {ph:2,n:3,d:'TVA due',c:'IP sur marchandises',amt:PR.ftva},
-       {ph:3,n:4,d:'TVA due',c:'Banque',amt:PR.afc}].flatMap(e => e.d && e.c ? [{ph:e.ph,n:e.n,d:e.d,amt:e.amt},{ph:e.ph,n:e.n,c:e.c,amt:e.amt}] : [e]);
-     const eff = (acc,P,q) => acc==='IP sur marchandises' || acc==='TVA due'
-       ? `Solde : <span class="tag ${Math.abs(bal(acc,P))<0.001&&q>=2?'good':'neutral'}">${f2(bal(acc,P))}${Math.abs(bal(acc,P))<0.001&&q>=2?' ✓':''}</span>` : '';
-     return compta(J, ['Achats de marchandises','IP sur marchandises','Dettes fournisseurs','Caisse','Ventes de marchandises','TVA due','Banque'], ph, eff)
-       .replace('<h2>Dans la comptabilité</h2>','<h2>Le trimestre du commerçant</h2>'); } }
+   ph:[{btn:'Consigne 1 →', text:`À la fin de chaque <b>trimestre</b>, l'entreprise fait son <b>décompte TVA</b> avec l'AFC.<br><br>Les comptes montrent les montants du trimestre :<br>• les <b>IP</b> (impôts préalables) à récupérer, au débit des deux comptes IP ;<br>• la <b>TVA due</b> facturée aux clients, au crédit de la TVA due.<br><br>Les montants de l'autre côté sont des corrections (prestations propres, escomptes…).`},
+       {btn:'Comptabiliser →', text:`On solde l'<b>IP sur marchandises</b> : son solde (${f2(DC.ipm)}) passe dans la TVA due.`},
+       {btn:'Consigne 2 →', text:`<b>TVA due</b> au débit, <b>IP sur marchandises</b> au crédit : ${f2(DC.ipm)}. Le compte IP sur marchandises est soldé.`},
+       {btn:'Comptabiliser →', text:`Même chose pour l'<b>IP sur investissements et ACE</b> : son solde (${f2(DC.ipi)}) passe dans la TVA due.`},
+       {btn:'Consigne 3 →', text:`<b>TVA due</b> au débit, <b>IP sur inv. et ACE</b> au crédit : ${f2(DC.ipi)}. Le compte IP sur inv. et ACE est soldé.`},
+       {btn:'Comptabiliser →', text:`Le solde de la TVA due est le montant à verser à l'AFC : on le transfère dans <b>Dettes AFC</b>.`,
+        q:{text:'Après les deux transferts, le solde de la TVA due est de…', opts:[['a',f2(DC.tva)],['b',f2(DC.afc)],['c',f2(DC.ipm+DC.ipi)]], ok:'b',
+           fb:`${f2(DC.tva)} − ${f2(DC.ipm)} − ${f2(DC.ipi)} = <b>${f2(DC.afc)}</b> : c'est le montant dû à l'AFC.`}},
+       {btn:'Consigne 4 →', text:`<b>TVA due</b> au débit, <b>Dettes AFC</b> au crédit : ${f2(DC.afc)}.<br><br>En principe, il y a plus de TVA due que d'IP à récupérer : l'entreprise doit de l'argent à l'AFC.`},
+       {btn:'Comptabiliser →', text:`L'entreprise paie sa dette à l'AFC par banque.`},
+       {btn:'Suite →', text:`<b>Dettes AFC</b> au débit, <b>Banque</b> au crédit : ${f2(DC.afc)}.<br><br>Tous les comptes de TVA sont soldés.`}],
+   stage: ph => { const k = Math.floor(ph/2), nC = Math.floor((ph+1)/2);   // écritures passées · consignes affichées
+     const CONS = [`Transférer le solde de l'IP sur marchandises dans la TVA due.`, `Transférer le solde de l'IP sur inv. et ACE dans la TVA due.`,
+                   `Transférer le solde de la TVA due dans Dettes AFC.`, `Payer le montant dû à l'AFC par banque.`];
+     const opens = [{open:'IP sur marchandises',side:'d',amt:DC.ipm_d,lab:'bal'},{open:'IP sur marchandises',side:'c',amt:DC.ipm_c,lab:'bal'},
+                    {open:'IP sur inv. et ACE',side:'d',amt:DC.ipi_d,lab:'bal'},{open:'IP sur inv. et ACE',side:'c',amt:DC.ipi_c,lab:'bal'},
+                    {open:'TVA due',side:'c',amt:DC.tva_c,lab:'bal'},{open:'TVA due',side:'d',amt:DC.tva_d,lab:'bal'}];
+     const J = [{n:1,d:'TVA due',c:'IP sur marchandises',amt:DC.ipm},{n:2,d:'TVA due',c:'IP sur inv. et ACE',amt:DC.ipi},
+                {n:3,d:'TVA due',c:'Dettes AFC',amt:DC.afc},{n:4,d:'Dettes AFC',c:'Banque',amt:DC.afc}];
+     const eff = (acc,P) => acc==='Banque' || !P.d.length && !P.c.length ? '' : (b => `Solde : <span class="tag ${Math.abs(b)<0.001?'good':'neutral'}">${f2(b)}${Math.abs(b)<0.001?' ✓':''}</span>`)(bal(acc,P));
+     return `<section class="sec"><h2>Consignes</h2><div class="donnee">${nC ? `<ol style="margin:0;padding-left:22px">${CONS.slice(0,nC).map(c=>`<li>${c}</li>`).join('')}</ol>` : 'Décompte TVA de fin de trimestre.'}</div></section>`
+       + comptaS(J, ['IP sur marchandises','IP sur inv. et ACE','TVA due','Dettes AFC','Banque'], k, opens, eff, true)
+         .replace('<h2>Dans la comptabilité</h2>','<h2>Le décompte TVA</h2>'); } }
 ];
 const LAST = STEPS.length-1;
 
@@ -545,6 +584,7 @@ function render(){
   $('next').textContent = pos===A.length-1 ? 'Terminé ✓' : P.btn;
   $('explain').innerHTML = `<h2 class="steptitle">${LET(step)}. ${S.title}</h2>
     ${P.text?`<p class="steptext">${P.text}</p>`:''}${P.q?qBox(key,P.q):''}`;
+  ANSWERED = !!ANS[key];
   $('stage').innerHTML = S.stage(ph);
 }
 
