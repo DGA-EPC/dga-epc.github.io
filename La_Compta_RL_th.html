@@ -172,7 +172,7 @@ const CRE = [
 const AJ = {siP:400, sfR:750, bnR:170}; AJ.siR = AJ.siP*3/2; AJ.sfP = AJ.sfR*2/3; AJ.vsR = AJ.sfR-AJ.siR; AJ.vsP = AJ.sfP-AJ.siP;
 AJ.var = (AJ.sfR-AJ.sfP)-(AJ.siR-AJ.siP); AJ.bnP = AJ.bnR-AJ.var;
 // Tableau des RL
-const TR = [['Ducroire',-12,-10,-15,-10],['Titres',80,95,92,110],['Stock de marchandises',100,150,110,165],['Installations',178,200,140,172]]
+const TR = [['Ducroire',-12,-10,-15,-10],['Titres',80,95,92,110],['Stock de marchandises',100,150,110,165],['Installations',178,200,140,155]]
   .map(([lb,ci,ri,cf,rf])=>({lb,ci,ri,cf,rf,rli:ri-ci,rlf:rf-cf,v:(rf-cf)-(ri-ci)}));
 const TT = k => TR.reduce((s,r)=>s+r[k],0);
 const TRB = {bnP:350, fpP:1450}; TRB.bnR = TRB.bnP+TT('v'); TRB.fpR = TRB.fpP+TT('rlf');
@@ -283,7 +283,9 @@ const STEPS = [
      const c = (show, v, k='') => `<td class="${k}">${show?fmt(v):''}</td>`;
      const rows = TR.map(r=>`<tr><td>${r.lb}</td>${c(1,r.ci,'sep')}${c(1,r.ri)}${c(a1,r.rli,'rl'+(ph===1?' cur':''))}${c(1,r.cf,'sep')}${c(1,r.rf)}${c(ph>=2,r.rlf,'rl'+(ph===2?' cur':''))}<td class="sep var ${ph===3?'cur':''}">${ph>=3?sg(r.v):''}</td></tr>`).join('');
      const tot = `<tr class="tot"><td>Total</td>${c(ph>=4,TT('ci'),'sep')}${c(ph>=4,TT('ri'))}${c(ph>=4,TT('rli'),'rl')}${c(ph>=4,TT('cf'),'sep')}${c(ph>=4,TT('rf'))}${c(ph>=4,TT('rlf'),'rl'+(ph===6?' cur':''))}<td class="sep var ${ph===5?'cur':''}">${ph>=4?sg(TT('v')):''}</td></tr>`;
-     return `<section class="sec"><h2>Tableau des réserves latentes</h2><div style="overflow-x:auto"><table class="trl">
+     return `<section class="sec"><h2>Tableau des réserves latentes</h2>
+       <div class="donnee" style="max-width:860px;margin-bottom:14px">Montants publiés dans le dernier rapport de gestion : bénéfice net <b>${fmt(TRB.bnP)}</b>, fonds propres <b>${fmt(TRB.fpP)}</b>.<br>Calculer le bénéfice et les fonds propres <b>réels</b>.</div>
+       <div style="overflow-x:auto"><table class="trl">
        <tr><th></th><th class="grp sep" colspan="3">Bilan initial</th><th class="grp sep" colspan="3">Bilan final</th><th class="grp sep">Variation</th></tr>
        <tr><th>Compte</th><th class="sep">Comptable</th><th>Réelle</th><th>RL</th><th class="sep">Comptable</th><th>Réelle</th><th>RL</th><th class="sep">RL</th></tr>
        ${rows}${tot}</table></div></section>
