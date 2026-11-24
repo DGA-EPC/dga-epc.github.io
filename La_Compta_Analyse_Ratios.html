@@ -68,6 +68,40 @@
         #new-btn { background-color:#9b59b6; color:white; }
         #new-btn:hover { background-color:#6D3D80; }
         #score { font-size:20px; font-weight:bold; text-align:center; padding:12px; border-radius:6px; margin-top:15px; display:none; }
+
+        /* Afficher / masquer les calculs */
+        .outils .opts { display:flex; gap:18px; flex-wrap:wrap; }
+        .saisie-res { width:80px !important; text-align:center; font-weight:bold; font-size:15px; padding:4px; display:inline-block; }
+        .saisie-calc { width:100% !important; min-height:64px; font-size:12.5px; resize:vertical; box-sizing:border-box; font-family:inherit; }
+        body.calc .saisie { display:none; }
+        body:not(.calc):not(.revele) .vis { display:none; }
+        body.revele:not(.calc) .res .vis { margin-top:4px; color:#1A6DD9; }
+        body.calc .sans-calc, body:not(.calc) .avec-calc { display:none; }
+        tr.sol td { background:#e8f4fc; }
+        tr.sol .raisons { background:rgba(255,255,255,.6); }
+        tr.sol .expl { display:block; }
+        #sol-btn { background-color:#e67e22; color:white; }
+        #sol-btn:hover { background-color:#a85a16; }
+        #print-btn { background-color:#7f8c8d; color:white; }
+        #print-btn:hover { background-color:#566061; }
+
+        /* Impression (PDF) */
+        .imp, .imp-i { display:none; }
+        .ligne-r { margin-top:10px; font-size:13px; }
+        .ligne-r span { display:block; border-bottom:1px dotted #555; height:20px; }
+        @media print {
+            @page { margin:12mm; }
+            * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+            .outils, .buttons, #quit-msg, .raisons, .ecr { display:none !important; }
+            .imp { display:block; }
+            .imp-i { display:inline; }
+            tr.ok .ligne-r, tr.ko .ligne-r, tr.sol .ligne-r { display:none; }
+            tr, .ba, .compl { break-inside:avoid; page-break-inside:avoid; }
+            .saisie-calc { resize:none; border:1px solid #999; min-height:70px; }
+            .saisie-calc::placeholder { color:transparent; }
+            .saisie-res { border:1px solid #999; }
+            .container { max-width:none; box-shadow:none; }
+        }
     </style>
 </head>
 <body>
@@ -78,13 +112,16 @@
 
     <div class="container">
         <div class="consigne">
-            Voici le bilan analytique d'une entreprise commerciale au <b>31.12.<span class="an"></span></b>. Les ratios sont déjà calculés.<br>
+            Voici le bilan analytique d'une entreprise commerciale au <b>31.12.<span class="an"></span></b>. <span class="avec-calc">Les ratios sont déjà calculés.</span><span class="sans-calc">Calculer chaque ratio et noter le <b>résultat</b> (le détail du calcul est facultatif).</span><br>
             Les informations complémentaires servent aux ratios de gestion.<br>
-            Pour chaque ratio, cocher <b>bon</b> ou <b>pas bon</b>. Si le ratio n'est pas bon, cocher la <b>raison</b>.<br>Les normes de la théorie sont à connaître. Pour les ratios qui dépendent de la branche ou de l'année précédente, la comparaison est donnée.
+            Pour chaque ratio, cocher <b>bon</b> ou <b>pas bon</b>. Si le ratio n'est pas bon, <span class="ecr">cocher</span><span class="imp-i">noter</span> la <b>raison</b>.<br>Les normes de la théorie sont à connaître. Pour les ratios qui dépendent de la branche ou de l'année précédente, la comparaison est donnée.
         </div>
 
         <div class="outils">
-            <label><input type="checkbox" id="aide"> Afficher les normes (aide)</label>
+            <div class="opts">
+                <label><input type="checkbox" id="calc" checked> Afficher les calculs</label>
+                <label><input type="checkbox" id="aide"> Afficher les normes (aide)</label>
+            </div>
             <span id="progression"></span>
         </div>
 
@@ -96,13 +133,13 @@
 
         <h3 class="sec">Ratios du bilan</h3>
         <table class="rt">
-            <thead><tr><th>Ratio</th><th>Calcul</th><th>Résultat</th><th>Appréciation</th></tr></thead>
+            <thead><tr><th>Ratio</th><th>Calcul<span class="sans-calc"> (facultatif)</span></th><th>Résultat</th><th>Appréciation</th></tr></thead>
             <tbody id="ratios"></tbody>
         </table>
 
         <h3 class="sec">Ratios de gestion</h3>
         <table class="rt gt">
-            <thead><tr><th>Ratio</th><th>Calcul</th><th>Résultat</th><th>Appréciation</th></tr></thead>
+            <thead><tr><th>Ratio</th><th>Calcul<span class="sans-calc"> (facultatif)</span></th><th>Résultat</th><th>Appréciation</th></tr></thead>
             <tbody id="gestion"></tbody>
         </table>
 
@@ -111,7 +148,9 @@
         <div class="buttons">
             <button id="quit-btn">Quitter</button>
             <div>
+                <button id="print-btn">Imprimer en PDF</button>
                 <button id="new-btn">Nouveau bilan</button>
+                <button id="sol-btn">Afficher la solution</button>
                 <button id="validate-btn">Valider</button>
             </div>
         </div>
@@ -373,7 +412,8 @@ function afficheRatios(){
     const calc = r.ges ? r.calc() : `${fmt(tot(B, r.num))} × 100 ÷ ${fmt(denVal(B, r))}`;
     const nrm = r.fixe ? `<div class="norme">Norme : ${r.norme}</div>` : `<div class="nb">${r.normeTxt}</div>`;
     return `<tr id="tr-${r.k}"><td><div class="nm">${r.nm}</div><div class="frm">${r.frm}</div>${nrm}</td>
-      <td class="calc${r.ges ? ' ges' : ''}">${calc}</td><td class="res">${aff(r, V[r.k])}</td><td>
+      <td class="calc${r.ges ? ' ges' : ''}"><div class="vis">${calc}</div><textarea class="saisie saisie-calc" id="cs-${r.k}" placeholder="Calcul (facultatif)"></textarea></td>
+      <td class="res"><span class="saisie"><input type="text" class="saisie-res" id="in-${r.k}" inputmode="decimal" autocomplete="off"> ${r.ges ? 'jours' : '%'}</span><div class="vis">${aff(r, V[r.k])}</div></td><td>
         <div class="app">
           <label><input type="radio" name="a-${r.k}" value="bon"> Bon</label>
           <label><input type="radio" name="a-${r.k}" value="pas"> Pas bon</label>
@@ -382,6 +422,7 @@ function afficheRatios(){
           <div class="q">Pourquoi ?</div>
           ${shuffle(r.choix).map(c => `<label><input type="radio" name="r-${r.k}" value="${c}"> ${RAISONS[c]}</label>`).join('')}
         </div>
+        <div class="imp ligne-r">Si pas bon, raison :<span></span><span></span></div>
         <div class="expl" id="ex-${r.k}"></div>
       </td></tr>`;
   };
@@ -394,11 +435,17 @@ function afficheRatios(){
       majProgression();
     }));
     document.querySelectorAll(`input[name="r-${r.k}"]`).forEach(inp => inp.addEventListener('change', majProgression));
+    $('in-'+r.k).addEventListener('input', majProgression);
   });
 }
 
 const val = name => { const x = document.querySelector(`input[name="${name}"]:checked`); return x ? x.value : null; };
-const complet = r => { const a = val('a-'+r.k); return a === 'bon' || (a === 'pas' && val('r-'+r.k)); };
+const avecCalc = () => document.body.classList.contains('calc');
+const resSaisi = r => avecCalc() || $('in-'+r.k).value.trim() !== '';     // sans les calculs, l'élève doit noter le résultat
+const complet = r => { const a = val('a-'+r.k); return resSaisi(r) && (a === 'bon' || (a === 'pas' && val('r-'+r.k))); };
+/* Lecture du résultat noté par l'élève : « 45,3 », « 45.3 », « 45,3 % », « 52 jours »… */
+const lit = s => { const x = parseFloat(s.replace(/[’'\s]/g, '').replace(',', '.').replace(/[^\d.\-]/g, '')); return isNaN(x) ? null : x; };
+const resJuste = r => { const x = lit($('in-'+r.k).value); return x !== null && Math.abs(x - V[r.k]) <= (r.ges ? 1.5 : 0.6); };
 function majProgression(){
   $('progression').textContent = `Ratios appréciés : ${LISTE.filter(complet).length} / ${LISTE.length}`;
 }
@@ -406,17 +453,26 @@ function majProgression(){
 /* ======================================================================
    Correction
    ====================================================================== */
-function valider(){
-  const manque = LISTE.filter(r => !complet(r));
-  if (manque.length){ alerteManque(manque); return; }
-  let pts = 0;
+function valider(sol){                 // sol = true : solution affichée, sans note
+  sol = sol === true;
+  if (!sol){
+    const manque = LISTE.filter(r => !complet(r));
+    if (manque.length){ alerteManque(manque); return; }
+  }
+  const sansCalc = !avecCalc();
+  let pts = 0, ptsR = 0;
   LISTE.forEach(r => {
     const v = V[r.k], bonne = jug(r, v);
     const a = val('a-'+r.k), rs = val('r-'+r.k);
     const juste = bonne === null ? a === 'bon' : (a === 'pas' && rs === bonne);
     if (juste) pts++;
+    let resTxt = '';
+    if (sansCalc && !sol){
+      const rj = resJuste(r); if (rj) ptsR++;
+      resTxt = rj ? 'Résultat juste. ' : `Résultat faux : il fallait <b>${aff(r, v)}</b>. `;
+    }
     const tr = $('tr-'+r.k);
-    tr.classList.remove('ok','ko'); tr.classList.add(juste ? 'ok' : 'ko');
+    tr.classList.remove('ok','ko','sol'); tr.classList.add(sol ? 'sol' : juste ? 'ok' : 'ko');
     // Montrer la bonne raison en gras
     document.querySelectorAll(`input[name="r-${r.k}"]`).forEach(i => i.parentElement.classList.toggle('bonne', i.value === bonne));
     if (bonne) $('rs-'+r.k).classList.add('on');
@@ -431,14 +487,34 @@ function valider(){
         ? ` Entre 80 et 100 % : <b>acceptable</b>, car le stock tourne vite (durée du stock : ${V.dSto} jours, norme de la branche : ${S.hi} jours).`
         : ` Entre 80 et 100 %, ce serait acceptable si le stock tournait vite, mais la durée du stock (${V.dSto} jours) dépasse la norme de la branche (${S.hi} jours).`;
     }
-    $('ex-'+r.k).innerHTML = `${juste ? '✓' : '✗'} <b>${aff(r, v)} : ${bonne === null ? 'bon' : 'pas bon'}</b> (${sens} ; ${fb}).${nuance}${bonne ? `<br>Raison : ${RAISONS[bonne]}` : ''}<br>${r.ex}`;
+    $('ex-'+r.k).innerHTML = `${resTxt ? resTxt + '<br>' : ''}${sol ? '' : juste ? '✓ ' : '✗ '}<b>${aff(r, v)} : ${bonne === null ? 'bon' : 'pas bon'}</b> (${sens} ; ${fb}).${nuance}${bonne ? `<br>Raison : ${RAISONS[bonne]}` : ''}<br>${r.ex}`;
   });
-  document.querySelectorAll('#ratios input, #gestion input').forEach(i => i.disabled = true);
+  document.querySelectorAll('#ratios input, #gestion input, #ratios textarea, #gestion textarea').forEach(i => i.disabled = true);
+  document.body.classList.add('revele');          // après correction, les calculs et résultats sont visibles
   const n = LISTE.length, s = $('score');
   s.style.display = 'block';
-  s.style.background = pts === n ? '#d4edda' : pts >= n/2 ? '#fff3cd' : '#f8d7da';
-  s.textContent = `Score : ${pts} / ${n}` + (pts === n ? ' — parfait !' : '');
+  if (sol){
+    s.style.background = '#e8f4fc';
+    s.textContent = 'Solution affichée';
+  } else {
+    s.style.background = pts === n ? '#d4edda' : pts >= n/2 ? '#fff3cd' : '#f8d7da';
+    s.textContent = `Score : ${pts} / ${n}` + (pts === n ? ' — parfait !' : '') + (sansCalc ? ` — Résultats justes : ${ptsR} / ${n}` : '');
+  }
   $('validate-btn').style.display = 'none';
+  $('sol-btn').style.display = 'none';
+  majProgression();
+}
+
+/* Solution : on coche les bonnes réponses, on note les résultats, puis on affiche la correction */
+function solution(){
+  const coche = (name, value) => { const i = document.querySelector(`input[name="${name}"][value="${value}"]`); if (i) i.checked = true; };
+  LISTE.forEach(r => {
+    const bonne = jug(r, V[r.k]);
+    coche('a-'+r.k, bonne === null ? 'bon' : 'pas');
+    if (bonne) coche('r-'+r.k, bonne);
+    $('rs-'+r.k).classList.toggle('on', !!bonne);
+  });
+  valider(true);
 }
 function alerteManque(manque){
   manque.forEach(r => { const tr = $('tr-'+r.k); tr.style.outline = '2px dashed #ffa500'; setTimeout(() => tr.style.outline = '', 1500); });
@@ -458,9 +534,19 @@ function nouveau(){
   afficheBilan(); afficheCompl(); afficheRatios(); majProgression();
   $('score').style.display = 'none';
   $('validate-btn').style.display = '';
+  $('sol-btn').style.display = '';
+  document.body.classList.remove('revele');
 }
-$('aide').addEventListener('change', e => document.body.classList.toggle('aide', e.target.checked));
-$('validate-btn').addEventListener('click', valider);
+const syncCases = () => {
+  document.body.classList.toggle('aide', $('aide').checked);
+  document.body.classList.toggle('calc', $('calc').checked);
+};
+syncCases();
+$('aide').addEventListener('change', syncCases);
+$('calc').addEventListener('change', () => { syncCases(); if (LISTE) majProgression(); });
+$('validate-btn').addEventListener('click', () => valider());
+$('sol-btn').addEventListener('click', solution);
+$('print-btn').addEventListener('click', () => window.print());
 $('new-btn').addEventListener('click', nouveau);
 $('quit-btn').addEventListener('click', () => { window.close(); setTimeout(() => { $('quit-msg').style.display = 'block'; }, 300); });
 nouveau();
