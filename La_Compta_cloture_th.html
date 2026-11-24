@@ -441,7 +441,7 @@ function renderExplain(D){
       if (cur && cur.type==='xfer') extra += `<div class="calc">${fortTag}<div class="row" style="margin-top:6px"><span>Capital</span><span>${fmt(V.capInit)} → <b>${fmt(D.capFin)}</b></span></div></div>`;
       break;
     case 6: {
-      text = `Actifs : solde au débit, le <b>SPB</b> (solde pour le bilan) s'inscrit au crédit. Passifs : solde au crédit, le SPB s'inscrit au débit. Chaque solde est reporté dans le bilan de clôture ; le <b>capital</b> vient en dernier.`;
+      text = `Actifs : solde au débit, le <b>SPB</b> (solde pour balance) s'inscrit au crédit. Passifs : solde au crédit, le SPB s'inscrit au débit. Chaque solde est reporté dans le bilan de clôture ; le <b>capital</b> vient en dernier.`;
       if (xferDone('capital')){
         const E = entries('bilan', D);
         const tA = E.d.reduce((s,l)=>s+l.amount,0), tP = E.c.reduce((s,l)=>s+l.amount,0);
