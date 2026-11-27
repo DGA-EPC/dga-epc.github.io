@@ -148,6 +148,19 @@ h1{margin:10px 0 0;font-size:calc(clamp(24px,3.4vw,44px) - 2px)}
   <header>
     <span class="super">Tout le programme de Finances & Comptabilité</span>
     <h1><span class="smile">😊</span> <span class="grad">La compta, c'est ma joie !</span> <span class="smile r">😊</span></h1>
+  <a class="lien-cousin" id="lienCousin" href="https://epc-eco.github.io/"></a>
+  <style>
+  .lien-cousin{display:inline-block;margin-top:8px;font-size:14px;font-weight:500;font-style:italic;color:#e9d5ff;opacity:.85;text-decoration:none;transition:opacity .2s,transform .2s}
+  .lien-cousin:hover{opacity:1;transform:scale(1.05);text-decoration:underline}
+  </style>
+  <script>
+  (function(){
+    const phrases = ["Et l'économie : ça te dit ?", "Et l'économie ? Allez, vas-y !", "Et l'économie ? Aussi !"];
+    const rare = "Et l'économie : c'est du pipi ?"; // 1 fois sur 20
+    document.getElementById('lienCousin').textContent =
+      Math.random() < 0.05 ? rare : phrases[Math.floor(Math.random()*phrases.length)];
+  })();
+  </script>
   </header>
 
   <div class="years" id="programme"></div>
