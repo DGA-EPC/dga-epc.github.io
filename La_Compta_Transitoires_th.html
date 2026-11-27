@@ -32,17 +32,22 @@
 /* Ligne du temps */
 .tl-years{display:grid;grid-template-columns:1fr 1fr;text-align:center;font-family:Fraunces,Georgia,serif;font-weight:700;font-size:18px;margin-bottom:4px}
 .tl-years div:first-child{color:var(--actif)}.tl-years div:last-child{color:var(--accent)}
-.tl-track{position:relative;height:124px;border-radius:10px;background:linear-gradient(90deg,var(--y1) 50%,var(--y2) 50%)}
+.tl-track{position:relative;height:62px;border-radius:10px;background:linear-gradient(90deg,var(--y1) 50%,var(--y2) 50%)}
 .tl-cut{position:absolute;left:50%;top:-8px;bottom:-8px;border-left:3px dashed var(--passif);z-index:3}
 .tl-cut span{position:absolute;bottom:-4px;left:6px;font-size:11px;font-weight:700;color:var(--passif);white-space:nowrap;background:#fff;padding:0 5px;border-radius:5px}
 .tl-months{position:absolute;left:0;right:0;bottom:4px;display:grid;grid-template-columns:repeat(24,1fr);font-size:10px;color:var(--muted);text-align:center}
-.tl-bar{position:absolute;top:58px;height:28px;border-radius:6px;color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;padding:0 4px;z-index:2;font-variant-numeric:tabular-nums}
+.tl-bar{position:absolute;top:6px;height:28px;border-radius:6px;color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;padding:0 4px;z-index:2;font-variant-numeric:tabular-nums}
 .tl-bar.b1{background:var(--actif)}.tl-bar.b2{background:var(--accent)}
 .tl-bar.fix{outline:3px solid #ffe08a;outline-offset:1px;animation:pulse 1.6s ease-in-out infinite}
 @keyframes pulse{50%{outline-color:transparent}}
-.tl-mk{position:absolute;top:6px;height:84px;border-left:2px solid var(--ink);z-index:4}
-.tl-mk span{position:absolute;top:0;left:4px;font-size:11.5px;font-weight:600;background:#fff;padding:1px 6px;border-radius:5px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.12)}
-.tl-mk.left span{left:auto;right:4px}
+.tl-mk{position:absolute;top:2px;height:36px;border-left:2px solid var(--ink);z-index:4}
+.tl-mk span{position:absolute;top:50%;transform:translateY(-50%);left:5px;font-size:11.5px;font-weight:600;background:#fff;padding:1px 6px;border-radius:5px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.tl-mk.left span{left:auto;right:5px}
+/* Texte trop long pour sa case (p. ex. en agrandissant) : on réduit la police, puis on le sort de la case */
+.tl-bar span{overflow:hidden;text-overflow:clip}
+.tl-bar.out{overflow:visible}
+.tl-bar.out span{position:absolute;right:calc(100% + 5px);color:var(--ink);font-size:11.5px !important;background:#fff;padding:1px 6px;border-radius:5px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.tl-bar.out.b2 span{right:auto;left:calc(100% + 5px)}
 
 /* Exercices et comptes en T */
 .years{display:grid;grid-template-columns:1fr 1fr;gap:16px}
@@ -307,9 +312,9 @@ function timeline(tl, ph){
     const segs = [];
     if (b.from<12) segs.push({f:b.from, t:Math.min(12,b.to), y:Y1, lb: b.to>12 ? (b.l25??b.label) : b.label});
     if (b.to>12)  segs.push({f:Math.max(12,b.from), t:b.to, y:Y2, lb: b.from<12 ? (b.l26??'') : b.label});
-    segs.forEach(s=>{ bars += `<div class="tl-bar ${s.y===Y1?'b1':'b2'} ${ph>=1 && tl.fix===s.y ? 'fix':''}" style="left:${pc(s.f)};width:calc(${pc(s.t)} - ${pc(s.f)})" title="${s.lb}">${s.lb}</div>`; });
+    segs.forEach(s=>{ bars += `<div class="tl-bar ${s.y===Y1?'b1':'b2'} ${ph>=1 && tl.fix===s.y ? 'fix':''}" style="left:${pc(s.f)};width:calc(${pc(s.t)} - ${pc(s.f)})" title="${s.lb}"><span>${s.lb}</span></div>`; });
   });
-  const marks = tl.marks.map(m=>`<div class="tl-mk ${m.at>18?'left':''}" style="left:${pc(m.at)}"><span>${m.label}</span></div>`).join('');
+  const marks = tl.marks.map(m=>`<div class="tl-mk ${m.at<12?'left':''}" style="left:${pc(m.at)}"><span>${m.label}</span></div>`).join('');
   return `<div class="tl-years"><div>${Y1}</div><div>${Y2}</div></div>
     <div class="tl-track">${bars}${marks}<div class="tl-cut"><span>31.12 · clôture</span></div>
     <div class="tl-months">${(INI+INI).split('').map(m=>`<span>${m}</span>`).join('')}</div></div>`;
@@ -317,6 +322,41 @@ function timeline(tl, ph){
 
 /* ---------- Rendu ---------- */
 const LET = i => String.fromCharCode(65+i);   // A, B, C…
+/* Ajuste les étiquettes de la ligne du temps à la place disponible (taille d'affichage, largeur de la fenêtre) */
+function fitTL(){
+  document.querySelectorAll('.tl-track').forEach(tr=>{
+    tr.querySelectorAll('.tl-bar').forEach(b=>{
+      const sp = b.querySelector('span'); if (!sp || !sp.textContent) return;
+      b.classList.remove('out'); b.style.justifyContent = ''; let f = 12; sp.style.fontSize = f+'px';
+      while (sp.scrollWidth > b.clientWidth - 10 && f > 10.5){ f -= 0.5; sp.style.fontSize = f+'px'; }
+      if (sp.scrollWidth > b.clientWidth - 10) b.classList.add('out');
+    });
+    // étiquettes des traits : à gauche du trait dans l'année de gauche, à droite dans celle de droite ; on change de côté si elles sortent de la ligne
+    const T = tr.getBoundingClientRect();
+    const outside = r => r.left < T.left || r.right > T.right;
+    tr.querySelectorAll('.tl-mk').forEach(m=>{
+      const left = m.dataset.side ? m.dataset.side==='left' : m.classList.contains('left');
+      m.dataset.side = left ? 'left' : 'right';
+      m.classList.toggle('left', left);
+      if (outside(m.querySelector('span').getBoundingClientRect())) m.classList.toggle('left', !left);
+    });
+    const mks = [...tr.querySelectorAll('.tl-mk')].flatMap(m=>[m.getBoundingClientRect(), m.querySelector('span').getBoundingClientRect()]);
+    const over = r => mks.some(o=>r.left < o.right + 3 && r.right > o.left - 3);
+    // texte sorti d'une case : s'il touche une étiquette, on le pousse plus loin, à gauche (ou à droite) de celle-ci
+    tr.querySelectorAll('.tl-bar.out span').forEach(sp=>{
+      sp.style.transform = '';
+      const r = sp.getBoundingClientRect(), k = r.width / sp.offsetWidth || 1, toLeft = !sp.parentNode.classList.contains('b2');
+      const hits = mks.filter(o=>r.left < o.right + 3 && r.right > o.left - 3);
+      if (!hits.length) return;
+      const d = toLeft ? Math.min(...hits.map(o=>o.left)) - 5 - r.right : Math.max(...hits.map(o=>o.right)) + 5 - r.left;
+      sp.style.transform = `translateX(${d/k}px)`;
+    });
+    // texte d'une case caché par une étiquette ou un trait : on le pousse au bout de la case
+    tr.querySelectorAll('.tl-bar:not(.out) span').forEach(sp=>{ if (sp.textContent && over(sp.getBoundingClientRect())) sp.parentNode.style.justifyContent = 'flex-end'; });
+  });
+}
+window.addEventListener('resize', fitTL);
+
 function render(){
   pos = Math.max(0, Math.min(A.length-1, pos));
   const {step, ph} = A[pos];
@@ -326,6 +366,7 @@ function render(){
   $('next').disabled = pos===A.length-1 || (!!c && ph===0 && !ANS[step]);
   $('next').textContent = pos===A.length-1 ? 'Terminé ✓' : c ? c.ph[ph].btn : 'Suivant →';
   if (step===0) renderIntro(); else if (step===5) renderResume(); else renderCase(c, step, ph);
+  fitTL();
 }
 
 function renderCase(c, step, ph){
@@ -338,7 +379,7 @@ function renderCase(c, step, ph){
   const choices = (ph===0 || ch) ? `<div class="choices">${btn('manque','manque')}${btn('trop','est en trop')}</div>` : '';
   const fb = ch ? `<div class="fb ${ch===ok?'ok':'ko'}">${ch===ok?'✓ En effet':'✗ En fait'}, ${core} : ${act}</div>`
            : ph>=1 ? `<div class="fb">Réponse : ${core} : ${act}</div>`
-           : `<div class="hint">Clique sur ta réponse pour continuer.</div>`;
+           : `<div class="hint">Cliquer sur la bonne réponse pour continuer.</div>`;
   const qBox = ph>=1 ? '' : `<div class="calc q"><div style="font-weight:600;margin-bottom:4px">La question à se poser</div>${c.q}${choices}${fb}</div>`;
   const rows = c.J.filter(e=>!e.open);
   const hid = c.hide && ph===1, nm = a => hid && a===c.tr ? '?' : a;   // compte transitoire pas encore nommé
@@ -426,6 +467,7 @@ function applyZoom(){
   Z = Math.round(Math.max(0.8, Math.min(1.6, Z))*10)/10;
   document.documentElement.style.setProperty('--z', Z);
   try { localStorage.setItem('transitoires-zoom', Z); } catch(e){}
+  fitTL();
 }
 
 $('dots').innerHTML = TITLES.map((t,i)=>`<button class="dot" data-s="${i}" title="${LET(i)}. ${t}" aria-label="${LET(i)}. ${t}"></button>`).join('');

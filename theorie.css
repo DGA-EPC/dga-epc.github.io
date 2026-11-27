@@ -179,3 +179,20 @@ section.sec h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;
   .pstep section.sec{break-inside:avoid;border:1px solid var(--line);box-shadow:none;margin-bottom:12px}
   .pfoot{font-size:11px;color:#777;margin-top:4px}
 }
+
+/* ===== Raccourcis clavier : F plein écran, S partie gauche, +/− taille, 1/2 réponses (theorie.js) ===== */
+.keys{font-size:11.5px;color:rgba(255,255,255,.65);margin:2px 2px 0;line-height:1.7}
+.keys kbd,.side-tip kbd,.qbar kbd{display:inline-block;min-width:18px;text-align:center;font:600 11px Inter,system-ui,sans-serif;padding:0 5px;border-radius:4px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.1);color:#fff}
+body.noside aside{display:none}
+body.noside .app{grid-template-columns:minmax(0,1fr);max-width:none}
+.side-tip{display:none;position:fixed;left:10px;bottom:8px;z-index:60;font-size:11.5px;color:rgba(255,255,255,.65);opacity:.6}
+body.noside .side-tip{display:block}
+/* Bandeau de la question (partie gauche masquée) */
+.qbar{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);width:min(760px,calc(100% - 40px));z-index:70;zoom:var(--z,1);
+  background:#fff;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.35);padding:4px 6px;animation:qbar-in .3s ease-out}
+.qbar .calc{margin:4px 0}
+.qbar .qkeys{font-size:11.5px;color:var(--muted);margin:2px 12px 6px}
+.qbar .qkeys kbd{color:var(--ink);border-color:var(--line);background:var(--soft)}
+@keyframes qbar-in{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translateX(-50%)}}
+body.has-qbar .stage{padding-bottom:200px}
+@media print{ .side-tip,.qbar{display:none !important} }

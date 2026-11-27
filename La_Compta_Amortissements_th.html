@@ -79,7 +79,8 @@
 .jr-stage .journal{font-size:13.5px}
 /* Amortir = diminuer : une situation par ligne */
 .sits{display:flex;flex-direction:column;gap:12px}
-.sit{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,400px);gap:14px;align-items:center;animation:fadein .5s ease-out}
+.sit{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,400px);gap:14px;align-items:center}
+.sit.new,.sit .t2.new,.bil.new{animation:fadein .5s ease-out}   /* fondu seulement sur ce qui vient d'apparaître */
 .sit .card{height:100%}
 .sit .t2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sit .wait{border:2px dashed var(--line);border-radius:10px;height:100%;min-height:70px;display:grid;place-items:center;color:var(--muted);font-size:13px}
@@ -92,8 +93,7 @@
 .yr{font-size:12.5px;font-weight:700;color:var(--bilan);margin:14px 0 6px;padding-top:8px;border-top:1px dashed var(--line)}
 .yr:first-of-type{border-top:0;margin-top:4px;padding-top:0}
 .bils{display:flex;gap:14px;flex-wrap:wrap}
-.bils .bil{flex:1;min-width:240px;animation:fadein .5s ease-out}
-/* Vente : les deux cas l'un après l'autre */
+.bils .bil{flex:1;min-width:240px}
 .t.k-inc .t-head{color:var(--muted)}
 </style>
 </head>
@@ -252,11 +252,10 @@ const STEPS = [
        {btn:'Réponse →', text:S_Q[2]},
        {btn:'Situation d →', text:S_TXT[2]},
        {btn:'Réponse →', text:S_Q[3]},
-       {btn:'Suite →', text:S_TXT[3]},
-       {btn:'Suite →', text:`Dans ce chapitre, on s'intéresse au sens <b>d)</b> : l'amortissement d'une <b>immobilisation</b>.<br><br>L'amortissement est une <b>charge</b> (au débit) qui diminue la valeur de l'actif (au crédit).`}],
+       {btn:'Suite →', text:S_TXT[3] + `<br><br>Dans ce chapitre, on s'intéresse au sens <b>d)</b> : l'amortissement d'une <b>immobilisation</b>.`}],
    stage: ph => `<section class="sec"><h2>Les 4 sens du mot « amortir »</h2><div class="sits">
-     ${S_SENS.filter((_,k)=>ph>=2*k).map(([l,t,ex,d,c],k)=>`<div class="sit"><div class="card ${ph===8?(l==='d'?'on':'off'):(ph>>1)===k?'on':''}"><h4><span class="lt">${l}</span>${t}</h4><div class="ex">${ex}</div></div>
-       ${ph>=2*k+1?`<div class="t2">${sensT(d,'d')}${sensT(c,'c')}</div>`:`<div class="wait">Quelle écriture ?</div>`}</div>`).join('')}</div></section>` },
+     ${S_SENS.filter((_,k)=>ph>=2*k).map(([l,t,ex,d,c],k)=>`<div class="sit ${ph===2*k?'new':''}"><div class="card ${(ph>>1)===k?'on':''}"><h4><span class="lt">${l}</span>${t}</h4><div class="ex">${ex}</div></div>
+       ${ph>=2*k+1?`<div class="t2 ${ph===2*k+1?'new':''}">${sensT(d,'d')}${sensT(c,'c')}</div>`:`<div class="wait">Quelle écriture ?</div>`}</div>`).join('')}</div></section>` },
 
  { title:'Pourquoi perdre de la valeur ?',
    ph:[{btn:'Cause suivante →', text:`Une immobilisation (machine, véhicule, mobilier…) est utilisée pendant plusieurs années. Chaque année, elle perd une partie de sa valeur : c'est cette perte qu'on comptabilise.<br><br>Première cause : l'<b>utilisation</b>.`},
@@ -287,7 +286,7 @@ const STEPS = [
    extra: () => ANS['5.0'] ? `<div class="calc">En comptabilité, on applique le <b>principe de prudence</b> : on devrait amortir le plus vite possible.<br><br>L'<b>AFC</b> (Administration fédérale des contributions) fixe un <b>taux maximum</b> autorisé pour chaque type d'immobilisation.</div>` : '',
    stage: () => `<section class="sec"><h2>Amortissement annuel : constant ou dégressif</h2>${compareChart()}</section>` },
 
- { title:'Amortissement direct', cpt:{
+ { title:'Amortissement direct', cpt:{ data:`Un véhicule est acheté ${fmt(VA)} début ${Y0}. Il est amorti de 20 % (constant), soit 4'000 par an.`,
    accs:['Véhicules','Amortissements'], y2:2,
    J:[{ph:0,open:'Véhicules',side:'d',amt:VA,lab:'Achat'},
       {ph:1,d:'Amortissements',c:'Véhicules',amt:4000,dt:`31.12.${Y0}`},
@@ -296,9 +295,9 @@ const STEPS = [
    eff:(acc,P,on)=> !on ? '' : acc==='Véhicules' ? `Au bilan : <span class="tag at">${fmt(sum(P.d)-sum(P.c))}</span>` : `Au compte de résultat : <span class="tag bad">${fmt(sum(P.d))}</span>`,
    bilan: ph => `<div class="bils"><div class="bil"><h4>Bilan au 31.12.${Y0}</h4><div class="grp">Immobilisés</div>
       <div class="row"><span>Véhicules</span><span>${fmt(ph>=1?16000:VA)}</span></div></div>
-      ${ph>=3?`<div class="bil"><h4>Bilan au 31.12.${Y0+1}</h4><div class="grp">Immobilisés</div>
+      ${ph>=3?`<div class="bil ${ph===3?'new':''}"><h4>Bilan au 31.12.${Y0+1}</h4><div class="grp">Immobilisés</div>
       <div class="row"><span>Véhicules</span><span>12'000</span></div></div>`:''}</div>`},
-   ph:[{btn:'Amortir au 31.12 →', text:`Un véhicule est acheté ${fmt(VA)} début ${Y0}. Il est amorti de 20 % (constant), soit 4'000 par an.`},
+   ph:[{btn:'Amortir au 31.12 →', text:`L'amortissement en méthode directe est <b>directement inscrit en diminution</b> du compte de l'actif immobilisé.`},
        {btn:'Exercice suivant →', text:`Le compte de l'immobilisation est <b>crédité directement</b> du montant de l'amortissement.<br><br>Au bilan, on ne voit plus que la valeur résiduelle (16'000) : la <b>valeur d'acquisition n'apparaît plus</b>.`},
        {btn:'Amortir au 31.12 →', text:`Le 1<sup>er</sup> janvier ${Y0+1}, on rouvre les comptes. Véhicules repart avec le solde à nouveau : <b>16'000</b>.<br><br>Le compte Amortissements est une charge : il repart à zéro.`},
        {btn:'Suite →', text:`Deuxième amortissement : 4'000. La valeur au bilan baisse à <b>12'000</b>.<br><br>On ne voit toujours pas la valeur d'acquisition ni le cumul des amortissements.`}],
@@ -306,18 +305,18 @@ const STEPS = [
       <div class="row"><span>Amortissements / Machines</span></div><div class="row"><span>Amortissements / Immeuble commercial</span></div>
       <div class="row"><span>Charges d'immeuble / Immeuble locatif</span></div></div>` },
 
- { title:'Amortissement indirect', cpt:{
+ { title:'Amortissement indirect', cpt:{ data:`Un véhicule est acheté ${fmt(VA)} début ${Y0}. Il est amorti de 20 % (constant), soit 4'000 par an.`,
    accs:['Véhicules','FAC s/Véhicules','Amortissements'], y2:2,
    J:[{ph:0,open:'Véhicules',side:'d',amt:VA,lab:'Achat'},
       {ph:1,d:'Amortissements',c:'FAC s/Véhicules',amt:4000,dt:`31.12.${Y0}`},
       {ph:2,y:2,open:'Véhicules',side:'d',amt:VA,lab:'sàn'},{ph:2,y:2,open:'FAC s/Véhicules',side:'c',amt:4000,lab:'sàn'},
       {ph:3,y:2,d:'Amortissements',c:'FAC s/Véhicules',amt:4000,dt:`31.12.${Y0+1}`}],
    eff:(acc,P,on)=> !on ? '' : acc==='Véhicules' ? `Au bilan : <span class="tag at">${fmt(sum(P.d))}</span>` : acc==='Amortissements' ? `Au compte de résultat : <span class="tag bad">${fmt(sum(P.d))}</span>` : `Au bilan (en moins) : <span class="tag pt">${fmt(sum(P.c))}</span>`,
-   bilan: ph => { const b = (y, fac) => `<div class="bil"><h4>Bilan au 31.12.${y}</h4><div class="grp">Immobilisés</div>
+   bilan: ph => { const b = (y, fac, nw) => `<div class="bil ${nw?'new':''}"><h4>Bilan au 31.12.${y}</h4><div class="grp">Immobilisés</div>
       <div class="row"><span>Véhicules</span><span>${fmt(VA)}</span></div>
       ${fac?`<div class="row sub"><span>− FAC s/Véhicules</span><span>−${fmt(fac)}</span></div><div class="row tot"><span>= Valeur résiduelle</span><span>${fmt(VA-fac)}</span></div>`:''}</div>`;
-      return `<div class="bils">${b(Y0, ph>=1?4000:0)}${ph>=3?b(Y0+1, 8000):''}</div>`; }},
-   ph:[{btn:'Amortir au 31.12 →', text:`Le même véhicule de ${fmt(VA)}, amorti de 4'000.`},
+      return `<div class="bils">${b(Y0, ph>=1?4000:0)}${ph>=3?b(Y0+1, 8000, ph===3):''}</div>`; }},
+   ph:[{btn:'Amortir au 31.12 →', text:`Au lieu de diminuer le compte de l'actif immobilisé, on <b>augmente un passif</b>, le <b>Fonds d'amortissements cumulés (FAC)</b>.`},
        {btn:'Exercice suivant →', text:`L'amortissement est viré dans un compte « passif » : le <b>FAC</b> (fonds d'amortissements cumulés). Le compte Véhicules garde sa valeur d'acquisition.<br><br>Au bilan, le FAC figure <b>sous le compte d'actif, en moins</b> : on voit la valeur d'acquisition, le cumul et la valeur résiduelle.`},
        {btn:'Amortir au 31.12 →', text:`Le 1<sup>er</sup> janvier ${Y0+1}, on rouvre les comptes : Véhicules <b>${fmt(VA)}</b> (inchangé) et FAC <b>4'000</b>.<br><br>Le compte Amortissements est une charge : il repart à zéro.`},
        {btn:'Suite →', text:`Deuxième amortissement : le FAC passe à <b>8'000</b>, il <b>cumule</b> les amortissements.<br><br>Au bilan : ${fmt(VA)} − 8'000 = <b>12'000</b>. La valeur d'acquisition reste visible.`}],
@@ -435,7 +434,7 @@ function render(){
     }).join('');
     if (lp===0 && CS.k>0) $('cas'+CS.k).scrollIntoView({behavior:'smooth', block:'start'});
   } else if (C){
-    $('stage').innerHTML = `<section class="sec"><h2>Dans la comptabilité</h2>${compta(C, lp)}</section>`
+    $('stage').innerHTML = `<section class="sec"><h2>Dans la comptabilité</h2>${C.data?`<div class="exbox"><b>Donnée :</b> ${C.data}</div>`:''}${compta(C, lp)}</section>`
       + (C.bilan ? `<section class="sec"><h2>Au bilan</h2>${C.bilan(lp)}</section>` : '');
   } else {
     $('stage').innerHTML = S.stage(ph);

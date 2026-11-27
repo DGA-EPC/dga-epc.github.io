@@ -97,3 +97,85 @@
     answerUpTo(s); pos = last; render();
   });
 })();
+
+/* Raccourcis communs aux pages de théorie
+   F : plein écran (comme F11) · S : cacher / afficher la partie gauche · + / − (pavé numérique) : A+ / A−
+   1, 2 (3, 4…) : 1re, 2e… réponse de la question à se poser.
+   Partie gauche cachée : la question à se poser s'affiche dans un bandeau en bas, avec sa correction après la réponse. */
+(function(){
+  const aside = document.querySelector('aside'), ex = document.getElementById('explain'),
+        zm = document.getElementById('zm'), zp = document.getElementById('zp');
+  if (zm) zm.title = 'Réduire la taille (touche −)';
+  if (zp) zp.title = 'Agrandir la taille (touche +)';
+  if (aside){
+    const k = document.createElement('div'); k.className = 'keys';
+    k.innerHTML = '<kbd>F</kbd> plein écran &nbsp;·&nbsp; <kbd>S</kbd> masquer la partie gauche';
+    aside.append(k);
+  }
+  const tip = document.createElement('div'); tip.className = 'side-tip';
+  tip.innerHTML = '<kbd>S</kbd> afficher la partie gauche';
+  document.body.append(tip);
+  const bar = document.createElement('div'); bar.className = 'qbar'; bar.hidden = true;
+  document.body.append(bar);
+
+  /* ---- La question en cours (dans la partie gauche) ---- */
+  const qBox = () => { const c = ex && ex.querySelector('.choices'); return c ? (c.closest('.calc') || c.parentNode) : null; };
+  const choices = () => { const q = qBox(); return q ? [...q.querySelectorAll('.ch')] : []; };
+  const open = () => choices().some(b => !b.disabled);          // question pas encore répondue
+
+  /* ---- Bandeau ---- */
+  let side = true, hold = false, holdT = null, here = '';
+  const where = () => {                                          // position dans la page (le texte de l'étape peut changer après la réponse)
+    try { if (typeof pos !== 'undefined') return String(pos); } catch(e){}
+    const t = ex && ex.querySelector('.steptitle'); return t ? t.textContent : '';
+  };
+  function update(){
+    const w = where(); if (w !== here){ here = w; hold = false; clearTimeout(holdT); }   // on a changé d'étape
+    const q = qBox(), show = !side && q && (open() || hold);
+    bar.hidden = !show; document.body.classList.toggle('has-qbar', !!show);
+    if (!show){ bar.innerHTML = ''; return; }
+    const c = q.cloneNode(true);
+    c.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));
+    c.querySelectorAll('.hint').forEach(e=>e.remove());
+    bar.innerHTML = ''; bar.append(c);
+    if (open()){ const k = document.createElement('div'); k.className = 'qkeys'; const n = choices().length; k.innerHTML = n > 2 ? `Touches <kbd>1</kbd> à <kbd>${n}</kbd> pour répondre.` : 'Touches <kbd>1</kbd> et <kbd>2</kbd> pour répondre.'; bar.append(k); }
+  }
+  const answered = () => { if (side) return; hold = true; clearTimeout(holdT); holdT = setTimeout(()=>{ hold = false; update(); }, 2500); };
+  function answer(i){                                            // i = 0 (gauche), 1 (droite)
+    const b = choices().filter(b => !b.disabled)[i]; if (!b) return;
+    answered(); b.click();
+  }
+  bar.addEventListener('click', e => {                           // un bouton du bandeau clique le vrai bouton
+    const b = e.target.closest('.ch'); if (!b || b.disabled) return;
+    const i = [...bar.querySelectorAll('.ch')].indexOf(b), orig = choices()[i];
+    if (orig && !orig.disabled){ answered(); orig.click(); }
+  });
+  if (ex) new MutationObserver(() => update()).observe(ex, {childList:true, subtree:true});
+
+  /* ---- Partie gauche ---- */
+  try { side = localStorage.getItem('theorie-side') !== '0'; } catch(e){}
+  const applySide = () => {
+    document.body.classList.toggle('noside', !side);
+    try { localStorage.setItem('theorie-side', side ? '1' : '0'); } catch(e){}
+    update();
+    window.dispatchEvent(new Event('resize'));   // les graphiques et lignes du temps se réajustent
+  };
+  applySide();
+
+  const full = () => {
+    if (document.fullscreenElement) document.exitFullscreen && document.exitFullscreen();
+    else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen().catch(()=>{});
+  };
+
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const t = e.target;
+    if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;   // on tape dans un champ
+    const c = e.code;
+    if (c === 'KeyF'){ e.preventDefault(); full(); }
+    else if (c === 'KeyS'){ e.preventDefault(); side = !side; applySide(); }
+    else if (c === 'NumpadAdd'){ e.preventDefault(); zp && zp.click(); }
+    else if (c === 'NumpadSubtract'){ e.preventDefault(); zm && zm.click(); }
+    else if (/^(Digit|Numpad)[1-9]$/.test(c)){ const i = +c.slice(-1) - 1; if (choices()[i]){ e.preventDefault(); answer(i); } }
+  });
+})();
