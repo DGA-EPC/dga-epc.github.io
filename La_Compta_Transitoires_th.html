@@ -175,7 +175,7 @@ function rawCase(step){
       {btn:'Étape suivante →', text:`La charge revient dans l'exercice qu'elle concerne : les Assurances ${Y2} contiennent ${fmt(a)} au débit.`}]};}
   case 3: { const a=V.int; return {
     cp:'Produits financiers', tr:PT, want:0, hide:true,
-    story:`Nous avons prêté une somme à un employé. En <b>décembre ${Y1}</b>, il nous a versé les intérêts pour <b>${Y2}</b> : CHF <b>${fmt(a)}</b>.`,
+    story:`Nous avons prêté une somme à un employé. En <b>décembre ${Y1}</b>, il nous a versé les intérêts pour <b>${Y2}</b>&nbsp;:&nbsp;CHF&nbsp;<b>${fmt(a)}</b>.`,
     q:`Au 31.12.${Y1}, manque-t-il ou y a-t-il en trop ${fmt(a)} d'intérêts dans ma compta ${Y1} ?`,
     what:`${fmt(a)} d'intérêts`, ansTag:'trop',
     tl:{bars:[{from:12,to:24,label:`Intérêts ${Y2}`}], marks:[{at:11.6,label:'Encaissement déc.'}], fix:Y2},
@@ -197,7 +197,7 @@ function rawCase(step){
     J:[{ph:1,y:Y1,d:'Frais de véhicules',c:PT,amt:a,dt:'31.12'},
        {ph:3,y:Y2,open:PT,side:'c',amt:a},
        {ph:3,y:Y2,d:PT,c:'Frais de véhicules',amt:a,dt:'1.1',ext:1},
-       {ph:4,y:Y2,d:'Frais de véhicules',c:'Dettes fournisseurs',amt:a,dt:'janv.'}],
+       {ph:4,y:Y2,d:'Frais de véhicules',c:'Autres dettes',amt:a,dt:'janv.'}],
     ph:[
       {btn:'Corriger au 31.12 →', text:`La réparation a eu lieu en ${Y1}, mais la facture n'est pas arrivée : rien n'est comptabilisé. On connaît seulement une <b>estimation</b>.`},
       {btn:'Compléter l\'écriture →', text:`Il <b>manque</b> de la charge : on l'ajoute au <b>débit des Frais de véhicules</b>.<p>Il manque le compte au <b>crédit</b> : c'est obligatoirement un <b>Passifs transitoires</b>.`},
